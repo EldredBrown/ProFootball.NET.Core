@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20191114075156_InitialMigration.cs" />
+    <Compile Remove="Migrations\20191114075156_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20191114075458_SeededLeaguesData.cs" />
+    <Compile Remove="Migrations\20191114075458_SeededLeaguesData.Designer.cs" />
+    <Compile Remove="Migrations\20191210091022_AddedAndSeededAllTables.cs" />
+    <Compile Remove="Migrations\20191210091022_AddedAndSeededAllTables.Designer.cs" />
+    <Compile Remove="Migrations\20191217041852_UnseededAllTables.cs" />
+    <Compile Remove="Migrations\20191217041852_UnseededAllTables.Designer.cs" />
+    <Compile Remove="Migrations\20191219064230_InitialMigration.cs" />
+    <Compile Remove="Migrations\20191219064230_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20191220072346_InitialMigration.cs" />
+    <Compile Remove="Migrations\20191220072346_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20191220094125_InitialMigration.cs" />
+    <Compile Remove="Migrations\20191220094125_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20191220095127_spGetTeamSeasonScheduleProfile.cs" />
+    <Compile Remove="Migrations\20191220095127_spGetTeamSeasonScheduleProfile.Designer.cs" />
+    <Compile Remove="Migrations\20191221044936_InitialMigration.cs" />
+    <Compile Remove="Migrations\20191221044936_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20191221050142_TeamSeasonsProcsAndFuncs.cs" />
+    <Compile Remove="Migrations\20191221050142_TeamSeasonsProcsAndFuncs.Designer.cs" />
+    <Compile Remove="Migrations\20191221055418_spGetSeasonStandings.cs" />
+    <Compile Remove="Migrations\20191221055418_spGetSeasonStandings.Designer.cs" />
+    <Compile Remove="Migrations\20191222002759_InitialMigration.cs" />
+    <Compile Remove="Migrations\20191222002759_InitialMigration.Designer.cs" />
+    <Compile Remove="Migrations\20191222003201_TeamSeasonsProcsAndFuncs.cs" />
+    <Compile Remove="Migrations\20191222003201_TeamSeasonsProcsAndFuncs.Designer.cs" />
+    <Compile Remove="Migrations\20191222003339_SeasonsStandingsProcsAndFuncs.cs" />
+    <Compile Remove="Migrations\20191222003339_SeasonsStandingsProcsAndFuncs.Designer.cs" />
+    <Compile Remove="Migrations\20200207071413_Season_NumOfWeeksScheduled.cs" />
+    <Compile Remove="Migrations\20200207071413_Season_NumOfWeeksScheduled.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

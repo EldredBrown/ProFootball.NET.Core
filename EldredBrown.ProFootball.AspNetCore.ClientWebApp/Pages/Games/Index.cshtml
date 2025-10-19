@@ -1,0 +1,99 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "Games";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form>
+    <div class="form-group">
+        <label class="col-form-label">Season</label>
+        <select id="season">
+            <script id="season-year" type="text/x-handlebars-template">
+                {{#each seasons}}
+                <option>{{year}}</option>
+                {{/each}}
+            </script>
+        </select>
+    </div>
+    <div class="form-group">
+        <label class="col-form-label">Week</label>
+        <select id="week">
+            <script id="week-value" type="text/x-handlebars-template">
+                {{#each weeks}}
+                <option>{{week}}</option>
+                {{/each}}
+            </script>
+        </select>
+    </div>
+</form>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">Create New</a>
+</p>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th class="text-right">
+                <label>Season</label>                
+            </th>
+            <th class="text-right">
+                <label>Week</label>                
+            </th>
+            <th>
+                <label>Guest</label>                
+            </th>
+            <th class="text-right">
+                <label>Guest Score</label>                
+            </th>
+            <th>
+                <label>Host</label>                
+            </th>
+            <th class="text-right">
+                <label>Host Score</label>                
+            </th>
+            <th class="text-center">
+                <label>Is Playoff?</label>                
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="games-body">
+        <script id="game-row" type="text/x-handlebars-template">
+            {{#each games}}
+            <tr>
+                <td class="text-right">
+                    {{seasonYear}}
+                </td>
+                <td class="text-right">
+                    {{week}}
+                </td>
+                <td>
+                    {{guestName}}
+                </td>
+                <td class="text-right">
+                    {{guestScore}}
+                </td>
+                <td>
+                    {{hostName}}
+                </td>
+                <td class="text-right">
+                    {{hostScore}}
+                </td>
+                <td class="text-center">
+                    {{isPlayoff}}
+                </td>
+                <td>
+                    <a class="btn btn-primary btn-sm" href="/Games/Details/{{id}}">Details</a>
+                    <a class="btn btn-primary btn-sm" href="/Games/Edit/{{id}}">Edit</a>
+                    <a class="btn btn-primary btn-sm" href="/Games/Delete/{{id}}">Delete</a>
+                </td>
+            </tr>
+            {{/each}}
+        </script>
+    </tbody>
+</table>
+
+<script type="text/javascript" src="~/lib/handlebars/dist/handlebars.js"></script>
+<script type="module" src="~/js/view-modules/games/index.js"></script>

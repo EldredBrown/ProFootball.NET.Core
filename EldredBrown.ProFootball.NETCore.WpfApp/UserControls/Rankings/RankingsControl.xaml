@@ -1,0 +1,225 @@
+﻿<UserControl x:Class="EldredBrown.ProFootball.NETCore.WpfApp.UserControls.Rankings.RankingsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:Local="clr-namespace:EldredBrown.ProFootball.NETCore.WpfApp.UserControls.Rankings"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             d:DataContext="{d:DesignInstance Type=Local:RankingsControlViewModel}"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Resources/AppResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <CollectionViewSource x:Key="TotalRankingsViewSource" Source="{Binding TotalRankings}" />
+            <CollectionViewSource x:Key="OffensiveRankingsViewSource" Source="{Binding OffensiveRankings}" />
+            <CollectionViewSource x:Key="DefensiveRankingsViewSource" Source="{Binding DefensiveRankings}" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding ViewRankingsCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid x:Name="RankingsGrid" Style="{StaticResource GridBackgroundStyle}">
+        <TabControl x:Name="RankingsTabControl">
+            <TabItem x:Name="TotalRankingsTabItem" Header="Total Rankings">
+                <Grid x:Name="TotalRankingsGrid"
+                      Background="#FFE5E5E5"
+                      DataContext="{StaticResource TotalRankingsViewSource}">
+                    <DataGrid x:Name="TotalRankingsDataGrid"
+                              ItemsSource="{Binding}"
+                              AutoGenerateColumns="False"
+                              CellStyle="{StaticResource RightAlignCellStyle}" 
+                              ColumnWidth="Auto"
+                              MinColumnWidth="0"
+                              HorizontalGridLinesBrush="LightGray"
+                              VerticalGridLinesBrush="LightGray"
+                              ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
+                              HeadersVisibility="Column"
+                              CanUserResizeRows="False"
+                              RowDetailsVisibilityMode="VisibleWhenSelected"
+                              EnableRowVirtualization="True"
+                              IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn x:Name="TotalRankingsTeamNameColumn"
+                                                Binding="{Binding TeamName}"
+                                                Header="Team"
+                                                Width="150"
+                                                CellStyle="{StaticResource LeftAlignCellStyle}" />
+                            <DataGridTextColumn x:Name="TotalRankingsSpacerColumn01"
+                                                HeaderStyle="{StaticResource HeaderStyle}"
+                                                Width="1" />
+                            <DataGridTextColumn x:Name="TotalRankingsWinsColumn"
+                                                Binding="{Binding Wins}"
+                                                Header="W" />
+                            <DataGridTextColumn x:Name="TotalRankingsLossesColumn"
+                                                Binding="{Binding Losses}"
+                                                Header="L" />
+                            <DataGridTextColumn x:Name="TotalRankingsTiesColumn"
+                                                Binding="{Binding Ties}"
+                                                Header="T" />
+                            <DataGridTextColumn x:Name="TotalRankingsSpacerColumn02"
+                                                HeaderStyle="{StaticResource HeaderStyle}"
+                                                Width="1" />
+                            <DataGridTextColumn x:Name="TotalRankingsSpacerColumn03"
+                                                HeaderStyle="{StaticResource HeaderStyle}"
+                                                Width="1" />
+                            <DataGridTextColumn x:Name="TotalRankingsSpacerColumn04"
+                                                HeaderStyle="{StaticResource HeaderStyle}"
+                                                Width="1" />
+                            <DataGridTextColumn x:Name="TotalRankingsOffensiveAverageColumn"
+                                                Binding="{Binding OffensiveAverage, StringFormat=N2}"
+                                                Header="OA" />
+                            <DataGridTextColumn x:Name="TotalRankingsOffensiveFactorColumn"
+                                                Binding="{Binding OffensiveFactor, StringFormat=.000}"
+                                                Header="OF" />
+                            <DataGridTextColumn x:Name="TotalRankingsOffensiveIndexColumn"
+                                                Binding="{Binding OffensiveIndex, StringFormat=N2}"
+                                                Header="OI" />
+                            <DataGridTextColumn x:Name="TotalRankingsSpacerColumn10"
+                                                HeaderStyle="{StaticResource HeaderStyle}"
+                                                Width="1" />
+                            <DataGridTextColumn x:Name="TotalRankingsDefensiveAverageColumn"
+                                                Binding="{Binding DefensiveAverage, StringFormat=N2}"
+                                                Header="DA" />
+                            <DataGridTextColumn x:Name="TotalRankingsDefensiveFactorColumn"
+                                                Binding="{Binding DefensiveFactor, StringFormat=.000}"
+                                                Header="DF" />
+                            <DataGridTextColumn x:Name="TotalRankingsDefensiveIndexColumn"
+                                                Binding="{Binding DefensiveIndex, StringFormat=N2}"
+                                                Header="DI" />
+                            <DataGridTextColumn x:Name="TotalRankingsSpacerColumn11"
+                                                HeaderStyle="{StaticResource HeaderStyle}"
+                                                Width="1" />
+                            <DataGridTextColumn x:Name="TotalRankingsSpacerColumn12"
+                                                HeaderStyle="{StaticResource HeaderStyle}"
+                                                Width="1" />
+                            <DataGridTextColumn x:Name="TotalRankingsFinalPythagoreanWinningPercentageColumn"
+                                                Binding="{Binding FinalPythagoreanWinningPercentage, StringFormat=.000}"
+                                                Header="FPct" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="OffensiveRankingsTabItem" Header="Offensive Rankings">
+                <Grid x:Name="OffensiveRankingsGrid"
+                      Background="#FFE5E5E5"
+                      DataContext="{StaticResource OffensiveRankingsViewSource}">
+                    <DataGrid x:Name="OffensiveRankingsDataGrid"
+                              ItemsSource="{Binding}"
+                              AutoGenerateColumns="False"
+                              CellStyle="{StaticResource RightAlignCellStyle}"
+                              ColumnWidth="Auto"
+                              MinColumnWidth="0"
+                              HorizontalGridLinesBrush="LightGray"
+                              VerticalGridLinesBrush="LightGray"
+                              ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
+                              HeadersVisibility="Column"
+                              CanUserResizeRows="False"
+                              RowDetailsVisibilityMode="VisibleWhenSelected"
+                              EnableRowVirtualization="True"
+                              IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn x:Name="OffensiveRankingsTeamNameColumn"
+                                                Binding="{Binding TeamName}"
+                                                Header="Team"
+                                                Width="150"
+                                                CellStyle="{StaticResource LeftAlignCellStyle}" />
+                            <DataGridTextColumn x:Name="OffensiveRankingsSpacerColumn01"
+                                                HeaderStyle="{StaticResource HeaderStyle}"
+                                                Width="1" />
+                            <DataGridTextColumn x:Name="OffensiveRankingsWinsColumn"
+                                                Binding="{Binding Wins}"
+                                                Header="W" />
+                            <DataGridTextColumn x:Name="OffensiveRankingsLossesColumn"
+                                                Binding="{Binding Losses}"
+                                                Header="L" />
+                            <DataGridTextColumn x:Name="OffensiveRankingsTiesColumn"
+                                                Binding="{Binding Ties}"
+                                                Header="T" />
+                            <DataGridTextColumn x:Name="OffensiveRankingsSpacerColumn02"
+                                                HeaderStyle="{StaticResource HeaderStyle}"
+                                                Width="1" />
+                            <DataGridTextColumn x:Name="OffensiveRankingsSpacerColumn03"
+                                                HeaderStyle="{StaticResource HeaderStyle}"
+                                                Width="1" />
+                            <DataGridTextColumn x:Name="OffensiveRankingsSpacerColumn04"
+                                                HeaderStyle="{StaticResource HeaderStyle}"
+                                                Width="1" />
+                            <DataGridTextColumn x:Name="OffensiveRankingsOffensiveAverageColumn"
+                                                Binding="{Binding OffensiveAverage, StringFormat=N2}"
+                                                Header="OA" />
+                            <DataGridTextColumn x:Name="OffensiveRankingsOffensiveFactorColumn"
+                                                Binding="{Binding OffensiveFactor, StringFormat=.000}"
+                                                Header="OF" />
+                            <DataGridTextColumn x:Name="OffensiveRankingsOffensiveIndexColumn"
+                                                Binding="{Binding OffensiveIndex, StringFormat=N2}"
+                                                Header="OI" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem x:Name="DefensiveRankingsTabItem" Header="Defensive Rankings">
+                <Grid x:Name="DefensiveRankingsGrid"
+                      Background="#FFE5E5E5"
+                      DataContext="{StaticResource DefensiveRankingsViewSource}">
+                    <DataGrid x:Name="DefensiveRankingsDataGrid"
+                              ItemsSource="{Binding}"
+                              AutoGenerateColumns="False"
+                              CellStyle="{StaticResource RightAlignCellStyle}"
+                              ColumnWidth="Auto"
+                              MinColumnWidth="0"
+                              HorizontalGridLinesBrush="LightGray"
+                              VerticalGridLinesBrush="LightGray"
+                              ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
+                              HeadersVisibility="Column"
+                              CanUserResizeRows="False"
+                              RowDetailsVisibilityMode="VisibleWhenSelected"
+                              EnableRowVirtualization="True"
+                              IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn x:Name="DefensiveRankingsTeamNameColumn"
+                                                Binding="{Binding TeamName}"
+                                                Header="Team"
+                                                Width="150"
+                                                CellStyle="{StaticResource LeftAlignCellStyle}" />
+                            <DataGridTextColumn x:Name="DefensiveRankingsSpacerColumn01"
+                                                HeaderStyle="{StaticResource HeaderStyle}"
+                                                Width="1" />
+                            <DataGridTextColumn x:Name="DefensiveRankingsWinsColumn"
+                                                Binding="{Binding Wins}"
+                                                Header="W" />
+                            <DataGridTextColumn x:Name="DefensiveRankingsLossesColumn"
+                                                Binding="{Binding Losses}"
+                                                Header="L" />
+                            <DataGridTextColumn x:Name="DefensiveRankingsTiesColumn"
+                                                Binding="{Binding Ties}"
+                                                Header="T" />
+                            <DataGridTextColumn x:Name="DefensiveRankingsSpacerColumn02"
+                                                HeaderStyle="{StaticResource HeaderStyle}"
+                                                Width="1" />
+                            <DataGridTextColumn x:Name="DefensiveRankingsSpacerColumn03"
+                                                HeaderStyle="{StaticResource HeaderStyle}"
+                                                Width="1" />
+                            <DataGridTextColumn x:Name="DefensiveRankingsSpacerColumn04"
+                                                HeaderStyle="{StaticResource HeaderStyle}"
+                                                Width="1" />
+                            <DataGridTextColumn x:Name="DefensiveRankingsDefensiveAverageColumn"
+                                                Binding="{Binding DefensiveAverage, StringFormat=N2}"
+                                                Header="DA" />
+                            <DataGridTextColumn x:Name="DefensiveRankingsDefensiveFactorColumn"
+                                                Binding="{Binding DefensiveFactor, StringFormat=.000}"
+                                                Header="DF" />
+                            <DataGridTextColumn x:Name="DefensiveRankingsDefensiveIndexColumn"
+                                                Binding="{Binding DefensiveIndex, StringFormat=N2}"
+                                                Header="DI" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

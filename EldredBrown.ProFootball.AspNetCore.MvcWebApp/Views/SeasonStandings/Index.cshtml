@@ -1,0 +1,84 @@
+﻿@model SeasonStandingsIndexViewModel
+
+@{
+    ViewData["Title"] = "Season Standings";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form>
+    <div class="form-group">
+        <label class="col-form-label">Season</label>
+        <select onchange="document.location.href=`/SeasonStandings/SetSelectedSeasonYear?SeasonYear=${this.options[this.selectedIndex].value}`;"
+                asp-for="SelectedSeasonYear" asp-items="Model.Seasons">
+        </select>
+    </div>
+</form>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>
+                <label>Team</label>
+            </th>
+            <th class="text-right">
+                <label>W</label>
+            </th>
+            <th class="text-right">
+                <label>L</label>
+            </th>
+            <th class="text-right">
+                <label>T</label>
+            </th>
+            <th class="text-right">
+                <label>Pct</label>
+            </th>
+            <th class="text-right">
+                <label>PF</label>
+            </th>
+            <th class="text-right">
+                <label>PA</label>
+            </th>
+            <th class="text-right">
+                <label>AvgPF</label>
+            </th>
+            <th class="text-right">
+                <label>AvgPA</label>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.SeasonStandings)
+{
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Team)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => item.Wins)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => item.Losses)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => item.Ties)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => item.WinningPercentage)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => item.PointsFor)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => item.PointsAgainst)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => item.AvgPointsFor)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => item.AvgPointsAgainst)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

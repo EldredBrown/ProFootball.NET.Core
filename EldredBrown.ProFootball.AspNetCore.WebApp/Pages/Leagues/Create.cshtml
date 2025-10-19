@@ -1,0 +1,49 @@
+﻿@page
+@model CreateModel
+
+@{
+    ViewData["Title"] = "Create League";
+}
+
+<h1>League</h1>
+
+<h4>Create</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+            <div class="form-group">
+                <label class="control-label" asp-for="League.LongName"></label>
+                <input class="form-control" asp-for="League.LongName" />
+                <span class="text-danger" asp-validation-for="League.LongName"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="League.ShortName"></label>
+                <input class="form-control" asp-for="League.ShortName" />
+                <span class="text-danger" asp-validation-for="League.ShortName"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="League.FirstSeasonYear"></label>
+                <input class="form-control" asp-for="League.FirstSeasonYear" />
+                <span class="text-danger" asp-validation-for="League.FirstSeasonYear"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="League.LastSeasonYear"></label>
+                <input class="form-control" asp-for="League.LastSeasonYear" />
+                <span class="text-danger" asp-validation-for="League.LastSeasonYear"></span>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" type="submit">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

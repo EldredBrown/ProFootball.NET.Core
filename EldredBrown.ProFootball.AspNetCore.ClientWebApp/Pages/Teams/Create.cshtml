@@ -1,0 +1,24 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "Create Team";
+}
+
+<h1>Team</h1>
+
+<h4>Create</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <partial name="_EditPartial" />
+            <div class="form-group">
+                <button class="btn btn-primary" type="submit">Create</button>
+                <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript" src="~/lib/handlebars/dist/handlebars.js"></script>
+<script type="module" src="~/js/view-modules/teams/create.js"></script>

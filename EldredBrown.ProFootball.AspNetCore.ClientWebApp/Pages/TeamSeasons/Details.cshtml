@@ -1,0 +1,125 @@
+﻿@page "{id:int}"
+
+@{
+    ViewData["Title"] = "Team Season";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Details</h4>
+<hr />
+<div>
+    <dl class="row" id="team-season">
+        <script id="team-season-details" type="text/x-handlebars-template">
+            <dt class="col-sm-2">
+                Team
+            </dt>
+            <dd class="col-sm-10">
+                {{teamName}}
+            </dd>
+            <dt class="col-sm-2">
+                Season
+            </dt>
+            <dd class="col-sm-10">
+                {{seasonYear}}
+            </dd>
+            <dt class="col-sm-2">
+                Wins
+            </dt>
+            <dd class="col-sm-10">
+                {{wins}}
+            </dd>
+            <dt class="col-sm-2">
+                Losses
+            </dt>
+            <dd class="col-sm-10">
+                {{losses}}
+            </dd>
+            <dt class="col-sm-2">
+                Ties
+            </dt>
+            <dd class="col-sm-10">
+                {{ties}}
+            </dd>
+            <dt class="col-sm-2">
+                Winning Percentage
+            </dt>
+            <dd class="col-sm-10">
+                {{winningPercentage}}
+            </dd>
+            <dt class="col-sm-2">
+                Points For
+            </dt>
+            <dd class="col-sm-10">
+                {{pointsFor}}
+            </dd>
+            <dt class="col-sm-2">
+                Points Against
+            </dt>
+            <dd class="col-sm-10">
+                {{pointsAgainst}}
+            </dd>
+            <dt class="col-sm-2">
+                Expected Wins
+            </dt>
+            <dd class="col-sm-10">
+                {{pythagoreanWins}}
+            </dd>
+            <dt class="col-sm-2">
+                Expected Losses
+            </dt>
+            <dd class="col-sm-10">
+                {{pythagoreanLosses}}
+            </dd>
+            <dt class="col-sm-2">
+                Offensive Average
+            </dt>
+            <dd class="col-sm-10">
+                {{offensiveAverage}}
+            </dd>
+            <dt class="col-sm-2">
+                Offensive Factor
+            </dt>
+            <dd class="col-sm-10">
+                {{offensiveFactor}}
+            </dd>
+            <dt class="col-sm-2">
+                Offensive Index
+            </dt>
+            <dd class="col-sm-10">
+                {{offensiveIndex}}
+            </dd>
+            <dt class="col-sm-2">
+                Defensive Average
+            </dt>
+            <dd class="col-sm-10">
+                {{defensiveAverage}}
+            </dd>
+            <dt class="col-sm-2">
+                Defensive Factor
+            </dt>
+            <dd class="col-sm-10">
+                {{defensiveFactor}}
+            </dd>
+            <dt class="col-sm-2">
+                Defensive Index
+            </dt>
+            <dd class="col-sm-10">
+                {{defensiveIndex}}
+            </dd>
+            <dt class="col-sm-2">
+                Final Expected W-L%
+            </dt>
+            <dd class="col-sm-10">
+                {{finalPythagoreanWinningPercentage}}
+            </dd>
+        </script>
+    </dl>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+<script type="text/javascript" src="~/lib/handlebars/dist/handlebars.js"></script>
+<script type="module" src="~/js/view-modules/team-seasons/details.js"></script>

@@ -1,0 +1,47 @@
+﻿@model SeasonsIndexViewModel
+
+@{
+    ViewData["Title"] = "Seasons";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th class="text-right">
+                <label asp-for="Seasons.SingleOrDefault().Year"></label>
+            </th>
+            <th class="text-right">
+                <label asp-for="Seasons.SingleOrDefault().NumOfWeeksScheduled"></label>
+            </th>
+            <th class="text-right">
+                <label asp-for="Seasons.SingleOrDefault().NumOfWeeksCompleted"></label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var season in Model.Seasons) {
+        <tr>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => season.Year)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => season.NumOfWeeksScheduled)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => season.NumOfWeeksCompleted)
+            </td>
+            <td>
+                <a class="btn btn-primary btn-sm" asp-action="Details" asp-route-id="@season.ID">Details</a>
+                <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@season.ID">Edit</a>
+                <a class="btn btn-primary btn-sm" asp-action="Delete" asp-route-id="@season.ID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

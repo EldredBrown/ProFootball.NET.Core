@@ -1,0 +1,336 @@
+﻿@model TeamSeasonsDetailsViewModel
+
+@{
+    ViewData["Title"] = "Team Season";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Details</h4>
+<hr />
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.TeamName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.TeamName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.SeasonYear"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.SeasonYear)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.LeagueName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.LeagueName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.ConferenceName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.ConferenceName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.DivisionName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.DivisionName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.Games"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.Games)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.Wins"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.Wins)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.Losses"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.Losses)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.Ties"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.Ties)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.WinningPercentage"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.WinningPercentage)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.PointsFor"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.PointsFor)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.PointsAgainst"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.PointsAgainst)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.PythagoreanWins"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.PythagoreanWins)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.PythagoreanLosses"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.PythagoreanLosses)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.OffensiveAverage"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.OffensiveAverage)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.OffensiveFactor"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.OffensiveFactor)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.OffensiveIndex"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.OffensiveIndex)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.DefensiveAverage"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.DefensiveAverage)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.DefensiveFactor"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.DefensiveFactor)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.DefensiveIndex"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.DefensiveIndex)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="TeamSeason.FinalPythagoreanWinningPercentage"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.TeamSeason.FinalPythagoreanWinningPercentage)
+        </dd>
+    </dl>
+</div>
+
+@if (Model.TeamSeasonScheduleProfile != null)
+{
+    <h5>Team Season Schedule Profile</h5>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>
+                    <label>Opponent</label>
+                </th>
+                <th class="text-right">
+                    <label>GPF</label>
+                </th>
+                <th class="text-right">
+                    <label>GPA</label>
+                </th>
+                <th class="text-right">
+                    <label>OW</label>
+                </th>
+                <th class="text-right">
+                    <label>OL</label>
+                </th>
+                <th class="text-right">
+                    <label>OT</label>
+                </th>
+                <th class="text-right">
+                    <label>OWPct</label>
+                </th>
+                <th class="text-right">
+                    <label>OWG</label>
+                </th>
+                <th class="text-right">
+                    <label>OWPF</label>
+                </th>
+                <th class="text-right">
+                    <label>OWPA</label>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+    @foreach (var opponentProfile in Model.TeamSeasonScheduleProfile)
+    {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => opponentProfile.Opponent)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => opponentProfile.GamePointsFor)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => opponentProfile.GamePointsAgainst)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => opponentProfile.OpponentWins)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => opponentProfile.OpponentLosses)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => opponentProfile.OpponentTies)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => opponentProfile.OpponentWinningPercentage)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => opponentProfile.OpponentWeightedGames)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => opponentProfile.OpponentWeightedPointsFor)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => opponentProfile.OpponentWeightedPointsAgainst)
+                </td>
+            </tr>
+    }
+        </tbody>
+    </table>
+}
+
+@if (Model.TeamSeasonScheduleTotals != null)
+{
+    <h5>Team Season Schedule Totals</h5>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th class="text-right">
+                    <label>G</label>
+                </th>
+                <th class="text-right">
+                    <label>PF</label>
+                </th>
+                <th class="text-right">
+                    <label>PA</label>
+                </th>
+                <th class="text-right">
+                    <label>SW</label>
+                </th>
+                <th class="text-right">
+                    <label>SL</label>
+                </th>
+                <th class="text-right">
+                    <label>ST</label>
+                </th>
+                <th class="text-right">
+                    <label>SWPct</label>
+                </th>
+                <th class="text-right">
+                    <label>SG</label>
+                </th>
+                <th class="text-right">
+                    <label>SPF</label>
+                </th>
+                <th class="text-right">
+                    <label>SPA</label>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="text-right">
+                    @Html.DisplayFor(model => model.TeamSeasonScheduleTotals.Games)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(model => model.TeamSeasonScheduleTotals.PointsFor)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(model => model.TeamSeasonScheduleTotals.PointsAgainst)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(model => model.TeamSeasonScheduleTotals.ScheduleWins)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(model => model.TeamSeasonScheduleTotals.ScheduleLosses)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(model => model.TeamSeasonScheduleTotals.ScheduleTies)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(model => model.TeamSeasonScheduleTotals.ScheduleWinningPercentage)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(model => model.TeamSeasonScheduleTotals.ScheduleGames)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(model => model.TeamSeasonScheduleTotals.SchedulePointsFor)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(model => model.TeamSeasonScheduleTotals.SchedulePointsAgainst)
+                </td>
+            </tr>
+        </tbody>
+    </table>
+}
+
+@if (Model.TeamSeasonScheduleAverages != null)
+{
+    <h5>Team Season Schedule Averages</h5>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th class="text-right">
+                    <label>PF</label>
+                </th>
+                <th class="text-right">
+                    <label>PA</label>
+                </th>
+                <th class="text-right">
+                    <label>SPF</label>
+                </th>
+                <th class="text-right">
+                    <label>SPA</label>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="text-right">
+                    @Html.DisplayFor(model => model.TeamSeasonScheduleAverages.PointsFor)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(model => model.TeamSeasonScheduleAverages.PointsAgainst)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(model => model.TeamSeasonScheduleAverages.SchedulePointsFor)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(model => model.TeamSeasonScheduleAverages.SchedulePointsAgainst)
+                </td>
+            </tr>
+        </tbody>
+    </table>
+}
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

@@ -1,0 +1,48 @@
+﻿@model League
+
+@{
+    ViewData["Title"] = "Create League";
+}
+
+<h1>League</h1>
+
+<h4>Create</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+            <div class="form-group">
+                <label class="control-label" asp-for="LongName"></label>
+                <input class="form-control" asp-for="LongName" />
+                <span class="text-danger" asp-validation-for="LongName"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="ShortName"></label>
+                <input class="form-control" asp-for="ShortName" />
+                <span class="text-danger" asp-validation-for="ShortName"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="FirstSeasonYear"></label>
+                <input class="form-control" asp-for="FirstSeasonYear" />
+                <span class="text-danger" asp-validation-for="FirstSeasonYear"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="LastSeasonYear"></label>
+                <input class="form-control" asp-for="LastSeasonYear" />
+                <span class="text-danger" asp-validation-for="LastSeasonYear"></span>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" type="submit">Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

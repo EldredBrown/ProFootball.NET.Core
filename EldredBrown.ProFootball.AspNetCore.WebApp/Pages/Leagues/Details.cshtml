@@ -1,0 +1,48 @@
+﻿@page "{id:int}"
+@model DetailsModel
+
+@{
+    ViewData["Title"] = "League";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Details</h4>
+<hr />
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            <label asp-for="League.LongName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.League.LongName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="League.ShortName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.League.ShortName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="League.FirstSeasonYear"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.League.FirstSeasonYear)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="League.LastSeasonYear"></label>"
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.League.LastSeasonYear)
+        </dd>
+    </dl>
+</div>
+
+<div>
+    <p>
+        <a class="btn btn-primary" asp-page="Edit" asp-route-id="@Model.League.ID">Edit</a>
+    </p>
+    <p>
+        <a asp-page="Index">Back to List</a>
+    </p>
+</div>

@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "datatables@1.10.19",
+      "destination": "wwwroot/lib/datatables/"
+    },
+    {
+      "library": "handlebars.js@4.7.2",
+      "destination": "wwwroot/lib/handlebars.js/"
+    }
+  ]
+}

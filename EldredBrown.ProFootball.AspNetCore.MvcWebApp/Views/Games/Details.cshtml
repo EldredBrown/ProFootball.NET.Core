@@ -1,0 +1,95 @@
+﻿@model GamesDetailsViewModel
+
+@{
+    ViewData["Title"] = "Game";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Details</h4>
+<hr />
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            <label asp-for="Game.SeasonYear"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Game.SeasonYear)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Game.Week"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Game.Week)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Game.GuestName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Game.GuestName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Game.GuestScore"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Game.GuestScore)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Game.HostName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Game.HostName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Game.HostScore"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Game.HostScore)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Game.WinnerName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Game.WinnerName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Game.WinnerScore"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Game.WinnerScore)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Game.LoserName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Game.LoserName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Game.LoserScore"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Game.LoserScore)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Game.IsPlayoff"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Game.IsPlayoff)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Game.Notes"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Game.Notes)
+        </dd>
+    </dl>
+</div>
+
+<div>
+    <p>
+        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Game.ID">Edit</a>
+    </p>
+    <p>
+        <a asp-action="Index">Back to List</a>
+    </p>
+</div>

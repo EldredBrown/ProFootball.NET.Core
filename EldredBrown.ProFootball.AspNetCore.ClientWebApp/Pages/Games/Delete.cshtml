@@ -1,0 +1,99 @@
+﻿@page "{id:int}"
+
+@{
+    ViewData["Title"] = "Delete Game";
+}
+
+<h1>Game</h1>
+
+<h4>Delete</h4>
+<hr />
+<div id="game">
+    <h3>Are you sure you want to delete this?</h3>
+    <script id="game-details" type="text/x-handlebars-template">
+        <dl class="row">
+            <dt class="col-sm-2">
+                <label>Season</label>
+            </dt>
+            <dd class="col-sm-10">
+                {{seasonYear}}
+            </dd>
+            <dt class="col-sm-2">
+                <label>Week</label>
+            </dt>
+            <dd class="col-sm-10">
+                {{week}}
+            </dd>
+            <dt class="col-sm-2">
+                <label>Guest</label>
+            </dt>
+            <dd class="col-sm-10">
+                {{guestName}}
+            </dd>
+            <dt class="col-sm-2">
+                <label>Guest Score</label>
+            </dt>
+            <dd class="col-sm-10">
+                {{guestScore}}
+            </dd>
+            <dt class="col-sm-2">
+                <label>Host</label>
+            </dt>
+            <dd class="col-sm-10">
+                {{hostName}}
+            </dd>
+            <dt class="col-sm-2">
+                <label>Host Score</label>
+            </dt>
+            <dd class="col-sm-10">
+                {{hostScore}}
+            </dd>
+            <dt class="col-sm-2">
+                <label>Winner</label>
+            </dt>
+            <dd class="col-sm-10">
+                {{winnerName}}
+            </dd>
+            <dt class="col-sm-2">
+                <label>Winner Score</label>
+            </dt>
+            <dd class="col-sm-10">
+                {{winnerScore}}
+            </dd>
+            <dt class="col-sm-2">
+                <label>Loser</label>
+            </dt>
+            <dd class="col-sm-10">
+                {{loserName}}
+            </dd>
+            <dt class="col-sm-2">
+                <label>Loser Score</label>
+            </dt>
+            <dd class="col-sm-10">
+                {{loserScore}}
+            </dd>
+            <dt class="col-sm-2">
+                <label>Playoff Game?</label>
+            </dt>
+            <dd class="col-sm-10">
+                <input id="is-playoff-game" type="checkbox" disabled="disabled" />
+            </dd>
+            <dt class="col-sm-2">
+                <label>Notes</label>
+            </dt>
+            <dd class="col-sm-10">
+                {{notes}}
+            </dd>
+        </dl>
+    </script>
+</div>
+
+<form method="delete">
+    <div class="form-group">
+        <button class="btn btn-danger" type="submit">Delete</button>
+        <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+    </div>
+</form>
+
+<script type="text/javascript" src="~/lib/handlebars/dist/handlebars.js"></script>
+<script type="module" src="~/js/view-modules/games/delete.js"></script>

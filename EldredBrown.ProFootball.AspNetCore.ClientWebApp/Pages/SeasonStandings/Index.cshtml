@@ -1,0 +1,92 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "Season Standings";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form>
+    <div class="form-group">
+        <label class="col-form-label">Season</label>
+        <select id="season">
+            <script id="season-year" type="text/x-handlebars-template">
+                {{#each seasons}}
+                <option>{{year}}</option>
+                {{/each}}
+            </script>
+        </select>
+    </div>
+</form>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>
+                <label>Team</label>
+            </th>
+            <th class="text-right">
+                <label>W</label>
+            </th>
+            <th class="text-right">
+                <label>L</label>
+            </th>
+            <th class="text-right">
+                <label>T</label>
+            </th>
+            <th class="text-right">
+                <label>Pct.</label>
+            </th>
+            <th class="text-right">
+                <label>PF</label>
+            </th>
+            <th class="text-right">
+                <label>PA</label>
+            </th>
+            <th class="text-right">
+                <label>AvgPF</label>
+            </th>
+            <th class="text-right">
+                <label>AvgPA</label>
+            </th>
+        </tr>
+    </thead>
+    <tbody id="season-standings-body">
+        <script id="season-standings-row" type="text/x-handlebars-template">
+            {{#each seasonStandings}}
+            <tr>
+                <td>
+                    {{team}}
+                </td>
+                <td class="text-right">
+                    {{wins}}
+                </td>
+                <td class="text-right">
+                    {{losses}}
+                </td>
+                <td class="text-right">
+                    {{ties}}
+                </td>
+                <td class="text-right">
+                    {{winningPercentage}}
+                </td>
+                <td class="text-right">
+                    {{pointsFor}}
+                </td>
+                <td class="text-right">
+                    {{pointsAgainst}}
+                </td>
+                <td class="text-right">
+                    {{avgPointsFor}}
+                </td>
+                <td class="text-right">
+                    {{avgPointsAgainst}}
+                </td>
+            </tr>
+            {{/each}}
+        </script>
+    </tbody>
+</table>
+
+<script type="text/javascript" src="~/lib/handlebars/dist/handlebars.js"></script>
+<script type="module" src="~/js/view-modules/season-standings/index.js"></script>

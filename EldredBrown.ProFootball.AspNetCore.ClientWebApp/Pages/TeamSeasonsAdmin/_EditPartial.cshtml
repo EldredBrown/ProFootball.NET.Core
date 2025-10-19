@@ -1,0 +1,32 @@
+﻿<div class="text-danger field-validation-error" id="validation-summary"></div>
+<div class="form-group">
+    <label class="col-form-label">Team</label>
+    <input class="form-control" id="team-name" type="text" />
+    <span class="text-danger field-validation-error" id="validation-for-team-name"></span>
+</div>
+<div class="form-group">
+    <label class="col-form-label">Season</label>
+    <select class="form-control" id="season">
+        <script id="season-year" type="text/x-handlebars-template">
+            {{#each seasons}}
+            <option>{{year}}</option>
+            {{/each}}
+        </script>
+    </select>
+    <span class="text-danger field-validation-error" id="validation-for-season-year"></span>
+</div>
+<div class="form-group">
+    <label class="col-form-label">League</label>
+    <select class="form-control" id="league">
+        <script id="league-name" type="text/x-handlebars-template">
+            {{#each leagues}}
+            <option>{{longName}}</option>
+            {{/each}}
+        </script>
+    </select>
+    <span class="text-danger field-validation-error" id="validation-for-league-name"></span>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

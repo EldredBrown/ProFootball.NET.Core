@@ -1,0 +1,44 @@
+﻿@model TeamSeason
+
+@{
+    ViewData["Title"] = "Edit Team Season";
+}
+
+<h1>Team Season</h1>
+
+<h4>Edit</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+            <input type="hidden" asp-for="ID" />
+            <div class="form-group">
+                <label class="control-label" asp-for="TeamName"></label>
+                <input class="form-control" asp-for="TeamName" />
+                <span class="text-danger" asp-validation-for="TeamName"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="SeasonYear"></label>
+                <input class="form-control" asp-for="SeasonYear" />
+                <span class="text-danger" asp-validation-for="SeasonYear"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="LeagueName"></label>
+                <input class="form-control" asp-for="LeagueName" />
+                <span class="text-danger" asp-validation-for="LeagueName"></span>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" type="submit">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

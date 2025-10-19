@@ -1,0 +1,97 @@
+﻿@model Game
+
+@{
+    ViewData["Title"] = "Delete Game";
+}
+
+<h1>Game</h1>
+
+<h4>Delete</h4>
+<hr />
+<div>
+    <h3>Are you sure you want to delete this?</h3>
+    <dl class="row">
+        <dt class="col-sm-2">
+            <label asp-for="SeasonYear"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SeasonYear)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Week"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Week)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="GuestName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.GuestName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="GuestScore"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.GuestScore)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="HostName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.HostName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="HostScore"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.HostScore)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="WinnerName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.WinnerName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="WinnerScore"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.WinnerScore)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="LoserName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LoserName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="LoserScore"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LoserScore)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="IsPlayoff"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IsPlayoff)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Notes"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Notes)
+        </dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="ID" />
+        <p>
+            <button class="btn btn-danger" type="submit">Delete</button>
+        </p>
+        <p>
+            <a asp-action="Index">Back to List</a>
+        </p>
+    </form>
+</div>

@@ -1,0 +1,55 @@
+﻿<div class="text-danger field-validation-error" id="validation-summary"></div>
+<div class="form-group">
+    <label class="col-form-label">Season</label>
+    <select class="form-control" id="season">
+        <script id="season-year" type="text/x-handlebars-template">
+            {{#each seasons}}
+            <option>{{year}}</option>
+            {{/each}}
+        </script>
+    </select>
+    <span class="text-danger field-validation-error" id="validation-for-season-year"></span>
+</div>
+<div class="form-group">
+    <label class="col-form-label">Week</label>
+    <select class="form-control" id="week">
+        <script id="week-value" type="text/x-handlebars-template">
+            {{#each weeks}}
+            <option>{{week}}</option>
+            {{/each}}
+        </script>
+    </select>
+    <span class="text-danger field-validation-error" id="validation-for-week"></span>
+</div>
+<div class="form-group">
+    <label class="col-form-label">Guest</label>
+    <input class="form-control" id="guest-name" type="text" />
+    <span class="text-danger field-validation-error" id="validation-for-guest-name"></span>
+</div>
+<div class="form-group">
+    <label class="col-form-label">Guest Score</label>
+    <input class="form-control" id="guest-score" type="number" min="0" />
+    <span class="text-danger field-validation-error" id="validation-for-guest-score"></span>
+</div>
+<div class="form-group">
+    <label class="col-form-label">Host</label>
+    <input class="form-control" id="host-name" type="text" />
+    <span class="text-danger field-validation-error" id="validation-for-host-name"></span>
+</div>
+<div class="form-group">
+    <label class="col-form-label">Host Score</label>
+    <input class="form-control" id="host-score" type="number" min="0" />
+    <span class="text-danger field-validation-error" id="validation-for-host-score"></span>
+</div>
+<div class="form-group form-check">
+    <input class="form-check-input" id="is-playoff-game" type="checkbox" />
+    <label class="col-form-label">Playoff Game?</label>
+</div>
+<div class="form-group">
+    <label class="col-form-label">Notes</label>
+    <input class="form-control" id="notes" type="text" />
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

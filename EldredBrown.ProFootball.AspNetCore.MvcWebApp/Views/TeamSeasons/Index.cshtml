@@ -1,0 +1,133 @@
+﻿@model TeamSeasonsIndexViewModel
+
+@{
+    ViewData["Title"] = "Team Seasons";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form>
+    <div class="form-group">
+        <label class="col-form-label">Season</label>
+        <select onchange="document.location.href=`/TeamSeasons/SetSelectedSeasonYear?SeasonYear=${this.options[this.selectedIndex].value}`;"
+                asp-for="SelectedSeasonYear" asp-items="Model.Seasons">
+        </select >
+    </div>
+    <p>
+        <a class="btn btn-primary btn-lg" asp-action="RunWeeklyUpdate">Run Weekly Update</a>
+    </p>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                <label>Name</label>
+            </th>
+            <th>
+                <label>W</label>
+            </th>
+            <th>
+                <label>L</label>
+            </th>
+            <th>
+                <label>T</label>
+            </th>
+            <th>
+                <label>Pct</label>
+            </th>
+            <th>
+                <label>PF</label>
+            </th>
+            <th>
+                <label>PA</label>
+            </th>
+            <th>
+                <label>PythW</label>
+            </th>
+            <th>
+                <label>PythL</label>
+            </th>
+            <th>
+                <label>OA</label>
+            </th>
+            <th>
+                <label>OF</label>
+            </th>
+            <th>
+                <label>OI</label>
+            </th>
+            <th>
+                <label>DA</label>
+            </th>
+            <th>
+                <label>DF</label>
+            </th>
+            <th>
+                <label>DI</label>
+            </th>
+            <th>
+                <label>FinPythPct</label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var teamSeason in Model.TeamSeasons)
+{
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => teamSeason.TeamName)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => teamSeason.Wins)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => teamSeason.Losses)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => teamSeason.Ties)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => teamSeason.WinningPercentage)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => teamSeason.PointsFor)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => teamSeason.PointsAgainst)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => teamSeason.PythagoreanWins)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => teamSeason.PythagoreanLosses)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => teamSeason.OffensiveAverage)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => teamSeason.OffensiveFactor)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => teamSeason.OffensiveIndex)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => teamSeason.DefensiveAverage)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => teamSeason.DefensiveFactor)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => teamSeason.DefensiveIndex)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => teamSeason.FinalPythagoreanWinningPercentage)
+            </td>
+            <td>
+                <a class="btn btn-primary btn-sm" asp-action="Details" asp-route-id="@teamSeason.ID">Details</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

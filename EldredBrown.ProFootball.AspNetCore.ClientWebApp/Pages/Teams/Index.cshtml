@@ -1,0 +1,40 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "Teams";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">Create New</a>
+</p>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                <label>Name</label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="teams-body">
+        <script id="team-row" type="text/x-handlebars-template">
+            {{#each teams}}
+            <tr>
+                <td>
+                    {{name}}
+                </td>
+                <td>
+                    <a class="btn btn-primary btn-sm" href="/Teams/Details/{{id}}">Details</a>
+                    <a class="btn btn-primary btn-sm" href="/Teams/Edit/{{id}}">Edit</a>
+                    <a class="btn btn-primary btn-sm" href="/Teams/Delete/{{id}}">Delete</a>
+                </td>
+            </tr>
+            {{/each}}
+        </script>
+    </tbody>
+</table>
+
+<script type="text/javascript" src="~/lib/handlebars/dist/handlebars.js"></script>
+<script type="module" src="~/js/view-modules/teams/index.js"></script>

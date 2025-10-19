@@ -1,0 +1,58 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "Leagues";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">Create New</a>
+</p>
+<table class="table table-striped" id="leagues">
+    <thead>
+        <tr>
+            <th>
+                <label>Long Name</label>
+            </th>
+            <th>
+                <label>Short Name</label>
+            </th>
+            <th class="text-right">
+                <label>First Season</label>
+            </th>
+            <th class="text-right">
+                <label>Last Season</label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="leagues-body">
+        <script id="league-row" type="text/x-handlebars-template">
+            {{#each leagues}}
+            <tr>
+                <td>
+                    {{longName}}
+                </td>
+                <td>
+                    {{shortName}}
+                </td>
+                <td class="text-right">
+                    {{firstSeasonYear}}
+                </td>
+                <td class="text-right">
+                    {{lastSeasonYear}}
+                </td>
+                <td>
+                    <a class="btn btn-primary btn-sm" href="/Leagues/Details/{{id}}">Details</a>
+                    <a class="btn btn-primary btn-sm" href="/Leagues/Edit/{{id}}">Edit</a>
+                    <a class="btn btn-primary btn-sm" href="/Leagues/Delete/{{id}}">Delete</a>
+                </td>
+            </tr>
+            {{/each}}
+        </script>
+    </tbody>
+</table>
+
+<script type="text/javascript" src="~/lib/handlebars/dist/handlebars.js"></script>
+<script type="module" src="~/js/view-modules/leagues/index.js"></script>

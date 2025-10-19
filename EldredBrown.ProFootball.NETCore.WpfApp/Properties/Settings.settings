@@ -1,0 +1,18 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="EldredBrown.ProFootball.NETCore.WpfApp.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="ProFootballDbConnectionString" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Data Source=(localdb)\MSSQLLocalDb;Initial Catalog=ProFootballDb;Integrated Security=True;</Value>
+    </Setting>
+    <Setting Name="BothTeamsNeededErrorMessage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Please enter names for both teams.</Value>
+    </Setting>
+    <Setting Name="DifferentTeamsNeededErrorMessage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Please enter a different name for each team.</Value>
+    </Setting>
+    <Setting Name="TeamNotInDatabaseErrorMessage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Please make sure that both teams are in the league and that both team names are spelled correctly.</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

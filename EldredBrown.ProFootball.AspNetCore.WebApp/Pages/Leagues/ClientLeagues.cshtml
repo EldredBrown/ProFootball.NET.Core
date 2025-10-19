@@ -1,0 +1,40 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "ClientLeagues";
+}
+
+<h1>Client Leagues</h1>
+
+<table class="table" id="leagues">
+
+</table>
+
+@section Scripts {
+    <environment include="Development">
+        <link rel="stylesheet" href="~/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css" />
+        <script src="~/node_modules/datatables.net/js/jquery.dataTables.js"></script>
+        <script src="~/node_modules/datatables.net-bs4/js/dataTables.bootstrap4.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.css" />
+        <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.20/datatables.min.js"></script>
+    </environment>
+
+    <script>
+        $(function () {
+            fetch("/api/leagues")
+                .then(async response => {
+                    $("#leagues").dataTable({
+                        data: await response.json(),
+                        columns: [
+                            { "data": "longName" },
+                            { "data": "shortName" },
+                            { "data": "firstSeasonYear" },
+                            { "data": "lastSeasonYear" }
+                        ]
+                    });
+                });
+        });
+    </script>
+}

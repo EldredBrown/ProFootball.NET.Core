@@ -1,0 +1,64 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "League Seasons";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">Create New</a>
+</p>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                <label>League</label>
+            </th>
+            <th class="text-right">
+                <label>Season</label>
+            </th>
+            <th class="text-right">
+                <label>G</label>
+            </th>
+            <th class="text-right">
+                <label>PF</label>
+            </th>
+            <th class="text-right">
+                <label>AvgPF</label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="league-seasons-body">
+        <script id="league-season-row" type="text/x-handlebars-template">
+            {{#each leagueSeasons}}
+            <tr>
+                <td>
+                    {{leagueName}}
+                </td>
+                <td class="text-right">
+                    {{seasonYear}}
+                </td>
+                <td class="text-right">
+                    {{totalGames}}
+                </td>
+                <td class="text-right">
+                    {{totalPoints}}
+                </td>
+                <td class="text-right">
+                    {{averagePoints}}
+                </td>
+                <td>
+                    <a class="btn btn-primary btn-sm" href="/LeagueSeasons/Details/{{id}}">Details</a>
+                    <a class="btn btn-primary btn-sm" href="/LeagueSeasons/Edit/{{id}}">Edit</a>
+                    <a class="btn btn-primary btn-sm" href="/LeagueSeasons/Delete/{{id}}">Delete</a>
+                </td>
+            </tr>
+            {{/each}}
+        </script>
+    </tbody>
+</table>
+
+<script type="text/javascript" src="~/lib/handlebars/dist/handlebars.js"></script>
+<script type="module" src="~/js/view-modules/league-seasons/index.js"></script>

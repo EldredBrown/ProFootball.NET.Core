@@ -1,0 +1,52 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "Team Seasons";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">Create New</a>
+</p>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                <label>Team</label>
+            </th>
+            <th class="text-right">
+                <label>Season</label>
+            </th>
+            <th>
+                <label>League</label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="team-seasons-body">
+        <script id="team-season-row" type="text/x-handlebars-template">
+            {{#each teamSeasons}}
+            <tr>
+                <td>
+                    {{teamName}}
+                </td>
+                <td class="text-right">
+                    {{seasonYear}}
+                </td>
+                <td>
+                    {{leagueName}}
+                </td>
+                <td>
+                    <a class="btn btn-primary btn-sm" href="/TeamSeasonsAdmin/Details/{{id}}">Details</a>
+                    <a class="btn btn-primary btn-sm" href="/TeamSeasonsAdmin/Edit/{{id}}">Edit</a>
+                    <a class="btn btn-primary btn-sm" href="/TeamSeasonsAdmin/Delete/{{id}}">Delete</a>
+                </td>
+            </tr>
+            {{/each}}
+        </script>
+    </tbody>
+</table>
+
+<script type="text/javascript" src="~/lib/handlebars/dist/handlebars.js"></script>
+<script type="module" src="~/js/view-modules/team-seasons-admin/index.js"></script>

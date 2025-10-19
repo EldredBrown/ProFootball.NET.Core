@@ -1,0 +1,41 @@
+﻿@model SeasonsDetailsViewModel
+
+@{
+    ViewData["Title"] = "Season";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Details</h4>
+<hr />
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            <label asp-for="Season.Year"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Season.Year)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Season.NumOfWeeksScheduled"></label>
+        </dt>
+        <dd class=" col-sm-10">
+            @Html.DisplayFor(model => model.Season.NumOfWeeksScheduled)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Season.NumOfWeeksCompleted"></label>
+        </dt>
+        <dd class=" col-sm-10">
+            @Html.DisplayFor(model => model.Season.NumOfWeeksCompleted)
+        </dd>
+    </dl>
+</div>
+
+<div>
+    <p>
+        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Season.ID">Edit</a>
+    </p>
+    <p>
+        <a asp-action="Index">Back to List</a>
+    </p>
+</div>

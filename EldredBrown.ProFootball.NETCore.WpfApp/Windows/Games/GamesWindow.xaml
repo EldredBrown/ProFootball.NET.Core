@@ -1,0 +1,259 @@
+﻿<Window x:Class="EldredBrown.ProFootball.NETCore.WpfApp.Windows.Games.GamesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:FocusVMLib="clr-namespace:EldredBrown.ProFootball.NETCore.WpfApp.ViewModels.FocusVMLib"
+        xmlns:Local="clr-namespace:EldredBrown.ProFootball.NETCore.WpfApp.Windows.Games"
+        d:DataContext="{d:DesignInstance Type=Local:GamesWindowViewModel}"
+        mc:Ignorable="d"
+        Title="Games" Height="625" Width="667" WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Resources/AppResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:EventTrigger.Actions>
+                <i:InvokeCommandAction Command="{Binding ViewGamesCommand}" />
+            </i:EventTrigger.Actions>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid x:Name="GamesGrid" Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="97" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="97" />
+        </Grid.ColumnDefinitions>
+        <StackPanel x:Name="WeekPanel"
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Orientation="Horizontal"
+                    Margin="5">
+            <Label x:Name="WeekLabel" Content="Week: " />
+            <xctk:IntegerUpDown x:Name="WeekUpDown"
+                                Minimum="0"
+                                Maximum="20"
+                                TextAlignment="Right"
+                                Value="{Binding Week}" />
+        </StackPanel>
+        <StackPanel x:Name="GuestPanel"
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="5">
+            <Label x:Name="GuestLabel"
+                   Content="Guest:"
+                   Width="43"
+                   HorizontalContentAlignment="Right" />
+            <TextBox x:Name="GuestTextBox"
+                     Width="250"
+                     Height="26"
+                     VerticalContentAlignment="Center"
+                     Text="{FocusVMLib:FocusBinding Path=GuestName}">
+                <!--<i:Interaction.Triggers>
+                    <i:EventTrigger EventName="LostFocus">
+                        <i:EventTrigger.Actions>
+                            <i:InvokeCommandAction Command="{Binding ValidateTeamsCommand}" />
+                        </i:EventTrigger.Actions>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>-->
+            </TextBox>
+            <xctk:IntegerUpDown x:Name="GuestScoreUpDown"
+                                Minimum="0"
+                                TextAlignment="Right"
+                                Value="{Binding GuestScore}" />
+        </StackPanel>
+        <StackPanel x:Name="HostPanel"
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="5">
+            <Label x:Name="HostLabel"
+                   Content="Host:"
+                   Width="43"
+                   HorizontalContentAlignment="Right" />
+            <TextBox x:Name="HostTextBox"
+                     Width="250"
+                     Height="26"
+                     VerticalContentAlignment="Center"
+                     Text="{FocusVMLib:FocusBinding Path=HostName}">
+                <!--<i:Interaction.Triggers>
+                    <i:EventTrigger EventName="LostFocus">
+                        <i:EventTrigger.Actions>
+                            <i:InvokeCommandAction Command="{Binding ValidateTeamsCommand}" />
+                        </i:EventTrigger.Actions>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>-->
+            </TextBox>
+            <xctk:IntegerUpDown x:Name="HostScoreIntegerUpDown"
+                                Minimum="0"
+                                TextAlignment="Right"
+                                Value="{Binding HostScore}" />
+        </StackPanel>
+        <StackPanel x:Name="PlayoffPanel"
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="5">
+            <CheckBox x:Name="PlayoffGameCheckBox"
+                      VerticalAlignment="Center"
+                      Margin="10,0,0,0"
+                      IsChecked="{Binding IsPlayoff}"
+                      IsEnabled="{Binding IsPlayoffEnabled}" />
+            <Label x:Name="PlayoffGameLabel"
+                   Content="Playoff Game"
+                   IsEnabled="{Binding IsPlayoffEnabled}" />
+        </StackPanel>
+        <StackPanel x:Name="NotesPanel"
+                    Grid.Row="3"
+                    Grid.Column="1"
+                    HorizontalAlignment="Center"
+                    Margin="5">
+            <Label x:Name="NotesLabel"
+                   Content="Notes"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Top" />
+            <TextBox x:Name="NotesTextBox"
+                     SpellCheck.IsEnabled="True"
+                     Text="{Binding Notes}"
+                     Width="437"
+                     Height="177"
+                     HorizontalAlignment="Center"
+                     VerticalScrollBarVisibility="Visible"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap" />
+        </StackPanel>
+        <Button x:Name="AddGameButton"
+                Visibility="{Binding AddGameControlVisibility}"
+                Content="Add"
+                Width="75"
+                Height="25"
+                Grid.Row="4"
+                Grid.Column="1"
+                HorizontalAlignment="Center"
+                Margin="5"
+                Command="{Binding AddGameCommand}" />
+        <StackPanel x:Name="EditRemoveButtonPanel"
+                    Grid.Row="4"
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="5">
+            <Button x:Name="EditGameButton"
+                    Visibility="{Binding EditGameControlVisibility}"
+                    Content="Edit"
+                    Width="75"
+                    Height="25"
+                    Margin="0,0,5,0"
+                    Command="{Binding EditGameCommand}" />
+            <Button x:Name="DeleteGameButton"
+                    Visibility="{Binding DeleteGameControlVisibility}"
+                    Content="Delete"
+                    Width="75"
+                    Height="25"
+                    Margin="5,0,0,0"
+                    Command="{Binding DeleteGameCommand}" />
+        </StackPanel>
+        <DataGrid x:Name="GamesDataGrid"
+                  Grid.Row="5"					 
+                  Grid.Column="0"
+                  Grid.ColumnSpan="3"
+                  ItemsSource="{Binding Games, Mode=TwoWay}"
+                  SelectedItem="{Binding SelectedGame}"
+                  AutoGenerateColumns="False"
+                  CellStyle="{StaticResource RightAlignCellStyle}"
+                  ColumnWidth="Auto"
+                  MinColumnWidth="0"
+                  HorizontalGridLinesBrush="LightGray"
+                  VerticalGridLinesBrush="LightGray"
+                  ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
+                  HeadersVisibility="Column"
+                  CanUserResizeRows="False"
+                  RowDetailsVisibilityMode="VisibleWhenSelected"
+                  Margin="0,5,0,5"
+                  EnableRowVirtualization="True"
+                  IsReadOnly="{Binding IsGamesReadOnly}"
+                  SelectionChanged="GamesDataGrid_SelectionChanged">
+            <DataGrid.Columns>
+                <DataGridTextColumn x:Name="WeekColumn"
+                                    Binding="{Binding Week}"
+                                    Header="Wk." />
+                <DataGridTextColumn x:Name="GamesSpacerColumn01"
+                                    HeaderStyle="{StaticResource HeaderStyle}"
+                                    Width="1" />
+                <DataGridTextColumn x:Name="GamesSpacerColumn02"
+                                    HeaderStyle="{StaticResource HeaderStyle}"
+                                    Width="1" />
+                <DataGridTextColumn x:Name="GuestColumn"
+                                    Binding="{Binding GuestName}"
+                                    Header="Guest"
+                                    Width="150"
+                                    CellStyle="{StaticResource LeftAlignCellStyle}" />
+                <DataGridTextColumn x:Name="GuestScoreColumn"
+                                    Binding="{Binding GuestScore}"
+                                    Header="Pts." />
+                <DataGridTextColumn x:Name="GamesSpacerColumn03"
+                                    HeaderStyle="{StaticResource HeaderStyle}"
+                                    Width="1" />
+                <DataGridTextColumn x:Name="HostColumn"
+                                    Binding="{Binding HostName}"
+                                    Header="Host"
+                                    Width="150"
+                                    CellStyle="{StaticResource LeftAlignCellStyle}" />
+                <DataGridTextColumn x:Name="HostScoreColumn"
+                                    Binding="{Binding HostScore}"
+                                    Header="Pts." />
+                <DataGridTextColumn x:Name="GamesSpacerColumn04"
+                                    HeaderStyle="{StaticResource HeaderStyle}"
+                                    Width="1" />
+                <DataGridTextColumn x:Name="GamesSpacerColumn05"
+                                    HeaderStyle="{StaticResource HeaderStyle}"
+                                    Width="1" />
+                <DataGridTextColumn x:Name="NotesColumn"
+                                    Binding="{Binding Notes}"
+                                    Header="Notes"
+                                    Width="*"
+                                    CellStyle="{StaticResource LeftAlignCellStyle}" />
+            </DataGrid.Columns>
+        </DataGrid>
+        <StackPanel x:Name="FindShowAllButtonsPanel"
+                    Grid.Row="6"
+                    Grid.Column="1"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Bottom"
+                    Margin="5">
+            <Button x:Name="FindEntityButton"
+                    Content="Find Game"
+                    Width="75"
+                    Height="25"
+                    Margin="0,0,5,0"
+                    Command="{Binding FindGameCommand}" />
+            <Button x:Name="ShowAllGamesButton"
+                    Content="Show All"
+                    Width="75"
+                    Height="25"
+                    Margin="5,0,0,0"
+                    IsEnabled="{Binding ShowAllGamesEnabled}"
+                    Command="{Binding ShowAllGamesCommand}" />
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,24 @@
+﻿@page "{id:int}"
+
+@{
+    ViewData["Title"] = "Edit League";
+}
+
+<h1>League</h1>
+
+<h4>Edit</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="put">
+            <partial name="_EditPartial" />
+            <div class="form-group">
+                <button class="btn btn-primary" type="submit">Save</button>
+                <a class="btn btn-secondary" asp-page="Index">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript" src="~/lib/handlebars/dist/handlebars.js"></script>
+<script type="module" src="~/js/view-modules/leagues/edit.js"></script>

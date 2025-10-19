@@ -1,0 +1,87 @@
+﻿@model GamesIndexViewModel
+
+@{
+    ViewData["Title"] = "Games";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form>
+    <div class="form-group">
+        <label class="col-form-label">Season</label>
+        <select onchange="document.location.href=`/Games/SetSelectedSeasonYear?SeasonYear=${this.options[this.selectedIndex].value}`;"
+                asp-for="SelectedSeasonYear" asp-items="Model.Seasons">
+        </select>
+    </div>
+    <div class="form-group">
+        <label class="col-form-label">Week</label>
+        <select onchange = "document.location.href=`/Games/SetSelectedWeek?Week=${this.options[this.selectedIndex].value}`;"
+                asp-for="SelectedWeek" asp-items="Model.Weeks">
+        </select>
+    </div>
+</form>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Create New</a>
+</p>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th class="text-right">
+                <label asp-for="Games.SingleOrDefault().SeasonYear"></label>
+            </th>
+            <th class="text-right">
+                <label asp-for="Games.SingleOrDefault().Week"></label>
+            </th>
+            <th>
+                <label asp-for="Games.SingleOrDefault().GuestName"></label>
+            </th>
+            <th class="text-right">
+                <label asp-for="Games.SingleOrDefault().GuestScore"></label>
+            </th>
+            <th>
+                <label asp-for="Games.SingleOrDefault().HostName"></label>
+            </th>
+            <th class="text-right">
+                <label asp-for="Games.SingleOrDefault().HostScore"></label>
+            </th>
+            <th class="text-center">
+                <label asp-for="Games.SingleOrDefault().IsPlayoff"></label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var game in Model.Games)
+{
+        <tr>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => game.SeasonYear)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => game.Week)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => game.GuestName)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => game.GuestScore)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => game.HostName)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => game.HostScore)
+            </td>
+            <td class="text-center">
+                @Html.DisplayFor(modelItem => game.IsPlayoff)
+            </td>
+            <td>
+                <a class="btn btn-primary btn-sm" asp-action="Details" asp-route-id="@game.ID">Details</a>
+                <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@game.ID">Edit</a>
+                <a class="btn btn-primary btn-sm" asp-action="Delete" asp-route-id="@game.ID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

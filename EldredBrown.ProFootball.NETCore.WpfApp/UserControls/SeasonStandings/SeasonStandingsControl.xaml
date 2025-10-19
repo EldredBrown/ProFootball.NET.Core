@@ -1,0 +1,88 @@
+﻿<UserControl x:Class="EldredBrown.ProFootball.NETCore.WpfApp.UserControls.SeasonStandings.SeasonStandingsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             xmlns:Local="clr-namespace:EldredBrown.ProFootball.NETCore.WpfApp.UserControls.SeasonStandings"
+             d:DataContext="{d:DesignInstance Type=Local:SeasonStandingsControlViewModel}"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Resources/AppResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <CollectionViewSource x:Key="StandingsViewSource" Source="{Binding Standings}" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding ViewStandingsCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    <Grid x:Name="StandingsGrid" Style="{StaticResource GridBackgroundStyle}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <DataGrid x:Name="StandingsDataGrid"
+                  ItemsSource="{Binding Source={StaticResource StandingsViewSource}}"
+                  AutoGenerateColumns="False"
+                  CellStyle="{StaticResource RightAlignCellStyle}"
+                  ColumnWidth="Auto"
+                  MinColumnWidth="0"
+                  HorizontalGridLinesBrush="LightGray"
+                  VerticalGridLinesBrush="LightGray"
+                  ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"
+                  HeadersVisibility="Column"
+                  CanUserResizeRows="False"
+                  RowDetailsVisibilityMode="VisibleWhenSelected"
+                  Grid.Column="1"
+                  EnableRowVirtualization="True"
+                  IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn x:Name="StandingsTeamColumn"
+                                    Binding="{Binding Team}"
+                                    Header="Team"
+                                    Width="150"
+                                    CellStyle="{StaticResource LeftAlignCellStyle}" />
+                <DataGridTextColumn x:Name="StandingsSpacerColumn01"
+                                    HeaderStyle="{StaticResource HeaderStyle}"
+                                    Width="1" />
+                <DataGridTextColumn x:Name="StandingsSpacerColumn02"
+                                    HeaderStyle="{StaticResource HeaderStyle}"
+                                    Width="1" />
+                <DataGridTextColumn x:Name="StandingsSpacerColumn03"
+                                    HeaderStyle="{StaticResource HeaderStyle}"
+                                    Width="1" />
+                <DataGridTextColumn x:Name="StandingsWinsColumn"
+                                    Binding="{Binding Wins}"
+                                    Header="W" />
+                <DataGridTextColumn x:Name="StandingsLossesColumn"
+                                    Binding="{Binding Losses}"
+                                    Header="L" />
+                <DataGridTextColumn x:Name="StandingsTiesColumn"
+                                    Binding="{Binding Ties}"
+                                    Header="T" />
+                <DataGridTextColumn x:Name="StandingsWinningPercentageColumn"
+                                    Binding="{Binding WinningPercentage, StringFormat=.000}"
+                                    Header="Pct" />
+                <DataGridTextColumn x:Name="StandingsSpacerColumn08"
+                                    HeaderStyle="{StaticResource HeaderStyle}"
+                                    Width="1" />
+                <DataGridTextColumn x:Name="StandingsPointsForColumn"
+                                    Binding="{Binding PointsFor}"
+                                    Header="PF" />
+                <DataGridTextColumn x:Name="StandingsPointsAgainstColumn"
+                                    Binding="{Binding PointsAgainst}"
+                                    Header="PA" />
+                <DataGridTextColumn x:Name="StandingsAveragePointsForColumn"
+                                    Binding="{Binding AvgPointsFor, StringFormat=N1}"
+                                    Header="AvgPF" />
+                <DataGridTextColumn x:Name="StandingsAveragePointsAgainstColumn"
+                                    Binding="{Binding AvgPointsAgainst, StringFormat=N1}"
+                                    Header="AvgPA" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,53 @@
+﻿@model LeagueSeasonsDetailsViewModel
+
+@{
+    ViewData["Title"] = "League Season";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Details</h4>
+<hr />
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            <label asp-for="LeagueSeason.LeagueName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LeagueSeason.LeagueName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="LeagueSeason.SeasonYear"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LeagueSeason.SeasonYear)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="LeagueSeason.TotalGames"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LeagueSeason.TotalGames)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="LeagueSeason.TotalPoints"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LeagueSeason.TotalPoints)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="LeagueSeason.AveragePoints"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.LeagueSeason.AveragePoints)
+        </dd>
+    </dl>
+</div>
+
+<div>
+    <p>
+        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.LeagueSeason.ID">Edit</a>
+    </p>
+    <p>
+        <a asp-action="Index">Back to List</a>
+    </p>
+</div>

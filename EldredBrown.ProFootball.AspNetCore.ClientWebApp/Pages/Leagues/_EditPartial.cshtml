@@ -1,0 +1,37 @@
+﻿<div class="text-danger field-validation-error" id="validation-summary"></div>
+<div class="form-group">
+    <label class="col-form-label">Long Name</label>
+    <input class="form-control" id="long-name" type="text" />
+    <span class="text-danger field-validation-error" id="validation-for-long-name"></span>
+</div>
+<div class="form-group">
+    <label class="col-form-label">Short Name</label>
+    <input class="form-control" id="short-name" type="text" />
+    <span class="text-danger field-validation-error" id="validation-for-short-name"></span>
+</div>
+<div class="form-group">
+    <label class="col-form-label">First Season</label>
+    <select class="form-control" id="first-season">
+        <script id="first-season-year" type="text/x-handlebars-template">
+            {{#each seasons}}
+            <option>{{year}}</option>
+            {{/each}}
+        </script>
+    </select>
+    <span class="text-danger field-validation-error" id="validation-for-first-season"></span>
+</div>
+<div class="form-group">
+    <label class="col-form-label">Last Season</label>
+    <select class="form-control" id="last-season">
+        <script id="last-season-year" type="text/x-handlebars-template">
+            {{#each seasons}}
+            <option>{{year}}</option>
+            {{/each}}
+        </script>
+    </select>
+    <span class="text-danger field-validation-error" id="validation-for-last-season"></span>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

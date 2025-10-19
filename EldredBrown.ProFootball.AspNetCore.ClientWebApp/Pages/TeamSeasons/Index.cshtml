@@ -1,0 +1,141 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "Team Seasons";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form>
+    <div class="form-group">
+        <label class="col-form-label">Season</label>
+        <select id="season">
+            <script id="season-year" type="text/x-handlebars-template">
+                {{#each seasons}}
+                <option>{{year}}</option>
+                {{/each}}
+            </script>
+        </select>
+    </div>
+    <p>
+        <button class="btn btn-primary btn-lg" id="run-weekly-update">Run Weekly Update</button>
+    </p>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>
+                <label>Name</label>
+            </th>
+            <th>
+                <label>W</label>
+            </th>
+            <th>
+                <label>L</label>
+            </th>
+            <th>
+                <label>T</label>
+            </th>
+            <th>
+                <label>Pct</label>
+            </th>
+            <th>
+                <label>PF</label>
+            </th>
+            <th>
+                <label>PA</label>
+            </th>
+            <th>
+                <label>PythW</label>
+            </th>
+            <th>
+                <label>PythL</label>
+            </th>
+            <th>
+                <label>OA</label>
+            </th>
+            <th>
+                <label>OF</label>
+            </th>
+            <th>
+                <label>OI</label>
+            </th>
+            <th>
+                <label>DA</label>
+            </th>
+            <th>
+                <label>DF</label>
+            </th>
+            <th>
+                <label>DI</label>
+            </th>
+            <th>
+                <label>FinPythPct</label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="team-seasons-body">
+        <script id="team-season-row" type="text/x-handlebars-template">
+            {{#each teamSeasons}}
+            <tr>
+                <td>
+                    {{teamName}}
+                </td>
+                <td class="text-right">
+                    {{wins}}
+                </td>
+                <td class="text-right">
+                    {{losses}}
+                </td>
+                <td class="text-right">
+                    {{ties}}
+                </td>
+                <td class="text-right">
+                    {{winningPercentage}}
+                </td>
+                <td class="text-right">
+                    {{pointsFor}}
+                </td>
+                <td class="text-right">
+                    {{pointsAgainst}}
+                </td>
+                <td class="text-right">
+                    {{pythagoreanWins}}
+                </td>
+                <td class="text-right">
+                    {{pythagoreanLosses}}
+                </td>
+                <td class="text-right">
+                    {{offensiveAverage}}
+                </td>
+                <td class="text-right">
+                    {{offensiveFactor}}
+                </td>
+                <td class="text-right">
+                    {{offensiveIndex}}
+                </td>
+                <td class="text-right">
+                    {{defensiveAverage}}
+                </td>
+                <td class="text-right">
+                    {{defensiveFactor}}
+                </td>
+                <td class="text-right">
+                    {{defensiveIndex}}
+                </td>
+                <td class="text-right">
+                    {{finalPythagoreanWinningPercentage}}
+                </td>
+                <td>
+                    <a class="btn btn-primary btn-sm" href="/TeamSeasons/Details/{{id}}">Details</a>
+                </td>
+            </tr>
+            {{/each}}
+        </script>
+    </tbody>
+</table>
+
+<script type="text/javascript" src="~/lib/handlebars/dist/handlebars.js"></script>
+<script type="module" src="~/js/view-modules/team-seasons/index.js"></script>

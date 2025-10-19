@@ -1,0 +1,76 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "Predict Game";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div class="text-danger field-validation-error" id="validation-summary"></div>
+
+            <div class="form-group">
+                <label class="col-form-label">Guest Season</label>
+                <select class="form-control season-select" id="guest-season">
+                    <script id="guest-season-year" type="text/x-handlebars-template">
+                        {{#each seasons}}
+                        <option>{{year}}</option>
+                        {{/each}}
+                    </script>
+                </select>
+                <span class="text-danger field-validation-error" id="validation-for-guest-season-year"></span>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Guest</label>
+                <select class="form-control team-select" id="guest">
+                    <script id="guest-name" type="text/x-handlebars-template">
+                        {{#each teamSeasons}}
+                        <option>{{teamName}}</option>
+                        {{/each}}
+                    </script>
+                </select>
+                <span class="text-danger field-validation-error" id="validation-for-guest-name"></span>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Guest Score</label>
+                <b id="guest-score"></b>
+            </div>
+
+            <div class="form-group">
+                <label class="col-form-label">Host Season</label>
+                <select class="form-control season-select" id="host-season">
+                    <script id="host-season-year" type="text/x-handlebars-template">
+                        {{#each seasons}}
+                        <option>{{year}}</option>
+                        {{/each}}
+                    </script>
+                </select>
+                <span class="text-danger field-validation-error" id="validation-for-host-season-year"></span>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Host</label>
+                <select class="form-control team-select" id="host">
+                    <script id="host-name" type="text/x-handlebars-template">
+                        {{#each teamSeasons}}
+                        <option>{{teamName}}</option>
+                        {{/each}}
+                    </script>
+                </select>
+                <span class="text-danger field-validation-error" id="validation-for-host-name"></span>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label">Host Score</label>
+                <b id="host-score"></b>
+            </div>
+
+            <div class="form-group">
+                <button class="btn btn-primary btn-lg" type="submit">Calculate Prediction</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript" src="~/lib/handlebars/dist/handlebars.js"></script>
+<script type="module" src="~/js/view-modules/game-predictor/predict-game.js"></script>

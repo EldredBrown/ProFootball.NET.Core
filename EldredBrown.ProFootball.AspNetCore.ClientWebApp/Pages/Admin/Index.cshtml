@@ -1,0 +1,31 @@
+﻿@page
+
+@{
+    ViewData["Title"] = "Admin";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <div class="container">
+        <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+            <ul class="navbar-nav flex-grow-1">
+                <li class="nav-item">
+                    <a class="nav-link text-dark" asp-area="" asp-page="/Seasons/Index">Seasons</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" asp-area="" asp-page="/Leagues/Index">Leagues</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" asp-area="" asp-page="/Teams/Index">Teams</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" asp-area="" asp-page="/LeagueSeasons/Index">League Seasons</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-dark" asp-area="" asp-page="/TeamSeasonsAdmin/Index">Team Seasons</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

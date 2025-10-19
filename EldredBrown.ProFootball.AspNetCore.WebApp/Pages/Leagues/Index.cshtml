@@ -1,0 +1,55 @@
+﻿@page
+@model IndexModel
+
+@{
+    ViewData["Title"] = "Leagues";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">Add New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <label>Long Name</label>
+            </th>
+            <th>
+                <label>Short Name</label>
+            </th>
+            <th>
+                <label>First Season</label>
+            </th>
+            <th>
+                <label>Last Season</label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var league in Model.Leagues)
+{
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => league.LongName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => league.ShortName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => league.FirstSeasonYear)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => league.LastSeasonYear)
+            </td>
+            <td>
+                <a class="btn btn-primary btn-sm" asp-page="Details" asp-route-id="@league.ID">Details</a>
+                <a class="btn btn-primary btn-sm" asp-page="Edit" asp-route-id="@league.ID">Edit</a>
+                <a class="btn btn-primary btn-sm" asp-page="Delete" asp-route-id="@league.ID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

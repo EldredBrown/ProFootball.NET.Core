@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="5.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EldredBrown.ProFootball.NETCore.Data\EldredBrown.ProFootball.NETCore.Data.csproj" />
+    <ProjectReference Include="..\EldredBrown.ProFootball.NETCore.Services\EldredBrown.ProFootball.NETCore.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\lib\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Views\Leagues\Create.cshtml" />
+    <None Include="Views\Leagues\Delete.cshtml" />
+    <None Include="Views\Leagues\Details.cshtml" />
+    <None Include="Views\Leagues\Edit.cshtml" />
+    <None Include="Views\Leagues\Index.cshtml" />
+  </ItemGroup>
+
+</Project>

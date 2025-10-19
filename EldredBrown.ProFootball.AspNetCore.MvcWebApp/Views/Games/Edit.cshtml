@@ -1,0 +1,71 @@
+﻿@model Game
+
+@{
+    ViewData["Title"] = "Edit Game";
+}
+
+<h1>Game</h1>
+
+<h4>Edit</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+            <input type="hidden" asp-for="ID" />
+            <div class="form-group">
+                <label class="col-form-label" asp-for="SeasonYear"></label>
+                <select class="form-control" asp-for="SeasonYear" asp-items="ViewBag.Seasons"></select>
+                <span class="text-danger" asp-validation-for="SeasonYear"></span>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label" asp-for="Week"></label>
+                <select class="form-control" asp-for="Week" asp-items="ViewBag.Weeks"></select>
+                <span class="text-danger" asp-validation-for="Week"></span>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label" asp-for="GuestName"></label>
+                <input class="form-control" asp-for="GuestName" />
+                <span class="text-danger" asp-validation-for="GuestName"></span>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label" asp-for="GuestScore"></label>
+                <input class="form-control" asp-for="GuestScore" />
+                <span class="text-danger" asp-validation-for="GuestScore"></span>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label" asp-for="HostName"></label>
+                <input class="form-control" asp-for="HostName" />
+                <span class="text-danger" asp-validation-for="HostName"></span>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label" asp-for="HostScore"></label>
+                <input class="form-control" asp-for="HostScore" />
+                <span class="text-danger" asp-validation-for="HostScore"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="col-form-label form-check-label">
+                    <input class="form-check-input" asp-for="IsPlayoff" />
+                    <label class="col-form-label" asp-for="IsPlayoff"></label>
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="col-form-label" asp-for="Notes"></label>
+                <input class="form-control" asp-for="Notes" />
+                <span class="text-danger" asp-validation-for="Notes"></span>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" type="submit">Save</button>
+                <a class="btn btn-secondary" asp-action="Index">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
