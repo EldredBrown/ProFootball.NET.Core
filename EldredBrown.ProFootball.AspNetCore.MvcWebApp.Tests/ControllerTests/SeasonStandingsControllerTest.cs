@@ -8,8 +8,8 @@ using Shouldly;
 using Xunit;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.SeasonStandings;
-using EldredBrown.ProFootball.NETCore.Data.Entities;
-using EldredBrown.ProFootball.NETCore.Data.Repositories;
+using EldredBrown.ProFootball.Net.Data.Models;
+using EldredBrown.ProFootball.Net.Data.Repositories;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 {

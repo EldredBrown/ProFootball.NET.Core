@@ -3,8 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeasons;
-using EldredBrown.ProFootball.NETCore.Data.Repositories;
-using EldredBrown.ProFootball.NETCore.Services;
+using EldredBrown.ProFootball.Net.Data.Repositories;
+using EldredBrown.ProFootball.Net.Services;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 {
@@ -94,7 +94,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Renders a view of a selected team season.
         /// </summary>
-        /// <param name="id">The ID of the selected team season.</param>
+        /// <param name="id">The Id of the selected team season.</param>
         /// <returns>The rendered view of the selected team season.</returns>
         [HttpGet]
         public async Task<IActionResult> Details(int? id)

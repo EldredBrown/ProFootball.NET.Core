@@ -17,7 +17,7 @@ let AST = {
       return /^\.|this\b/.test(path.original);
     },
 
-    // an ID is simple if it only has one part, and that part is not
+    // an Id is simple if it only has one part, and that part is not
     // `..` or `this`.
     simpleId: function(path) {
       return (

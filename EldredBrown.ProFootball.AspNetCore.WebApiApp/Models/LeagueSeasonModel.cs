@@ -6,9 +6,9 @@
     public class LeagueSeasonModel
     {
         /// <summary>
-        /// Gets or sets the ID of the current <see cref="LeagueSeasonModel"/> object.
+        /// Gets or sets the Id of the current <see cref="LeagueSeasonModel"/> object.
         /// </summary>
-        public int ID { get; set; }
+        public int Id { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the current <see cref="LeagueSeasonModel"/> object's league.

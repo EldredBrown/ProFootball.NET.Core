@@ -16,7 +16,7 @@ define(['exports', 'module'], function (exports, module) {
         );
       },
 
-      // an ID is simple if it only has one part, and that part is not
+      // an Id is simple if it only has one part, and that part is not
       // `..` or `this`.
       simpleId: function simpleId(path) {
         return path.parts.length === 1 && !AST.helpers.scopedId(path) && !path.depth;

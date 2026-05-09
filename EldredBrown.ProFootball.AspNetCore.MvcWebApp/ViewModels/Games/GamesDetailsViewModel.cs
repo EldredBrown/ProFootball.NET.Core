@@ -1,4 +1,4 @@
-﻿using EldredBrown.ProFootball.NETCore.Data.Entities;
+﻿using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Games
 {

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Models;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Properties;
-using EldredBrown.ProFootball.NETCore.Data.Repositories;
+using EldredBrown.ProFootball.Net.Data.Repositories;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
 {

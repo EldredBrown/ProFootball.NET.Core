@@ -8,8 +8,8 @@ using Shouldly;
 using Xunit;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Seasons;
-using EldredBrown.ProFootball.NETCore.Data.Entities;
-using EldredBrown.ProFootball.NETCore.Data.Repositories;
+using EldredBrown.ProFootball.Net.Data.Models;
+using EldredBrown.ProFootball.Net.Data.Repositories;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 {
@@ -265,7 +265,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             int id = 0;
             var season = new Season
             {
-                ID = 1
+                Id = 1
             };
 
             // Act
@@ -289,7 +289,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             int id = 1;
             var season = new Season
             {
-                ID = 1
+                Id = 1
             };
 
             // Act
@@ -320,7 +320,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             int id = 1;
             var season = new Season
             {
-                ID = 1
+                Id = 1
             };
 
             // Act
@@ -348,7 +348,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             int id = 1;
             var season = new Season
             {
-                ID = 1
+                Id = 1
             };
 
             // Act
@@ -372,7 +372,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             int id = 1;
             var season = new Season
             {
-                ID = 1
+                Id = 1
             };
             testController.ModelState.AddModelError("LongName", "Please enter a long name.");
 

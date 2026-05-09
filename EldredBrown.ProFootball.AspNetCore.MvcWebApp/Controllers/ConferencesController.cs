@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conferences;
-using EldredBrown.ProFootball.NETCore.Data.Entities;
-using EldredBrown.ProFootball.NETCore.Data.Repositories;
+using EldredBrown.ProFootball.Net.Data.Models;
+using EldredBrown.ProFootball.Net.Data.Repositories;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 {
@@ -63,7 +63,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Renders a view of the details of a selected conference.
         /// </summary>
-        /// <param name="id">The ID of the selected conference.</param>
+        /// <param name="id">The Id of the selected conference.</param>
         /// <returns>The rendered view of the selected conference.</returns>
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
@@ -150,9 +150,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,LongName,ShortName,FirstSeasonYear,LastSeasonYear")] Conference conference)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,LongName,ShortName,FirstSeasonYear,LastSeasonYear")] Conference conference)
         {
-            if (id != conference.ID)
+            if (id != conference.Id)
             {
                 return NotFound();
             }
@@ -166,7 +166,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!(await _conferenceRepository.ConferenceExists(conference.ID)))
+                    if (!(await _conferenceRepository.ConferenceExists(conference.Id)))
                     {
                         return NotFound();
                     }
@@ -208,7 +208,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Processes the confirmation of intent to delete a conference.
         /// </summary>
-        /// <param name="id">The ID of the conference to delete.</param>
+        /// <param name="id">The Id of the conference to delete.</param>
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

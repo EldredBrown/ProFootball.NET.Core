@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shouldly;
 using Xunit;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers;
-using EldredBrown.ProFootball.NETCore.Services;
+using EldredBrown.ProFootball.Net.Services;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 {

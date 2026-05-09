@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Seasons;
-using EldredBrown.ProFootball.NETCore.Data.Entities;
-using EldredBrown.ProFootball.NETCore.Data.Repositories;
+using EldredBrown.ProFootball.Net.Data.Models;
+using EldredBrown.ProFootball.Net.Data.Repositories;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 {
@@ -64,7 +64,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Renders a view of the details of a selected season.
         /// </summary>
-        /// <param name="id">The ID of the selected season.</param>
+        /// <param name="id">The Id of the selected season.</param>
         /// <returns>The rendered view of the selected season.</returns>
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
@@ -152,9 +152,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Year,NumOfWeeksScheduled,NumOfWeeksCompleted")] Season season)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Year,NumOfWeeksScheduled,NumOfWeeksCompleted")] Season season)
         {
-            if (id != season.ID)
+            if (id != season.Id)
             {
                 return NotFound();
             }
@@ -168,7 +168,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await _seasonRepository.SeasonExists(season.ID))
+                    if (!await _seasonRepository.SeasonExists(season.Id))
                     {
                         return NotFound();
                     }
@@ -210,7 +210,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Processes the confirmation of intent to delete a season.
         /// </summary>
-        /// <param name="id">The ID of the season to delete.</param>
+        /// <param name="id">The Id of the season to delete.</param>
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

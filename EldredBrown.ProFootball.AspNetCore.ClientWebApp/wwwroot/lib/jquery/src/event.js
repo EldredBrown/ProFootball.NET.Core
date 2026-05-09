@@ -140,7 +140,7 @@ jQuery.event = {
 			jQuery.find.matchesSelector( documentElement, selector );
 		}
 
-		// Make sure that the handler has a unique ID, used to find/remove it later
+		// Make sure that the handler has a unique Id, used to find/remove it later
 		if ( !handler.guid ) {
 			handler.guid = jQuery.guid++;
 		}

@@ -10,8 +10,8 @@ using Shouldly;
 using Xunit;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Models;
-using EldredBrown.ProFootball.NETCore.Data.Entities;
-using EldredBrown.ProFootball.NETCore.Data.Repositories;
+using EldredBrown.ProFootball.Net.Data.Models;
+using EldredBrown.ProFootball.Net.Data.Repositories;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 {
@@ -193,7 +193,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Assert
             A.CallTo(() => seasonRepository.GetSeasonAsync(id)).MustHaveHappenedOnceExactly();
             result.Result.ShouldBeOfType<NotFoundObjectResult>();
-            ((NotFoundObjectResult)result.Result).Value.ShouldBe($"Could not find season with ID of {id}");
+            ((NotFoundObjectResult)result.Result).Value.ShouldBe($"Could not find season with Id of {id}");
         }
 
         [Fact]
@@ -308,7 +308,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Assert
             A.CallTo(() => seasonRepository.GetSeasonAsync(id)).MustHaveHappenedOnceExactly();
             result.Result.ShouldBeOfType<NotFoundObjectResult>();
-            ((NotFoundObjectResult)result.Result).Value.ShouldBe($"Could not find season with ID of {id}");
+            ((NotFoundObjectResult)result.Result).Value.ShouldBe($"Could not find season with Id of {id}");
         }
 
         [Fact]

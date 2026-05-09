@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using EldredBrown.ProFootball.NETCore.Data;
-using EldredBrown.ProFootball.NETCore.Data.Repositories;
-using EldredBrown.ProFootball.NETCore.Services;
+using EldredBrown.ProFootball.Net.Data;
+using EldredBrown.ProFootball.Net.Data.Repositories;
+using EldredBrown.ProFootball.Net.Services;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApiApp
 {
@@ -57,7 +57,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp
 
             services.AddServiceLibrary();
 
-            services.AddAutoMapper(typeof(Startup));
+            //services.AddAutoMapper(typeof(Startup));
 
             services.AddControllers();
         }

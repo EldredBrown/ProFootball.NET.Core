@@ -16,10 +16,10 @@ using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Seasons;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.SeasonStandings;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Teams;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeasons;
-using EldredBrown.ProFootball.NETCore.Data;
-using EldredBrown.ProFootball.NETCore.Data.Repositories;
-using EldredBrown.ProFootball.NETCore.Services;
-using EldredBrown.ProFootball.NETCore.Services.GameServiceNS;
+using EldredBrown.ProFootball.Net.Data;
+using EldredBrown.ProFootball.Net.Data.Repositories;
+using EldredBrown.ProFootball.Net.Services;
+using EldredBrown.ProFootball.Net.Services.GameServiceNS;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
 {

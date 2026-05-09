@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Models;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Properties;
-using EldredBrown.ProFootball.NETCore.Data.Entities;
-using EldredBrown.ProFootball.NETCore.Data.Repositories;
-using EldredBrown.ProFootball.NETCore.Services.GameServiceNS;
+using EldredBrown.ProFootball.Net.Data.Models;
+using EldredBrown.ProFootball.Net.Data.Repositories;
+using EldredBrown.ProFootball.Net.Services.GameServiceNS;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
 {
@@ -76,9 +76,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
 
         // GET: api/Games/5
         /// <summary>
-        /// Gets a single game from the data store by ID.
+        /// Gets a single game from the data store by Id.
         /// </summary>
-        /// <param name="id">The ID of the game to fetch.</param>
+        /// <param name="id">The Id of the game to fetch.</param>
         /// <returns>A response representing the result of the operation.</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<GameModel>> GetGame(int id)
@@ -115,7 +115,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
                 var location = _linkGenerator.GetPathByAction("GetGame", "Games", new { id = -1 });
                 if (string.IsNullOrWhiteSpace(location))
                 {
-                    return BadRequest("Could not use ID");
+                    return BadRequest("Could not use Id");
                 }
 
                 var game = _mapper.Map<Game>(model);
@@ -141,7 +141,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         /// <summary>
         /// Puts (updates) changes to a game in the data store.
         /// </summary>
-        /// <param name="id">The ID of the game to update.</param>
+        /// <param name="id">The Id of the game to update.</param>
         /// <param name="model">A <see cref="GameModel"/> representing the game to update.</param>
         /// <returns>A response representing the result of the operation.</returns>
         [HttpPut("{id}")]
@@ -154,7 +154,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
                 var currentGame = await _gameRepository.GetGameAsync(id);
                 if (currentGame is null)
                 {
-                    return NotFound($"Could not find game with ID of {id}");
+                    return NotFound($"Could not find game with Id of {id}");
                 }
 
                 _mapper.Map(models["newGame"], currentGame);
@@ -178,7 +178,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         /// <summary>
         /// Deletes a game from the data store.
         /// </summary>
-        /// <param name="id">The ID of the game to delete.</param>
+        /// <param name="id">The Id of the game to delete.</param>
         /// <returns>A response representing the result of the operation.</returns>
         [HttpDelete("{id}")]
         public async Task<ActionResult<Game>> DeleteGame(int id)
@@ -188,7 +188,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
                 var game = await _gameRepository.GetGameAsync(id);
                 if (game is null)
                 {
-                    return NotFound($"Could not find game with ID of {id}");
+                    return NotFound($"Could not find game with Id of {id}");
                 }
 
                 await _gameService.DeleteGameAsync(id);

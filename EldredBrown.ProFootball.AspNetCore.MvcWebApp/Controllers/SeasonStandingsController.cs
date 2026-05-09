@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.SeasonStandings;
-using EldredBrown.ProFootball.NETCore.Data.Repositories;
+using EldredBrown.ProFootball.Net.Data.Repositories;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 {
@@ -61,9 +61,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         }
 
         /// <summary>
-        /// Sets the selected season ID.
+        /// Sets the selected season Id.
         /// </summary>
-        /// <param name="seasonYear">The ID of the selected season.</param>
+        /// <param name="seasonYear">The Id of the selected season.</param>
         /// <returns>The rendered view of the <see cref="RedirectToActionResult"/>.</returns>
         public IActionResult SetSelectedSeasonYear(int? seasonYear)
         {

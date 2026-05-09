@@ -1,9 +1,9 @@
-﻿using EldredBrown.ProFootball.NETCore.Data.Entities;
+﻿using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conferences
 {
     /// <summary>
-    /// Represents the model for a league details view.
+    /// Represents the model for a conference details view.
     /// </summary>
     public class ConferencesDetailsViewModel : IConferencesDetailsViewModel
     {

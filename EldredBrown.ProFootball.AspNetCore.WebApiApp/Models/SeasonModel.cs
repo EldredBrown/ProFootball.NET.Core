@@ -6,9 +6,9 @@
     public class SeasonModel
     {
         /// <summary>
-        /// Gets or sets the ID of the current <see cref="SeasonModel"/> object.
+        /// Gets or sets the Id of the current <see cref="SeasonModel"/> object.
         /// </summary>
-        public int ID { get; set; }
+        public int Id { get; set; }
 
         /// <summary>
         /// Gets or sets the year of the current <see cref="SeasonModel"/> object.

@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Games;
-using EldredBrown.ProFootball.NETCore.Data.Entities;
-using EldredBrown.ProFootball.NETCore.Data.Repositories;
-using EldredBrown.ProFootball.NETCore.Services.GameServiceNS;
+using EldredBrown.ProFootball.Net.Data.Models;
+using EldredBrown.ProFootball.Net.Data.Repositories;
+using EldredBrown.ProFootball.Net.Services.GameServiceNS;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 {
@@ -90,7 +90,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Renders a view of the details of a selected game.
         /// </summary>
-        /// <param name="id">The ID of the selected game.</param>
+        /// <param name="id">The Id of the selected game.</param>
         /// <returns>The rendered view of the selected game.</returns>
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
@@ -204,9 +204,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,SeasonYear,Week,GuestName,GuestScore,HostName,HostScore,WinnerName,WinnerScore,LoserName,LoserScore,IsPlayoffGame,Notes")] Game game)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,SeasonYear,Week,GuestName,GuestScore,HostName,HostScore,WinnerName,WinnerScore,LoserName,LoserScore,IsPlayoffGame,Notes")] Game game)
         {
-            if (id != game.ID)
+            if (id != game.Id)
             {
                 return NotFound();
             }
@@ -220,7 +220,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await _gameRepository.GameExists(game.ID))
+                    if (!await _gameRepository.GameExists(game.Id))
                     {
                         return NotFound();
                     }
@@ -262,7 +262,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Processes the confirmation of intent to delete a game.
         /// </summary>
-        /// <param name="id">The ID of the game to delete.</param>
+        /// <param name="id">The Id of the game to delete.</param>
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

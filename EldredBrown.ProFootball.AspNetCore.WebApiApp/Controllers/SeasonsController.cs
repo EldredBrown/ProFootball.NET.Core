@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Models;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Properties;
-using EldredBrown.ProFootball.NETCore.Data.Entities;
-using EldredBrown.ProFootball.NETCore.Data.Repositories;
+using EldredBrown.ProFootball.Net.Data.Models;
+using EldredBrown.ProFootball.Net.Data.Repositories;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
 {
@@ -61,9 +61,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
 
         // GET: api/Seasons/5
         /// <summary>
-        /// Gets a single season from the data store by ID.
+        /// Gets a single season from the data store by Id.
         /// </summary>
-        /// <param name="id">The ID of the season to fetch.</param>
+        /// <param name="id">The Id of the season to fetch.</param>
         /// <returns>A response representing the result of the operation.</returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<SeasonModel>> GetSeason(int id)
@@ -100,7 +100,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
                 var location = _linkGenerator.GetPathByAction("GetSeason", "Seasons", new { id = -1 });
                 if (string.IsNullOrWhiteSpace(location))
                 {
-                    return BadRequest("Could not use ID");
+                    return BadRequest("Could not use Id");
                 }
 
                 var season = _mapper.Map<Season>(model);
@@ -126,7 +126,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         /// <summary>
         /// Puts (updates) changes to a season in the data store.
         /// </summary>
-        /// <param name="id">The ID of the season to update.</param>
+        /// <param name="id">The Id of the season to update.</param>
         /// <param name="model">A <see cref="SeasonModel"/> representing the season to update.</param>
         /// <returns>A response representing the result of the operation.</returns>
         [HttpPut("{id}")]
@@ -137,7 +137,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
                 var season = await _seasonRepository.GetSeasonAsync(id);
                 if (season is null)
                 {
-                    return NotFound($"Could not find season with ID of {id}");
+                    return NotFound($"Could not find season with Id of {id}");
                 }
 
                 _mapper.Map(model, season);
@@ -159,7 +159,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         /// <summary>
         /// Deletes a season from the data store.
         /// </summary>
-        /// <param name="id">The ID of the season to delete.</param>
+        /// <param name="id">The Id of the season to delete.</param>
         /// <returns>A response representing the result of the operation.</returns>
         [HttpDelete("{id}")]
         public async Task<ActionResult<Season>> DeleteSeason(int id)
@@ -169,7 +169,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
                 var season = await _seasonRepository.GetSeasonAsync(id);
                 if (season is null)
                 {
-                    return NotFound($"Could not find season with ID of {id}");
+                    return NotFound($"Could not find season with Id of {id}");
                 }
 
                 await _seasonRepository.DeleteAsync(id);

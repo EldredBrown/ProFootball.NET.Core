@@ -3,8 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using EldredBrown.ProFootball.NETCore.Data;
-using EldredBrown.ProFootball.NETCore.Data.Entities;
+using EldredBrown.ProFootball.Net.Data;
+using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApp.Api
 {
@@ -49,7 +49,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Api
             _context.Leagues.Add(league);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetLeague", new { id = league.ID }, league);
+            return CreatedAtAction("GetLeague", new { id = league.Id }, league);
         }
 
         // PUT: api/Leagues/5
@@ -58,7 +58,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Api
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateLeague(int id, League league)
         {
-            if (id != league.ID)
+            if (id != league.Id)
             {
                 return BadRequest();
             }
@@ -102,7 +102,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Api
 
         private bool LeagueExists(int id)
         {
-            return _context.Leagues.Any(e => e.ID == id);
+            return _context.Leagues.Any(e => e.Id == id);
         }
     }
 }

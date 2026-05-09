@@ -6,9 +6,9 @@
     public class LeagueModel
     {
         /// <summary>
-        /// Gets or sets the ID of the current <see cref="LeagueModel"/> object.
+        /// Gets or sets the Id of the current <see cref="LeagueModel"/> object.
         /// </summary>
-        public int ID { get; set; }
+        public int Id { get; set; }
 
         /// <summary>
         /// Gets or sets the long name of the current <see cref="LeagueModel"/> object.

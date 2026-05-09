@@ -9,8 +9,8 @@ using Shouldly;
 using Xunit;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Models;
-using EldredBrown.ProFootball.NETCore.Data.Entities;
-using EldredBrown.ProFootball.NETCore.Data.Repositories;
+using EldredBrown.ProFootball.Net.Data.Models;
+using EldredBrown.ProFootball.Net.Data.Repositories;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 {

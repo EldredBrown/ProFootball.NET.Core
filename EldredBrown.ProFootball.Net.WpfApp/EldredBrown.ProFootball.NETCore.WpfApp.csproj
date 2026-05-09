@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+	<Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="5.0.0" />
+    <PackageReference Include="Microsoft.NETCore.Platforms" Version="7.0.4" />
+    <PackageReference Include="Microsoft.NETCore.Targets" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.142" />
+    <PackageReference Include="NuGet.Packaging" Version="7.3.1" />
+    <PackageReference Include="NuGet.Protocol" Version="7.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EldredBrown.ProFootball.Net.Data\EldredBrown.ProFootball.Net.Data.csproj" />
+    <ProjectReference Include="..\EldredBrown.ProFootball.Net.Services\EldredBrown.ProFootball.Net.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Update="Windows\GamePredictor\GamePredictorWindow.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Windows\GamePredictor\GamePredictorWindow.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+</Project>

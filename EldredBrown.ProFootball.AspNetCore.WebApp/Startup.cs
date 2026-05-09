@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using EldredBrown.ProFootball.NETCore.Data;
+using EldredBrown.ProFootball.Net.Data;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApp
 {

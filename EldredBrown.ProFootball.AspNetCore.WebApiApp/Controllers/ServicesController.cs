@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Properties;
-using EldredBrown.ProFootball.NETCore.Services;
+using EldredBrown.ProFootball.Net.Services;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
 {

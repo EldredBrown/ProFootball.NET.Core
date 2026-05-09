@@ -10,9 +10,9 @@ using Shouldly;
 using Xunit;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Games;
-using EldredBrown.ProFootball.NETCore.Data.Entities;
-using EldredBrown.ProFootball.NETCore.Data.Repositories;
-using EldredBrown.ProFootball.NETCore.Services.GameServiceNS;
+using EldredBrown.ProFootball.Net.Data.Models;
+using EldredBrown.ProFootball.Net.Data.Repositories;
+using EldredBrown.ProFootball.Net.Services.GameServiceNS;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 {
@@ -522,7 +522,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int id = 0;
-            var game = new Game { ID = 1 };
+            var game = new Game { Id = 1 };
 
             // Act
             var result = await testController.Edit(id, game);
@@ -546,7 +546,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int id = 1;
-            var game = new Game { ID = 1 };
+            var game = new Game { Id = 1 };
             testController.ModelState.AddModelError("Season", "Please enter a season.");
 
             // Act
@@ -575,7 +575,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int id = 1;
-            var game = new Game { ID = 1 };
+            var game = new Game { Id = 1 };
 
             // Act
             var result = await testController.Edit(id, game);
@@ -608,7 +608,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int id = 1;
-            var game = new Game { ID = 1 };
+            var game = new Game { Id = 1 };
 
             // Act
             var result = await testController.Edit(id, game);
@@ -638,7 +638,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int id = 1;
-            var game = new Game { ID = 1 };
+            var game = new Game { Id = 1 };
 
             // Act
             var func = new Func<Task<IActionResult>>(async () => await testController.Edit(id, game));

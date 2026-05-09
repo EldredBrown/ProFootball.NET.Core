@@ -5,9 +5,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Models
     public class GameModel
     {
         /// <summary>
-        /// Gets or sets the ID of the current <see cref="GameModel"/> object.
+        /// Gets or sets the Id of the current <see cref="GameModel"/> object.
         /// </summary>
-        public int ID { get; set; }
+        public int Id { get; set; }
 
         /// <summary>
         /// Gets or sets the year of the current <see cref="GameModel"/> object's season.
@@ -16,7 +16,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Models
         public int SeasonYear { get; set; }
 
         /// <summary>
-        /// Gets or sets the ID of the current <see cref="GameModel"/> object's week.
+        /// Gets or sets the Id of the current <see cref="GameModel"/> object's week.
         /// </summary>
         [Required]
         public int Week { get; set; }

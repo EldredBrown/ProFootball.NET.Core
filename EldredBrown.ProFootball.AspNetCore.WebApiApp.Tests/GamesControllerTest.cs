@@ -10,9 +10,9 @@ using Shouldly;
 using Xunit;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Models;
-using EldredBrown.ProFootball.NETCore.Data.Entities;
-using EldredBrown.ProFootball.NETCore.Data.Repositories;
-using EldredBrown.ProFootball.NETCore.Services.GameServiceNS;
+using EldredBrown.ProFootball.Net.Data.Models;
+using EldredBrown.ProFootball.Net.Data.Repositories;
+using EldredBrown.ProFootball.Net.Services.GameServiceNS;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 {
@@ -216,7 +216,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             A.CallTo(() => mapper.Map<Game>(models["oldGame"])).MustHaveHappenedOnceExactly();
             A.CallTo(() => gameRepository.GetGameAsync(id)).MustHaveHappenedOnceExactly();
             result.Result.ShouldBeOfType<NotFoundObjectResult>();
-            ((NotFoundObjectResult)result.Result).Value.ShouldBe($"Could not find game with ID of {id}");
+            ((NotFoundObjectResult)result.Result).Value.ShouldBe($"Could not find game with Id of {id}");
         }
 
         [Fact]
@@ -232,8 +232,8 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 
             var models = new Dictionary<string, GameModel>
             {
-                ["oldGame"] = new GameModel { ID = 1 },
-                ["newGame"] = new GameModel { ID = 2 }
+                ["oldGame"] = new GameModel { Id = 1 },
+                ["newGame"] = new GameModel { Id = 2 }
             };
 
             var mapper = A.Fake<IMapper>();
@@ -276,8 +276,8 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 
             var models = new Dictionary<string, GameModel>
             {
-                ["oldGame"] = new GameModel { ID = 1 },
-                ["newGame"] = new GameModel { ID = 2 }
+                ["oldGame"] = new GameModel { Id = 1 },
+                ["newGame"] = new GameModel { Id = 2 }
             };
 
             var mapper = A.Fake<IMapper>();
@@ -357,7 +357,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Assert
             A.CallTo(() => gameRepository.GetGameAsync(id)).MustHaveHappenedOnceExactly();
             result.Result.ShouldBeOfType<NotFoundObjectResult>();
-            ((NotFoundObjectResult)result.Result).Value.ShouldBe($"Could not find game with ID of {id}");
+            ((NotFoundObjectResult)result.Result).Value.ShouldBe($"Could not find game with Id of {id}");
         }
 
         [Fact]

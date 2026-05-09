@@ -840,7 +840,7 @@ Compatibility notes:
 
 ## v2.0.0-alpha.3 - May 19th, 2014
 
-- [#797](https://github.com/wycats/handlebars.js/pull/797) - Pass full helper ID to helperMissing when options are provided ([@tomdale](https://github.com/tomdale))
+- [#797](https://github.com/wycats/handlebars.js/pull/797) - Pass full helper Id to helperMissing when options are provided ([@tomdale](https://github.com/tomdale))
 - [#793](https://github.com/wycats/handlebars.js/pull/793) - Ensure isHelper is coerced to a boolean ([@mmun](https://github.com/mmun))
 - Refactor template init logic - 085e5e1
 
@@ -1002,7 +1002,7 @@ Compatibility notes:
 - [#469](https://github.com/wycats/handlebars.js/issues/469) - Add support for `?` in ids
 - [#534](https://github.com/wycats/handlebars.js/issues/534) - Protect from object prototype modifications
 - [#519](https://github.com/wycats/handlebars.js/issues/519) - Fix partials with . name ([@jamesgorrie](https://github.com/jamesgorrie))
-- [#519](https://github.com/wycats/handlebars.js/issues/519) - Allow ID or strings in partial names
+- [#519](https://github.com/wycats/handlebars.js/issues/519) - Allow Id or strings in partial names
 - [#437](https://github.com/wycats/handlebars.js/issues/437) - Require matching brace counts in escaped expressions
 - Merge passed partials and helpers with global namespace values
 - Add support for complex ids in @data references
