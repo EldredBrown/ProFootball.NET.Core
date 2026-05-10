@@ -1,0 +1,37 @@
+﻿@using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Team
+@model TeamIndexViewModel
+
+@{
+    ViewData["Title"] = "Teams";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <label asp-for="Teams.SingleOrDefault().Name"></label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var team in Model.Teams)
+{
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => team.Name)
+            </td>
+            <td>
+                <a class="btn btn-primary btn-sm" asp-action="Details" asp-route-id="@team.Id">Details</a>
+                <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@team.Id">Edit</a>
+                <a class="btn btn-primary btn-sm" asp-action="Delete" asp-route-id="@team.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

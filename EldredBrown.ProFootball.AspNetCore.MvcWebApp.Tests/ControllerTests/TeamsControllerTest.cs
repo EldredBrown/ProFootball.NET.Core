@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Xunit;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Teams;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Team;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 
@@ -19,15 +19,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Index_ShouldReturnTeamsIndexView()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
 
             var teamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>();
             A.CallTo(() => teamRepository.GetTeamsAsync()).Returns(teams);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             // Act
@@ -44,11 +44,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
             var teamRepository = A.Fake<ITeamRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             int? id = null;
@@ -64,15 +64,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNotNullAndTeamNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
 
             var teamRepository = A.Fake<ITeamRepository>();
             Team? team = null;
             A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Returns(team);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             int? id = 0;
@@ -89,15 +89,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNotNullAndTeamFound_ShouldReturnTeamDetailsView()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
 
             var teamRepository = A.Fake<ITeamRepository>();
             Team? team = new Team();
             A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Returns(team);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             int? id = 0;
@@ -116,11 +116,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public void CreateGet_ShouldReturnTeamCreateView()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
             var teamRepository = A.Fake<ITeamRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             // Act
@@ -134,11 +134,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsValid_ShouldAddTeamToDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
             var teamRepository = A.Fake<ITeamRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             var team = new Team();
@@ -157,11 +157,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsNotValid_ShouldReturnTeamCreateView()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
             var teamRepository = A.Fake<ITeamRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             var team = new Team();
@@ -182,11 +182,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
             var teamRepository = A.Fake<ITeamRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             int? id = null;
@@ -202,15 +202,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNotNullAndTeamNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
 
             var teamRepository = A.Fake<ITeamRepository>();
             Team? team = null;
             A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Returns(team);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             int? id = 0;
@@ -227,15 +227,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNotNullAndTeamFound_ShouldReturnTeamEditView()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
 
             var teamRepository = A.Fake<ITeamRepository>();
             Team? team = new Team();
             A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Returns(team);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             int? id = 0;
@@ -253,11 +253,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdDoesNotEqualTeamId_ShouldReturnNotFound()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
             var teamRepository = A.Fake<ITeamRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             int id = 0;
@@ -277,11 +277,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsTeamIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsNotCaught_ShouldUpdateTeamInDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
             var teamRepository = A.Fake<ITeamRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             int id = 1;
@@ -304,15 +304,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsTeamIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsCaughtAndTeamWithIdDoesNotExist_ShouldReturnNotFound()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
 
             var teamRepository = A.Fake<ITeamRepository>();
             A.CallTo(() => teamRepository.Update(A<Team>.Ignored)).Throws<DbUpdateConcurrencyException>();
             A.CallTo(() => teamRepository.TeamExists(A<int>.Ignored)).Returns(false);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             int id = 1;
@@ -332,15 +332,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsTeamIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsCaughtAndTeamWithIdExists_ShouldRethrowException()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
 
             var teamRepository = A.Fake<ITeamRepository>();
             A.CallTo(() => teamRepository.Update(A<Team>.Ignored)).Throws<DbUpdateConcurrencyException>();
             A.CallTo(() => teamRepository.TeamExists(A<int>.Ignored)).Returns(true);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             int id = 1;
@@ -360,11 +360,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsTeamIdAndModelStateIsNotValid_ShouldReturnTeamEditView()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
             var teamRepository = A.Fake<ITeamRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             int id = 1;
@@ -388,11 +388,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
             var teamRepository = A.Fake<ITeamRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             int? id = null;
@@ -408,15 +408,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndTeamNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
 
             var teamRepository = A.Fake<ITeamRepository>();
             Team? team = null;
             A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Returns(team);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             int? id = 0;
@@ -433,15 +433,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndTeamFound_ShouldReturnTeamDeleteView()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
 
             var teamRepository = A.Fake<ITeamRepository>();
             Team? team = new Team();
             A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Returns(team);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             int? id = 0;
@@ -459,11 +459,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task DeleteConfirmed_ShouldDeleteTeamFromDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var teamsIndexViewModel = A.Fake<ITeamsIndexViewModel>();
-            var teamsDetailsViewModel = A.Fake<ITeamsDetailsViewModel>();
+            var teamsIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var teamsDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
             var teamRepository = A.Fake<ITeamRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamsController(teamsIndexViewModel, teamsDetailsViewModel,
+            var testController = new TeamController(teamsIndexViewModel, teamsDetailsViewModel,
                 teamRepository, sharedRepository);
 
             int id = 1;

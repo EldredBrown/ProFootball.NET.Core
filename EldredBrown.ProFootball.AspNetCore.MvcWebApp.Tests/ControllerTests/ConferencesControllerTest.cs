@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Xunit;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conferences;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conference;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 
@@ -19,15 +19,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Index_ShouldReturnConferencesIndexView()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
 
             var conferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>();
             A.CallTo(() => conferenceRepository.GetConferencesAsync()).Returns(conferences);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             // Act
@@ -44,11 +44,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
             var conferenceRepository = A.Fake<IConferenceRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             int? id = null;
@@ -64,15 +64,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNotNullAndConferenceNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
 
             var conferenceRepository = A.Fake<IConferenceRepository>();
             Conference? conference = null;
             A.CallTo(() => conferenceRepository.GetConferenceAsync(A<int>.Ignored)).Returns(conference);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             int? id = 0;
@@ -89,15 +89,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNotNullAndConferenceFound_ShouldReturnConferenceDetailsView()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
 
             var conferenceRepository = A.Fake<IConferenceRepository>();
             Conference? conference = new Conference();
             A.CallTo(() => conferenceRepository.GetConferenceAsync(A<int>.Ignored)).Returns(conference);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             int? id = 0;
@@ -116,11 +116,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public void CreateGet_ShouldReturnConferenceCreateView()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
             var conferenceRepository = A.Fake<IConferenceRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             // Act
@@ -134,11 +134,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsValid_ShouldAddConferenceToDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
             var conferenceRepository = A.Fake<IConferenceRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             var conference = new Conference();
@@ -157,11 +157,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsNotValid_ShouldReturnConferenceCreateView()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
             var conferenceRepository = A.Fake<IConferenceRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             var conference = new Conference();
@@ -182,11 +182,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
             var conferenceRepository = A.Fake<IConferenceRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             int? id = null;
@@ -202,15 +202,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNotNullAndConferenceNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
 
             var conferenceRepository = A.Fake<IConferenceRepository>();
             Conference? conference = null;
             A.CallTo(() => conferenceRepository.GetConferenceAsync(A<int>.Ignored)).Returns(conference);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             int? id = 0;
@@ -227,15 +227,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNotNullAndConferenceFound_ShouldReturnConferenceEditView()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
 
             var conferenceRepository = A.Fake<IConferenceRepository>();
             Conference? conference = new Conference();
             A.CallTo(() => conferenceRepository.GetConferenceAsync(A<int>.Ignored)).Returns(conference);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             int? id = 0;
@@ -253,11 +253,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdDoesNotEqualConferenceId_ShouldReturnNotFound()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
             var conferenceRepository = A.Fake<IConferenceRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             int id = 0;
@@ -277,11 +277,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsConferenceIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsNotCaught_ShouldUpdateConferenceInDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
             var conferenceRepository = A.Fake<IConferenceRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             int id = 1;
@@ -304,15 +304,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsConferenceIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsCaughtAndConferenceWithIdDoesNotExist_ShouldReturnNotFound()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
 
             var conferenceRepository = A.Fake<IConferenceRepository>();
             A.CallTo(() => conferenceRepository.Update(A<Conference>.Ignored)).Throws<DbUpdateConcurrencyException>();
             A.CallTo(() => conferenceRepository.ConferenceExists(A<int>.Ignored)).Returns(false);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             int id = 1;
@@ -332,15 +332,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsConferenceIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsCaughtAndConferenceWithIdExists_ShouldRethrowException()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
 
             var conferenceRepository = A.Fake<IConferenceRepository>();
             A.CallTo(() => conferenceRepository.Update(A<Conference>.Ignored)).Throws<DbUpdateConcurrencyException>();
             A.CallTo(() => conferenceRepository.ConferenceExists(A<int>.Ignored)).Returns(true);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             int id = 1;
@@ -360,11 +360,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsConferenceIdAndModelStateIsNotValid_ShouldReturnConferenceEditView()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
             var conferenceRepository = A.Fake<IConferenceRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             int id = 1;
@@ -388,11 +388,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
             var conferenceRepository = A.Fake<IConferenceRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             int? id = null;
@@ -408,15 +408,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndConferenceNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
 
             var conferenceRepository = A.Fake<IConferenceRepository>();
             Conference? conference = null;
             A.CallTo(() => conferenceRepository.GetConferenceAsync(A<int>.Ignored)).Returns(conference);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             int? id = 0;
@@ -433,15 +433,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndConferenceFound_ShouldReturnConferenceDeleteView()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
 
             var conferenceRepository = A.Fake<IConferenceRepository>();
             Conference? conference = new Conference();
             A.CallTo(() => conferenceRepository.GetConferenceAsync(A<int>.Ignored)).Returns(conference);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             int? id = 0;
@@ -459,11 +459,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task DeleteConfirmed_ShouldDeleteConferenceFromDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var conferencesIndexViewModel = A.Fake<IConferencesIndexViewModel>();
-            var conferencesDetailsViewModel = A.Fake<IConferencesDetailsViewModel>();
+            var conferencesIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var conferencesDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
             var conferenceRepository = A.Fake<IConferenceRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferencesController(conferencesIndexViewModel, conferencesDetailsViewModel,
+            var testController = new ConferenceController(conferencesIndexViewModel, conferencesDetailsViewModel,
                 conferenceRepository, sharedRepository);
 
             int id = 1;

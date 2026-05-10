@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace EldredBrown.ProFootball.Net.Data.Models;
+﻿namespace EldredBrown.ProFootball.Net.Data.Models;
 
 public partial class TeamSeason
 {

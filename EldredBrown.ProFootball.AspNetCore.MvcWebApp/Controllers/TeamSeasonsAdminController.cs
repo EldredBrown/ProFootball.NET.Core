@@ -1,10 +1,14 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeasons;
+
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
+using EldredBrown.ProFootball.Net.Data.Decorators;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 {
@@ -14,19 +18,19 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     [Authorize(Roles = "Admin")]
     public class TeamSeasonsAdminController : Controller
     {
-        private readonly ITeamSeasonsIndexViewModel _teamSeasonsIndexViewModel;
-        private readonly ITeamSeasonsDetailsViewModel _teamSeasonsDetailsViewModel;
+        private readonly ITeamSeasonIndexViewModel _teamSeasonIndexViewModel;
+        private readonly ITeamSeasonDetailsViewModel _teamSeasonDetailsViewModel;
         private readonly ITeamSeasonRepository _teamSeasonRepository;
         private readonly ISharedRepository _sharedRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TeamSeasonsAdminController"/> class.
         /// </summary>
-        /// <param name="teamSeasonsIndexViewModel">
-        /// The <see cref="ITeamSeasonsIndexViewModel"/> that will provide ViewModel data to the Index view.
+        /// <param name="teamSeasonIndexViewModel">
+        /// The <see cref="ITeamSeasonIndexViewModel"/> that will provide ViewModel data to the Index view.
         /// </param>
-        /// <param name="teamSeasonsDetailsViewModel">
-        /// The <see cref="ITeamSeasonsDetailsViewModel"/> that will provide ViewModel data to the Details view.
+        /// <param name="teamSeasonDetailsViewModel">
+        /// The <see cref="ITeamSeasonDetailsViewModel"/> that will provide ViewModel data to the Details view.
         /// </param>
         /// <param name="teamSeasonRepository">
         /// The <see cref="ITeamSeasonRepository"/> by which league data will be accessed.
@@ -35,13 +39,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
         /// </param>
         public TeamSeasonsAdminController(
-            ITeamSeasonsIndexViewModel teamSeasonsIndexViewModel,
-            ITeamSeasonsDetailsViewModel teamSeasonsDetailsViewModel,
+            ITeamSeasonIndexViewModel teamSeasonIndexViewModel,
+            ITeamSeasonDetailsViewModel teamSeasonDetailsViewModel,
             ITeamSeasonRepository teamSeasonRepository,
             ISharedRepository sharedRepository)
         {
-            _teamSeasonsIndexViewModel = teamSeasonsIndexViewModel;
-            _teamSeasonsDetailsViewModel = teamSeasonsDetailsViewModel;
+            _teamSeasonIndexViewModel = teamSeasonIndexViewModel;
+            _teamSeasonDetailsViewModel = teamSeasonDetailsViewModel;
             _teamSeasonRepository = teamSeasonRepository;
             _sharedRepository = sharedRepository;
         }
@@ -54,9 +58,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            _teamSeasonsIndexViewModel.TeamSeasons = await _teamSeasonRepository.GetTeamSeasonsAsync();
+            var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsAsync();
+            var teamSeasonDecorators = teamSeasons.Select(ts => new TeamSeasonDecorator(ts)).ToList();
+            _teamSeasonIndexViewModel.TeamSeasons = teamSeasonDecorators;
 
-            return View(_teamSeasonsIndexViewModel);
+            return View(_teamSeasonIndexViewModel);
         }
 
         // GET: TeamSeasons/Details/5
@@ -79,9 +85,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            _teamSeasonsDetailsViewModel.TeamSeason = teamSeason;
+            _teamSeasonDetailsViewModel.TeamSeason = new TeamSeasonDecorator(teamSeason);
 
-            return View(_teamSeasonsDetailsViewModel);
+            return View(_teamSeasonDetailsViewModel);
         }
 
         // GET: TeamSeasons/Create

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Xunit;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeasons;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 
@@ -19,8 +19,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Index_ShouldReturnTeamSeasonsIndexView()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
 
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var teamSeasons = new List<TeamSeason>();
@@ -44,8 +44,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
             var testController = new TeamSeasonsAdminController(teamSeasonsIndexViewModel, teamSeasonsDetailsViewModel,
@@ -64,8 +64,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNotNullAndTeamSeasonIsNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
 
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             TeamSeason? teamSeason = null;
@@ -89,8 +89,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNotNullAndTeamSeasonIsFound_ShouldReturnTeamSeasonDetailsView()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
 
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             TeamSeason? teamSeason = new TeamSeason();
@@ -116,8 +116,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public void CreateGet_ShouldReturnTeamSeasonCreateView()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
             var testController = new TeamSeasonsAdminController(teamSeasonsIndexViewModel, teamSeasonsDetailsViewModel,
@@ -134,8 +134,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsValid_ShouldAddTeamSeasonToDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
             var testController = new TeamSeasonsAdminController(teamSeasonsIndexViewModel, teamSeasonsDetailsViewModel,
@@ -157,8 +157,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsNotValid_ShouldReturnTeamSeasonCreateView()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
             var testController = new TeamSeasonsAdminController(teamSeasonsIndexViewModel, teamSeasonsDetailsViewModel,
@@ -182,8 +182,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
             var testController = new TeamSeasonsAdminController(teamSeasonsIndexViewModel, teamSeasonsDetailsViewModel,
@@ -202,8 +202,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNotNullAndTeamSeasonIsNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
 
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             TeamSeason? teamSeason = null;
@@ -227,8 +227,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNotNullAndTeamSeasonIsFound_ShouldReturnTeamSeasonEditView()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
 
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             TeamSeason? teamSeason = new TeamSeason();
@@ -253,8 +253,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdDoesNotEqualTeamSeasonId_ShouldReturnNotFound()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
             var testController = new TeamSeasonsAdminController(teamSeasonsIndexViewModel, teamSeasonsDetailsViewModel,
@@ -277,8 +277,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsTeamSeasonIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsNotCaught_ShouldUpdateTeamSeasonInDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
             var testController = new TeamSeasonsAdminController(teamSeasonsIndexViewModel, teamSeasonsDetailsViewModel,
@@ -304,8 +304,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsTeamSeasonIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsCaughtAndTeamSeasonWithIdDoesNotExist_ShouldReturnNotFound()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
 
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             A.CallTo(() => teamSeasonRepository.Update(A<TeamSeason>.Ignored)).Throws<DbUpdateConcurrencyException>();
@@ -332,8 +332,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsTeamSeasonIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsCaughtAndTeamSeasonWithIdExists_ShouldRethrowException()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
 
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             A.CallTo(() => teamSeasonRepository.Update(A<TeamSeason>.Ignored)).Throws<DbUpdateConcurrencyException>();
@@ -360,8 +360,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsTeamSeasonIdAndModelStateIsNotValid_ShouldReturnTeamSeasonEditView()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
             var testController = new TeamSeasonsAdminController(teamSeasonsIndexViewModel, teamSeasonsDetailsViewModel,
@@ -388,8 +388,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
             var testController = new TeamSeasonsAdminController(teamSeasonsIndexViewModel, teamSeasonsDetailsViewModel,
@@ -408,8 +408,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndTeamSeasonIsNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
 
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             TeamSeason? teamSeason = null;
@@ -433,8 +433,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndTeamSeasonIsFound_ShouldReturnTeamSeasonDeleteView()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
 
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             TeamSeason? teamSeason = new TeamSeason();
@@ -459,8 +459,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task DeleteConfirmed_ShouldDeleteTeamSeasonFromDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonsIndexViewModel>();
-            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonsDetailsViewModel>();
+            var teamSeasonsIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
+            var teamSeasonsDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
             var testController = new TeamSeasonsAdminController(teamSeasonsIndexViewModel, teamSeasonsDetailsViewModel,

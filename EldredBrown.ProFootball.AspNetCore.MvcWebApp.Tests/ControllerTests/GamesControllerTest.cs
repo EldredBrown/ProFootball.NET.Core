@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Xunit;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Games;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 using EldredBrown.ProFootball.Net.Services.GameServiceNS;
@@ -22,8 +22,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Index_WhenSelectedSeasonIsNullAndSelectedWeekIsNull_ShouldReturnGamesIndexView()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
 
             var gameRepository = A.Fake<IGameRepository>();
@@ -37,7 +37,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => seasonRepository.GetSeasonsAsync()).Returns(seasons);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             // Act
@@ -51,11 +51,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             gamesIndexViewModel.Seasons.Items.ShouldBe(seasons.OrderByDescending(s => s.Year));
             gamesIndexViewModel.Seasons.DataValueField.ShouldBe("Year");
             gamesIndexViewModel.Seasons.DataTextField.ShouldBe("Year");
-            gamesIndexViewModel.Seasons.SelectedValue.ShouldBe(GamesController.SelectedSeasonYear);
-            gamesIndexViewModel.SelectedSeasonYear.ShouldBe(GamesController.SelectedSeasonYear);
+            gamesIndexViewModel.Seasons.SelectedValue.ShouldBe(GameController.SelectedSeasonYear);
+            gamesIndexViewModel.SelectedSeasonYear.ShouldBe(GameController.SelectedSeasonYear);
             gamesIndexViewModel.Weeks.ShouldBeOfType<SelectList>();
             gamesIndexViewModel.Weeks.Items.ShouldBeOfType<List<int?>>();
-            gamesIndexViewModel.Weeks.SelectedValue.ShouldBe(GamesController.SelectedWeek);
+            gamesIndexViewModel.Weeks.SelectedValue.ShouldBe(GameController.SelectedWeek);
             gamesIndexViewModel.Games.ShouldBe(games);
 
             result.ShouldBeOfType<ViewResult>();
@@ -66,8 +66,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Index_WhenSelectedSeasonIsNotNullAndSelectedWeekIsNull_ShouldReturnGamesIndexView()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
 
             var gameRepository = A.Fake<IGameRepository>();
@@ -86,7 +86,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => seasonRepository.GetSeasonsAsync()).Returns(seasons);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             // Act
@@ -100,11 +100,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             gamesIndexViewModel.Seasons.Items.ShouldBe(seasons.OrderByDescending(s => s.Year));
             gamesIndexViewModel.Seasons.DataValueField.ShouldBe("Year");
             gamesIndexViewModel.Seasons.DataTextField.ShouldBe("Year");
-            gamesIndexViewModel.Seasons.SelectedValue.ShouldBe(GamesController.SelectedSeasonYear);
-            gamesIndexViewModel.SelectedSeasonYear.ShouldBe(GamesController.SelectedSeasonYear);
+            gamesIndexViewModel.Seasons.SelectedValue.ShouldBe(GameController.SelectedSeasonYear);
+            gamesIndexViewModel.SelectedSeasonYear.ShouldBe(GameController.SelectedSeasonYear);
             gamesIndexViewModel.Weeks.ShouldBeOfType<SelectList>();
             gamesIndexViewModel.Weeks.Items.ShouldBeEquivalentTo(new List<int?> { null, 1, 2 });
-            gamesIndexViewModel.Weeks.SelectedValue.ShouldBe(GamesController.SelectedWeek);
+            gamesIndexViewModel.Weeks.SelectedValue.ShouldBe(GameController.SelectedWeek);
             gamesIndexViewModel.Games.ShouldBe(games);
 
             result.ShouldBeOfType<ViewResult>();
@@ -116,10 +116,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         {
             // Arrange
             var selectedWeek = 1;
-            GamesController.SelectedWeek = selectedWeek;
+            GameController.SelectedWeek = selectedWeek;
 
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
 
             var gameRepository = A.Fake<IGameRepository>();
@@ -143,7 +143,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => seasonRepository.GetSeasonsAsync()).Returns(seasons);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             // Act
@@ -157,11 +157,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             gamesIndexViewModel.Seasons.Items.ShouldBe(seasons.OrderByDescending(s => s.Year));
             gamesIndexViewModel.Seasons.DataValueField.ShouldBe("Year");
             gamesIndexViewModel.Seasons.DataTextField.ShouldBe("Year");
-            gamesIndexViewModel.Seasons.SelectedValue.ShouldBe(GamesController.SelectedSeasonYear);
-            gamesIndexViewModel.SelectedSeasonYear.ShouldBe(GamesController.SelectedSeasonYear);
+            gamesIndexViewModel.Seasons.SelectedValue.ShouldBe(GameController.SelectedSeasonYear);
+            gamesIndexViewModel.SelectedSeasonYear.ShouldBe(GameController.SelectedSeasonYear);
             gamesIndexViewModel.Weeks.ShouldBeOfType<SelectList>();
             gamesIndexViewModel.Weeks.Items.ShouldBeEquivalentTo(new List<int?> { null, 1, 2 });
-            gamesIndexViewModel.Weeks.SelectedValue.ShouldBe(GamesController.SelectedWeek);
+            gamesIndexViewModel.Weeks.SelectedValue.ShouldBe(GameController.SelectedWeek);
             gamesIndexViewModel.Games.ShouldBe(games.Where(g => g.Week == selectedWeek).ToList());
 
             result.ShouldBeOfType<ViewResult>();
@@ -172,14 +172,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
             var gameRepository = A.Fake<IGameRepository>();
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int? id = null;
@@ -195,8 +195,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNotNullAndGameNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
 
             var gameRepository = A.Fake<IGameRepository>();
@@ -206,7 +206,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int? id = 1;
@@ -223,8 +223,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNotNullAndGameFound_ShouldReturnNotFound()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
 
             var gameRepository = A.Fake<IGameRepository>();
@@ -234,7 +234,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int? id = 1;
@@ -254,11 +254,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         {
             // Arrange
             int selectedSeasonYear = 1920;
-            GamesController.SelectedSeasonYear = selectedSeasonYear;
-            GamesController.SelectedWeek = 2;
+            GameController.SelectedSeasonYear = selectedSeasonYear;
+            GameController.SelectedWeek = 2;
 
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
             var gameRepository = A.Fake<IGameRepository>();
             var teamRepository = A.Fake<ITeamRepository>();
@@ -272,7 +272,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => seasonRepository.GetSeasonsAsync()).Returns(seasons);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             // Act
@@ -286,12 +286,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             seasonsSelectList.Items.ShouldBe(seasons.OrderByDescending(s => s.Year));
             seasonsSelectList.DataValueField.ShouldBe<string>("Year");
             seasonsSelectList.DataTextField.ShouldBe<string>("Year");
-            seasonsSelectList.SelectedValue.ShouldBe(GamesController.SelectedSeasonYear);
+            seasonsSelectList.SelectedValue.ShouldBe(GameController.SelectedSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.Weeks);
             var weeksSelectList = (SelectList)testController.ViewBag.Weeks;
             weeksSelectList.Items.ShouldBeEquivalentTo(new List<int?> { 1, 2, 3 });
-            weeksSelectList.SelectedValue.ShouldBe(GamesController.SelectedWeek);
+            weeksSelectList.SelectedValue.ShouldBe(GameController.SelectedWeek);
 
             result.ShouldBeOfType<ViewResult>();
         }
@@ -301,11 +301,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         {
             // Arrange
             int selectedSeasonYear = 1920;
-            GamesController.SelectedSeasonYear = selectedSeasonYear;
-            GamesController.SelectedWeek = null;
+            GameController.SelectedSeasonYear = selectedSeasonYear;
+            GameController.SelectedWeek = null;
 
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
             var gameRepository = A.Fake<IGameRepository>();
             var teamRepository = A.Fake<ITeamRepository>();
@@ -319,7 +319,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => seasonRepository.GetSeasonsAsync()).Returns(seasons);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             // Act
@@ -333,7 +333,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             seasonsSelectList.Items.ShouldBe(seasons.OrderByDescending(s => s.Year));
             seasonsSelectList.DataValueField.ShouldBe<string>("Year");
             seasonsSelectList.DataTextField.ShouldBe<string>("Year");
-            seasonsSelectList.SelectedValue.ShouldBe(GamesController.SelectedSeasonYear);
+            seasonsSelectList.SelectedValue.ShouldBe(GameController.SelectedSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.Weeks);
             var weeksSelectList = (SelectList)testController.ViewBag.Weeks;
@@ -347,14 +347,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsValid_ShouldAddGameToDataStoreAndRedirectToCreateView()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
             var gameRepository = A.Fake<IGameRepository>();
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             var game = new Game();
@@ -373,14 +373,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsNotValid_ShouldShowGameCreateView()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
             var gameRepository = A.Fake<IGameRepository>();
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             var game = new Game();
@@ -400,14 +400,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
             var gameRepository = A.Fake<IGameRepository>();
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int? id = null;
@@ -423,8 +423,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNotNullAndGameNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
 
             var gameRepository = A.Fake<IGameRepository>();
@@ -435,7 +435,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             // Act
@@ -450,10 +450,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         {
             // Arrange
             int selectedSeasonYear = 1920;
-            GamesController.SelectedSeasonYear = selectedSeasonYear;
+            GameController.SelectedSeasonYear = selectedSeasonYear;
 
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
 
             var gameRepository = A.Fake<IGameRepository>();
@@ -480,7 +480,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => seasonRepository.GetSeasonsAsync()).Returns(seasons);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             // Act
@@ -501,7 +501,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             weeksSelectList.Items.ShouldBeEquivalentTo(new List<int?> { 1, 2, 3 });
             weeksSelectList.SelectedValue.ShouldBe(game.Week);
 
-            GamesController.OldGame.ShouldBe(game);
+            GameController.OldGame.ShouldBe(game);
 
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(game);
@@ -511,14 +511,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdDoesNotEqualGameId_ShouldReturnNotFound()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
             var gameRepository = A.Fake<IGameRepository>();
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int id = 0;
@@ -535,14 +535,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsGameIdAndModelStateIsNotValid_ShouldReturnEditGameView()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
             var gameRepository = A.Fake<IGameRepository>();
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int id = 1;
@@ -562,16 +562,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         {
             // Arrange
             var oldGame = new Game();
-            GamesController.OldGame = oldGame;
+            GameController.OldGame = oldGame;
 
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
             var gameRepository = A.Fake<IGameRepository>();
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int id = 1;
@@ -591,8 +591,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsGameIdAndModelStateIsValidAndDbConcurrencyExceptionIsCaughtAndGameWithIdDoesNotExist_ShouldReturnNotFound()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
 
             var gameService = A.Fake<IGameService>();
             A.CallTo(() => gameService.EditGameAsync(A<Game>.Ignored, A<Game>.Ignored))
@@ -604,7 +604,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int id = 1;
@@ -621,8 +621,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsGameIdAndModelStateIsValidAndDbConcurrencyExceptionIsCaughtAndGameWithIdExists_ShouldRethrowException()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
 
             var gameService = A.Fake<IGameService>();
             A.CallTo(() => gameService.EditGameAsync(A<Game>.Ignored, A<Game>.Ignored))
@@ -634,7 +634,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int id = 1;
@@ -651,14 +651,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
             var gameRepository = A.Fake<IGameRepository>();
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int? id = null;
@@ -674,8 +674,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndGameIsNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
 
             var gameRepository = A.Fake<IGameRepository>();
@@ -685,7 +685,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int? id = 1;
@@ -702,8 +702,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndGameIsFound_ShouldReturnNotFound()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
 
             var gameRepository = A.Fake<IGameRepository>();
@@ -713,7 +713,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int? id = 1;
@@ -731,14 +731,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task DeleteConfirmed_ShouldDeleteGameFromDataStore()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
             var gameRepository = A.Fake<IGameRepository>();
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int id = 1;
@@ -757,14 +757,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public void SetSelectedSeasonYear_WhenSeasonYearArgIsNull_ShouldReturnBadRequest()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
             var gameRepository = A.Fake<IGameRepository>();
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int? year = null;
@@ -780,14 +780,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public void SetSelectedSeasonYear_WhenSeasonYearArgIsNotNull_ShouldSetSelectedSeasonYearAndRedirectToIndexView()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
             var gameRepository = A.Fake<IGameRepository>();
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int? year = 1920;
@@ -796,7 +796,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = testController.SetSelectedSeasonYear(year);
 
             // Assert
-            GamesController.SelectedSeasonYear.ShouldBe(year.Value);
+            GameController.SelectedSeasonYear.ShouldBe(year.Value);
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
         }
@@ -805,14 +805,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public void SetSelectedWeek_ShouldSetSelectedWeekAndRedirectToIndexView()
         {
             // Arrange
-            var gamesIndexViewModel = A.Fake<IGamesIndexViewModel>();
-            var gamesDetailsViewModel = A.Fake<IGamesDetailsViewModel>();
+            var gamesIndexViewModel = A.Fake<IGameIndexViewModel>();
+            var gamesDetailsViewModel = A.Fake<IGameDetailsViewModel>();
             var gameService = A.Fake<IGameService>();
             var gameRepository = A.Fake<IGameRepository>();
             var teamRepository = A.Fake<ITeamRepository>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new GamesController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
+            var testController = new GameController(gamesIndexViewModel, gamesDetailsViewModel, gameService,
                 gameRepository, teamRepository, seasonRepository, sharedRepository);
 
             int? week = 1;
@@ -821,7 +821,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = testController.SetSelectedWeek(week);
 
             // Assert
-            GamesController.SelectedWeek.ShouldBe(week);
+            GameController.SelectedWeek.ShouldBe(week);
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
         }

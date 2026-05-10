@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Xunit;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Leagues;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.League;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 
@@ -19,15 +19,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Index_ShouldReturnLeaguesIndexView()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
 
             var leagueRepository = A.Fake<ILeagueRepository>();
             var leagues = new List<League>();
             A.CallTo(() => leagueRepository.GetLeaguesAsync()).Returns(leagues);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             // Act
@@ -44,11 +44,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
             var leagueRepository = A.Fake<ILeagueRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             int? id = null;
@@ -64,15 +64,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNotNullAndLeagueNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
 
             var leagueRepository = A.Fake<ILeagueRepository>();
             League? league = null;
             A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Returns(league);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             int? id = 0;
@@ -89,15 +89,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNotNullAndLeagueFound_ShouldReturnLeagueDetailsView()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
 
             var leagueRepository = A.Fake<ILeagueRepository>();
             League? league = new League();
             A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Returns(league);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             int? id = 0;
@@ -116,11 +116,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public void CreateGet_ShouldReturnLeagueCreateView()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
             var leagueRepository = A.Fake<ILeagueRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             // Act
@@ -134,11 +134,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsValid_ShouldAddLeagueToDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
             var leagueRepository = A.Fake<ILeagueRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             var league = new League();
@@ -157,11 +157,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsNotValid_ShouldReturnLeagueCreateView()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
             var leagueRepository = A.Fake<ILeagueRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             var league = new League();
@@ -182,11 +182,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
             var leagueRepository = A.Fake<ILeagueRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             int? id = null;
@@ -202,15 +202,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNotNullAndLeagueNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
 
             var leagueRepository = A.Fake<ILeagueRepository>();
             League? league = null;
             A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Returns(league);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             int? id = 0;
@@ -227,15 +227,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNotNullAndLeagueFound_ShouldReturnLeagueEditView()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
 
             var leagueRepository = A.Fake<ILeagueRepository>();
             League? league = new League();
             A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Returns(league);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             int? id = 0;
@@ -253,11 +253,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdDoesNotEqualLeagueId_ShouldReturnNotFound()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
             var leagueRepository = A.Fake<ILeagueRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             int id = 0;
@@ -277,11 +277,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsLeagueIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsNotCaught_ShouldUpdateLeagueInDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
             var leagueRepository = A.Fake<ILeagueRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             int id = 1;
@@ -304,15 +304,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsLeagueIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsCaughtAndLeagueWithIdDoesNotExist_ShouldReturnNotFound()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
 
             var leagueRepository = A.Fake<ILeagueRepository>();
             A.CallTo(() => leagueRepository.Update(A<League>.Ignored)).Throws<DbUpdateConcurrencyException>();
             A.CallTo(() => leagueRepository.LeagueExists(A<int>.Ignored)).Returns(false);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             int id = 1;
@@ -332,15 +332,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsLeagueIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsCaughtAndLeagueWithIdExists_ShouldRethrowException()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
 
             var leagueRepository = A.Fake<ILeagueRepository>();
             A.CallTo(() => leagueRepository.Update(A<League>.Ignored)).Throws<DbUpdateConcurrencyException>();
             A.CallTo(() => leagueRepository.LeagueExists(A<int>.Ignored)).Returns(true);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             int id = 1;
@@ -360,11 +360,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsLeagueIdAndModelStateIsNotValid_ShouldReturnLeagueEditView()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
             var leagueRepository = A.Fake<ILeagueRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             int id = 1;
@@ -388,11 +388,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
             var leagueRepository = A.Fake<ILeagueRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             int? id = null;
@@ -408,15 +408,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndLeagueNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
 
             var leagueRepository = A.Fake<ILeagueRepository>();
             League? league = null;
             A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Returns(league);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             int? id = 0;
@@ -433,15 +433,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndLeagueFound_ShouldReturnLeagueDeleteView()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
 
             var leagueRepository = A.Fake<ILeagueRepository>();
             League? league = new League();
             A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Returns(league);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             int? id = 0;
@@ -459,11 +459,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task DeleteConfirmed_ShouldDeleteLeagueFromDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var leaguesIndexViewModel = A.Fake<ILeaguesIndexViewModel>();
-            var leaguesDetailsViewModel = A.Fake<ILeaguesDetailsViewModel>();
+            var leaguesIndexViewModel = A.Fake<ILeagueIndexViewModel>();
+            var leaguesDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
             var leagueRepository = A.Fake<ILeagueRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeaguesController(leaguesIndexViewModel, leaguesDetailsViewModel,
+            var testController = new LeagueController(leaguesIndexViewModel, leaguesDetailsViewModel,
                 leagueRepository, sharedRepository);
 
             int id = 1;

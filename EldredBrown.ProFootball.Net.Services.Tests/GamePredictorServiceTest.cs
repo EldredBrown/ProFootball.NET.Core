@@ -14,17 +14,17 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
 
             var guestSeason = new TeamSeason
             {
-                OffensiveAverage = 7.00d,
-                OffensiveFactor = 0.500d,
-                DefensiveAverage = 14.00d,
-                DefensiveFactor = 1.500d
+                OffensiveAverage = 7.00m,
+                OffensiveFactor = 0.500m,
+                DefensiveAverage = 14.00m,
+                DefensiveFactor = 1.500m
             };
             var hostSeason = new TeamSeason
             {
-                OffensiveAverage = 28.00d,
-                OffensiveFactor = 2.000d,
-                DefensiveAverage = 21.00d,
-                DefensiveFactor = 1.000d
+                OffensiveAverage = 28.00m,
+                OffensiveFactor = 2.000m,
+                DefensiveAverage = 21.00m,
+                DefensiveFactor = 1.000m
             };
 
             // Act
@@ -33,9 +33,9 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
 
             // Assert
             predictedGuestScore.ShouldBe((guestSeason.OffensiveFactor * hostSeason.DefensiveAverage +
-                hostSeason.DefensiveFactor * guestSeason.OffensiveAverage) / 2d);
+                hostSeason.DefensiveFactor * guestSeason.OffensiveAverage) / 2m);
             predictedHostScore.ShouldBe((hostSeason.OffensiveFactor * guestSeason.DefensiveAverage +
-                guestSeason.DefensiveFactor * hostSeason.OffensiveAverage) / 2d);
+                guestSeason.DefensiveFactor * hostSeason.OffensiveAverage) / 2m);
         }
     }
 }

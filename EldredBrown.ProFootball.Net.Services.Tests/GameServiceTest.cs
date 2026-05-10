@@ -3,10 +3,11 @@ using System.Threading.Tasks;
 using FakeItEasy;
 using Shouldly;
 using Xunit;
+
 using EldredBrown.ProFootball.Net.Data.Decorators;
+using EldredBrown.ProFootball.Net.Data.Exceptions;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
-using EldredBrown.ProFootball.Net.Services.Exceptions;
 using EldredBrown.ProFootball.Net.Services.GameServiceNS;
 using EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy;
 

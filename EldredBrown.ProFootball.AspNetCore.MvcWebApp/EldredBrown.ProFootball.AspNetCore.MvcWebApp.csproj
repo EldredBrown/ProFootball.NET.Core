@@ -28,11 +28,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Views\Leagues\Create.cshtml" />
-    <None Include="Views\Leagues\Delete.cshtml" />
-    <None Include="Views\Leagues\Details.cshtml" />
-    <None Include="Views\Leagues\Edit.cshtml" />
-    <None Include="Views\Leagues\Index.cshtml" />
+    <None Include="Views\League\Create.cshtml" />
+    <None Include="Views\League\Delete.cshtml" />
+    <None Include="Views\League\Details.cshtml" />
+    <None Include="Views\League\Edit.cshtml" />
+    <None Include="Views\League\Index.cshtml" />
   </ItemGroup>
 
 </Project>

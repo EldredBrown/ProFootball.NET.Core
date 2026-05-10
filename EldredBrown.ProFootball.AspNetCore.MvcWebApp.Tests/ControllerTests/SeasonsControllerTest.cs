@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Xunit;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Seasons;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Season;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 
@@ -19,15 +19,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Index_ShouldReturnSeasonsIndexView()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
 
             var seasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>();
             A.CallTo(() => seasonRepository.GetSeasonsAsync()).Returns(seasons);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             // Act
@@ -44,11 +44,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             int? id = null;
@@ -64,15 +64,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNotNullAndSeasonNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
 
             var seasonRepository = A.Fake<ISeasonRepository>();
             Season? season = null;
             A.CallTo(() => seasonRepository.GetSeasonAsync(A<int>.Ignored)).Returns(season);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             int? id = 0;
@@ -90,15 +90,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNotNullAndSeasonFound_ShouldReturnSeasonDetailsView()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
 
             var seasonRepository = A.Fake<ISeasonRepository>();
             Season? season = new Season();
             A.CallTo(() => seasonRepository.GetSeasonAsync(A<int>.Ignored)).Returns(season);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             int? id = 0;
@@ -118,11 +118,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public void CreateGet_ShouldReturnSeasonCreateView()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             // Act
@@ -136,11 +136,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsValid_ShouldAddSeasonToDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             var season = new Season();
@@ -159,11 +159,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsNotValid_ShouldReturnSeasonCreateView()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             var season = new Season();
@@ -184,11 +184,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             int? id = null;
@@ -204,15 +204,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNotNullAndSeasonNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
 
             var seasonRepository = A.Fake<ISeasonRepository>();
             Season? season = null;
             A.CallTo(() => seasonRepository.GetSeasonAsync(A<int>.Ignored)).Returns(season);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             int? id = 0;
@@ -229,15 +229,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNotNullAndSeasonFound_ShouldReturnSeasonEditView()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
 
             var seasonRepository = A.Fake<ISeasonRepository>();
             Season? season = new Season();
             A.CallTo(() => seasonRepository.GetSeasonAsync(A<int>.Ignored)).Returns(season);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             int? id = 0;
@@ -255,11 +255,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdDoesNotEqualSeasonId_ShouldReturnNotFound()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             int id = 0;
@@ -279,11 +279,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsSeasonIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsNotCaught_ShouldUpdateSeasonInDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             int id = 1;
@@ -306,15 +306,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsSeasonIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsCaughtAndSeasonWithIdDoesNotExist_ShouldReturnNotFound()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
 
             var seasonRepository = A.Fake<ISeasonRepository>();
             A.CallTo(() => seasonRepository.Update(A<Season>.Ignored)).Throws<DbUpdateConcurrencyException>();
             A.CallTo(() => seasonRepository.SeasonExists(A<int>.Ignored)).Returns(false);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             int id = 1;
@@ -334,15 +334,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsSeasonIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsCaughtAndSeasonWithIdExists_ShouldRethrowException()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
 
             var seasonRepository = A.Fake<ISeasonRepository>();
             A.CallTo(() => seasonRepository.Update(A<Season>.Ignored)).Throws<DbUpdateConcurrencyException>();
             A.CallTo(() => seasonRepository.SeasonExists(A<int>.Ignored)).Returns(true);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             int id = 1;
@@ -362,11 +362,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsSeasonIdAndModelStateIsNotValid_ShouldReturnSeasonEditView()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             int id = 1;
@@ -390,11 +390,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             int? id = null;
@@ -410,15 +410,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndSeasonNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
 
             var seasonRepository = A.Fake<ISeasonRepository>();
             Season? season = null;
             A.CallTo(() => seasonRepository.GetSeasonAsync(A<int>.Ignored)).Returns(season);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             int? id = 0;
@@ -435,15 +435,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndSeasonFound_ShouldReturnSeasonDeleteView()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
 
             var seasonRepository = A.Fake<ISeasonRepository>();
             Season? season = new Season();
             A.CallTo(() => seasonRepository.GetSeasonAsync(A<int>.Ignored)).Returns(season);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             int? id = 0;
@@ -461,11 +461,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task DeleteConfirmed_ShouldDeleteSeasonFromDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var seasonsIndexViewModel = A.Fake<ISeasonsIndexViewModel>();
-            var seasonsDetailsViewModel = A.Fake<ISeasonsDetailsViewModel>();
+            var seasonsIndexViewModel = A.Fake<ISeasonIndexViewModel>();
+            var seasonsDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
             var seasonRepository = A.Fake<ISeasonRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonsController(seasonsIndexViewModel, seasonsDetailsViewModel,
+            var testController = new SeasonController(seasonsIndexViewModel, seasonsDetailsViewModel,
                 seasonRepository, sharedRepository);
 
             int id = 1;

@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
+
 using Microsoft.AspNetCore.Mvc;
+
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers

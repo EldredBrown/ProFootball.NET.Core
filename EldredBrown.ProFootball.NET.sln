@@ -23,9 +23,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EldredBrown.ProFootball.Net
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EldredBrown.ProFootball.Net.Services.Tests", "EldredBrown.ProFootball.Net.Services.Tests\EldredBrown.ProFootball.Net.Services.Tests.csproj", "{2AB64489-1A31-3D0D-04E2-C0846038B6EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EldredBrown.ProFootball.NETCore.WpfApp", "EldredBrown.ProFootball.Net.WpfApp\EldredBrown.ProFootball.NETCore.WpfApp.csproj", "{1E0073E6-479F-F268-FF34-94924D7EDCD6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EldredBrown.ProFootball.Net.WpfApp", "EldredBrown.ProFootball.Net.WpfApp\EldredBrown.ProFootball.Net.WpfApp.csproj", "{1E0073E6-479F-F268-FF34-94924D7EDCD6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EldredBrown.ProFootball.NETCore.WpfApp.Tests", "EldredBrown.ProFootball.Net.WpfApp.Tests\EldredBrown.ProFootball.NETCore.WpfApp.Tests.csproj", "{27D59BD2-2FDE-A8C0-AC58-1CD202407F5A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EldredBrown.ProFootball.Net.WpfApp.Tests", "EldredBrown.ProFootball.Net.WpfApp.Tests\EldredBrown.ProFootball.Net.WpfApp.Tests.csproj", "{27D59BD2-2FDE-A8C0-AC58-1CD202407F5A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Xunit;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Divisions;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Division;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 
@@ -19,15 +19,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Index_ShouldReturnDivisionsIndexView()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
             var divisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>();
             A.CallTo(() => divisionRepository.GetDivisionsAsync()).Returns(divisions);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             // Act
@@ -44,11 +44,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
             var divisionRepository = A.Fake<IDivisionRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             int? id = null;
@@ -64,15 +64,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNotNullAndDivisionNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
             var divisionRepository = A.Fake<IDivisionRepository>();
             Division? division = null;
             A.CallTo(() => divisionRepository.GetDivisionAsync(A<int>.Ignored)).Returns(division);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             int? id = 0;
@@ -89,15 +89,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenIdIsNotNullAndDivisionFound_ShouldReturnDivisionDetailsView()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
             var divisionRepository = A.Fake<IDivisionRepository>();
             Division? division = new Division();
             A.CallTo(() => divisionRepository.GetDivisionAsync(A<int>.Ignored)).Returns(division);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             int? id = 0;
@@ -116,11 +116,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public void CreateGet_ShouldReturnDivisionCreateView()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
             var divisionRepository = A.Fake<IDivisionRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             // Act
@@ -134,11 +134,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsValid_ShouldAddDivisionToDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
             var divisionRepository = A.Fake<IDivisionRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             var division = new Division();
@@ -157,11 +157,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsNotValid_ShouldReturnDivisionCreateView()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
             var divisionRepository = A.Fake<IDivisionRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             var division = new Division();
@@ -182,11 +182,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
             var divisionRepository = A.Fake<IDivisionRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             int? id = null;
@@ -202,15 +202,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNotNullAndDivisionNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
             var divisionRepository = A.Fake<IDivisionRepository>();
             Division? division = null;
             A.CallTo(() => divisionRepository.GetDivisionAsync(A<int>.Ignored)).Returns(division);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             int? id = 0;
@@ -227,15 +227,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNotNullAndDivisionFound_ShouldReturnDivisionEditView()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
             var divisionRepository = A.Fake<IDivisionRepository>();
             Division? division = new Division();
             A.CallTo(() => divisionRepository.GetDivisionAsync(A<int>.Ignored)).Returns(division);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             int? id = 0;
@@ -253,11 +253,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdDoesNotEqualDivisionId_ShouldReturnNotFound()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
             var divisionRepository = A.Fake<IDivisionRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             int id = 0;
@@ -277,11 +277,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsDivisionIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsNotCaught_ShouldUpdateDivisionInDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
             var divisionRepository = A.Fake<IDivisionRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             int id = 1;
@@ -304,15 +304,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsDivisionIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsCaughtAndDivisionWithIdDoesNotExist_ShouldReturnNotFound()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
             var divisionRepository = A.Fake<IDivisionRepository>();
             A.CallTo(() => divisionRepository.Update(A<Division>.Ignored)).Throws<DbUpdateConcurrencyException>();
             A.CallTo(() => divisionRepository.DivisionExists(A<int>.Ignored)).Returns(false);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             int id = 1;
@@ -332,15 +332,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsDivisionIdAndModelStateIsValidAndDbUpdateConcurrencyExceptionIsCaughtAndDivisionWithIdExists_ShouldRethrowException()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
             var divisionRepository = A.Fake<IDivisionRepository>();
             A.CallTo(() => divisionRepository.Update(A<Division>.Ignored)).Throws<DbUpdateConcurrencyException>();
             A.CallTo(() => divisionRepository.DivisionExists(A<int>.Ignored)).Returns(true);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             int id = 1;
@@ -360,11 +360,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsDivisionIdAndModelStateIsNotValid_ShouldReturnDivisionEditView()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
             var divisionRepository = A.Fake<IDivisionRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             int id = 1;
@@ -388,11 +388,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
             var divisionRepository = A.Fake<IDivisionRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             int? id = null;
@@ -408,15 +408,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndDivisionNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
             var divisionRepository = A.Fake<IDivisionRepository>();
             Division? division = null;
             A.CallTo(() => divisionRepository.GetDivisionAsync(A<int>.Ignored)).Returns(division);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             int? id = 0;
@@ -433,15 +433,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndDivisionFound_ShouldReturnDivisionDeleteView()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
             var divisionRepository = A.Fake<IDivisionRepository>();
             Division? division = new Division();
             A.CallTo(() => divisionRepository.GetDivisionAsync(A<int>.Ignored)).Returns(division);
 
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             int? id = 0;
@@ -459,11 +459,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task DeleteConfirmed_ShouldDeleteDivisionFromDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var divisionsIndexViewModel = A.Fake<IDivisionsIndexViewModel>();
-            var divisionsDetailsViewModel = A.Fake<IDivisionsDetailsViewModel>();
+            var divisionsIndexViewModel = A.Fake<IDivisionIndexViewModel>();
+            var divisionsDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
             var divisionRepository = A.Fake<IDivisionRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionsController(divisionsIndexViewModel, divisionsDetailsViewModel,
+            var testController = new DivisionController(divisionsIndexViewModel, divisionsDetailsViewModel,
                 divisionRepository, sharedRepository);
 
             int id = 1;
