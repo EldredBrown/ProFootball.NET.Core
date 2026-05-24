@@ -1,5 +1,4 @@
 ﻿using EldredBrown.ProFootball.Net.Data.Models;
-using System.ComponentModel;
 
 namespace EldredBrown.ProFootball.Net.Data.Decorators
 {
@@ -69,17 +68,5 @@ namespace EldredBrown.ProFootball.Net.Data.Decorators
         /// Gets or sets any notes for the wrapped <see cref="Game"/> entity.
         /// </summary>
         string? Notes { get; set; }
-
-        /// <summary>
-        /// Checks to see if the wrapped <see cref="Game"/> entity is a tie.
-        /// </summary>
-        /// <returns>True if the <see cref="Game"/> is a tie, otherwise false.</returns>
-        bool IsTie { get; }
-
-        /// <summary>
-        /// Edits the wrapped <see cref="Game"/> entity with data from another <see cref="Game"/> entity.
-        /// </summary>
-        /// <param name="srcGame">The <see cref="Game"/> entity from which data will be copied.</param>
-        void Edit(IGameDecorator srcGame);
     }
 }

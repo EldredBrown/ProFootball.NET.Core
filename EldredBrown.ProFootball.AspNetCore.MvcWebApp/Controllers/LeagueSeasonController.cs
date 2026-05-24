@@ -168,7 +168,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await _leagueSeasonRepository.LeagueSeasonExists(leagueSeason.Id))
+                    if (!await _leagueSeasonRepository.LeagueSeasonExistsAsync(leagueSeason.Id))
                     {
                         return NotFound();
                     }

@@ -23,7 +23,7 @@ namespace EldredBrown.ProFootball.Net.Data.Models
         /// Gets or sets the guest score of the current <see cref="GamePrediction"/> entity.
         /// </summary>
         [DisplayName("Guest Score")]
-        public int GuestScore { get; set; }
+        public int? GuestScore { get; set; }
 
         /// <summary>
         /// Gets or sets the host season year of the current <see cref="GamePrediction"/> entity.
@@ -41,6 +41,6 @@ namespace EldredBrown.ProFootball.Net.Data.Models
         /// Gets or sets the host score of the current <see cref="GamePrediction"/> entity.
         /// </summary>
         [DisplayName("Host Score")]
-        public int HostScore { get; set; }
+        public int? HostScore { get; set; }
     }
 }

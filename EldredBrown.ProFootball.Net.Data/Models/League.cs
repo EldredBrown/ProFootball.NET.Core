@@ -1,5 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace EldredBrown.ProFootball.Net.Data.Models;
 
@@ -11,17 +13,21 @@ public partial class League
 
     public string LongName { get; set; } = null!;
 
-    public int FirstSeasonYear { get; set; }
+    [Display(Name = "First Season")]
+    public int FirstSeasonId { get; set; }
 
-    public int? LastSeasonYear { get; set; }
+    [Display(Name = "Last Season")]
+    public int? LastSeasonId { get; set; }
+
+    [ValidateNever]
+    public virtual Season FirstSeasonIdNavigation { get; set; } = null!;
+
+    [ValidateNever]
+    public virtual Season? LastSeasonIdNavigation { get; set; }
 
     public virtual ICollection<Conference> Conferences { get; set; } = new List<Conference>();
 
     public virtual ICollection<Division> Divisions { get; set; } = new List<Division>();
-
-    public virtual Season FirstSeasonYearNavigation { get; set; } = null!;
-
-    public virtual Season? LastSeasonYearNavigation { get; set; }
 
     public virtual ICollection<LeagueSeason> LeagueSeasons { get; set; } = new List<LeagueSeason>();
 

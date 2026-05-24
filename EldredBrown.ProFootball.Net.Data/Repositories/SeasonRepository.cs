@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Microsoft.EntityFrameworkCore;
+
 using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Data.Repositories
@@ -28,7 +30,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>An <see cref="IEnumerable{Season}"/> of all fetched entities.</returns>
         public IEnumerable<Season> GetSeasons()
         {
-            return _dbContext.Seasons.ToList();
+            return _dbContext.Seasons;
         }
 
         /// <summary>
@@ -71,33 +73,15 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         }
 
         /// <summary>
-        /// Gets a single <see cref="Season"/> entity from the data store by Id.
+        /// Adds a <see cref="Season"/> entity to the data store.
         /// </summary>
-        /// <param name="year">The year of the <see cref="Season"/> entity to fetch.</param>
-        /// <returns>The fetched <see cref="Season"/> entity.</returns>
-        public Season? GetSeasonByYear(int year)
+        /// <param name="season">The <see cref="Season"/> entity to add.</param>
+        /// <returns>The added <see cref="Season"/> entity.</returns>
+        public Season Add(Season season)
         {
-            if (_dbContext.Seasons is null)
-            {
-                return null;
-            }
+            _dbContext.Add(season);
 
-            return _dbContext.Seasons.FirstOrDefault(s => s.Year == year);
-        }
-
-        /// <summary>
-        /// Gets a single <see cref="Season"/> entity from the data store asynchronously by Id.
-        /// </summary>
-        /// <param name="year">The year of the <see cref="Season"/> entity to fetch.</param>
-        /// <returns>The fetched <see cref="Season"/> entity.</returns>
-        public async Task<Season?> GetSeasonByYearAsync(int year)
-        {
-            if (_dbContext.Seasons is null)
-            {
-                return null;
-            }
-
-            return await _dbContext.Seasons.FirstOrDefaultAsync(s => s.Year == year);
+            return season;
         }
 
         /// <summary>
@@ -124,8 +108,30 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return season;
             }
 
-            var entity = _dbContext.Seasons.Attach(season);
-            entity.State = EntityState.Modified;
+            _dbContext.Seasons.Update(season);
+
+            return season;
+        }
+
+        /// <summary>
+        /// Deletes a <see cref="Season"/> entity from the data store.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Season"/> entity to delete.</param>
+        /// <returns>The deleted <see cref="Season"/> entity.</returns>
+        public Season? Delete(int id)
+        {
+            if (_dbContext.Seasons is null)
+            {
+                return null;
+            }
+
+            var season = GetSeason(id);
+            if (season is null)
+            {
+                return null;
+            }
+
+            _dbContext.Seasons.Remove(season);
 
             return season;
         }
@@ -160,7 +166,19 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>
         /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
         /// </returns>
-        public async Task<bool> SeasonExists(int id)
+        public bool SeasonExists(int id)
+        {
+            return _dbContext.Seasons.Any(s => s.Id == id);
+        }
+
+        /// <summary>
+        /// Checks to verify whether a specific <see cref="Season"/> entity exists in the data store.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Season"/> entity to verify.</param>
+        /// <returns>
+        /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
+        /// </returns>
+        public async Task<bool> SeasonExistsAsync(int id)
         {
             return await _dbContext.Seasons.AnyAsync(s => s.Id == id);
         }

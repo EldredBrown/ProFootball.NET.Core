@@ -54,7 +54,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Pages.Leagues
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!(await _leagueRepository.LeagueExists(League.Id)))
+                if (!(await _leagueRepository.LeagueExistsAsync(League.Id)))
                 {
                     return NotFound();
                 }

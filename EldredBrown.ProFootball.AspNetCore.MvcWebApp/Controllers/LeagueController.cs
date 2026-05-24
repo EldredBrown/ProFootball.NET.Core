@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     /// <summary>
     /// Provides control of the flow of execution for views of league data.
     /// </summary>
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class LeagueController : Controller
     {
         private readonly ILeagueIndexViewModel _leagueIndexViewModel;
@@ -40,7 +41,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             ILeagueIndexViewModel leagueIndexViewModel,
             ILeagueDetailsViewModel leagueDetailsViewModel,
             ILeagueRepository leagueRepository,
-            ISharedRepository sharedRepository)
+            ISharedRepository sharedRepository
+        )
         {
             _leagueIndexViewModel = leagueIndexViewModel;
             _leagueDetailsViewModel = leagueDetailsViewModel;
@@ -107,12 +109,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("LongName,ShortName,FirstSeasonYear,LastSeasonYear")] League league)
+        public async Task<IActionResult> Create([Bind("ShortName,LongName,FirstSeasonId,LastSeasonId")] League league)
         {
             if (ModelState.IsValid)
             {
                 await _leagueRepository.AddAsync(league);
-                await _sharedRepository.SaveChangesAsync();
+
+                try
+                {
+                    await _sharedRepository.SaveChangesAsync();
+                }
+                catch (DbUpdateException ex)
+                {
+                    await HandleDbUpdateExceptionOnCreate(ex, league);
+                    return View(league);
+                }
 
                 return RedirectToAction(nameof(Index));
             }
@@ -152,7 +163,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,LongName,ShortName,FirstSeasonYear,LastSeasonYear")] League league)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,ShortName,LongName,FirstSeasonId,LastSeasonId")] League league)
         {
             if (id != league.Id)
             {
@@ -161,14 +172,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
             if (ModelState.IsValid)
             {
+                _leagueRepository.Update(league);
+
                 try
                 {
-                    _leagueRepository.Update(league);
                     await _sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!(await _leagueRepository.LeagueExists(league.Id)))
+                    if (!(await _leagueRepository.LeagueExistsAsync(league.Id)))
                     {
                         return NotFound();
                     }
@@ -176,6 +188,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                     {
                         throw;
                     }
+                }
+                catch (DbUpdateException ex)
+                {
+                    await HandleDbUpdateExceptionOnEdit(ex, league);
+                    return View(league);
                 }
 
                 return RedirectToAction(nameof(Index));
@@ -220,6 +237,83 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             await _sharedRepository.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task HandleDbUpdateExceptionOnCreate(DbUpdateException ex, League league)
+        {
+            var leagues = await _leagueRepository.GetLeaguesAsync();
+            var errMsgIntro = "Unable to save changes.";
+
+            if (PrimaryKeyViolationExists(leagues, league))
+            {
+                ModelState.AddModelError("Id", $"{errMsgIntro} A league with the same Id already exists.");
+            }
+            else if (UniqueKeyShortNameViolationExistsOnCreate(leagues, league))
+            {
+                ModelState.AddModelError("ShortName", $"{errMsgIntro} A league with the same short name already exists.");
+            }
+            else if (UniqueKeyLongNameViolationExistsOnCreate(leagues, league))
+            {
+                ModelState.AddModelError("LongName", $"{errMsgIntro} A league with the same long name already exists.");
+            }
+            else if (ForeignKeyUtils.ForeignKeyConstraintConflictExistsOnCreate(ex.InnerException.Message))
+            {
+                ForeignKeyUtils.AddModelErrorForForeignKeyConstraintConflict(errMsgIntro, ex.InnerException.Message,
+                    ModelState);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, $"{errMsgIntro} An unexpected error occurred.");
+            }
+        }
+
+        private bool PrimaryKeyViolationExists(IEnumerable<League> leagues, League league)
+        {
+            return leagues.Any(l => l.Id == league.Id);
+        }
+
+        private bool UniqueKeyShortNameViolationExistsOnCreate(IEnumerable<League> leagues, League league)
+        {
+            return leagues.Any(l => l.ShortName == league.ShortName);
+        }
+
+        private bool UniqueKeyLongNameViolationExistsOnCreate(IEnumerable<League> leagues, League league)
+        {
+            return leagues.Any(l => l.LongName == league.LongName);
+        }
+
+        private async Task HandleDbUpdateExceptionOnEdit(DbUpdateException ex, League league)
+        {
+            var leagues = await _leagueRepository.GetLeaguesAsync();
+            var errMsgIntro = "Unable to save changes.";
+
+            if (UniqueKeyShortNameViolationExistsOnEdit(leagues, league))
+            {
+                ModelState.AddModelError("ShortName", $"{errMsgIntro} A league with the same short name already exists.");
+            }
+            else if (UniqueKeyLongNameViolationExistsOnEdit(leagues, league))
+            {
+                ModelState.AddModelError("LongName", $"{errMsgIntro} A league with the same long name already exists.");
+            }
+            else if (ForeignKeyUtils.ForeignKeyConstraintConflictExistsOnEdit(ex.InnerException.Message))
+            {
+                ForeignKeyUtils.AddModelErrorForForeignKeyConstraintConflict(errMsgIntro, ex.InnerException.Message,
+                    ModelState);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, $"{errMsgIntro} An unexpected error occurred.");
+            }
+        }
+
+        private bool UniqueKeyShortNameViolationExistsOnEdit(IEnumerable<League> leagues, League league)
+        {
+            return leagues.Count(l => l.ShortName == league.ShortName) > 1;
+        }
+
+        private bool UniqueKeyLongNameViolationExistsOnEdit(IEnumerable<League> leagues, League league)
+        {
+            return leagues.Count(l => l.LongName == league.LongName) > 1;
         }
     }
 }

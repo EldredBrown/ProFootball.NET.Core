@@ -97,60 +97,36 @@ namespace EldredBrown.ProFootball.Net.Data.Decorators
         /// Gets the name of the wrapped <see cref="Game"/> entity's winner.
         /// </summary>
         [DisplayName("Winner")]
-        public string? WinnerName
+        public new string? WinnerName
         {
-            get
-            {
-                var outcome = GetOutcome();
-                return outcome != null
-                    ? outcome.WinnerName
-                    : null;
-            }
+            get { return _game.WinnerName; }
         }
 
         /// <summary>
         /// Gets the points scored by the wrapped <see cref="Game"/> entity's winner.
         /// </summary>
         [DisplayName("Winner Score")]
-        public int? WinnerScore
+        public new int? WinnerScore
         {
-            get
-            {
-                var outcome = GetOutcome();
-                return outcome != null
-                    ? outcome.WinnerScore
-                    : null;
-            }
+            get { return _game.WinnerScore; }
         }
 
         /// <summary>
         /// Gets the name of the wrapped <see cref="Game"/> entity's loser.
         /// </summary>
         [DisplayName("Loser")]
-        public string? LoserName
+        public new string? LoserName
         {
-            get
-            {
-                var outcome = GetOutcome();
-                return outcome != null
-                    ? outcome.LoserName
-                    : null;
-            }
+            get { return _game.LoserName; }
         }
 
         /// <summary>
         /// Gets the points scored by the wrapped <see cref="Game"/> entity's loser.
         /// </summary>
         [DisplayName("Loser Score")]
-        public int? LoserScore
+        public new int? LoserScore
         {
-            get
-            {
-                var outcome = GetOutcome();
-                return outcome != null
-                    ? outcome.LoserScore
-                    : null;
-            }
+            get{ return _game.LoserScore; }
         }
 
         /// <summary>
@@ -171,48 +147,6 @@ namespace EldredBrown.ProFootball.Net.Data.Decorators
         {
             get { return _game.Notes; }
             set { _game.Notes = value; }
-        }
-
-        /// <summary>
-        /// Checks to see if the wrapped <see cref="Game"/> entity is a tie.
-        /// </summary>
-        /// <returns>True if the <see cref="Game"/> is a tie, otherwise false.</returns>
-        public bool IsTie
-        {
-            get
-            {
-                return _game.GuestScore == _game.HostScore;
-            }
-        }
-
-        /// <summary>
-        /// Edits the wrapped <see cref="Game"/> entity with data from another <see cref="Game"/> entity.
-        /// </summary>
-        /// <param name="srcGame">The <see cref="Game"/> entity from which data will be copied.</param>
-        public void Edit(IGameDecorator srcGame)
-        {
-            _game.Week = srcGame.Week;
-            _game.GuestName = srcGame.GuestName;
-            _game.GuestScore = srcGame.GuestScore;
-            _game.HostName = srcGame.HostName;
-            _game.HostScore = srcGame.HostScore;
-            _game.IsPlayoff = srcGame.IsPlayoff;
-            _game.Notes = srcGame.Notes;
-        }
-
-        // Using a record for a clean tuple-like return type
-        private record Outcome(string WinnerName, int WinnerScore, string LoserName, int LoserScore);
-
-        private Outcome? GetOutcome()
-        {
-            if (IsTie)
-            {
-                return null;
-            }
-
-            return GuestScore > HostScore
-                ? new Outcome(GuestName, GuestScore, HostName, HostScore)
-                : new Outcome(HostName, HostScore, GuestName, GuestScore);
         }
     }
 }

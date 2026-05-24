@@ -1,0 +1,54 @@
+﻿@using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conference
+@model ConferenceDetailsViewModel
+
+@{
+    ViewData["Title"] = "Conference";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Details</h4>
+<hr />
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            <label asp-for="Conference.ShortName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Conference.ShortName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Conference.LongName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Conference.LongName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Conference.LeagueName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Conference.LeagueName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Conference.FirstSeasonYear"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Conference.FirstSeasonYear)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Conference.LastSeasonYear"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Conference.LastSeasonYear)
+        </dd>
+    </dl>
+</div>
+
+<div>
+    <p>
+        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Conference.Id">Edit</a>
+    </p>
+    <p>
+        <a asp-action="Index">Back to List</a>
+    </p>
+</div>

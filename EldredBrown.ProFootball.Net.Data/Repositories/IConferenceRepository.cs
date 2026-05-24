@@ -13,6 +13,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="Conference"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Conference}"/> of all fetched entities.</returns>
+        IEnumerable<Conference> GetConferences();
+
+        /// <summary>
+        /// Gets all <see cref="Conference"/> entities in the data store.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerable{Conference}"/> of all fetched entities.</returns>
         Task<IEnumerable<Conference>> GetConferencesAsync();
 
         /// <summary>
@@ -20,7 +26,21 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="id">The Id of the <see cref="Conference"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Conference"/> entity.</returns>
+        Conference? GetConference(int id);
+
+        /// <summary>
+        /// Gets a single <see cref="Conference"/> entity from the data store by Id.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Conference"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="Conference"/> entity.</returns>
         Task<Conference?> GetConferenceAsync(int id);
+
+        /// <summary>
+        /// Adds a <see cref="Conference"/> entity to the data store.
+        /// </summary>
+        /// <param name="conference">The <see cref="Conference"/> entity to add.</param>
+        /// <returns>The added <see cref="Conference"/> entity.</returns>
+        Conference Add(Conference conference);
 
         /// <summary>
         /// Adds a <see cref="Conference"/> entity to the data store.
@@ -41,6 +61,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="id">The Id of the <see cref="Conference"/> entity to delete.</param>
         /// <returns>The deleted <see cref="Conference"/> entity.</returns>
+        Conference? Delete(int id);
+
+        /// <summary>
+        /// Deletes a <see cref="Conference"/> entity from the data store.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Conference"/> entity to delete.</param>
+        /// <returns>The deleted <see cref="Conference"/> entity.</returns>
         Task<Conference?> DeleteAsync(int id);
 
         /// <summary>
@@ -50,6 +77,15 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>
         /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
         /// </returns>
-        Task<bool> ConferenceExists(int id);
+        bool ConferenceExists(int id);
+
+        /// <summary>
+        /// Checks to verify whether a specific <see cref="Conference"/> entity exists in the data store.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Conference"/> entity to verify.</param>
+        /// <returns>
+        /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
+        /// </returns>
+        Task<bool> ConferenceExistsAsync(int id);
     }
 }

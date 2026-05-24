@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     /// <summary>
     /// Provides control of the flow of execution for views of team data.
     /// </summary>
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class TeamController : Controller
     {
         private readonly ITeamIndexViewModel _teamIndexViewModel;
@@ -28,7 +29,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// The <see cref="ITeamIndexViewModel"/> that will provide ViewModel data to the Index view.
         /// </param>
         /// <param name="teamDetailsViewModel">
-        /// The <see cref="ITeamDetailsViewModel"/> that will provide ViewModel data to the Details view.
+        /// The <see cref="ITeamsDetailsViewModel"/> that will provide ViewModel data to the Details view.
         /// </param>
         /// <param name="teamRepository">
         /// The <see cref="ITeamRepository"/> by which team data will be accessed.
@@ -40,7 +41,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             ITeamIndexViewModel teamIndexViewModel,
             ITeamDetailsViewModel teamDetailsViewModel,
             ITeamRepository teamRepository,
-            ISharedRepository sharedRepository)
+            ISharedRepository sharedRepository
+        )
         {
             _teamIndexViewModel = teamIndexViewModel;
             _teamDetailsViewModel = teamDetailsViewModel;
@@ -112,7 +114,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             if (ModelState.IsValid)
             {
                 await _teamRepository.AddAsync(team);
-                await _sharedRepository.SaveChangesAsync();
+
+                try
+                {
+                    await _sharedRepository.SaveChangesAsync();
+                }
+                catch (DbUpdateException ex)
+                {
+                    await HandleDbUpdateExceptionOnCreate(ex, team);
+                    return View(team);
+                }
 
                 return RedirectToAction(nameof(Index));
             }
@@ -161,14 +172,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
             if (ModelState.IsValid)
             {
+                _teamRepository.Update(team);
+
                 try
                 {
-                    _teamRepository.Update(team);
                     await _sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await _teamRepository.TeamExists(team.Id))
+                    if (!(await _teamRepository.TeamExistsAsync(team.Id)))
                     {
                         return NotFound();
                     }
@@ -176,6 +188,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                     {
                         throw;
                     }
+                }
+                catch (DbUpdateException ex)
+                {
+                    await HandleDbUpdateExceptionOnEdit(ex, team);
+                    return View(team);
                 }
 
                 return RedirectToAction(nameof(Index));
@@ -220,6 +237,55 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             await _sharedRepository.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task HandleDbUpdateExceptionOnCreate(DbUpdateException ex, Team team)
+        {
+            var teams = await _teamRepository.GetTeamsAsync();
+            var errMsgIntro = "Unable to save changes.";
+
+            if (PrimaryKeyViolationExists(teams, team))
+            {
+                ModelState.AddModelError("Id", $"{errMsgIntro} A team with the same Id already exists.");
+            }
+            else if (UniqueKeyViolationExistsOnCreate(teams, team))
+            {
+                ModelState.AddModelError("Name", $"{errMsgIntro} A team with the same name already exists.");
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, $"{errMsgIntro} An unexpected error occurred.");
+            }
+        }
+
+        private bool PrimaryKeyViolationExists(IEnumerable<Team> teams, Team team)
+        {
+            return teams.Any(l => l.Id == team.Id);
+        }
+
+        private bool UniqueKeyViolationExistsOnCreate(IEnumerable<Team> teams, Team team)
+        {
+            return teams.Any(d => d.Name == team.Name);
+        }
+
+        private async Task HandleDbUpdateExceptionOnEdit(DbUpdateException ex, Team team)
+        {
+            var teams = await _teamRepository.GetTeamsAsync();
+            var errMsgIntro = "Unable to save changes.";
+
+            if (UniqueKeyViolationExistsOnEdit(teams, team))
+            {
+                ModelState.AddModelError("Name", $"{errMsgIntro} A team with the same name already exists.");
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, $"{errMsgIntro} An unexpected error occurred.");
+            }
+        }
+
+        private bool UniqueKeyViolationExistsOnEdit(IEnumerable<Team> teams, Team team)
+        {
+            return teams.Count(l => l.Name == team.Name) > 1;
         }
     }
 }

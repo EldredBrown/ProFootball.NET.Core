@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     /// <summary>
     /// Provides control of the flow of execution for views of division data.
     /// </summary>
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class DivisionController : Controller
     {
         private readonly IDivisionIndexViewModel _divisionIndexViewModel;
@@ -28,7 +29,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// The <see cref="IDivisionIndexViewModel"/> that will provide ViewModel data to the Index view.
         /// </param>
         /// <param name="divisionDetailsViewModel">
-        /// The <see cref="IDivisionDetailsViewModel"/> that will provide ViewModel data to the Details view.
+        /// The <see cref="IDivisionsDetailsViewModel"/> that will provide ViewModel data to the Details view.
         /// </param>
         /// <param name="divisionRepository">
         /// The <see cref="IDivisionRepository"/> by which division data will be accessed.
@@ -40,7 +41,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             IDivisionIndexViewModel divisionIndexViewModel,
             IDivisionDetailsViewModel divisionDetailsViewModel,
             IDivisionRepository divisionRepository,
-            ISharedRepository sharedRepository)
+            ISharedRepository sharedRepository
+        )
         {
             _divisionIndexViewModel = divisionIndexViewModel;
             _divisionDetailsViewModel = divisionDetailsViewModel;
@@ -107,12 +109,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("LongName,ShortName,FirstSeasonYear,LastSeasonYear")] Division division)
+        public async Task<IActionResult> Create([Bind("Name,LeagueName,ConferenceName,FirstSeasonYear,LastSeasonYear")] Division division)
         {
             if (ModelState.IsValid)
             {
                 await _divisionRepository.AddAsync(division);
-                await _sharedRepository.SaveChangesAsync();
+
+                try
+                {
+                    await _sharedRepository.SaveChangesAsync();
+                }
+                catch (DbUpdateException ex)
+                {
+                    await HandleDbUpdateExceptionOnCreate(ex, division);
+                    return View(division);
+                }
 
                 return RedirectToAction(nameof(Index));
             }
@@ -152,7 +163,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,LongName,ShortName,FirstSeasonYear,LastSeasonYear")] Division division)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,LeagueName,ConferenceName,FirstSeasonYear,LastSeasonYear")] Division division)
         {
             if (id != division.Id)
             {
@@ -161,14 +172,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
             if (ModelState.IsValid)
             {
+                _divisionRepository.Update(division);
+
                 try
                 {
-                    _divisionRepository.Update(division);
                     await _sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!(await _divisionRepository.DivisionExists(division.Id)))
+                    if (!(await _divisionRepository.DivisionExistsAsync(division.Id)))
                     {
                         return NotFound();
                     }
@@ -176,6 +188,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                     {
                         throw;
                     }
+                }
+                catch (DbUpdateException ex)
+                {
+                    await HandleDbUpdateExceptionOnEdit(ex, division);
+                    return View(division);
                 }
 
                 return RedirectToAction(nameof(Index));
@@ -220,6 +237,65 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             await _sharedRepository.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task HandleDbUpdateExceptionOnCreate(DbUpdateException ex, Division division)
+        {
+            var divisions = await _divisionRepository.GetDivisionsAsync();
+            var errMsgIntro = "Unable to save changes.";
+
+            if (PrimaryKeyViolationExists(divisions, division))
+            {
+                ModelState.AddModelError("Id", $"{errMsgIntro} A division with the same Id already exists.");
+            }
+            else if (UniqueKeyViolationExistsOnCreate(divisions, division))
+            {
+                ModelState.AddModelError("Name", $"{errMsgIntro} A division with the same name already exists.");
+            }
+            else if (ForeignKeyUtils.ForeignKeyConstraintConflictExistsOnCreate(ex.InnerException.Message))
+            {
+                ForeignKeyUtils.AddModelErrorForForeignKeyConstraintConflict(errMsgIntro, ex.InnerException.Message,
+                    ModelState);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, $"{errMsgIntro} An unexpected error occurred.");
+            }
+        }
+
+        private bool PrimaryKeyViolationExists(IEnumerable<Division> divisions, Division division)
+        {
+            return divisions.Any(l => l.Id == division.Id);
+        }
+
+        private bool UniqueKeyViolationExistsOnCreate(IEnumerable<Division> divisions, Division division)
+        {
+            return divisions.Any(d => d.Name == division.Name);
+        }
+
+        private async Task HandleDbUpdateExceptionOnEdit(DbUpdateException ex, Division division)
+        {
+            var divisions = await _divisionRepository.GetDivisionsAsync();
+            var errMsgIntro = "Unable to save changes.";
+
+            if (UniqueKeyViolationExistsOnEdit(divisions, division))
+            {
+                ModelState.AddModelError("Name", $"{errMsgIntro} A division with the same name already exists.");
+            }
+            else if (ForeignKeyUtils.ForeignKeyConstraintConflictExistsOnEdit(ex.InnerException.Message))
+            {
+                ForeignKeyUtils.AddModelErrorForForeignKeyConstraintConflict(errMsgIntro, ex.InnerException.Message,
+                    ModelState);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, $"{errMsgIntro} An unexpected error occurred.");
+            }
+        }
+
+        private bool UniqueKeyViolationExistsOnEdit(IEnumerable<Division> divisions, Division division)
+        {
+            return divisions.Count(l => l.Name == division.Name) > 1;
         }
     }
 }

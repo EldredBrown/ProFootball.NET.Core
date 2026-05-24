@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+
 using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Data.Repositories
@@ -43,21 +44,21 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         Task<TeamSeason?> GetTeamSeasonAsync(int id);
 
         /// <summary>
-        /// Gets a single <see cref="TeamSeason"/> entity from the data store by team name and season year.
+        /// Gets a single <see cref="TeamSeason"/> entity from the data store by team ID and season year.
         /// </summary>
-        /// <param name="teamName">The team name of the <see cref="TeamSeason"/> entity to fetch.</param>
+        /// <param name="teamId">The team ID of the <see cref="TeamSeason"/> entity to fetch.</param>
         /// <param name="seasonYear">The season year of the <see cref="TeamSeason"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="TeamSeason"/> entity.</returns>
-        TeamSeason? GetTeamSeasonByTeamAndSeason(string teamName, int seasonYear);
+        TeamSeason? GetTeamSeasonByTeamAndSeason(int teamId, int seasonYear);
 
         /// <summary>
-        /// Gets a single <see cref="TeamSeason"/> entity from the data store asynchronously by team name and season
+        /// Gets a single <see cref="TeamSeason"/> entity from the data store asynchronously by team ID and season
         /// year.
         /// </summary>
-        /// <param name="teamName">The team name of the <see cref="TeamSeason"/> entity to fetch.</param>
+        /// <param name="teamId">The team ID of the <see cref="TeamSeason"/> entity to fetch.</param>
         /// <param name="seasonYear">The season year of the <see cref="TeamSeason"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="TeamSeason"/> entity.</returns>
-        Task<TeamSeason?> GetTeamSeasonByTeamAndSeasonAsync(string teamName, int seasonYear);
+        Task<TeamSeason?> GetTeamSeasonByTeamAndSeasonAsync(int teamId, int seasonYear);
 
         /// <summary>
         /// Adds a <see cref="TeamSeason"/> entity to the data store.
@@ -87,6 +88,6 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>
         /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
         /// </returns>
-        Task<bool> TeamSeasonExists(int id);
+        Task<bool> TeamSeasonExistsAsync(int id);
     }
 }

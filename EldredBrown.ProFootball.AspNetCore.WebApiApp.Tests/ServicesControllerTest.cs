@@ -17,7 +17,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var weeklyUpdateService = A.Fake<IWeeklyUpdateService>();
-            A.CallTo(() => weeklyUpdateService.RunWeeklyUpdate(A<int>.Ignored)).Throws<Exception>();
+            A.CallTo(() => weeklyUpdateService.RunWeeklyUpdate(An<int>.Ignored)).Throws<Exception>();
 
             var testController = new ServicesController(weeklyUpdateService);
 

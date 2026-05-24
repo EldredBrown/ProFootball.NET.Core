@@ -22,18 +22,6 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         Task<IEnumerable<Game>> GetGamesAsync();
 
         /// <summary>
-        /// Gets all <see cref="Game"/> entities in the data store for the specified season year.
-        /// </summary>
-        /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
-        IEnumerable<Game> GetGamesBySeason(int seasonYear);
-
-        /// <summary>
-        /// Gets all <see cref="Game"/> entities in the data store asynchronously for the specified season year.
-        /// </summary>
-        /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
-        Task<IEnumerable<Game>> GetGamesBySeasonAsync(int seasonYear);
-
-        /// <summary>
         /// Gets a single <see cref="Game"/> entity from the data store by Id.
         /// </summary>
         /// <param name="id">The Id of the <see cref="Game"/> entity to fetch.</param>
@@ -89,6 +77,17 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>
         /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
         /// </returns>
-        Task<bool> GameExists(int id);
+        bool GameExists(int id);
+
+        /// <summary>
+        /// Checks to verify whether a specific <see cref="Game"/> entity exists in the data store.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Game"/> entity to verify.</param>
+        /// <returns>
+        /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
+        /// </returns>
+        Task<bool> GameExistsAsync(int id);
+
+        Task<int> GetMaxWeekForSeasonAsync(int seasonYear);
     }
 }

@@ -13,6 +13,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="Team"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Team}"/> of all fetched entities.</returns>
+        IEnumerable<Team> GetTeams();
+
+        /// <summary>
+        /// Gets all <see cref="Team"/> entities in the data store.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerable{Team}"/> of all fetched entities.</returns>
         Task<IEnumerable<Team>> GetTeamsAsync();
 
         /// <summary>
@@ -20,7 +26,21 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="id">The Id of the <see cref="Team"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Team"/> entity.</returns>
+        Team? GetTeam(int id);
+
+        /// <summary>
+        /// Gets a single <see cref="Team"/> entity from the data store by Id.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Team"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="Team"/> entity.</returns>
         Task<Team?> GetTeamAsync(int id);
+
+        /// <summary>
+        /// Adds a <see cref="Team"/> entity to the data store.
+        /// </summary>
+        /// <param name="team">The <see cref="Team"/> entity to add.</param>
+        /// <returns>The added <see cref="Team"/> entity.</returns>
+        Team Add(Team team);
 
         /// <summary>
         /// Adds a <see cref="Team"/> entity to the data store.
@@ -41,6 +61,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="id">The Id of the <see cref="Team"/> entity to delete.</param>
         /// <returns>The deleted <see cref="Team"/> entity.</returns>
+        Team? Delete(int id);
+
+        /// <summary>
+        /// Deletes a <see cref="Team"/> entity from the data store.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Team"/> entity to delete.</param>
+        /// <returns>The deleted <see cref="Team"/> entity.</returns>
         Task<Team?> DeleteAsync(int id);
 
         /// <summary>
@@ -50,6 +77,15 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>
         /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
         /// </returns>
-        Task<bool> TeamExists(int id);
+        bool TeamExists(int id);
+
+        /// <summary>
+        /// Checks to verify whether a specific <see cref="Team"/> entity exists in the data store.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Team"/> entity to verify.</param>
+        /// <returns>
+        /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
+        /// </returns>
+        Task<bool> TeamExistsAsync(int id);
     }
 }

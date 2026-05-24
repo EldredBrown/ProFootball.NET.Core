@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Microsoft.EntityFrameworkCore;
+
 using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Data.Repositories
@@ -28,7 +31,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>An <see cref="IEnumerable{TeamSeason}"/> of all fetched entities.</returns>
         public IEnumerable<TeamSeason> GetTeamSeasons()
         {
-            return _dbContext.TeamSeasons.ToList();
+            return _dbContext.TeamSeasons;
         }
 
         /// <summary>
@@ -65,6 +68,21 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="id">The Id of the <see cref="TeamSeason"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="TeamSeason"/> entity.</returns>
+        public TeamSeason? GetTeamSeason(int id)
+        {
+            if (_dbContext.TeamSeasons is null)
+            {
+                return null;
+            }
+
+            return _dbContext.TeamSeasons.Find(id);
+        }
+
+        /// <summary>
+        /// Gets a single <see cref="TeamSeason"/> entity from the data store by Id.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="TeamSeason"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="TeamSeason"/> entity.</returns>
         public async Task<TeamSeason?> GetTeamSeasonAsync(int id)
         {
             if (_dbContext.TeamSeasons is null)
@@ -76,28 +94,39 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         }
 
         /// <summary>
-        /// Gets a single <see cref="TeamSeason"/> entity from the data store by team name and season year.
+        /// Gets a single <see cref="TeamSeason"/> entity from the data store by team ID and season year.
         /// </summary>
-        /// <param name="teamName">The team name of the <see cref="TeamSeason"/> entity to fetch.</param>
+        /// <param name="teamId">The team ID of the <see cref="TeamSeason"/> entity to fetch.</param>
         /// <param name="seasonYear">The season year of the <see cref="TeamSeason"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="TeamSeason"/> entity.</returns>
-        public TeamSeason? GetTeamSeasonByTeamAndSeason(string teamName, int seasonYear)
+        public TeamSeason? GetTeamSeasonByTeamAndSeason(int teamId, int seasonYear)
         {
             return _dbContext.TeamSeasons
-                .FirstOrDefault(ts => ts.TeamName == teamName && ts.SeasonYear == seasonYear);
+                .FirstOrDefault(ts => ts.TeamId == teamId && ts.SeasonYear == seasonYear);
         }
 
         /// <summary>
-        /// Gets a single <see cref="TeamSeason"/> entity from the data store asynchronously by team name and season
-        /// year.
+        /// Gets a single <see cref="TeamSeason"/> entity from the data store asynchronously by team ID and season year.
         /// </summary>
-        /// <param name="teamName">The team name of the <see cref="TeamSeason"/> entity to fetch.</param>
+        /// <param name="teamId">The team ID of the <see cref="TeamSeason"/> entity to fetch.</param>
         /// <param name="seasonYear">The season year of the <see cref="TeamSeason"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="TeamSeason"/> entity.</returns>
-        public async Task<TeamSeason?> GetTeamSeasonByTeamAndSeasonAsync(string teamName, int seasonYear)
+        public async Task<TeamSeason?> GetTeamSeasonByTeamAndSeasonAsync(int teamId, int seasonYear)
         {
             return await _dbContext.TeamSeasons
-                .FirstOrDefaultAsync(ts => ts.TeamName == teamName && ts.SeasonYear == seasonYear);
+                .FirstOrDefaultAsync(ts => ts.TeamId == teamId && ts.SeasonYear == seasonYear);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="TeamSeason"/> entity to the data store.
+        /// </summary>
+        /// <param name="teamSeason">The <see cref="TeamSeason"/> entity to add.</param>
+        /// <returns>The added <see cref="TeamSeason"/> entity.</returns>
+        public TeamSeason Add(TeamSeason teamSeason)
+        {
+            _dbContext.Add(teamSeason);
+
+            return teamSeason;
         }
 
         /// <summary>
@@ -124,8 +153,31 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return teamSeason;
             }
 
-            var entity = _dbContext.TeamSeasons.Attach(teamSeason);
+            var entity = _dbContext.TeamSeasons.Attach(teamSeason as TeamSeason);
             entity.State = EntityState.Modified;
+
+            return teamSeason;
+        }
+
+        /// <summary>
+        /// Deletes a <see cref="TeamSeason"/> entity from the data store.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="TeamSeason"/> entity to delete.</param>
+        /// <returns>The deleted <see cref="TeamSeason"/> entity.</returns>
+        public TeamSeason? Delete(int id)
+        {
+            if (_dbContext.TeamSeasons is null)
+            {
+                return null;
+            }
+
+            var teamSeason = GetTeamSeason(id);
+            if (teamSeason is null)
+            {
+                return null;
+            }
+
+            _dbContext.TeamSeasons.Remove(teamSeason as TeamSeason);
 
             return teamSeason;
         }
@@ -148,7 +200,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.TeamSeasons.Remove(teamSeason);
+            _dbContext.TeamSeasons.Remove(teamSeason as TeamSeason);
 
             return teamSeason;
         }
@@ -160,9 +212,21 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>
         /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
         /// </returns>
-        public async Task<bool> TeamSeasonExists(int id)
+        public bool TeamSeasonExists(int id)
         {
-            return await _dbContext.TeamSeasons.AnyAsync(ls => ls.Id == id);
+            return _dbContext.TeamSeasons.Any(ts => ts.Id == id);
+        }
+
+        /// <summary>
+        /// Checks to verify whether a specific <see cref="TeamSeason"/> entity exists in the data store.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="TeamSeason"/> entity to verify.</param>
+        /// <returns>
+        /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
+        /// </returns>
+        public async Task<bool> TeamSeasonExistsAsync(int id)
+        {
+            return await _dbContext.TeamSeasons.AnyAsync(ts => ts.Id == id);
         }
     }
 }

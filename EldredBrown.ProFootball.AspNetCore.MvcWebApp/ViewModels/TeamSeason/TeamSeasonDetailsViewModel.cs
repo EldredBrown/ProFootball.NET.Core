@@ -11,7 +11,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         /// <summary>
         /// Gets or sets the team season of the current view model.
         /// </summary>
-        public EldredBrown.ProFootball.Net.Data.Decorators.TeamSeasonDecorator TeamSeason { get; set; }
+        public EldredBrown.ProFootball.Net.Data.Models.ITeamSeason TeamSeason { get; set; }
 
         /// <summary>
         /// Gets or sets the team season schedule profile of the current view model.

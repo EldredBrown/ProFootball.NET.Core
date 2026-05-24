@@ -8,6 +8,6 @@
         /// <summary>
         /// Gets or sets the league of the current <see cref="LeagueSeasonDetailsViewModel"/> object.
         /// </summary>
-        public EldredBrown.ProFootball.Net.Data.Models.LeagueSeason LeagueSeason { get; set; }
+        public EldredBrown.ProFootball.Net.Data.Models.ILeagueSeason LeagueSeason { get; set; }
     }
 }

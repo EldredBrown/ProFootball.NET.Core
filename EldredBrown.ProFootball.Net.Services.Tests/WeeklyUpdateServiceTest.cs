@@ -4,703 +4,1614 @@ using FakeItEasy;
 using Xunit;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
+using System;
 
 namespace EldredBrown.ProFootball.Net.Services.Tests
 {
     public class WeeklyUpdateServiceTest
     {
-        private readonly ISeasonRepository _seasonRepository;
-        private readonly IGameRepository _gameRepository;
-        private readonly ILeagueSeasonRepository _leagueSeasonRepository;
-        private readonly ILeagueSeasonTotalsRepository _leagueSeasonTotalsRepository;
-        private readonly ITeamSeasonRepository _teamSeasonRepository;
-        private readonly ITeamSeasonScheduleRepository _teamSeasonScheduleRepository;
-        private readonly ISharedRepository _sharedRepository;
+        public WeeklyUpdateServiceTest() {}
 
-        private readonly WeeklyUpdateService _testService;
-
-        public WeeklyUpdateServiceTest()
+        [Fact]
+        public async Task RunWeeklyUpdate_WhenSeasonYearIsLessThanZero_ShouldThrowArgumentOutOfRangeException()
         {
-            _seasonRepository = A.Fake<ISeasonRepository>();
-            A.CallTo(() => _seasonRepository.GetSeasonAsync(A<int>.Ignored)).Returns<Season?>(null);
+            // Arrange
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var sharedRepository = A.Fake<ISharedRepository>();
 
-            _gameRepository = A.Fake<IGameRepository>();
-            _leagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            _leagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
-            _teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            _teamSeasonScheduleRepository = A.Fake<ITeamSeasonScheduleRepository>();
-            _sharedRepository = A.Fake<ISharedRepository>();
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, sharedRepository);
 
-            _testService = new WeeklyUpdateService(_seasonRepository, _gameRepository, _leagueSeasonRepository,
-                _leagueSeasonTotalsRepository, _teamSeasonRepository, _teamSeasonScheduleRepository, _sharedRepository);
+            // Act and Assert
+            var leagueName = "APFA";
+            var seasonYear = -1;
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+                () => testService.RunWeeklyUpdate(leagueName, seasonYear));
         }
 
         [Fact]
-        public async Task RunWeeklyUpdate_WhenLeagueSeasonTotalsTotalGamesIsNull_ShouldNotUpdateLeagueSeasonGamesAndPoints()
+        public async Task RunWeeklyUpdate_WhenSeasonYearEqualsZero_ShouldThrowArgumentOutOfRangeException()
         {
             // Arrange
-            var seasonYear = 1920;
-            var games = new List<Game>
-            {
-                new Game
-                {
-                    SeasonYear = seasonYear,
-                    Week = 0
-                }
-            };
-            A.CallTo(() => _gameRepository.GetGamesAsync()).Returns(games);
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var sharedRepository = A.Fake<ISharedRepository>();
 
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored,
-                A<int>.Ignored)).Returns<LeagueSeason?>(null);
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, sharedRepository);
 
+            // Act and Assert
+            var leagueName = "APFA";
+            var seasonYear = 0;
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => testService.RunWeeklyUpdate(leagueName, seasonYear));
+        }
+
+        [Fact]
+        public async Task RunWeeklyUpdate_WhenSeasonYearIsGreaterThanZeroAndLeagueSeasonTotalsIsNullAndDestSeasonIsNull_ShouldNotUpdateAnything()
+        {
+            // Arrange
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(null));
+
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(0);
+
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(null));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored))
+                .Returns(null);
+
+            var fakeTeamSeason = A.Fake<ITeamSeason>();
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
+
+            // Act
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
+
+            // Assert
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeason(A<string>.Ignored, An<int>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(An<int>.Ignored, An<int>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(A<LeagueSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(A<Season>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+        }
+
+        [Fact]
+        public async Task RunWeeklyUpdate_WhenLeagueSeasonTotalsIsNotNullAndLeagueSeasonTotalsTotalGamesIsNullAndDestSeasonIsNull_ShouldNotUpdateAnything()
+        {
+            // Arrange
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(null));
+
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(0);
+
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(null));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
             var leagueSeasonTotals = new LeagueSeasonTotals
             {
                 TotalGames = null,
                 TotalPoints = null
             };
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeasonTotals);
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
+
+            var fakeTeamSeason = A.Fake<ITeamSeason>();
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
 
             // Act
-            await _testService.RunWeeklyUpdate(seasonYear);
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
 
             // Assert
-            A.CallTo(() => _seasonRepository.GetSeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _gameRepository.GetGamesAsync()).MustHaveHappened();
-
-            var leagueName = "APFA";
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
                 .MustNotHaveHappened();
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(A<int>.Ignored)).MustNotHaveHappened();
-            A.CallTo(() => _sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(An<int>.Ignored, An<int>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(A<LeagueSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(A<Season>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
         }
 
         [Fact]
-        public async Task RunWeeklyUpdate_WhenLeagueSeasonTotalsTotalPointsIsNull_ShouldNotUpdateLeagueSeasonGamesAndPoints()
+        public async Task RunWeeklyUpdate_WhenLeagueSeasonTotalsTotalGamesIsNotNullAndLeagueSeasonTotalsTotalPointsIsNullAndDestSeasonIsNull_ShouldNotUpdateAnything()
         {
             // Arrange
-            var seasonYear = 1920;
-            var games = new List<Game>
-            {
-                new Game
-                {
-                    SeasonYear = seasonYear,
-                    Week = 0
-                }
-            };
-            A.CallTo(() => _gameRepository.GetGamesAsync()).Returns(games);
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(null));
 
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, A<int>.Ignored))
-                .Returns<LeagueSeason?>(null);
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(0);
 
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(null));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
             var leagueSeasonTotals = new LeagueSeasonTotals
             {
                 TotalGames = 0,
                 TotalPoints = null
             };
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeasonTotals);
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
+
+            var fakeTeamSeason = A.Fake<ITeamSeason>();
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
 
             // Act
-            await _testService.RunWeeklyUpdate(seasonYear);
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
 
             // Assert
-            A.CallTo(() => _seasonRepository.GetSeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _gameRepository.GetGamesAsync()).MustHaveHappened();
-
-            var leagueName = "APFA";
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
                 .MustNotHaveHappened();
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(A<int>.Ignored)).MustNotHaveHappened();
-            A.CallTo(() => _sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(An<int>.Ignored, An<int>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(A<LeagueSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(A<Season>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
         }
 
         [Fact]
-        public async Task RunWeeklyUpdate_WhenLeagueSeasonIsNull_ShouldNotUpdateLeagueSeasonGamesAndPoints()
+        public async Task RunWeeklyUpdate_WhenLeagueSeasonTotalsTotalPointsIsNotNullAndLeagueSeasonIsNullAndDestSeasonIsNull_ShouldNotUpdateAnything()
         {
             // Arrange
-            var seasonYear = 1920;
-            var games = new List<Game>
-            {
-                new Game
-                {
-                    SeasonYear = seasonYear,
-                    Week = 0
-                }
-            };
-            A.CallTo(() => _gameRepository.GetGamesAsync()).Returns(games);
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(null));
 
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, A<int>.Ignored))
-                .Returns<LeagueSeason?>(null);
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(0);
 
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(null));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
             var leagueSeasonTotals = new LeagueSeasonTotals
             {
                 TotalGames = 0,
                 TotalPoints = 0
             };
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeasonTotals);
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
+
+            var fakeTeamSeason = A.Fake<ITeamSeason>();
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
 
             // Act
-            await _testService.RunWeeklyUpdate(seasonYear);
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
 
             // Assert
-            A.CallTo(() => _seasonRepository.GetSeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _gameRepository.GetGamesAsync()).MustHaveHappened();
-
-            var leagueName = "APFA";
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(A<int>.Ignored)).MustNotHaveHappened();
-            A.CallTo(() => _sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(An<int>.Ignored, An<int>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(A<LeagueSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(A<Season>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
         }
 
         [Fact]
-        public async Task RunWeeklyUpdate_WhenLeagueSeasonTotalsTotalGamesAndTotalPointsAreNotNull_ShouldUpdateLeagueSeasonGamesAndPoints()
+        public async Task RunWeeklyUpdate_WhenLeagueSeasonIsNotNullAndDestSeasonIsNull_ShouldNotUpdateAnything()
         {
             // Arrange
-            var seasonYear = 1920;
-            var games = new List<Game>
-            {
-                new Game
-                {
-                    SeasonYear = seasonYear,
-                    Week = 0
-                }
-            };
-            A.CallTo(() => _gameRepository.GetGamesAsync()).Returns(games);
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(null));
 
-            var leagueSeason = new LeagueSeason();
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeason);
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(0);
 
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(fakeLeagueSeason));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
             var leagueSeasonTotals = new LeagueSeasonTotals
             {
                 TotalGames = 0,
                 TotalPoints = 0
             };
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeasonTotals);
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
+
+            var fakeTeamSeason = A.Fake<ITeamSeason>();
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
 
             // Act
-            await _testService.RunWeeklyUpdate(seasonYear);
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
 
             // Assert
-            A.CallTo(() => _seasonRepository.GetSeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _gameRepository.GetGamesAsync()).MustHaveHappened();
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(fakeLeagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(A<Season>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+        }
 
+        [Fact]
+        public async Task RunWeeklyUpdate_WhenDestSeasonIsNotNull_ShouldUpdateWeekCount()
+        {
+            // Arrange
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeDestSeason = A.Fake<Season>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(fakeDestSeason));
+
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(0);
+
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(fakeLeagueSeason));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
+            var leagueSeasonTotals = new LeagueSeasonTotals
+            {
+                TotalGames = 0,
+                TotalPoints = 0
+            };
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
+
+            var fakeTeamSeason = A.Fake<ITeamSeason>();
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
+
+            // Act
             var leagueName = "APFA";
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(A<int>.Ignored)).MustNotHaveHappened();
-            A.CallTo(() => _sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
+
+            // Assert
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(fakeLeagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(fakeDestSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
         }
 
         [Fact]
         public async Task RunWeeklyUpdate_WhenWeekCountLessThanThree_ShouldNotUpdateRankings()
         {
             // Arrange
-            var seasonYear = 1920;
-            var games = new List<Game>
-            {
-                new Game
-                {
-                    SeasonYear = seasonYear,
-                    Week = 2
-                }
-            };
-            A.CallTo(() => _gameRepository.GetGamesAsync()).Returns(games);
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeDestSeason = A.Fake<Season>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(fakeDestSeason));
 
-            var leagueSeason = new LeagueSeason();
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeason);
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(2);
 
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(fakeLeagueSeason));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
             var leagueSeasonTotals = new LeagueSeasonTotals
             {
                 TotalGames = 0,
                 TotalPoints = 0
             };
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeasonTotals);
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
+
+            var fakeTeamSeason = A.Fake<ITeamSeason>();
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
 
             // Act
-            await _testService.RunWeeklyUpdate(seasonYear);
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
 
             // Assert
-            A.CallTo(() => _seasonRepository.GetSeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _gameRepository.GetGamesAsync()).MustHaveHappened();
-
-            var leagueName = "APFA";
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(A<int>.Ignored)).MustNotHaveHappened();
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(A<string>.Ignored,
-                A<int>.Ignored)).MustNotHaveHappened();
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(A<string>.Ignored,
-                A<int>.Ignored)).MustNotHaveHappened();
-            A.CallTo(() => _sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-        }
-
-        [Fact]
-        public async Task RunWeeklyUpdate_WhenTeamSeasonScheduleTotalsScheduleGamesIsNull_ShouldNotUpdateRankingsForTeamSeason()
-        {
-            // Arrange
-            var seasonYear = 1920;
-            var games = new List<Game>
-            {
-                new Game
-                {
-                    SeasonYear = seasonYear,
-                    Week = 3
-                }
-            };
-            A.CallTo(() => _gameRepository.GetGamesAsync()).Returns(games);
-
-            var leagueSeason = new LeagueSeason
-            {
-                AveragePoints = null
-            };
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeason);
-
-            var leagueSeasonTotals = new LeagueSeasonTotals
-            {
-                TotalGames = 0,
-                TotalPoints = 0
-            };
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeasonTotals);
-
-            var teamName = "Team";
-            var leagueName = "APFA";
-            var teamSeasons = new List<TeamSeason>
-            {
-                new TeamSeason
-                {
-                    TeamName = teamName,
-                    SeasonYear = seasonYear,
-                    LeagueName = leagueName
-                }
-            };
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear)).Returns(teamSeasons);
-
-            var teamSeasonScheduleTotals = new TeamSeasonScheduleTotals
-            {
-                ScheduleGames = null
-            };
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(A<string>.Ignored,
-                seasonYear)).Returns(teamSeasonScheduleTotals);
-
-            var teamSeasonScheduleAverages = new TeamSeasonScheduleAverages
-            {
-                PointsFor = null,
-                PointsAgainst = null
-            };
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(A<string>.Ignored,
-                seasonYear)).Returns<TeamSeasonScheduleAverages>(teamSeasonScheduleAverages);
-
-            // Act
-            await _testService.RunWeeklyUpdate(seasonYear);
-
-            // Assert
-            A.CallTo(() => _seasonRepository.GetSeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _gameRepository.GetGamesAsync()).MustHaveHappened();
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamName, seasonYear))
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(fakeLeagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(fakeDestSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
                 .MustNotHaveHappened();
-            A.CallTo(() => _sharedRepository.SaveChangesAsync()).MustHaveHappenedTwiceExactly();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
         }
 
         [Fact]
-        public async Task RunWeeklyUpdate_WhenTeamSeasonScheduleAveragesPointsForIsNull_ShouldNotUpdateRankingsForTeamSeason()
+        public async Task RunWeeklyUpdate_WhenWeekCountIsThreeAndTeamSeasonsForSpecifiedYearIsEmpty_ShouldNotUpdateRankingsForTeamSeason()
         {
             // Arrange
-            var seasonYear = 1920;
-            var games = new List<Game>
-            {
-                new Game
-                {
-                    SeasonYear = seasonYear,
-                    Week = 3
-                }
-            };
-            A.CallTo(() => _gameRepository.GetGamesAsync()).Returns(games);
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeDestSeason = A.Fake<Season>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(fakeDestSeason));
 
-            var leagueSeason = new LeagueSeason
-            {
-                AveragePoints = null
-            };
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeason);
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(3);
 
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(fakeLeagueSeason));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
             var leagueSeasonTotals = new LeagueSeasonTotals
             {
                 TotalGames = 0,
                 TotalPoints = 0
             };
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeasonTotals);
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
 
-            var teamName = "Team";
-            var leagueName = "APFA";
-            var teamSeasons = new List<TeamSeason>
-            {
-                new TeamSeason
-                {
-                    TeamName = teamName,
-                    SeasonYear = seasonYear,
-                    LeagueName = leagueName
-                }
-            };
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear)).Returns(teamSeasons);
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeTeamSeason = A.Fake<TeamSeason>();
+            var teamSeasons = new List<TeamSeason>();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns(Task.FromResult<IEnumerable<TeamSeason>>(teamSeasons));
 
-            var teamSeasonScheduleTotals = new TeamSeasonScheduleTotals
-            {
-                ScheduleGames = 0
-            };
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(A<string>.Ignored,
-                seasonYear)).Returns(teamSeasonScheduleTotals);
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
 
-            var teamSeasonScheduleAverages = new TeamSeasonScheduleAverages
-            {
-                PointsFor = null,
-                PointsAgainst = null
-            };
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(A<string>.Ignored,
-                seasonYear)).Returns(teamSeasonScheduleAverages);
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
 
             // Act
-            await _testService.RunWeeklyUpdate(seasonYear);
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
 
             // Assert
-            A.CallTo(() => _seasonRepository.GetSeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _gameRepository.GetGamesAsync()).MustHaveHappened();
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _sharedRepository.SaveChangesAsync()).MustHaveHappenedTwiceExactly();
-        }
-
-        [Fact]
-        public async Task RunWeeklyUpdate_WhenTeamSeasonScheduleAveragesPointsAgainstIsNull_ShouldNotUpdateRankingsForTeamSeason()
-        {
-            // Arrange
-            var seasonYear = 1920;
-            var games = new List<Game>
-            {
-                new Game
-                {
-                    SeasonYear = seasonYear,
-                    Week = 3
-                }
-            };
-            A.CallTo(() => _gameRepository.GetGamesAsync()).Returns(games);
-
-            var leagueSeason = new LeagueSeason
-            {
-                AveragePoints = null
-            };
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeason);
-
-            var leagueSeasonTotals = new LeagueSeasonTotals
-            {
-                TotalGames = 0,
-                TotalPoints = 0
-            };
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeasonTotals);
-
-            var teamName = "Team";
-            var leagueName = "APFA";
-            var teamSeasons = new List<TeamSeason>
-            {
-                new TeamSeason
-                {
-                    TeamName = teamName,
-                    SeasonYear = seasonYear,
-                    LeagueName = leagueName
-                }
-            };
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear)).Returns(teamSeasons);
-
-            var teamSeasonScheduleTotals = new TeamSeasonScheduleTotals
-            {
-                ScheduleGames = 0
-            };
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(A<string>.Ignored,
-                seasonYear)).Returns(teamSeasonScheduleTotals);
-
-            var teamSeasonScheduleAverages = new TeamSeasonScheduleAverages
-            {
-                PointsFor = 0,
-                PointsAgainst = null
-            };
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(A<string>.Ignored,
-                seasonYear)).Returns(teamSeasonScheduleAverages);
-
-            // Act
-            await _testService.RunWeeklyUpdate(seasonYear);
-
-            // Assert
-            A.CallTo(() => _seasonRepository.GetSeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _gameRepository.GetGamesAsync()).MustHaveHappened();
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _sharedRepository.SaveChangesAsync()).MustHaveHappenedTwiceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(fakeLeagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(fakeDestSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
         }
 
         [Fact]
-        public async Task RunWeeklyUpdate_WhenLeagueSeasonIsNull_ShouldNotUpdateRankingsForTeamSeason()
+        public async Task RunWeeklyUpdate_WhenWeekCountIsGreaterThanThreeAndTeamSeasonsForSpecifiedYearIsEmpty_ShouldNotUpdateRankingsForTeamSeason()
         {
             // Arrange
-            var seasonYear = 1920;
-            var games = new List<Game>
-            {
-                new Game
-                {
-                    SeasonYear = seasonYear,
-                    Week = 3
-                }
-            };
-            A.CallTo(() => _gameRepository.GetGamesAsync()).Returns(games);
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeDestSeason = A.Fake<Season>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(fakeDestSeason));
 
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, A<int>.Ignored))
-                .Returns<LeagueSeason?>(null);
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(4);
 
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(fakeLeagueSeason));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
             var leagueSeasonTotals = new LeagueSeasonTotals
             {
                 TotalGames = 0,
                 TotalPoints = 0
             };
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeasonTotals);
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
 
-            var teamName = "Team";
-            var leagueName = "APFA";
-            var teamSeasons = new List<TeamSeason>
-            {
-                new TeamSeason
-                {
-                    TeamName = teamName,
-                    SeasonYear = seasonYear,
-                    LeagueName = leagueName
-                }
-            };
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear)).Returns(teamSeasons);
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeTeamSeason = A.Fake<TeamSeason>();
+            var teamSeasons = new List<TeamSeason>();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns(Task.FromResult<IEnumerable<TeamSeason>>(teamSeasons));
 
-            var teamSeasonScheduleTotals = new TeamSeasonScheduleTotals
-            {
-                ScheduleGames = 0
-            };
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(A<string>.Ignored,
-                seasonYear)).Returns(teamSeasonScheduleTotals);
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
 
-            var teamSeasonScheduleAverages = new TeamSeasonScheduleAverages
-            {
-                PointsFor = 0,
-                PointsAgainst = 0
-            };
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(A<string>.Ignored,
-                seasonYear)).Returns(teamSeasonScheduleAverages);
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
 
             // Act
-            await _testService.RunWeeklyUpdate(seasonYear);
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
 
             // Assert
-            A.CallTo(() => _seasonRepository.GetSeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _gameRepository.GetGamesAsync()).MustHaveHappened();
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
-                .MustHaveHappenedTwiceExactly();
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _sharedRepository.SaveChangesAsync()).MustHaveHappenedTwiceExactly();
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(fakeLeagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(fakeDestSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
         }
 
         [Fact]
-        public async Task RunWeeklyUpdate_WhenLeagueSeasonAveragePointsIsNull_ShouldNotUpdateRankingsForTeamSeason()
+        public async Task RunWeeklyUpdate_WhenTeamSeasonsForSpecifiedYearIsNotEmptyAndTeamSeasonScheduleTotalsIsNull_ShouldNotUpdateRankingsForTeamSeason()
         {
             // Arrange
-            var seasonYear = 1920;
-            var games = new List<Game>
-            {
-                new Game
-                {
-                    SeasonYear = seasonYear,
-                    Week = 3
-                }
-            };
-            A.CallTo(() => _gameRepository.GetGamesAsync()).Returns(games);
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeDestSeason = A.Fake<Season>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(fakeDestSeason));
 
-            var leagueSeason = new LeagueSeason
-            {
-                AveragePoints = null
-            };
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeason);
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(4);
 
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(fakeLeagueSeason));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
             var leagueSeasonTotals = new LeagueSeasonTotals
             {
                 TotalGames = 0,
                 TotalPoints = 0
             };
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeasonTotals);
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
 
-            var teamName = "Team";
-            var leagueName = "APFA";
-            var teamSeasons = new List<TeamSeason>
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeTeamSeason = A.Fake<TeamSeason>();
+            var teamSeasons = new List<TeamSeason>(new List<TeamSeason> { fakeTeamSeason });
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns(Task.FromResult<IEnumerable<TeamSeason>>(teamSeasons));
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var dataForRankingsUpdate = new Dictionary<string, Dictionary<string, object>>
             {
-                new TeamSeason
                 {
-                    TeamName = teamName,
-                    SeasonYear = seasonYear,
-                    LeagueName = leagueName
-                }
+                    "TeamSeasonScheduleTotals", null
+                },
             };
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear)).Returns(teamSeasons);
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<ITeamSeason>.Ignored))
+                .Returns(Task.FromResult(dataForRankingsUpdate));
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
 
-            var teamSeasonScheduleTotals = new TeamSeasonScheduleTotals
-            {
-                ScheduleGames = 0
-            };
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(A<string>.Ignored,
-                seasonYear)).Returns(teamSeasonScheduleTotals);
-
-            var teamSeasonScheduleAverages = new TeamSeasonScheduleAverages
-            {
-                PointsFor = 0,
-                PointsAgainst = 0
-            };
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(A<string>.Ignored,
-                seasonYear)).Returns(teamSeasonScheduleAverages);
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
 
             // Act
-            await _testService.RunWeeklyUpdate(seasonYear);
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
 
             // Assert
-            A.CallTo(() => _seasonRepository.GetSeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _gameRepository.GetGamesAsync()).MustHaveHappened();
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(fakeLeagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(fakeDestSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(fakeTeamSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
                 .MustHaveHappenedTwiceExactly();
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _sharedRepository.SaveChangesAsync()).MustHaveHappenedTwiceExactly();
         }
 
         [Fact]
-        public async Task RunWeeklyUpdate_WhenTeamSeasonScheduleTotalsScheduleGamesIsNotNullAndWhenTeamSeasonScheduleAveragesPointsForAndPointsAgainstAreNotNullAndLeagueSeasonAveragePointsIsNotNull_ShouldUpdateRankingsForTeamSeason()
+        public async Task RunWeeklyUpdate_WhenTeamSeasonScheduleTotalsIsEmpty_ShouldNotUpdateRankingsForTeamSeason()
         {
             // Arrange
-            var seasonYear = 1920;
-            var games = new List<Game>
-            {
-                new Game
-                {
-                    SeasonYear = seasonYear,
-                    Week = 3
-                }
-            };
-            A.CallTo(() => _gameRepository.GetGamesAsync()).Returns(games);
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeDestSeason = A.Fake<Season>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(fakeDestSeason));
 
-            var leagueSeason = new LeagueSeason
-            {
-                AveragePoints = 0
-            };
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeason);
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(4);
 
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(fakeLeagueSeason));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
             var leagueSeasonTotals = new LeagueSeasonTotals
             {
-                TotalGames = 1,
+                TotalGames = 0,
                 TotalPoints = 0
             };
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, A<int>.Ignored))
-                .Returns(leagueSeasonTotals);
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
 
-            var teamName = "Team";
-            var leagueName = "APFA";
-            var teamSeasons = new List<TeamSeason>
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeTeamSeason = A.Fake<TeamSeason>();
+            var teamSeasons = new List<TeamSeason>(new List<TeamSeason> { fakeTeamSeason });
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns(Task.FromResult<IEnumerable<TeamSeason>>(teamSeasons));
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var dataForRankingsUpdate = new Dictionary<string, Dictionary<string, object>>
             {
-                new TeamSeason
                 {
-                    TeamName = teamName,
-                    SeasonYear = seasonYear,
-                    LeagueName = leagueName
-                }
+                    "TeamSeasonScheduleTotals", new Dictionary<string, object> { }
+                },
             };
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear)).Returns(teamSeasons);
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<ITeamSeason>.Ignored))
+                .Returns(Task.FromResult(dataForRankingsUpdate));
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
 
-            var teamSeasonScheduleTotals = new TeamSeasonScheduleTotals
-            {
-                ScheduleGames = 0
-            };
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(A<string>.Ignored,
-                seasonYear)).Returns(teamSeasonScheduleTotals);
-
-            var teamSeasonScheduleAverages = new TeamSeasonScheduleAverages
-            {
-                PointsFor = 0,
-                PointsAgainst = 0
-            };
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(A<string>.Ignored,
-                seasonYear)).Returns(teamSeasonScheduleAverages);
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
 
             // Act
-            await _testService.RunWeeklyUpdate(seasonYear);
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
 
             // Assert
-            A.CallTo(() => _seasonRepository.GetSeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _gameRepository.GetGamesAsync()).MustHaveHappened();
-            A.CallTo(() => _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(fakeLeagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(fakeDestSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(fakeTeamSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
                 .MustHaveHappenedTwiceExactly();
-            A.CallTo(() => _leagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear)).MustHaveHappened();
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamName, seasonYear))
-                .MustHaveHappened();
-            A.CallTo(() => _sharedRepository.SaveChangesAsync()).MustHaveHappenedTwiceExactly();
+        }
+
+        [Fact]
+        public async Task RunWeeklyUpdate_WhenTeamSeasonScheduleTotalsIsNotEmptyAndTeamSeasonScheduleGamesIsNull_ShouldNotUpdateRankingsForTeamSeason()
+        {
+            // Arrange
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeDestSeason = A.Fake<Season>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(fakeDestSeason));
+
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(4);
+
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(fakeLeagueSeason));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
+            var leagueSeasonTotals = new LeagueSeasonTotals
+            {
+                TotalGames = 0,
+                TotalPoints = 0
+            };
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
+
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeTeamSeason = A.Fake<TeamSeason>();
+            var teamSeasons = new List<TeamSeason>(new List<TeamSeason> { fakeTeamSeason });
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns(Task.FromResult<IEnumerable<TeamSeason>>(teamSeasons));
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var dataForRankingsUpdate = new Dictionary<string, Dictionary<string, object>>
+            {
+                {
+                    "TeamSeasonScheduleTotals", new Dictionary<string, object>
+                    {
+                        { "ScheduleGames", null }
+                    }
+                },
+            };
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<ITeamSeason>.Ignored))
+                .Returns(Task.FromResult(dataForRankingsUpdate));
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
+
+            // Act
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
+
+            // Assert
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(fakeLeagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(fakeDestSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(fakeTeamSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedTwiceExactly();
+        }
+
+        [Fact]
+        public async Task RunWeeklyUpdate_WhenTeamSeasonScheduleGamesIsNotNullAndTeamSeasonScheduleAveragesIsNull_ShouldNotUpdateRankingsForTeamSeason()
+        {
+            // Arrange
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeDestSeason = A.Fake<Season>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(fakeDestSeason));
+
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(4);
+
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(fakeLeagueSeason));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
+            var leagueSeasonTotals = new LeagueSeasonTotals
+            {
+                TotalGames = 0,
+                TotalPoints = 0
+            };
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
+
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeTeamSeason = A.Fake<TeamSeason>();
+            var teamSeasons = new List<TeamSeason>(new List<TeamSeason> { fakeTeamSeason });
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns(Task.FromResult<IEnumerable<TeamSeason>>(teamSeasons));
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var dataForRankingsUpdate = new Dictionary<string, Dictionary<string, object>>
+            {
+                { 
+                    "TeamSeasonScheduleTotals", new Dictionary<string, object>
+                    {
+                        { "ScheduleGames", 0m }
+                    }
+                },
+                {
+                    "TeamSeasonScheduleAverages", null
+                },
+            };
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<ITeamSeason>.Ignored))
+                .Returns(Task.FromResult(dataForRankingsUpdate));
+
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
+
+            // Act
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
+
+            // Assert
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(fakeLeagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(fakeDestSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(fakeTeamSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedTwiceExactly();
+        }
+
+        [Fact]
+        public async Task RunWeeklyUpdate_WhenTeamSeasonScheduleAveragesIsEmpty_ShouldNotUpdateRankingsForTeamSeason()
+        {
+            // Arrange
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeDestSeason = A.Fake<Season>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(fakeDestSeason));
+
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(4);
+
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(fakeLeagueSeason));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
+            var leagueSeasonTotals = new LeagueSeasonTotals
+            {
+                TotalGames = 0,
+                TotalPoints = 0
+            };
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
+
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeTeamSeason = A.Fake<TeamSeason>();
+            var teamSeasons = new List<TeamSeason>(new List<TeamSeason> { fakeTeamSeason });
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns(Task.FromResult<IEnumerable<TeamSeason>>(teamSeasons));
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var dataForRankingsUpdate = new Dictionary<string, Dictionary<string, object>>
+            {
+                {
+                    "TeamSeasonScheduleTotals", new Dictionary<string, object>
+                    {
+                        { "ScheduleGames", 0m }
+                    }
+                },
+                {
+                    "TeamSeasonScheduleAverages", new Dictionary<string, object> { }
+                },
+            };
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<ITeamSeason>.Ignored))
+                .Returns(Task.FromResult(dataForRankingsUpdate));
+
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
+
+            // Act
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
+
+            // Assert
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(fakeLeagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(fakeDestSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(fakeTeamSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedTwiceExactly();
+        }
+
+        [Fact]
+        public async Task RunWeeklyUpdate_WhenTeamSeasonScheduleAveragesIsNotEmptyAndAvgPointsForIsNull_ShouldNotUpdateRankingsForTeamSeason()
+        {
+            // Arrange
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeDestSeason = A.Fake<Season>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(fakeDestSeason));
+
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(4);
+
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(fakeLeagueSeason));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
+            var leagueSeasonTotals = new LeagueSeasonTotals
+            {
+                TotalGames = 0,
+                TotalPoints = 0
+            };
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
+
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeTeamSeason = A.Fake<TeamSeason>();
+            var teamSeasons = new List<TeamSeason>(new List<TeamSeason> { fakeTeamSeason });
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns(Task.FromResult<IEnumerable<TeamSeason>>(teamSeasons));
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var dataForRankingsUpdate = new Dictionary<string, Dictionary<string, object>>
+            {
+                {
+                    "TeamSeasonScheduleTotals", new Dictionary<string, object>
+                    {
+                        { "ScheduleGames", 0m }
+                    }
+                },
+                {
+                    "TeamSeasonScheduleAverages", new Dictionary<string, object>
+                    {
+                        { "PointsFor", null }
+                    }
+                },
+            };
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<ITeamSeason>.Ignored))
+                .Returns(Task.FromResult(dataForRankingsUpdate));
+
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
+
+            // Act
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
+
+            // Assert
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(fakeLeagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(fakeDestSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(fakeTeamSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedTwiceExactly();
+        }
+
+        [Fact]
+        public async Task RunWeeklyUpdate_WhenAvgPointsForIsNotNullAndAvgPointsAgainstIsNull_ShouldNotUpdateRankingsForTeamSeason()
+        {
+            // Arrange
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeDestSeason = A.Fake<Season>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(fakeDestSeason));
+
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(4);
+
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(fakeLeagueSeason));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
+            var leagueSeasonTotals = new LeagueSeasonTotals
+            {
+                TotalGames = 0,
+                TotalPoints = 0
+            };
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
+
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeTeamSeason = A.Fake<TeamSeason>();
+            var teamSeasons = new List<TeamSeason>(new List<TeamSeason> { fakeTeamSeason });
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns(Task.FromResult<IEnumerable<TeamSeason>>(teamSeasons));
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var dataForRankingsUpdate = new Dictionary<string, Dictionary<string, object>>
+            {
+                {
+                    "TeamSeasonScheduleTotals", new Dictionary<string, object>
+                    {
+                        { "ScheduleGames", 0m }
+                    }
+                },
+                {
+                    "TeamSeasonScheduleAverages", new Dictionary<string, object>
+                    {
+                        { "PointsFor", 0m },
+                        { "PointsAgainst", null }
+                    }
+                },
+            };
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<ITeamSeason>.Ignored))
+                .Returns(Task.FromResult(dataForRankingsUpdate));
+
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
+
+            // Act
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
+
+            // Assert
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(fakeLeagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(fakeDestSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(fakeTeamSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedTwiceExactly();
+        }
+
+        [Fact]
+        public async Task RunWeeklyUpdate_WhenAvgPointsAgainstIsNotNullAndLeagueSeasonIsNull_ShouldNotUpdateRankingsForTeamSeason()
+        {
+            // Arrange
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeDestSeason = A.Fake<Season>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(fakeDestSeason));
+
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(4);
+
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(fakeLeagueSeason));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
+            var leagueSeasonTotals = new LeagueSeasonTotals
+            {
+                TotalGames = 0,
+                TotalPoints = 0
+            };
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
+
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeTeamSeason = A.Fake<TeamSeason>();
+            var teamSeasons = new List<TeamSeason>(new List<TeamSeason> { fakeTeamSeason });
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns(Task.FromResult<IEnumerable<TeamSeason>>(teamSeasons));
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var dataForRankingsUpdate = new Dictionary<string, Dictionary<string, object>>
+            {
+                {
+                    "TeamSeasonScheduleTotals", new Dictionary<string, object>
+                    {
+                        { "ScheduleGames", 0m }
+                    }
+                },
+                {
+                    "TeamSeasonScheduleAverages", new Dictionary<string, object>
+                    {
+                        { "PointsFor", 0m },
+                        { "PointsAgainst", 0m }
+                    }
+                },
+                {
+                    "LeagueSeason", null
+                }
+            };
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<ITeamSeason>.Ignored))
+                .Returns(Task.FromResult(dataForRankingsUpdate));
+
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
+
+            // Act
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
+
+            // Assert
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(fakeLeagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(fakeDestSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(fakeTeamSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedTwiceExactly();
+        }
+
+        [Fact]
+        public async Task RunWeeklyUpdate_WhenLeagueSeasonIsEmpty_ShouldNotUpdateRankingsForTeamSeason()
+        {
+            // Arrange
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeDestSeason = A.Fake<Season>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(fakeDestSeason));
+
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(4);
+
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(fakeLeagueSeason));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
+            var leagueSeasonTotals = new LeagueSeasonTotals
+            {
+                TotalGames = 0,
+                TotalPoints = 0
+            };
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
+
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeTeamSeason = A.Fake<TeamSeason>();
+            var teamSeasons = new List<TeamSeason>(new List<TeamSeason> { fakeTeamSeason });
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns(Task.FromResult<IEnumerable<TeamSeason>>(teamSeasons));
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var dataForRankingsUpdate = new Dictionary<string, Dictionary<string, object>>
+            {
+                {
+                    "TeamSeasonScheduleTotals", new Dictionary<string, object>
+                    {
+                        { "ScheduleGames", 0m }
+                    }
+                },
+                {
+                    "TeamSeasonScheduleAverages", new Dictionary<string, object>
+                    {
+                        { "PointsFor", 0m },
+                        { "PointsAgainst", 0m }
+                    }
+                },
+                {
+                    "LeagueSeason", new Dictionary<string, object> { }
+                }
+            };
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<ITeamSeason>.Ignored))
+                .Returns(Task.FromResult(dataForRankingsUpdate));
+
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
+
+            // Act
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
+
+            // Assert
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(fakeLeagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(fakeDestSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(fakeTeamSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedTwiceExactly();
+        }
+
+        [Fact]
+        public async Task RunWeeklyUpdate_WhenLeagueSeasonIsNotEmptyAndAveragePointsIsNull_ShouldNotUpdateRankingsForTeamSeason()
+        {
+            // Arrange
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeDestSeason = A.Fake<Season>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(fakeDestSeason));
+
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(4);
+
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(fakeLeagueSeason));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
+            var leagueSeasonTotals = new LeagueSeasonTotals
+            {
+                TotalGames = 0,
+                TotalPoints = 0
+            };
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
+
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeTeamSeason = A.Fake<TeamSeason>();
+            var teamSeasons = new List<TeamSeason>(new List<TeamSeason> { fakeTeamSeason });
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns(Task.FromResult<IEnumerable<TeamSeason>>(teamSeasons));
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var dataForRankingsUpdate = new Dictionary<string, Dictionary<string, object>>
+            {
+                {
+                    "TeamSeasonScheduleTotals", new Dictionary<string, object>
+                    {
+                        { "ScheduleGames", 0m }
+                    }
+                },
+                {
+                    "TeamSeasonScheduleAverages", new Dictionary<string, object>
+                    {
+                        { "PointsFor", 0m },
+                        { "PointsAgainst", 0m }
+                    }
+                },
+                {
+                    "LeagueSeason", new Dictionary<string, object>
+                    {
+                        { "AveragePoints", null }
+                    }
+                }
+            };
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<ITeamSeason>.Ignored))
+                .Returns(Task.FromResult(dataForRankingsUpdate));
+
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
+
+            // Act
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
+
+            // Assert
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(fakeLeagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(fakeDestSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(fakeTeamSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedTwiceExactly();
+        }
+
+        [Fact]
+        public async Task RunWeeklyUpdate_WhenAveragePointsIsNotNull_ShouldUpdateRankingsForTeamSeason()
+        {
+            // Arrange
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeDestSeason = A.Fake<Season>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(An<int>.Ignored)).Returns(Task.FromResult<Season?>(fakeDestSeason));
+
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(A<int>.Ignored)).Returns(4);
+
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var fakeLeagueSeason = A.Fake<LeagueSeason>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
+                .Returns(Task.FromResult<LeagueSeason?>(fakeLeagueSeason));
+
+            var fakeLeagueSeasonTotalsRepository = A.Fake<ILeagueSeasonTotalsRepository>();
+            var leagueSeasonTotals = new LeagueSeasonTotals
+            {
+                TotalGames = 0,
+                TotalPoints = 0
+            };
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
+
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeTeamSeason = A.Fake<TeamSeason>();
+            var teamSeasons = new List<TeamSeason>(new List<TeamSeason> { fakeTeamSeason });
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns(Task.FromResult<IEnumerable<TeamSeason>>(teamSeasons));
+
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var dataForRankingsUpdate = new Dictionary<string, Dictionary<string, object>>
+            {
+                {
+                    "TeamSeasonScheduleTotals", new Dictionary<string, object>
+                    {
+                        { "ScheduleGames", 0m }
+                    }
+                },
+                {
+                    "TeamSeasonScheduleAverages", new Dictionary<string, object>
+                    {
+                        { "PointsFor", 0m },
+                        { "PointsAgainst", 0m }
+                    }
+                },
+                {
+                    "LeagueSeason", new Dictionary<string, object>
+                    {
+                        { "AveragePoints", 0m }
+                    }
+                }
+            };
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<ITeamSeason>.Ignored))
+                .Returns(Task.FromResult(dataForRankingsUpdate));
+
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+
+            var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
+                fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
+                fakeSeasonRankingsRepository, fakeSharedRepository);
+
+            // Act
+            var leagueName = "APFA";
+            var seasonYear = 1;
+            await testService.RunWeeklyUpdate(leagueName, seasonYear);
+
+            // Assert
+            A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueName, seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeason.UpdateGamesAndPoints(leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueSeasonRepository.Update(fakeLeagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeGameRepository.GetMaxWeekForSeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonByYearAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.Update(fakeDestSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(fakeTeamSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeason.UpdateRankings(
+                (decimal)dataForRankingsUpdate["TeamSeasonScheduleAverages"]["PointsFor"],
+                (decimal)dataForRankingsUpdate["TeamSeasonScheduleAverages"]["PointsAgainst"],
+                (decimal)dataForRankingsUpdate["LeagueSeason"]["AveragePoints"]))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(fakeTeamSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
+                .MustHaveHappenedTwiceExactly();
         }
     }
 }

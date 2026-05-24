@@ -25,9 +25,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         private readonly IGameIndexViewModel _gameIndexViewModel;
         private readonly IGameDetailsViewModel _gameDetailsViewModel;
         private readonly IGameService _gameService;
-        private readonly IGameRepository _gameRepository;
-        private readonly ITeamRepository _teamRepository;
         private readonly ISeasonRepository _seasonRepository;
+        private readonly ITeamRepository _teamRepository;
+        private readonly IGameRepository _gameRepository;
         private readonly ISharedRepository _sharedRepository;
 
         /// <summary>
@@ -42,14 +42,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <param name="gameService">
         /// The <see cref="IGameService"/> for processing Game data.
         /// </param>
-        /// <param name="gameRepository">
-        /// The <see cref="IGameRepository"/> by which game data will be accessed.
+        /// <param name="seasonRepository">
+        /// The <see cref="ISeasonRepository"/> by which season data will be accessed.
         /// </param>
         /// <param name="teamRepository">
         /// The <see cref="ITeamRepository"/> by which team data will be accessed.
         /// </param>
-        /// <param name="seasonRepository">
-        /// The <see cref="ISeasonRepository"/> by which season data will be accessed.
+        /// <param name="gameRepository">
+        /// The <see cref="IGameRepository"/> by which game data will be accessed.
         /// </param>
         /// <param name="sharedRepository">
         /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
@@ -58,17 +58,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             IGameIndexViewModel gameIndexViewModel,
             IGameDetailsViewModel gameDetailsViewModel,
             IGameService gameService,
-            IGameRepository gameRepository,
-            ITeamRepository teamRepository,
             ISeasonRepository seasonRepository,
+            ITeamRepository teamRepository,
+            IGameRepository gameRepository,
             ISharedRepository sharedRepository)
         {
             _gameIndexViewModel = gameIndexViewModel;
             _gameDetailsViewModel = gameDetailsViewModel;
             _gameService = gameService;
-            _gameRepository = gameRepository;
-            _teamRepository = teamRepository;
             _seasonRepository = seasonRepository;
+            _teamRepository = teamRepository;
+            _gameRepository = gameRepository;
             _sharedRepository = sharedRepository;
         }
 
@@ -228,7 +228,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await _gameRepository.GameExists(game.Id))
+                    if (!await _gameRepository.GameExistsAsync(game.Id))
                     {
                         return NotFound();
                     }
@@ -313,10 +313,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task<IEnumerable<Game>> GetGames()
         {
-            var games = (await _gameRepository.GetGamesAsync()).Where(g => g.SeasonYear == SelectedSeasonYear);
+            var games = await _gameRepository.GetGamesAsync();
+            games = games.Where(g => g.SeasonYear == SelectedSeasonYear);
             if (SelectedWeek.HasValue)
             {
-                games = games.Where(g => g.Week == SelectedWeek);
+                games = games.Where(g => g.Week == SelectedWeek.Value);
             }
             games = games.ToList();
 
@@ -335,7 +336,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             var weeks = new List<int?>();
 
             var selectedSeason = seasons.FirstOrDefault(s => s.Year == SelectedSeasonYear);
-            if (!(selectedSeason is null))
+            if (selectedSeason is not null)
             {
                 for (int i = firstIndex; i <= selectedSeason.NumOfWeeksScheduled; i++)
                 {

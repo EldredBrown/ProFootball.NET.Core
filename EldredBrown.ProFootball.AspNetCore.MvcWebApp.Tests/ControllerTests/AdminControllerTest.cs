@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+
 using Shouldly;
 using Xunit;
+
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests

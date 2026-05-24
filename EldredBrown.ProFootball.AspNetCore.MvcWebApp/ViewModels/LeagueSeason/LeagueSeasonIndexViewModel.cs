@@ -10,6 +10,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.LeagueSeason
         /// <summary>
         /// Gets or sets the collection of leagues for the current <see cref="LeagueSeasonIndexViewModel"/> object.
         /// </summary>
-        public IEnumerable<EldredBrown.ProFootball.Net.Data.Models.LeagueSeason> LeagueSeasons { get; set; }
+        public IEnumerable<EldredBrown.ProFootball.Net.Data.Models.ILeagueSeason> LeagueSeasons { get; set; }
     }
 }

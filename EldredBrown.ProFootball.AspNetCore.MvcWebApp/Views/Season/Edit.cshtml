@@ -15,9 +15,8 @@
             <div class="text-danger" asp-validation-summary="ModelOnly"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
-                <label class="control-label" asp-for="Year"></label>
-                <input class="form-control" asp-for="Year" />
-                <span class="text-danger" asp-validation-for="Year"></span>
+                <label class="control-label" asp-for="Id"></label>
+                @Html.DisplayFor(model => model.Id)
             </div>
             <div class="form-group">
                 <label class="control-label" asp-for="NumOfWeeksScheduled"></label>

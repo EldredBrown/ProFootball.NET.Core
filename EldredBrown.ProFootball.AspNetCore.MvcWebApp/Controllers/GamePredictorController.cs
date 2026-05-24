@@ -1,11 +1,15 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
+using EldredBrown.ProFootball.Net.Services;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 {
@@ -19,6 +23,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private readonly ISeasonRepository _seasonRepository;
         private readonly ITeamSeasonRepository _teamSeasonRepository;
+        private readonly IGamePredictorService _gamePredictorService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GamePredictorController"/> class.
@@ -29,10 +34,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <param name="teamSeasonRepository">
         /// The <see cref="ITeamSeasonRepository"/> by which team season data will be accessed.
         /// </param>
-        public GamePredictorController(ISeasonRepository seasonRepository, ITeamSeasonRepository teamSeasonRepository)
+        /// <param name="gamePredictorService">
+        /// The <see cref="IGamePredictorService"/> by which a game prediction will be calculated.
+        /// </param>
+        public GamePredictorController(
+            ISeasonRepository seasonRepository, ITeamSeasonRepository teamSeasonRepository,
+            IGamePredictorService gamePredictorService)
         {
             _seasonRepository = seasonRepository;
             _teamSeasonRepository = teamSeasonRepository;
+            _gamePredictorService = gamePredictorService;
         }
 
         // GET: GamePredictor/PredictGame
@@ -44,15 +55,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         public async Task<IActionResult> PredictGame()
         {
             var seasons = (await _seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Year);
-
+            HttpContext.Session.SetObject("Seasons", seasons.ToList());
             ViewBag.GuestSeasons = new SelectList(seasons, "Year", "Year", GuestSeasonYear);
             ViewBag.HostSeasons = new SelectList(seasons, "Year", "Year", HostSeasonYear);
 
-            var guests = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(GuestSeasonYear);
-            ViewBag.Guests = new SelectList(guests, "TeamName", "TeamName");
+            var guestTeamSeasons = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(GuestSeasonYear);
+            HttpContext.Session.SetObject("GuestTeamSeasons", guestTeamSeasons);
+            ViewBag.Guests = new SelectList(guestTeamSeasons, "TeamName", "TeamName");
 
-            var hosts = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(HostSeasonYear);
-            ViewBag.Hosts = new SelectList(hosts, "TeamName", "TeamName");
+            var hostTeamSeasons = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(HostSeasonYear);
+            HttpContext.Session.SetObject("HostTeamSeasons", hostTeamSeasons);
+            ViewBag.Hosts = new SelectList(hostTeamSeasons, "TeamName", "TeamName");
 
             return View();
         }
@@ -68,42 +81,50 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> PredictGame([Bind("GuestSeasonYear,GuestName,GuestScore,HostSeasonYear,HostName,HostScore")] GamePrediction prediction)
         {
-            var seasons = (await _seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Year);
-
+            var seasons = HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons");
+            var orderedSeasons = seasons.OrderByDescending(s => s.Year);
 
             GuestSeasonYear = prediction.GuestSeasonYear;
+            ViewBag.GuestSeasons = new SelectList(orderedSeasons, "Year", "Year", GuestSeasonYear);
 
-            ViewBag.GuestSeasons = new SelectList(seasons, "Year", "Year", GuestSeasonYear);
-
-            var guests = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(GuestSeasonYear);
-            var guest = await _teamSeasonRepository.GetTeamSeasonByTeamAndSeasonAsync(prediction.GuestName,
-                GuestSeasonYear);
+            var guestTeamSeasons = HttpContext.Session.GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons");
+            var guest = guestTeamSeasons.FirstOrDefault(ts => ts.TeamName == prediction.GuestName);
             if (guest is null)
             {
-                ViewBag.Guests = new SelectList(guests, "TeamName", "TeamName");
+                ViewBag.Guests = new SelectList(guestTeamSeasons, "TeamName", "TeamName");
             }
             else
             {
-                ViewBag.Guests = new SelectList(guests, "TeamName", "TeamName", guest.TeamName);
+                ViewBag.Guests = new SelectList(guestTeamSeasons, "TeamName", "TeamName", guest.TeamName);
             }
-
 
             HostSeasonYear = prediction.HostSeasonYear;
+            ViewBag.HostSeasons = new SelectList(orderedSeasons, "Year", "Year", HostSeasonYear);
 
-            ViewBag.HostSeasons = new SelectList(seasons, "Year", "Year", HostSeasonYear);
-
-            var hosts = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(HostSeasonYear);
-            var host = await _teamSeasonRepository.GetTeamSeasonByTeamAndSeasonAsync(
-                prediction.HostName, HostSeasonYear);
+            var hostTeamSeasons = HttpContext.Session.GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons");
+            var host = hostTeamSeasons.FirstOrDefault(ts => ts.TeamName == prediction.HostName);
             if (host is null)
             {
-                ViewBag.Hosts = new SelectList(hosts, "TeamName", "TeamName");
+                ViewBag.Hosts = new SelectList(hostTeamSeasons, "TeamName", "TeamName");
             }
             else
             {
-                ViewBag.Hosts = new SelectList(hosts, "TeamName", "TeamName", host.TeamName);
+                ViewBag.Hosts = new SelectList(hostTeamSeasons, "TeamName", "TeamName", host.TeamName);
             }
 
+            GameScorePrediction gameScorePrediction = new GameScorePrediction();
+            try
+            {
+                gameScorePrediction = _gamePredictorService.PredictGameScore(guest, host);
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "A prediction could not be calculated for the selected teams.");
+                return View(prediction);
+            }
+
+            prediction.GuestScore = gameScorePrediction.GuestScore.Value;
+            prediction.HostScore = gameScorePrediction.HostScore.Value;
             return View(prediction);
         }
 

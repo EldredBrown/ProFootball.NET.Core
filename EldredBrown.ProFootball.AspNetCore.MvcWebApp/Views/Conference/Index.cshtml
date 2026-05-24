@@ -1,0 +1,60 @@
+﻿@using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conference
+@model ConferenceIndexViewModel
+
+@{
+    ViewData["Title"] = "Conferences";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <label asp-for="Conferences.SingleOrDefault().ShortName"></label>
+            </th>
+            <th>
+                <label asp-for="Conferences.SingleOrDefault().LongName"></label>
+            </th>
+            <th>
+                <label asp-for="Conferences.SingleOrDefault().LeagueName"></label>
+            </th>
+            <th>
+                <label asp-for="Conferences.SingleOrDefault().FirstSeasonYear"></label>
+            </th>
+            <th>
+                <label asp-for="Conferences.SingleOrDefault().LastSeasonYear"></label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var conference in Model.Conferences) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => conference.ShortName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => conference.LongName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => conference.LeagueName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => conference.FirstSeasonYear)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => conference.LastSeasonYear)
+            </td>
+            <td>
+                <a class="btn btn-primary btn-sm" asp-action="Details" asp-route-id="@conference.Id">Details</a>
+                <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@conference.Id">Edit</a>
+                <a class="btn btn-primary btn-sm" asp-action="Delete" asp-route-id="@conference.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
-using EldredBrown.ProFootball.Net.Data.Decorators;
+
+using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
 {
@@ -27,7 +28,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
 
         // Do nothing methods, for this is an implementation of the Null Object Pattern.
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public override async Task ProcessGameAsync(IGameDecorator gameDecorator)
+        public override async Task ProcessGameAsync(Game game)
         {
         }
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously

@@ -74,7 +74,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var gameRepository = A.Fake<IGameRepository>();
             Game? game = new Game();
-            A.CallTo(() => gameRepository.GetGameAsync(A<int>.Ignored)).Throws<Exception>();
+            A.CallTo(() => gameRepository.GetGameAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
 
@@ -105,7 +105,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var gameRepository = A.Fake<IGameRepository>();
             Game? game = null;
-            A.CallTo(() => gameRepository.GetGameAsync(A<int>.Ignored)).Returns(game);
+            A.CallTo(() => gameRepository.GetGameAsync(An<int>.Ignored)).Returns(game);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -131,7 +131,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var gameRepository = A.Fake<IGameRepository>();
             Game? game = new Game();
-            A.CallTo(() => gameRepository.GetGameAsync(A<int>.Ignored)).Returns(game);
+            A.CallTo(() => gameRepository.GetGameAsync(An<int>.Ignored)).Returns(game);
 
             var sharedRepository = A.Fake<ISharedRepository>();
 
@@ -161,7 +161,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var gameRepository = A.Fake<IGameRepository>();
-            A.CallTo(() => gameRepository.GetGameAsync(A<int>.Ignored)).Throws<Exception>();
+            A.CallTo(() => gameRepository.GetGameAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -189,7 +189,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var gameRepository = A.Fake<IGameRepository>();
             Game? currentGame = null;
-            A.CallTo(() => gameRepository.GetGameAsync(A<int>.Ignored)).Returns(currentGame);
+            A.CallTo(() => gameRepository.GetGameAsync(An<int>.Ignored)).Returns(currentGame);
 
             var sharedRepository = A.Fake<ISharedRepository>();
 
@@ -225,7 +225,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var gameRepository = A.Fake<IGameRepository>();
             Game? currentGame = new Game();
-            A.CallTo(() => gameRepository.GetGameAsync(A<int>.Ignored)).Returns(currentGame);
+            A.CallTo(() => gameRepository.GetGameAsync(An<int>.Ignored)).Returns(currentGame);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(1);
@@ -269,7 +269,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var gameRepository = A.Fake<IGameRepository>();
             Game? currentGame = new Game();
-            A.CallTo(() => gameRepository.GetGameAsync(A<int>.Ignored)).Returns(currentGame);
+            A.CallTo(() => gameRepository.GetGameAsync(An<int>.Ignored)).Returns(currentGame);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(0);
@@ -312,7 +312,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var gameRepository = A.Fake<IGameRepository>();
-            A.CallTo(() => gameRepository.GetGameAsync(A<int>.Ignored)).Throws<Exception>();
+            A.CallTo(() => gameRepository.GetGameAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -339,7 +339,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var gameRepository = A.Fake<IGameRepository>();
             Game? game = null;
-            A.CallTo(() => gameRepository.GetGameAsync(A<int>.Ignored)).Returns(game);
+            A.CallTo(() => gameRepository.GetGameAsync(An<int>.Ignored)).Returns(game);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -366,7 +366,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var gameRepository = A.Fake<IGameRepository>();
             Game? game = new Game();
-            A.CallTo(() => gameRepository.GetGameAsync(A<int>.Ignored)).Returns(game);
+            A.CallTo(() => gameRepository.GetGameAsync(An<int>.Ignored)).Returns(game);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(1);
@@ -396,7 +396,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var gameRepository = A.Fake<IGameRepository>();
             Game? game = new Game();
-            A.CallTo(() => gameRepository.GetGameAsync(A<int>.Ignored)).Returns(game);
+            A.CallTo(() => gameRepository.GetGameAsync(An<int>.Ignored)).Returns(game);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(0);

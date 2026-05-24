@@ -6,7 +6,47 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Decorators\GameDecorator.cs" />
+    <Compile Remove="Decorators\IGameDecorator.cs" />
+    <Compile Remove="Decorators\ITeamSeasonDecorator.cs" />
+    <Compile Remove="Decorators\TeamSeasonDecorator.cs" />
+    <Compile Remove="Repositories\DivisionRepository.cs" />
+    <Compile Remove="Repositories\GameRepository.cs" />
+    <Compile Remove="Repositories\IDivisionRepository.cs" />
+    <Compile Remove="Repositories\IGameRepository.cs" />
+    <Compile Remove="Repositories\ILeagueSeasonRepository.cs" />
+    <Compile Remove="Repositories\ILeagueSeasonTotalsRepository.cs" />
+    <Compile Remove="Repositories\ISeasonRankingsRepository.cs" />
+    <Compile Remove="Repositories\ISeasonStandingsRepository.cs" />
+    <Compile Remove="Repositories\ITeamRepository.cs" />
+    <Compile Remove="Repositories\ITeamSeasonRepository.cs" />
+    <Compile Remove="Repositories\ITeamSeasonScheduleRepository.cs" />
+    <Compile Remove="Repositories\LeagueSeasonRepository.cs" />
+    <Compile Remove="Repositories\LeagueSeasonTotalsRepository.cs" />
+    <Compile Remove="Repositories\MockLeagueSeasonTotalsRepository.cs" />
+    <Compile Remove="Repositories\SeasonRankingsRepository.cs" />
+    <Compile Remove="Repositories\SeasonStandingsRepository.cs" />
+    <Compile Remove="Repositories\TeamRepository.cs" />
+    <Compile Remove="Repositories\TeamSeasonRepository.cs" />
+    <Compile Remove="Repositories\TeamSeasonScheduleRepository.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.7">
       <PrivateAssets>all</PrivateAssets>
@@ -17,10 +57,16 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.8" />
     <PackageReference Include="Microsoft.NETCore.Platforms" Version="7.0.4" />
     <PackageReference Include="Microsoft.NETCore.Targets" Version="5.0.0" />
     <PackageReference Include="NuGet.Packaging" Version="7.3.1" />
     <PackageReference Include="NuGet.Protocol" Version="7.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Decorators\" />
   </ItemGroup>
 
 </Project>

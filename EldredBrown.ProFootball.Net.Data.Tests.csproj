@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Add the EF Core In-Memory provider so UseInMemoryDatabase(...) extension is available.
+         Use the same version as the rest of your Microsoft.EntityFrameworkCore packages. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="7.0.0" />
+  </ItemGroup>
+</Project>

@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     /// <summary>
     /// Provides control of the flow of execution for views of season data.
     /// </summary>
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class SeasonController : Controller
     {
         private readonly ISeasonIndexViewModel _seasonIndexViewModel;
@@ -66,7 +67,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Renders a view of the details of a selected season.
         /// </summary>
-        /// <param name="id">The Id of the selected season.</param>
+        /// <param name="year">The year of the selected season.</param>
         /// <returns>The rendered view of the selected season.</returns>
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
@@ -109,12 +110,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Year,NumOfWeeksScheduled,NumOfWeeksCompleted")] Season season)
+        public async Task<IActionResult> Create([Bind("Id,NumOfWeeksScheduled,NumOfWeeksCompleted")] Season season)
         {
             if (ModelState.IsValid)
             {
                 await _seasonRepository.AddAsync(season);
-                await _sharedRepository.SaveChangesAsync();
+
+                try
+                {
+                    await _sharedRepository.SaveChangesAsync();
+                }
+                catch (DbUpdateException ex)
+                {
+                    await HandleDbUpdateExceptionOnCreate(ex, season);
+                    return View(season);
+                }
 
                 return RedirectToAction(nameof(Index));
             }
@@ -154,7 +164,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Year,NumOfWeeksScheduled,NumOfWeeksCompleted")] Season season)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,NumOfWeeksScheduled,NumOfWeeksCompleted")] Season season)
         {
             if (id != season.Id)
             {
@@ -163,14 +173,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
             if (ModelState.IsValid)
             {
+                _seasonRepository.Update(season);
+
                 try
                 {
-                    _seasonRepository.Update(season);
                     await _sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await _seasonRepository.SeasonExists(season.Id))
+                    if (!await _seasonRepository.SeasonExistsAsync(season.Id))
                     {
                         return NotFound();
                     }
@@ -178,6 +189,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                     {
                         throw;
                     }
+                }
+                catch (DbUpdateException)
+                {
+                    ModelState.AddModelError(string.Empty, "Unable to save changes. An unexpected error occurred.");
+                    return View(season);
                 }
 
                 return RedirectToAction(nameof(Index));
@@ -222,6 +238,26 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             await _sharedRepository.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task HandleDbUpdateExceptionOnCreate(DbUpdateException ex, Season season)
+        {
+            var seasons = await _seasonRepository.GetSeasonsAsync();
+            var intro = "Unable to save changes.";
+
+            if (PrimaryKeyViolationExists(seasons, season))
+            {
+                ModelState.AddModelError("Id", $"{intro} A season with the same id already exists.");
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, $"{intro} An unexpected error occurred.");
+            }
+        }
+
+        private bool PrimaryKeyViolationExists(IEnumerable<Season> seasons, Season season)
+        {
+            return seasons.Any(s => s.Id == season.Id);
         }
     }
 }

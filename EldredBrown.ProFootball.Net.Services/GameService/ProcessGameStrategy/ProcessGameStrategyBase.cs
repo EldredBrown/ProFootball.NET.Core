@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using EldredBrown.ProFootball.Net.Data.Decorators;
+using EldredBrown.ProFootball.Net.Data.Exceptions;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 using EldredBrown.ProFootball.Net.Services.Utilities;
@@ -26,31 +28,32 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
         /// </summary>
         /// <param name="game"></param>
         /// <returns></returns>
-        public virtual void ProcessGame(IGameDecorator gameDecorator)
+        public virtual void ProcessGame(Game game)
         {
-            Guard.ThrowIfNull(gameDecorator, $"{GetType()}.{nameof(ProcessGame)}: {nameof(gameDecorator)}");
+            Guard.ThrowIfNull(game, $"{GetType()}.{nameof(ProcessGame)}: {nameof(game)}");
 
-            var seasonYear = gameDecorator.SeasonYear;
+            var seasonYear = game.SeasonYear;
+            var teamSeasons = _teamSeasonRepository.GetTeamSeasonsBySeason(seasonYear);
 
-            var guestSeason =
-                _teamSeasonRepository.GetTeamSeasonByTeamAndSeason(gameDecorator.GuestName, seasonYear);
-            ITeamSeasonDecorator? guestSeasonDecorator = null;
-            if (!(guestSeason is null))
-            {
-                guestSeasonDecorator = new TeamSeasonDecorator(guestSeason);
-            }
+            //var guestSeason = teamSeasons.FirstOrDefault(ts => ts.TeamName == game.GuestName);
+            //if (guestSeason is null)
+            //{
+            //    throw new EntityNotFoundException(
+            //        $"No TeamSeason entity found for team '{game.GuestName}' and season year {seasonYear}.");
+            //}
 
-            var hostSeason =
-                _teamSeasonRepository.GetTeamSeasonByTeamAndSeason(gameDecorator.HostName, seasonYear);
-            ITeamSeasonDecorator? hostSeasonDecorator = null;
-            if (!(hostSeason is null))
-            {
-                hostSeasonDecorator = new TeamSeasonDecorator(hostSeason);
-            }
+            //var hostSeason = teamSeasons.FirstOrDefault(ts => ts.TeamName == game.HostName);
+            //if (hostSeason is null)
+            //{
+            //    throw new EntityNotFoundException(
+            //        $"No TeamSeason entity found for team '{game.HostName}' and season year {seasonYear}.");
+            //}
 
-            EditWinLossData(guestSeasonDecorator, hostSeasonDecorator, gameDecorator);
-            EditScoringData(guestSeasonDecorator, hostSeasonDecorator, gameDecorator.GuestScore,
-                gameDecorator.HostScore);
+            //EditWinLossData(guestSeason, hostSeason, game);
+            //EditScoringData(guestSeason, hostSeason, game.GuestScore, game.HostScore);
+
+            //_teamSeasonRepository.Update(guestSeason);
+            //_teamSeasonRepository.Update(hostSeason);
         }
 
         /// <summary>
@@ -58,82 +61,60 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
         /// </summary>
         /// <param name="game"></param>
         /// <returns></returns>
-        public virtual async Task ProcessGameAsync(IGameDecorator gameDecorator)
+        public virtual async Task ProcessGameAsync(Game game)
         {
-            Guard.ThrowIfNull(gameDecorator, $"{GetType()}.{nameof(ProcessGameAsync)}: {nameof(gameDecorator)}");
+            Guard.ThrowIfNull(game, $"{GetType()}.{nameof(ProcessGameAsync)}: {nameof(game)}");
 
-            var seasonYear = gameDecorator.SeasonYear;
+            var seasonYear = game.SeasonYear;
+            var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear);
 
-            var guestSeason =
-                await _teamSeasonRepository.GetTeamSeasonByTeamAndSeasonAsync(gameDecorator.GuestName, seasonYear);
-            TeamSeasonDecorator? guestSeasonDecorator = null;
-            if (!(guestSeason is null))
-            {
-                guestSeasonDecorator = new TeamSeasonDecorator(guestSeason);
-            }
+            //var guestSeason = teamSeasons.FirstOrDefault(ts => ts.TeamName == game.GuestName);
+            //if (guestSeason is null)
+            //{
+            //    throw new EntityNotFoundException(
+            //        $"No TeamSeason entity found for team '{game.GuestName}' and season year {seasonYear}.");
+            //}
 
-            var hostSeason =
-                await _teamSeasonRepository.GetTeamSeasonByTeamAndSeasonAsync(gameDecorator.HostName, seasonYear);
-            TeamSeasonDecorator? hostSeasonDecorator = null;
-            if (!(hostSeason is null))
-            {
-                hostSeasonDecorator = new TeamSeasonDecorator(hostSeason);
-            }
+            //var hostSeason = teamSeasons.FirstOrDefault(ts => ts.TeamName == game.HostName);
+            //if (hostSeason is null)
+            //{
+            //    throw new EntityNotFoundException(
+            //        $"No TeamSeason entity found for team '{game.HostName}' and season year {seasonYear}.");
+            //}
 
-            await EditWinLossDataAsync(guestSeasonDecorator, hostSeasonDecorator, gameDecorator);
-            EditScoringData(guestSeasonDecorator, hostSeasonDecorator, gameDecorator.GuestScore,
-                gameDecorator.HostScore);
+            //EditWinLossData(guestSeason, hostSeason, game);
+            //EditScoringData(guestSeason, hostSeason, game.GuestScore, game.HostScore);
+
+            //_teamSeasonRepository.Update(guestSeason);
+            //_teamSeasonRepository.Update(hostSeason);
         }
 
-        protected void EditWinLossData(
-            ITeamSeasonDecorator? guestSeasonDecorator, ITeamSeasonDecorator? hostSeasonDecorator,
-            IGameDecorator gameDecorator)
+        protected void EditWinLossData(ITeamSeason? guestSeason, ITeamSeason? hostSeason, Game game)
         {
-            UpdateGamesForTeamSeasons(guestSeasonDecorator, hostSeasonDecorator);
-            UpdateWinsLossesAndTiesForTeamSeasons(guestSeasonDecorator, hostSeasonDecorator, gameDecorator);
+            UpdateGamesForTeamSeasons(guestSeason, hostSeason);
+            UpdateWinsLossesAndTiesForTeamSeasons(guestSeason, hostSeason, game);
         }
 
-        protected async Task EditWinLossDataAsync(
-            ITeamSeasonDecorator? guestSeasonDecorator, ITeamSeasonDecorator? hostSeasonDecorator,
-            IGameDecorator gameDecorator)
-        {
-            UpdateGamesForTeamSeasons(guestSeasonDecorator, hostSeasonDecorator);
-            await UpdateWinsLossesAndTiesForTeamSeasonsAsync(guestSeasonDecorator, hostSeasonDecorator, gameDecorator);
-        }
-
-        protected virtual void UpdateGamesForTeamSeasons(
-            ITeamSeasonDecorator? guestSeasonDecorator, ITeamSeasonDecorator? hostSeasonDecorator)
+        protected virtual void UpdateGamesForTeamSeasons(ITeamSeason? guestSeason, ITeamSeason? hostSeason)
         {
             throw new NotImplementedException(
                 nameof(UpdateGamesForTeamSeasons) + " must be implemented in a subclass.");
         }
 
         protected virtual void UpdateWinsLossesAndTiesForTeamSeasons(
-            ITeamSeasonDecorator? guestSeasonDecorator, ITeamSeasonDecorator? hostSeasonDecorator,
-            IGameDecorator gameDecorator)
+            ITeamSeason? guestSeason, ITeamSeason? hostSeason, Game game)
         {
             throw new NotImplementedException(
                 nameof(UpdateWinsLossesAndTiesForTeamSeasons) + " must be implemented in a subclass.");
         }
 
-        protected virtual Task UpdateWinsLossesAndTiesForTeamSeasonsAsync(
-            ITeamSeasonDecorator? guestSeasonDecorator, ITeamSeasonDecorator? hostSeasonDecorator,
-            IGameDecorator gameDecorator)
+        protected void EditScoringData(ITeamSeason? guestSeason, ITeamSeason? hostSeason, int guestScore, int hostScore)
         {
-            throw new NotImplementedException(
-                nameof(UpdateWinsLossesAndTiesForTeamSeasonsAsync) + " must be implemented in a subclass.");
+            EditScoringDataForTeamSeason(guestSeason, guestScore, hostScore);
+            EditScoringDataForTeamSeason(hostSeason, hostScore, guestScore);
         }
 
-        protected void EditScoringData(
-            ITeamSeasonDecorator? guestSeasonDecorator, ITeamSeasonDecorator? hostSeasonDecorator,
-            int guestScore, int hostScore)
-        {
-            EditScoringDataForTeamSeason(guestSeasonDecorator, guestScore, hostScore);
-            EditScoringDataForTeamSeason(hostSeasonDecorator, hostScore, guestScore);
-        }
-
-        protected virtual void EditScoringDataForTeamSeason(
-            ITeamSeasonDecorator? teamSeasonDecorator, int teamScore, int opponentScore)
+        protected virtual void EditScoringDataForTeamSeason(ITeamSeason? teamSeason, int teamScore, int opponentScore)
         {
             throw new NotImplementedException(
                 nameof(EditScoringDataForTeamSeason) + " must be implemented in a subclass.");

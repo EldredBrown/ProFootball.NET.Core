@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Microsoft.EntityFrameworkCore;
+
 using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Data.Repositories
@@ -29,7 +31,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>An <see cref="IEnumerable{SeasonStanding}"/> of all fetched entities.</returns>
         public IEnumerable<SeasonTeamStanding> GetSeasonStandings(int seasonYear)
         {
-            return _dbContext.SeasonStandings.FromSqlInterpolated($"sp_GetSeasonStandings {seasonYear}").ToList();
+            return ExecuteGetSeasonStandings(seasonYear);
         }
 
         /// <summary>
@@ -39,8 +41,21 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>An <see cref="IEnumerable{SeasonStanding}"/> of all fetched entities.</returns>
         public async Task<IEnumerable<SeasonTeamStanding>> GetSeasonStandingsAsync(int seasonYear)
         {
-            return await _dbContext.SeasonStandings.FromSqlInterpolated(
-                $"sp_GetSeasonStandings {seasonYear}").ToListAsync();
+            return await ExecuteGetSeasonStandingsAsync(seasonYear);
+        }
+
+        protected virtual IEnumerable<SeasonTeamStanding> ExecuteGetSeasonStandings(int seasonYear)
+        {
+            return _dbContext.SeasonStandings
+                .FromSqlInterpolated($"EXEC sp_GetSeasonStandings @seasonYear = {seasonYear}")
+                .ToList();
+        }
+
+        protected virtual async Task<IEnumerable<SeasonTeamStanding>> ExecuteGetSeasonStandingsAsync(int seasonYear)
+        {
+            return await _dbContext.SeasonStandings
+                .FromSqlInterpolated($"EXEC sp_GetSeasonStandings @seasonYear = {seasonYear}")
+                .ToListAsync();
         }
     }
 }

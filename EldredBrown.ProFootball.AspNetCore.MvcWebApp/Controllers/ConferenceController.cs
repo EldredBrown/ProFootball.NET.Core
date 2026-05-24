@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     /// <summary>
     /// Provides control of the flow of execution for views of conference data.
     /// </summary>
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class ConferenceController : Controller
     {
         private readonly IConferenceIndexViewModel _conferenceIndexViewModel;
@@ -28,7 +29,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// The <see cref="IConferenceIndexViewModel"/> that will provide ViewModel data to the Index view.
         /// </param>
         /// <param name="conferenceDetailsViewModel">
-        /// The <see cref="IConferenceDetailsViewModel"/> that will provide ViewModel data to the Details view.
+        /// The <see cref="IConferencesDetailsViewModel"/> that will provide ViewModel data to the Details view.
         /// </param>
         /// <param name="conferenceRepository">
         /// The <see cref="IConferenceRepository"/> by which conference data will be accessed.
@@ -40,7 +41,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             IConferenceIndexViewModel conferenceIndexViewModel,
             IConferenceDetailsViewModel conferenceDetailsViewModel,
             IConferenceRepository conferenceRepository,
-            ISharedRepository sharedRepository)
+            ISharedRepository sharedRepository
+        )
         {
             _conferenceIndexViewModel = conferenceIndexViewModel;
             _conferenceDetailsViewModel = conferenceDetailsViewModel;
@@ -56,7 +58,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            _conferenceIndexViewModel.Conferences = await _conferenceRepository.GetConferencesAsync();
+            var conferences = await _conferenceRepository.GetConferencesAsync();
+            _conferenceIndexViewModel.Conferences = conferences.Select(c => new ConferenceViewModel { Conference = c });
 
             return View(_conferenceIndexViewModel);
         }
@@ -81,7 +84,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            _conferenceDetailsViewModel.Conference = conference;
+            _conferenceDetailsViewModel.Conference = new ConferenceViewModel { Conference = conference };
 
             return View(_conferenceDetailsViewModel);
         }
@@ -103,21 +106,32 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Processes the data posted back from the conference create form.
         /// </summary>
-        /// <param name="conference">A <see cref="Conference"/> object with the data provided for the new conference.</param>
+        /// <param name="conferenceViewModel">A <see cref="Conference"/> object with the data provided for the new conference.</param>
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("LongName,ShortName,FirstSeasonYear,LastSeasonYear")] Conference conference)
+        public async Task<IActionResult> Create([Bind("ShortName,LongName,LeagueName,FirstSeasonYear,LastSeasonYear")] ConferenceViewModel conferenceViewModel)
         {
             if (ModelState.IsValid)
             {
+                var conference = conferenceViewModel.Conference;
+
                 await _conferenceRepository.AddAsync(conference);
-                await _sharedRepository.SaveChangesAsync();
+
+                try
+                {
+                    await _sharedRepository.SaveChangesAsync();
+                }
+                catch (DbUpdateException ex)
+                {
+                    await HandleDbUpdateExceptionOnCreate(ex, conference);
+                    return View(conferenceViewModel);
+                }
 
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(conference);
+            return View(conferenceViewModel);
         }
 
         // GET: Conferences/Edit/5
@@ -139,7 +153,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            return View(conference);
+            var conferenceViewModel = new ConferenceViewModel { Conference = conference };
+            return View(conferenceViewModel);
         }
 
         // POST: Conferences/Edit/5
@@ -148,27 +163,29 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Processes the data posted back from the conference edit form.
         /// </summary>
-        /// <param name="conference">A <see cref="Conference"/> object with the data provided for the conference game.</param>
+        /// <param name="conferenceViewModel">A <see cref="Conference"/> object with the data provided for the conference game.</param>
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,LongName,ShortName,FirstSeasonYear,LastSeasonYear")] Conference conference)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,ShortName,LongName,LeagueName,FirstSeasonYear,LastSeasonYear")] ConferenceViewModel conferenceViewModel)
         {
-            if (id != conference.Id)
+            if (id != conferenceViewModel.Id)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
+                var conference = conferenceViewModel.Conference;
+                _conferenceRepository.Update(conference);
+
                 try
                 {
-                    _conferenceRepository.Update(conference);
                     await _sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!(await _conferenceRepository.ConferenceExists(conference.Id)))
+                    if (!(await _conferenceRepository.ConferenceExistsAsync(conference.Id)))
                     {
                         return NotFound();
                     }
@@ -177,11 +194,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                         throw;
                     }
                 }
+                catch (DbUpdateException ex)
+                {
+                    await HandleDbUpdateExceptionOnEdit(ex, conference);
+                    return View(conferenceViewModel);
+                }
 
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(conference);
+            return View(conferenceViewModel);
         }
 
         // GET: Conferences/Delete/5
@@ -203,7 +225,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            return View(conference);
+            var conferenceViewModel = new ConferenceViewModel { Conference = conference };
+            return View(conferenceViewModel);
         }
 
         // POST: Conferences/Delete/5
@@ -220,6 +243,74 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             await _sharedRepository.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task HandleDbUpdateExceptionOnCreate(DbUpdateException ex, Conference conference)
+        {
+            var conferences = await _conferenceRepository.GetConferencesAsync();
+            var errMsgIntro = "Unable to save changes.";
+
+            if (PrimaryKeyViolationExists(conferences, conference))
+            {
+                ModelState.AddModelError("Id", $"{errMsgIntro} A conference with the same Id already exists.");
+            }
+            else if (UniqueKeyShortNameViolationExistsOnCreate(conferences, conference))
+            {
+                ModelState.AddModelError("ShortName", $"{errMsgIntro} A conference with the same short name already exists.");
+            }
+            else if (UniqueKeyLongNameViolationExistsOnCreate(conferences, conference))
+            {
+                ModelState.AddModelError("LongName", $"{errMsgIntro} A conference with the same long name already exists.");
+            }
+            else if (ForeignKeyUtils.ForeignKeyConstraintConflictExistsOnCreate(ex.InnerException.Message))
+            {
+                ForeignKeyUtils.AddModelErrorForForeignKeyConstraintConflict(errMsgIntro, ex.InnerException.Message,
+                    ModelState);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, $"{errMsgIntro} An unexpected error occurred.");
+            }
+        }
+
+        private bool PrimaryKeyViolationExists(IEnumerable<Conference> conferences, Conference conference)
+        {
+            return conferences.Any(l => l.Id == conference.Id);
+        }
+
+        private bool UniqueKeyShortNameViolationExistsOnCreate(IEnumerable<Conference> conferences, Conference conference)
+        {
+            return conferences.Any(l => l.ShortName == conference.ShortName);
+        }
+
+        private bool UniqueKeyLongNameViolationExistsOnCreate(IEnumerable<Conference> conferences, Conference conference)
+        {
+            return conferences.Any(l => l.LongName == conference.LongName);
+        }
+
+        private async Task HandleDbUpdateExceptionOnEdit(DbUpdateException ex, Conference conference)
+        {
+            var conferences = await _conferenceRepository.GetConferencesAsync();
+            var errMsgIntro = "Unable to save changes.";
+
+            if (UniqueKeyLongNameViolationExistsOnEdit(conferences, conference))
+            {
+                ModelState.AddModelError("LongName", $"{errMsgIntro} A conference with the same long name already exists.");
+            }
+            else if (ForeignKeyUtils.ForeignKeyConstraintConflictExistsOnEdit(ex.InnerException.Message))
+            {
+                ForeignKeyUtils.AddModelErrorForForeignKeyConstraintConflict(errMsgIntro, ex.InnerException.Message,
+                    ModelState);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, $"{errMsgIntro} An unexpected error occurred.");
+            }
+        }
+
+        private bool UniqueKeyLongNameViolationExistsOnEdit(IEnumerable<Conference> conferences, Conference conference)
+        {
+            return conferences.Count(l => l.LongName == conference.LongName) > 1;
         }
     }
 }

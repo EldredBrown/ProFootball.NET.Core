@@ -8,6 +8,6 @@
         /// <summary>
         /// Gets or sets the conference of the current <see cref="ConferenceDetailsViewModel"/> object.
         /// </summary>
-        public EldredBrown.ProFootball.Net.Data.Models.Conference Conference { get; set; }
+        public ConferenceViewModel Conference { get; set; }
     }
 }

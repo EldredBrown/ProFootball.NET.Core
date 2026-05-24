@@ -21,7 +21,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var seasonStandingsRepository = A.Fake<ISeasonStandingsRepository>();
-            A.CallTo(() => seasonStandingsRepository.GetSeasonStandingsAsync(A<int>.Ignored)).Throws<Exception>();
+            A.CallTo(() => seasonStandingsRepository.GetSeasonStandingsAsync(An<int>.Ignored)).Throws<Exception>();
 
             var mapper = A.Fake<IMapper>();
 
@@ -44,7 +44,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var seasonStandingsRepository = A.Fake<ISeasonStandingsRepository>();
             var seasonStandings = new List<SeasonTeamStanding>();
-            A.CallTo(() => seasonStandingsRepository.GetSeasonStandingsAsync(A<int>.Ignored)).Returns(seasonStandings);
+            A.CallTo(() => seasonStandingsRepository.GetSeasonStandingsAsync(An<int>.Ignored)).Returns(seasonStandings);
 
             var mapper = A.Fake<IMapper>();
 

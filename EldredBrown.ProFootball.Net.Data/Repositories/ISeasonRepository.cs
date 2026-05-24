@@ -24,30 +24,23 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <summary>
         /// Gets a single <see cref="Season"/> entity from the data store by Id.
         /// </summary>
-        /// <param name="id">The Id of the <see cref="Season"/> entity to fetch.</param>
+        /// <param name="id">The year of the <see cref="Season"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Season"/> entity.</returns>
         Season? GetSeason(int id);
 
         /// <summary>
         /// Gets a single <see cref="Season"/> entity from the data store asynchronously by Id.
         /// </summary>
-        /// <param name="id">The Id of the <see cref="Season"/> entity to fetch.</param>
+        /// <param name="id">The year of the <see cref="Season"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Season"/> entity.</returns>
         Task<Season?> GetSeasonAsync(int id);
 
         /// <summary>
-        /// Gets a single <see cref="Season"/> entity from the data store by Id.
+        /// Adds a <see cref="Season"/> entity to the data store.
         /// </summary>
-        /// <param name="year">The year of the <see cref="Season"/> entity to fetch.</param>
-        /// <returns>The fetched <see cref="Season"/> entity.</returns>
-        Season? GetSeasonByYear(int year);
-
-        /// <summary>
-        /// Gets a single <see cref="Season"/> entity from the data store asynchronously by Id.
-        /// </summary>
-        /// <param name="year">The year of the <see cref="Season"/> entity to fetch.</param>
-        /// <returns>The fetched <see cref="Season"/> entity.</returns>
-        Task<Season?> GetSeasonByYearAsync(int year);
+        /// <param name="season">The <see cref="Season"/> entity to add.</param>
+        /// <returns>The added <see cref="Season"/> entity.</returns>
+        Season Add(Season season);
 
         /// <summary>
         /// Adds a <see cref="Season"/> entity to the data store.
@@ -77,6 +70,6 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>
         /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
         /// </returns>
-        Task<bool> SeasonExists(int id);
+        Task<bool> SeasonExistsAsync(int id);
     }
 }

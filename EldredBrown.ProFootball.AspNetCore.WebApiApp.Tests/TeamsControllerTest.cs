@@ -69,7 +69,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamRepository = A.Fake<ITeamRepository>();
             Team? team = new Team();
-            A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Throws<Exception>();
+            A.CallTo(() => teamRepository.GetTeamAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
 
@@ -98,7 +98,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamRepository = A.Fake<ITeamRepository>();
             Team? team = null;
-            A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Returns(team);
+            A.CallTo(() => teamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -122,7 +122,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamRepository = A.Fake<ITeamRepository>();
             Team? team = new Team();
-            A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Returns(team);
+            A.CallTo(() => teamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
 
             var sharedRepository = A.Fake<ISharedRepository>();
 
@@ -150,7 +150,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var teamRepository = A.Fake<ITeamRepository>();
-            A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Throws<Exception>();
+            A.CallTo(() => teamRepository.GetTeamAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -176,7 +176,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamRepository = A.Fake<ITeamRepository>();
             Team? team = null;
-            A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Returns(team);
+            A.CallTo(() => teamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -202,7 +202,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamRepository = A.Fake<ITeamRepository>();
             Team? team = new Team();
-            A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Returns(team);
+            A.CallTo(() => teamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(1);
@@ -235,7 +235,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamRepository = A.Fake<ITeamRepository>();
             Team? team = new Team();
-            A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Returns(team);
+            A.CallTo(() => teamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(0);
@@ -267,7 +267,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var teamRepository = A.Fake<ITeamRepository>();
-            A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Throws<Exception>();
+            A.CallTo(() => teamRepository.GetTeamAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -292,7 +292,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamRepository = A.Fake<ITeamRepository>();
             Team? team = null;
-            A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Returns(team);
+            A.CallTo(() => teamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -317,7 +317,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamRepository = A.Fake<ITeamRepository>();
             Team? team = new Team();
-            A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Returns(team);
+            A.CallTo(() => teamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(1);
@@ -344,7 +344,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamRepository = A.Fake<ITeamRepository>();
             Team? team = new Team();
-            A.CallTo(() => teamRepository.GetTeamAsync(A<int>.Ignored)).Returns(team);
+            A.CallTo(() => teamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(0);

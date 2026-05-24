@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace EldredBrown.ProFootball.Net.Data.Models;
+﻿namespace EldredBrown.ProFootball.Net.Data.Models;
 
 public partial class Game
 {
     public int Id { get; set; }
 
-    public int SeasonYear { get; set; }
+    public int SeasonId { get; set; }
 
     public int Week { get; set; }
 
@@ -23,5 +20,5 @@ public partial class Game
 
     public string? Notes { get; set; }
 
-    public virtual Season SeasonYearNavigation { get; set; } = null!;
+    public virtual Season SeasonIdNavigation { get; set; } = null!;
 }

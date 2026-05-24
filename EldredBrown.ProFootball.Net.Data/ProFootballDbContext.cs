@@ -1,7 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using EldredBrown.ProFootball.Net.Data.Models;
+﻿using System.IO;
+
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+
+using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Data;
 
@@ -16,6 +18,8 @@ public partial class ProFootballDbContext : DbContext
     {
     }
 
+    public virtual DbSet<Season> Seasons { get; set; }
+
     public virtual DbSet<Conference> Conferences { get; set; }
 
     public virtual DbSet<Division> Divisions { get; set; }
@@ -25,8 +29,6 @@ public partial class ProFootballDbContext : DbContext
     public virtual DbSet<League> Leagues { get; set; }
 
     public virtual DbSet<LeagueSeason> LeagueSeasons { get; set; }
-
-    public virtual DbSet<Season> Seasons { get; set; }
 
     public virtual DbSet<Team> Teams { get; set; }
 
@@ -52,22 +54,52 @@ public partial class ProFootballDbContext : DbContext
     /// </summary>
     public virtual DbSet<SeasonTeamStanding>? SeasonStandings { get; set; }
 
+    /// <summary>
+    /// Gets or sets the OffensiveRankings data source.
+    /// </summary>
+    public virtual DbSet<RankingsOffensiveTeamSeason>? OffensiveRankings { get; set; }
+
+    /// <summary>
+    /// Gets or sets the DefensiveRankings data source.
+    /// </summary>
+    public virtual DbSet<RankingsDefensiveTeamSeason>? DefensiveRankings { get; set; }
+
+    /// <summary>
+    /// Gets or sets the TotalRankings data source.
+    /// </summary>
+    public virtual DbSet<RankingsTotalTeamSeason>? TotalRankings { get; set; }
+
+    /// <summary>
+    /// Gets or sets the LeagueSeasonTotals data source.
+    /// </summary>
+    public virtual DbSet<LeagueSeasonTotals>? LeagueSeasonTotals { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=ProFootballDb;Trusted_Connection=True;MultipleActiveResultSets=true");
+    {
+        // Only configure if not already configured externally (e.g. from DI)
+        if (!optionsBuilder.IsConfigured)
+        {
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            optionsBuilder.UseSqlServer(
+                configuration.GetConnectionString("ProFootballDb"));
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Season>(entity =>
         {
             entity.ToTable("Season");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Year).HasColumnName("year");
             entity.Property(e => e.NumOfWeeksScheduled).HasColumnName("num_of_weeks_scheduled");
             entity.Property(e => e.NumOfWeeksCompleted).HasColumnName("num_of_weeks_completed");
-
-            entity.HasIndex(e => e.Year, "UQ_Season_Year").IsUnique();
         });
 
         modelBuilder.Entity<League>(entity =>
@@ -83,27 +115,25 @@ public partial class ProFootballDbContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("long_name");
-            entity.Property(e => e.FirstSeasonYear).HasColumnName("first_season_year");
-            entity.Property(e => e.LastSeasonYear).HasColumnName("last_season_year");
+            entity.Property(e => e.FirstSeasonId).HasColumnName("first_season_id");
+            entity.Property(e => e.LastSeasonId).HasColumnName("last_season_id");
+
+            entity.HasOne(d => d.FirstSeasonIdNavigation).WithMany(p => p.LeagueFirstSeasonIdNavigations)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.FirstSeasonId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_League_Season_FirstSeasonId");
+
+            entity.HasOne(d => d.LastSeasonIdNavigation).WithMany(p => p.LeagueLastSeasonIdNavigations)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.LastSeasonId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_League_Season_LastSeasonId");
 
             entity.HasIndex(e => e.ShortName, "UQ_League_ShortName").IsUnique();
-
             entity.HasIndex(e => e.LongName, "UQ_League_LongName").IsUnique();
-
-            entity.HasIndex(e => e.FirstSeasonYear, "IX_FK_League_Season_FirstSeasonYear");
-
-            entity.HasIndex(e => e.LastSeasonYear, "IX_FK_League_Season_LastSeasonYear");
-
-            entity.HasOne(d => d.FirstSeasonYearNavigation).WithMany(p => p.LeagueFirstSeasonYearNavigations)
-                .HasPrincipalKey(p => p.Year)
-                .HasForeignKey(d => d.FirstSeasonYear)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_League_Season_FirstSeasonYear");
-
-            entity.HasOne(d => d.LastSeasonYearNavigation).WithMany(p => p.LeagueLastSeasonYearNavigations)
-                .HasPrincipalKey(p => p.Year)
-                .HasForeignKey(d => d.LastSeasonYear)
-                .HasConstraintName("FK_League_Season_LastSeasonYear");
+            entity.HasIndex(e => e.FirstSeasonId, "IX_FK_League_Season_FirstSeasonId");
+            entity.HasIndex(e => e.LastSeasonId, "IX_FK_League_Season_LastSeasonId");
         });
 
         modelBuilder.Entity<Conference>(entity =>
@@ -119,38 +149,33 @@ public partial class ProFootballDbContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("long_name");
-            entity.Property(e => e.LeagueName)
-                .HasMaxLength(5)
-                .IsUnicode(false)
-                .HasColumnName("league_name");
-            entity.Property(e => e.FirstSeasonYear).HasColumnName("first_season_year");
-            entity.Property(e => e.LastSeasonYear).HasColumnName("last_season_year");
+            entity.Property(e => e.LeagueId).HasColumnName("league_id");
+            entity.Property(e => e.FirstSeasonId).HasColumnName("first_season_id");
+            entity.Property(e => e.LastSeasonId).HasColumnName("last_season_id");
+
+            entity.HasOne(d => d.LeagueIdNavigation).WithMany(p => p.Conferences)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.LeagueId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Conference_League_LeagueId");
+
+            entity.HasOne(d => d.FirstSeasonIdNavigation).WithMany(p => p.ConferenceFirstSeasonIdNavigations)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.FirstSeasonId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_Conference_Season_FirstSeasonId");
+
+            entity.HasOne(d => d.LastSeasonIdNavigation).WithMany(p => p.ConferenceLastSeasonIdNavigations)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.LastSeasonId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_Conference_Season_LastSeasonId");
 
             entity.HasIndex(e => e.ShortName, "UQ_Conference_ShortName").IsUnique();
-
             entity.HasIndex(e => e.LongName, "UQ_Conference_LongName").IsUnique();
-
-            entity.HasIndex(e => e.LeagueName, "IX_FK_Conference_League_LeagueName");
-
-            entity.HasIndex(e => e.FirstSeasonYear, "IX_FK_Conference_Season_FirstSeasonYear");
-
-            entity.HasIndex(e => e.LastSeasonYear, "IX_FK_Conference_Season_LastSeasonYear");
-
-            entity.HasOne(d => d.LeagueNameNavigation).WithMany(p => p.Conferences)
-                .HasPrincipalKey(p => p.ShortName)
-                .HasForeignKey(d => d.LeagueName)
-                .HasConstraintName("FK_Conference_League_LeagueName");
-
-            entity.HasOne(d => d.FirstSeasonYearNavigation).WithMany(p => p.ConferenceFirstSeasonYearNavigations)
-                .HasPrincipalKey(p => p.Year)
-                .HasForeignKey(d => d.FirstSeasonYear)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Conference_Season_FirstSeasonYear");
-
-            entity.HasOne(d => d.LastSeasonYearNavigation).WithMany(p => p.ConferenceLastSeasonYearNavigations)
-                .HasPrincipalKey(p => p.Year)
-                .HasForeignKey(d => d.LastSeasonYear)
-                .HasConstraintName("FK_Conference_Season_LastSeasonYear");
+            entity.HasIndex(e => e.LeagueId, "IX_FK_Conference_League_LeagueId");
+            entity.HasIndex(e => e.FirstSeasonId, "IX_FK_Conference_Season_FirstSeasonId");
+            entity.HasIndex(e => e.LastSeasonId, "IX_FK_Conference_Season_LastSeasonId");
         });
 
         modelBuilder.Entity<Division>(entity =>
@@ -162,48 +187,40 @@ public partial class ProFootballDbContext : DbContext
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("name");
-            entity.Property(e => e.LeagueName)
-                .HasMaxLength(5)
-                .IsUnicode(false)
-                .HasColumnName("league_name");
-            entity.Property(e => e.ConferenceName)
-                .HasMaxLength(5)
-                .IsUnicode(false)
-                .HasColumnName("conference_name");
-            entity.Property(e => e.FirstSeasonYear).HasColumnName("first_season_year");
-            entity.Property(e => e.LastSeasonYear).HasColumnName("last_season_year");
+            entity.Property(e => e.LeagueId).HasColumnName("league_id");
+            entity.Property(e => e.ConferenceId).HasColumnName("conference_id");
+            entity.Property(e => e.FirstSeasonId).HasColumnName("first_season_id");
+            entity.Property(e => e.LastSeasonId).HasColumnName("last_season_id");
+
+            entity.HasOne(d => d.LeagueIdNavigation).WithMany(p => p.Divisions)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.LeagueId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Division_League_LeagueId");
+
+            entity.HasOne(d => d.ConferenceIdNavigation).WithMany(p => p.Divisions)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.ConferenceId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_Division_Conference_ConferenceId");
+
+            entity.HasOne(d => d.FirstSeasonIdNavigation).WithMany(p => p.DivisionFirstSeasonIdNavigations)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.FirstSeasonId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_Division_Season_FirstSeasonId");
+
+            entity.HasOne(d => d.LastSeasonIdNavigation).WithMany(p => p.DivisionLastSeasonIdNavigations)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.LastSeasonId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_Division_Season_LastSeasonId");
 
             entity.HasIndex(e => e.Name, "UQ_Division_Name").IsUnique();
-
-            entity.HasIndex(e => e.LeagueName, "IX_FK_Division_League_LeagueName");
-
-            entity.HasIndex(e => e.ConferenceName, "IX_FK_Division_Conference_ConferenceName");
-
-            entity.HasIndex(e => e.FirstSeasonYear, "IX_FK_Division_Season_FirstSeasonYear");
-
-            entity.HasIndex(e => e.LastSeasonYear, "IX_FK_Division_Season_LastSeasonYear");
-
-            entity.HasOne(d => d.LeagueNameNavigation).WithMany(p => p.Divisions)
-                .HasPrincipalKey(p => p.ShortName)
-                .HasForeignKey(d => d.LeagueName)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Division_League_LeagueName");
-
-            entity.HasOne(d => d.ConferenceNameNavigation).WithMany(p => p.Divisions)
-                .HasPrincipalKey(p => p.ShortName)
-                .HasForeignKey(d => d.ConferenceName)
-                .HasConstraintName("FK_Division_Conference_ConferenceName");
-
-            entity.HasOne(d => d.FirstSeasonYearNavigation).WithMany(p => p.DivisionFirstSeasonYearNavigations)
-                .HasPrincipalKey(p => p.Year)
-                .HasForeignKey(d => d.FirstSeasonYear)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Division_Season_FirstSeasonYear");
-
-            entity.HasOne(d => d.LastSeasonYearNavigation).WithMany(p => p.DivisionLastSeasonYearNavigations)
-                .HasPrincipalKey(p => p.Year)
-                .HasForeignKey(d => d.LastSeasonYear)
-                .HasConstraintName("FK_Division_Season_LastSeasonYear");
+            entity.HasIndex(e => e.LeagueId, "IX_FK_Division_League_LeagueId");
+            entity.HasIndex(e => e.ConferenceId, "IX_FK_Division_Conference_ConferenceId");
+            entity.HasIndex(e => e.FirstSeasonId, "IX_FK_Division_Season_FirstSeasonId");
+            entity.HasIndex(e => e.LastSeasonId, "IX_FK_Division_Season_LastSeasonId");
         });
 
         modelBuilder.Entity<Team>(entity =>
@@ -224,7 +241,7 @@ public partial class ProFootballDbContext : DbContext
             entity.ToTable("Game");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.SeasonYear).HasColumnName("season_year");
+            entity.Property(e => e.SeasonId).HasColumnName("season_id");
             entity.Property(e => e.Week).HasColumnName("week");
             entity.Property(e => e.GuestName)
                 .HasMaxLength(50)
@@ -242,15 +259,14 @@ public partial class ProFootballDbContext : DbContext
                 .IsUnicode(false)
                 .HasColumnName("notes");
 
-            entity.HasIndex(e => e.SeasonYear, "IX_FK_Game_Season_SeasonYear");
+            entity.HasOne(d => d.SeasonIdNavigation).WithMany(p => p.Games)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.SeasonId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_Game_Season_SeasonId");
 
-            entity.HasIndex(e => new { e.SeasonYear, e.Week, e.GuestName, e.HostName }, "UQ_Game_Season_Week_Teams").IsUnique();
-
-            entity.HasOne(d => d.SeasonYearNavigation).WithMany(p => p.Games)
-                .HasPrincipalKey(p => p.Year)
-                .HasForeignKey(d => d.SeasonYear)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Game_Season_SeasonYear");
+            entity.HasIndex(e => e.SeasonId, "IX_FK_Game_Season_SeasonId");
+            entity.HasIndex(e => new { e.SeasonId, e.Week, e.GuestName, e.HostName }, "UQ_Game_Season_Week_Teams").IsUnique();
         });
 
         modelBuilder.Entity<LeagueSeason>(entity =>
@@ -258,32 +274,29 @@ public partial class ProFootballDbContext : DbContext
             entity.ToTable("LeagueSeason");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.LeagueName)
-                .HasMaxLength(5)
-                .IsUnicode(false)
-                .HasColumnName("league_name");
-            entity.Property(e => e.SeasonYear).HasColumnName("season_year");
+            entity.Property(e => e.LeagueId).HasColumnName("league_id");
+            entity.Property(e => e.SeasonId).HasColumnName("season_id");
             entity.Property(e => e.TotalGames).HasColumnName("total_games");
             entity.Property(e => e.TotalPoints).HasColumnName("total_points");
             entity.Property(e => e.AveragePoints)
                 .HasColumnType("decimal(18, 16)")
                 .HasColumnName("average_points");
 
-            entity.HasIndex(e => e.LeagueName, "IX_FK_LeagueSeason_League_LeagueName");
+            entity.HasOne(d => d.LeagueIdNavigation).WithMany(p => p.LeagueSeasons)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.LeagueId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_LeagueSeason_League_LeagueId");
 
-            entity.HasIndex(e => e.SeasonYear, "IX_FK_LeagueSeason_Season_SeasonYear");
+            entity.HasOne(d => d.SeasonIdNavigation).WithMany(p => p.LeagueSeasons)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.SeasonId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_LeagueSeason_Season_SeasonId");
 
-            entity.HasIndex(e => new { e.LeagueName, e.SeasonYear }, "UQ_LeagueSeason_LeagueId_SeasonId").IsUnique();
-
-            entity.HasOne(d => d.LeagueNameNavigation).WithMany(p => p.LeagueSeasons)
-                .HasPrincipalKey(p => p.ShortName)
-                .HasForeignKey(d => d.LeagueName)
-                .HasConstraintName("FK_LeagueSeason_League_LeagueName");
-
-            entity.HasOne(d => d.SeasonYearNavigation).WithMany(p => p.LeagueSeasons)
-                .HasPrincipalKey(p => p.Year)
-                .HasForeignKey(d => d.SeasonYear)
-                .HasConstraintName("FK_LeagueSeason_Season_SeasonYear");
+            entity.HasIndex(e => e.LeagueId, "IX_FK_LeagueSeason_League_LeagueId");
+            entity.HasIndex(e => e.SeasonId, "IX_FK_LeagueSeason_Season_SeasonId");
+            entity.HasIndex(e => new { e.LeagueId, e.SeasonId }, "UQ_LeagueSeason_LeagueId_SeasonId").IsUnique();
         });
 
         modelBuilder.Entity<TeamSeason>(entity =>
@@ -291,23 +304,14 @@ public partial class ProFootballDbContext : DbContext
             entity.ToTable("TeamSeason");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.TeamName)
+            entity.Property(e => e.TeamId)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("team_name");
-            entity.Property(e => e.SeasonYear).HasColumnName("season_year");
-            entity.Property(e => e.LeagueName)
-                .HasMaxLength(5)
-                .IsUnicode(false)
-                .HasColumnName("league_name");
-            entity.Property(e => e.ConferenceName)
-                .HasMaxLength(5)
-                .IsUnicode(false)
-                .HasColumnName("conference_name");
-            entity.Property(e => e.DivisionName)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("division_name");
+            entity.Property(e => e.SeasonId).HasColumnName("season_id");
+            entity.Property(e => e.LeagueId).HasColumnName("league_id");
+            entity.Property(e => e.ConferenceId).HasColumnName("conference_id");
+            entity.Property(e => e.DivisionId).HasColumnName("division_id");
             entity.Property(e => e.Games).HasColumnName("games");
             entity.Property(e => e.Wins).HasColumnName("wins");
             entity.Property(e => e.Losses).HasColumnName("losses");
@@ -342,44 +346,53 @@ public partial class ProFootballDbContext : DbContext
                 .HasColumnType("decimal(18, 17)")
                 .HasColumnName("final_expected_winning_percentage");
 
-            entity.HasIndex(e => e.TeamName, "IX_FK_TeamSeason_Team_TeamName");
+            entity.HasOne(d => d.TeamIdNavigation).WithMany(p => p.TeamSeasons)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.TeamId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_TeamSeason_Team_TeamId");
 
-            entity.HasIndex(e => e.SeasonYear, "IX_FK_TeamSeason_Season_SeasonId");
+            entity.HasOne(d => d.SeasonIdNavigation).WithMany(p => p.TeamSeasons)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.SeasonId)
+                .OnDelete(DeleteBehavior.NoAction)
+                .HasConstraintName("FK_TeamSeason_Season_SeasonId");
 
-            entity.HasIndex(e => e.LeagueName, "IX_FK_TeamSeason_League_LeagueName");
-
-            entity.HasIndex(e => e.ConferenceName, "IX_FK_TeamSeason_Conference_ConferenceName");
-
-            entity.HasIndex(e => e.DivisionName, "IX_FK_TeamSeason_Division_DivisionName");
-
-            entity.HasIndex(e => new { e.TeamName, e.SeasonYear }, "UQ_TeamSeason_LeagueId_SeasonId").IsUnique();
-
-            entity.HasOne(d => d.TeamNameNavigation).WithMany(p => p.TeamSeasons)
-                .HasPrincipalKey(p => p.Name)
-                .HasForeignKey(d => d.TeamName)
-                .HasConstraintName("FK_TeamSeason_Team_TeamName");
-
-            entity.HasOne(d => d.SeasonYearNavigation).WithMany(p => p.TeamSeasons)
-                .HasPrincipalKey(p => p.Year)
-                .HasForeignKey(d => d.SeasonYear)
-                .HasConstraintName("FK_TeamSeason_Season_SeasonYear");
-
-            entity.HasOne(d => d.LeagueNameNavigation).WithMany(p => p.TeamSeasons)
-                .HasPrincipalKey(p => p.ShortName)
-                .HasForeignKey(d => d.LeagueName)
+            entity.HasOne(d => d.LeagueIdNavigation).WithMany(p => p.TeamSeasons)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.LeagueId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_TeamSeason_League_LeagueName");
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_TeamSeason_League_LeagueId");
 
-            entity.HasOne(d => d.ConferenceNameNavigation).WithMany(p => p.TeamSeasons)
-                .HasPrincipalKey(p => p.ShortName)
-                .HasForeignKey(d => d.ConferenceName)
-                .HasConstraintName("FK_TeamSeason_Conference_ConferenceName");
+            entity.HasOne(d => d.ConferenceIdNavigation).WithMany(p => p.TeamSeasons)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.ConferenceId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_TeamSeason_Conference_ConferenceId");
 
-            entity.HasOne(d => d.DivisionNameNavigation).WithMany(p => p.TeamSeasons)
-                .HasPrincipalKey(p => p.Name)
-                .HasForeignKey(d => d.DivisionName)
-                .HasConstraintName("FK_TeamSeason_Division_DivisionName");
+            entity.HasOne(d => d.DivisionIdNavigation).WithMany(p => p.TeamSeasons)
+                .HasPrincipalKey(p => p.Id)
+                .HasForeignKey(d => d.DivisionId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_TeamSeason_Division_DivisionId");
+
+            entity.HasIndex(e => e.TeamId, "IX_FK_TeamSeason_Team_TeamId");
+            entity.HasIndex(e => e.SeasonId, "IX_FK_TeamSeason_Season_SeasonId");
+            entity.HasIndex(e => e.LeagueId, "IX_FK_TeamSeason_League_LeagueId");
+            entity.HasIndex(e => e.ConferenceId, "IX_FK_TeamSeason_Conference_ConferenceId");
+            entity.HasIndex(e => e.DivisionId, "IX_FK_TeamSeason_Division_DivisionId");
+            entity.HasIndex(e => new { e.TeamId, e.SeasonId }, "UQ_TeamSeason_LeagueId_SeasonId").IsUnique();
         });
+
+        modelBuilder.Entity<TeamSeasonOpponentProfile>().HasNoKey();
+        modelBuilder.Entity<TeamSeasonScheduleTotals>().HasNoKey();
+        modelBuilder.Entity<TeamSeasonScheduleAverages>().HasNoKey();
+        modelBuilder.Entity<LeagueSeasonTotals>().HasNoKey();
+        modelBuilder.Entity<SeasonTeamStanding>().HasNoKey();
+        modelBuilder.Entity<RankingsOffensiveTeamSeason>().HasNoKey();
+        modelBuilder.Entity<RankingsDefensiveTeamSeason>().HasNoKey();
+        modelBuilder.Entity<RankingsTotalTeamSeason>().HasNoKey();
 
         OnModelCreatingPartial(modelBuilder);
     }

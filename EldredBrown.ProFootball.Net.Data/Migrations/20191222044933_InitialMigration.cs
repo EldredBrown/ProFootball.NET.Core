@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace EldredBrown.ProFootball.Net.Data.Migrations
 {
@@ -8,164 +7,16 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "AspNetRoles",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    Name = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetRoles", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUsers",
-                columns: table => new
-                {
-                    Id = table.Column<string>(nullable: false),
-                    UserName = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
-                    Email = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(nullable: false),
-                    PasswordHash = table.Column<string>(nullable: true),
-                    SecurityStamp = table.Column<string>(nullable: true),
-                    ConcurrencyStamp = table.Column<string>(nullable: true),
-                    PhoneNumber = table.Column<string>(nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
-                    LockoutEnabled = table.Column<bool>(nullable: false),
-                    AccessFailedCount = table.Column<int>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetRoleClaims",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RoleId = table.Column<string>(nullable: false),
-                    ClaimType = table.Column<string>(nullable: true),
-                    ClaimValue = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetRoleClaims", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserClaims",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(nullable: false),
-                    ClaimType = table.Column<string>(nullable: true),
-                    ClaimValue = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserClaims_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserLogins",
-                columns: table => new
-                {
-                    LoginProvider = table.Column<string>(maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(maxLength: 128, nullable: false),
-                    ProviderDisplayName = table.Column<string>(nullable: true),
-                    UserId = table.Column<string>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserLogins_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserRoles",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(nullable: false),
-                    RoleId = table.Column<string>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserTokens",
-                columns: table => new
-                {
-                    UserId = table.Column<string>(nullable: false),
-                    LoginProvider = table.Column<string>(maxLength: 128, nullable: false),
-                    Name = table.Column<string>(maxLength: 128, nullable: false),
-                    Value = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserTokens_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Season",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     Year = table.Column<int>(nullable: false),
                     NumOfWeeksScheduled = table.Column<int>(nullable: false, defaultValue: 0),
                     NumOfWeeksCompleted = table.Column<int>(nullable: false, defaultValue: 0)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Season", x => x.Id);
-                    table.UniqueConstraint("UQ_Season_Year", x => x.Year);
+                    table.PrimaryKey("PK_Season", x => x.Year);
                 });
 
             migrationBuilder.CreateTable(
@@ -208,7 +59,7 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ShortName = table.Column<string>(maxLength: 5, nullable: false),
                     LongName = table.Column<string>(maxLength: 50, nullable: false),
-                    LeagueName = table.Column<string>(nullable: false),
+                    LeagueId = table.Column<int>(nullable: false),
                     FirstSeasonYear = table.Column<int>(nullable: false),
                     LastSeasonYear = table.Column<int>(nullable: true)
                 },
@@ -218,10 +69,10 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                     table.UniqueConstraint("UQ_Conference_ShortName", x => x.ShortName);
                     table.UniqueConstraint("UQ_Conference_LongName", x => x.LongName);
                     table.ForeignKey(
-                        name: "FK_Conference_League_LeagueName",
-                        column: x => x.LeagueName,
+                        name: "FK_Conference_League_LeagueId",
+                        column: x => x.LeagueId,
                         principalTable: "League",
-                        principalColumn: "ShortName",
+                        principalColumn: "Id",
                         onUpdate: ReferentialAction.NoAction,
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -236,8 +87,8 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                         column: x => x.LastSeasonYear,
                         principalTable: "Season",
                         principalColumn: "Year",
-                        onUpdate: ReferentialAction.NoAction,
-                        onDelete: ReferentialAction.NoAction);
+                        onUpdate: ReferentialAction.Restrict,
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -247,8 +98,8 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(maxLength: 50, nullable: false),
-                    LeagueName = table.Column<string>(nullable: false),
-                    ConferenceName = table.Column<string>(nullable: false),
+                    LeagueId = table.Column<int>(nullable: false),
+                    ConferenceId = table.Column<int>(nullable: true),
                     FirstSeasonYear = table.Column<int>(nullable: false),
                     LastSeasonYear = table.Column<int>(nullable: true)
                 },
@@ -257,10 +108,17 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                     table.PrimaryKey("PK_Division", x => x.Id);
                     table.UniqueConstraint("UQ_Division_Name", x => x.Name);
                     table.ForeignKey(
-                        name: "FK_Division_Conference_ConferenceName",
-                        column: x => x.ConferenceName,
+                        name: "FK_Division_League_LeagueId",
+                        column: x => x.LeagueId,
+                        principalTable: "League",
+                        principalColumn: "Id",
+                        onUpdate: ReferentialAction.NoAction,
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Division_Conference_ConferenceId",
+                        column: x => x.ConferenceId,
                         principalTable: "Conference",
-                        principalColumn: "ShortName",
+                        principalColumn: "Id",
                         onUpdate: ReferentialAction.NoAction,
                         onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
@@ -301,9 +159,9 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SeasonYear = table.Column<int>(nullable: false),
                     Week = table.Column<int>(nullable: false),
-                    GuestName = table.Column<string>(nullable: false),
+                    GuestName = table.Column<string>(maxLength: 50, nullable: false),
                     GuestScore = table.Column<int>(nullable: false, defaultValue: 0),
-                    HostName = table.Column<string>(nullable: false),
+                    HostName = table.Column<string>(maxLength: 50, nullable: false),
                     HostScore = table.Column<int>(nullable: false, defaultValue: 0),
                     IsPlayoff = table.Column<bool>(nullable: false, defaultValue: false),
                     Notes = table.Column<string>(nullable: true)
@@ -317,8 +175,8 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                         column: x => x.SeasonYear,
                         principalTable: "Season",
                         principalColumn: "Year",
-                        onUpdate: ReferentialAction.NoAction,
-                        onDelete: ReferentialAction.NoAction);
+                        onUpdate: ReferentialAction.Restrict,
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -327,7 +185,7 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    LeagueName = table.Column<string>(maxLength: 5, nullable: false),
+                    LeagueId = table.Column<int>(nullable: false),
                     SeasonYear = table.Column<int>(nullable: false),
                     TotalGames = table.Column<int>(nullable: false, defaultValue: 0),
                     TotalPoints = table.Column<int>(nullable: false, defaultValue: 0),
@@ -336,12 +194,12 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_LeagueSeason", x => x.Id);
-                    table.UniqueConstraint("UQ_LeagueSeason_League_Season", x => new { x.LeagueName, x.SeasonYear });
+                    table.UniqueConstraint("UQ_LeagueSeason_League_Season", x => new { x.LeagueId, x.SeasonYear });
                     table.ForeignKey(
-                        name: "FK_LeagueSeason_League_LeagueName",
-                        column: x => x.LeagueName,
+                        name: "FK_LeagueSeason_League_LeagueId",
+                        column: x => x.LeagueId,
                         principalTable: "League",
-                        principalColumn: "Name",
+                        principalColumn: "Id",
                         onUpdate: ReferentialAction.NoAction,
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -349,8 +207,8 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                         column: x => x.SeasonYear,
                         principalTable: "Season",
                         principalColumn: "Year",
-                        onUpdate: ReferentialAction.NoAction,
-                        onDelete: ReferentialAction.Cascade);
+                        onUpdate: ReferentialAction.Restrict,
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -359,11 +217,11 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TeamName = table.Column<string>(maxLength: 50, nullable: false),
+                    TeamId = table.Column<int>(nullable: false),
                     SeasonYear = table.Column<int>(nullable: false),
-                    LeagueName = table.Column<string>(maxLength: 5, nullable: false),
-                    ConferenceName = table.Column<string>(maxLength: 5, nullable: true),
-                    DivisionName = table.Column<string>(maxLength: 50, nullable: true),
+                    LeagueId = table.Column<int>(nullable: false),
+                    ConferenceId = table.Column<int>(nullable: true),
+                    DivisionId = table.Column<int>(nullable: true),
                     Games = table.Column<int>(nullable: false, defaultValue: 0),
                     Wins = table.Column<int>(nullable: false, defaultValue: 0),
                     Losses = table.Column<int>(nullable: false, defaultValue: 0),
@@ -383,12 +241,12 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_TeamSeason", x => x.Id);
-                    table.UniqueConstraint("UQ_TeamSeason_Team_Season", x => new { x.TeamName, x.SeasonYear });
+                    table.UniqueConstraint("UQ_TeamSeason_Team_Season", x => new { x.TeamId, x.SeasonYear });
                     table.ForeignKey(
-                        name: "FK_TeamSeason_Team_TeamName",
-                        column: x => x.TeamName,
+                        name: "FK_TeamSeason_Team_TeamId",
+                        column: x => x.TeamId,
                         principalTable: "Team",
-                        principalColumn: "Name",
+                        principalColumn: "Id",
                         onUpdate: ReferentialAction.NoAction,
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -397,139 +255,29 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                         principalTable: "Season",
                         principalColumn: "Year",
                         onUpdate: ReferentialAction.NoAction,
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_TeamSeason_League_LeagueId",
+                        column: x => x.LeagueId,
+                        principalTable: "League",
+                        principalColumn: "Id",
+                        onUpdate: ReferentialAction.NoAction,
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_TeamSeason_League_LeagueName",
-                        column: x => x.LeagueName,
-                        principalTable: "League",
-                        principalColumn: "ShortName",
-                        onUpdate: ReferentialAction.NoAction,
-                        onDelete: ReferentialAction.NoAction);
-                    table.ForeignKey(
-                        name: "FK_TeamSeason_Conference_ConferenceName",
-                        column: x => x.ConferenceName,
+                        name: "FK_TeamSeason_Conference_ConferenceId",
+                        column: x => x.ConferenceId,
                         principalTable: "Conference",
-                        principalColumn: "ShortName",
+                        principalColumn: "Id",
                         onUpdate: ReferentialAction.NoAction,
                         onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
-                        name: "FK_TeamSeason_Division_DivisionName",
-                        column: x => x.ConferenceName,
+                        name: "FK_TeamSeason_Division_DivisionId",
+                        column: x => x.DivisionId,
                         principalTable: "Division",
-                        principalColumn: "Name",
+                        principalColumn: "Id",
                         onUpdate: ReferentialAction.NoAction,
                         onDelete: ReferentialAction.NoAction);
                 });
-
-            migrationBuilder.CreateTable(
-                name: "SeasonStandings",
-                columns: table => new
-                {
-                    Team = table.Column<string>(nullable: true),
-                    Conference = table.Column<string>(nullable: true),
-                    Division = table.Column<string>(nullable: true),
-                    Wins = table.Column<int>(nullable: false),
-                    Losses = table.Column<int>(nullable: false),
-                    Ties = table.Column<int>(nullable: false),
-                    WinningPercentage = table.Column<decimal>(nullable: true),
-                    PointsFor = table.Column<int>(nullable: false),
-                    PointsAgainst = table.Column<int>(nullable: false),
-                    AvgPointsFor = table.Column<decimal>(nullable: true),
-                    AvgPointsAgainst = table.Column<decimal>(nullable: true)
-                },
-                constraints: table =>
-                {
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TeamSeasonScheduleProfile",
-                columns: table => new
-                {
-                    Opponent = table.Column<string>(nullable: true),
-                    GamePointsFor = table.Column<int>(nullable: true),
-                    GamePointsAgainst = table.Column<int>(nullable: true),
-                    OpponentWins = table.Column<int>(nullable: true),
-                    OpponentLosses = table.Column<int>(nullable: true),
-                    OpponentTies = table.Column<int>(nullable: true),
-                    OpponentWinningPercentage = table.Column<decimal>(nullable: true),
-                    OpponentWeightedGames = table.Column<decimal>(nullable: true),
-                    OpponentWeightedPointsFor = table.Column<decimal>(nullable: true),
-                    OpponentWeightedPointsAgainst = table.Column<decimal>(nullable: true)
-                },
-                constraints: table =>
-                {
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TeamSeasonScheduleTotals",
-                columns: table => new
-                {
-                    Games = table.Column<int>(nullable: true),
-                    PointsFor = table.Column<int>(nullable: true),
-                    PointsAgainst = table.Column<int>(nullable: true),
-                    ScheduleWins = table.Column<int>(nullable: true),
-                    ScheduleLosses = table.Column<int>(nullable: true),
-                    ScheduleTies = table.Column<int>(nullable: true),
-                    ScheduleWinningPercentage = table.Column<decimal>(nullable: true),
-                    ScheduleGames = table.Column<decimal>(nullable: true),
-                    SchedulePointsFor = table.Column<decimal>(nullable: true),
-                    SchedulePointsAgainst = table.Column<decimal>(nullable: true)
-                },
-                constraints: table =>
-                {
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TeamSeasonScheduleAverages",
-                columns: table => new
-                {
-                    PointsFor = table.Column<decimal>(nullable: true),
-                    PointsAgainst = table.Column<decimal>(nullable: true),
-                    SchedulePointsFor = table.Column<decimal>(nullable: true),
-                    SchedulePointsAgainst = table.Column<decimal>(nullable: true)
-                },
-                constraints: table =>
-                {
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetRoleClaims_RoleId",
-                table: "AspNetRoleClaims",
-                column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "RoleNameIndex",
-                table: "AspNetRoles",
-                column: "NormalizedName",
-                unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserClaims_UserId",
-                table: "AspNetUserClaims",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserLogins_UserId",
-                table: "AspNetUserLogins",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserRoles_RoleId",
-                table: "AspNetUserRoles",
-                column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "EmailIndex",
-                table: "AspNetUsers",
-                column: "NormalizedEmail");
-
-            migrationBuilder.CreateIndex(
-                name: "UserNameIndex",
-                table: "AspNetUsers",
-                column: "NormalizedUserName",
-                unique: true,
-                filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FK_League_Season_FirstSeasonYear",
@@ -542,9 +290,9 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                 column: "LastSeasonYear");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FK_Conference_League_LeagueName",
+                name: "IX_FK_Conference_League_LeagueId",
                 table: "Conference",
-                column: "LeagueName");
+                column: "LeagueId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FK_Conference_Season_FirstSeasonYear",
@@ -557,14 +305,14 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                 column: "LastSeasonYear");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FK_Division_League_LeagueName",
+                name: "IX_FK_Division_League_LeagueId",
                 table: "Division",
-                column: "LeagueName");
+                column: "LeagueId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FK_Division_Conference_ConferenceName",
+                name: "IX_FK_Division_Conference_ConferenceId",
                 table: "Division",
-                column: "ConferenceName");
+                column: "ConferenceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FK_Division_Season_FirstSeasonYear",
@@ -582,9 +330,9 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                 column: "SeasonYear");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FK_LeagueSeason_League_LeagueName",
+                name: "IX_FK_LeagueSeason_League_LeagueId",
                 table: "LeagueSeason",
-                column: "LeagueName");
+                column: "LeagueId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FK_LeagueSeason_Season_SeasonYear",
@@ -592,29 +340,29 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                 column: "SeasonYear");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FK_TeamSeason_Team_TeamName",
+                name: "IX_FK_TeamSeason_Team_TeamId",
                 table: "TeamSeason",
-                column: "TeamName");
+                column: "TeamId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FK_TeamSeason_Season_SeasonId",
+                name: "IX_FK_TeamSeason_Season_SeasonYear",
                 table: "TeamSeason",
                 column: "SeasonYear");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FK_TeamSeason_League_LeagueName",
+                name: "IX_FK_TeamSeason_League_LeagueId",
                 table: "TeamSeason",
-                column: "LeagueName");
+                column: "LeagueId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FK_TeamSeason_Conference_ConferenceName",
+                name: "IX_FK_TeamSeason_Conference_ConferenceId",
                 table: "TeamSeason",
-                column: "ConferenceName");
+                column: "ConferenceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FK_TeamSeason_Division_DivisionName",
+                name: "IX_FK_TeamSeason_Division_DivisionId",
                 table: "TeamSeason",
-                column: "DivisionName");
+                column: "DivisionId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -629,7 +377,7 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                 name: "TeamSeasonScheduleProfile");
 
             migrationBuilder.DropTable(
-                name: "SeasonStanding");
+                name: "SeasonStandings");
 
             migrationBuilder.DropTable(
                 name: "TeamSeason");
@@ -654,27 +402,6 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Season");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserTokens");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserRoles");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserLogins");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserClaims");
-
-            migrationBuilder.DropTable(
-                name: "AspNetRoleClaims");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "AspNetRoles");
         }
     }
 }

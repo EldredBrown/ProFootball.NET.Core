@@ -4,15 +4,15 @@ public partial class TeamSeason
 {
     public int Id { get; set; }
 
-    public string TeamName { get; set; } = null!;
+    public int TeamId { get; set; }
 
-    public int SeasonYear { get; set; }
+    public int SeasonId { get; set; }
 
-    public string LeagueName { get; set; } = null!;
+    public int LeagueId { get; set; }
 
-    public string? ConferenceName { get; set; }
+    public int? ConferenceId { get; set; }
 
-    public string? DivisionName { get; set; }
+    public int? DivisionId { get; set; }
 
     public int Games { get; set; }
 
@@ -44,13 +44,13 @@ public partial class TeamSeason
 
     public decimal? FinalExpectedWinningPercentage { get; set; }
 
-    public virtual Conference? ConferenceNameNavigation { get; set; }
+    public virtual Team TeamIdNavigation { get; set; } = null!;
 
-    public virtual Division? DivisionNameNavigation { get; set; }
+    public virtual Season SeasonIdNavigation { get; set; } = null!;
 
-    public virtual League LeagueNameNavigation { get; set; } = null!;
+    public virtual League LeagueIdNavigation { get; set; } = null!;
 
-    public virtual Season SeasonYearNavigation { get; set; } = null!;
+    public virtual Conference? ConferenceIdNavigation { get; set; }
 
-    public virtual Team TeamNameNavigation { get; set; } = null!;
+    public virtual Division? DivisionIdNavigation { get; set; }
 }

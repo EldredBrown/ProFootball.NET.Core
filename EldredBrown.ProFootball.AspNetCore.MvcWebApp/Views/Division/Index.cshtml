@@ -1,0 +1,60 @@
+﻿@using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Division
+@model DivisionIndexViewModel
+
+@{
+    ViewData["Title"] = "Divisions";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <label asp-for="Divisions.SingleOrDefault().Name"></label>
+            </th>
+            <th>
+                <label asp-for="Divisions.SingleOrDefault().LeagueName"></label>
+            </th>
+            <th>
+                <label asp-for="Divisions.SingleOrDefault().ConferenceName"></label>
+            </th>
+            <th>
+                <label asp-for="Divisions.SingleOrDefault().FirstSeasonYear"></label>
+            </th>
+            <th>
+                <label asp-for="Divisions.SingleOrDefault().LastSeasonYear"></label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var division in Model.Divisions) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => division.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => division.LeagueName)
+            </td>
+                <td>
+                    @Html.DisplayFor(modelItem => division.ConferenceName)
+                </td>
+                <td>
+                @Html.DisplayFor(modelItem => division.FirstSeasonYear)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => division.LastSeasonYear)
+            </td>
+            <td>
+                <a class="btn btn-primary btn-sm" asp-action="Details" asp-route-id="@division.Id">Details</a>
+                <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@division.Id">Edit</a>
+                <a class="btn btn-primary btn-sm" asp-action="Delete" asp-route-id="@division.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -8,8 +8,6 @@ namespace EldredBrown.ProFootball.Net.Data.Decorators
 {
     public class TeamSeasonDecorator : TeamSeason, ITeamSeasonDecorator
     {
-        private const double _exponent = 2.37;
-
         private readonly TeamSeason _teamSeason;
 
         /// <summary>
@@ -24,7 +22,7 @@ namespace EldredBrown.ProFootball.Net.Data.Decorators
         /// <summary>
         /// Gets or sets the Id of the wrapped <see cref="TeamSeason"/> entity.
         /// </summary>
-        public int Id
+        public new int Id
         {
             get { return _teamSeason.Id; }
             set { _teamSeason.Id = value; }
@@ -35,10 +33,10 @@ namespace EldredBrown.ProFootball.Net.Data.Decorators
         /// </summary>
         [Display(Name = "Team")]
         [Required(ErrorMessage = "Please enter a team name.")]
-        public new string TeamName
+        public new int TeamId
         {
-            get { return _teamSeason.TeamName; }
-            set { _teamSeason.TeamName = value; }
+            get { return _teamSeason.TeamId; }
+            set { _teamSeason.TeamId = value; }
         }
 
         /// <summary>
@@ -57,30 +55,30 @@ namespace EldredBrown.ProFootball.Net.Data.Decorators
         /// </summary>
         [Display(Name = "League")]
         [Required(ErrorMessage = "Please enter a league name.")]
-        public new string LeagueName
+        public new int LeagueId
         {
-            get { return _teamSeason.LeagueName; }
-            set { _teamSeason.LeagueName = value; }
+            get { return _teamSeason.LeagueId; }
+            set { _teamSeason.LeagueId = value; }
         }
 
         /// <summary>
         /// Gets or sets the name of the wrapped <see cref="TeamSeason"/> entity's conference.
         /// </summary>
         [Display(Name = "Conference")]
-        public new string? ConferenceName
+        public new int? ConferenceId
         {
-            get { return _teamSeason.ConferenceName; }
-            set { _teamSeason.ConferenceName = value; }
+            get { return _teamSeason.ConferenceId; }
+            set { _teamSeason.ConferenceId = value; }
         }
 
         /// <summary>
         /// Gets or sets the name of the wrapped <see cref="TeamSeason"/> entity's division.
         /// </summary>
         [Display(Name = "Division")]
-        public new string? DivisionName
+        public new int? DivisionId
         {
-            get { return _teamSeason.DivisionName; }
-            set { _teamSeason.DivisionName = value; }
+            get { return _teamSeason.DivisionId; }
+            set { _teamSeason.DivisionId = value; }
         }
 
         /// <summary>
@@ -128,12 +126,9 @@ namespace EldredBrown.ProFootball.Net.Data.Decorators
         /// </summary>
         [DisplayFormat(DataFormatString = "{0:#.000}")]
         [Display(Name = "W%")]
-        public decimal? WinningPercentage
+        public new decimal? WinningPercentage
         {
-            get
-            {
-                return Divide(2 * _teamSeason.Wins + _teamSeason.Ties, 2 * _teamSeason.Games);
-            }
+            get{ return _teamSeason.WinningPercentage; }
         }
 
         /// <summary>
@@ -257,124 +252,6 @@ namespace EldredBrown.ProFootball.Net.Data.Decorators
         {
             get { return _teamSeason.FinalExpectedWinningPercentage; }
             set { _teamSeason.FinalExpectedWinningPercentage = value; }
-        }
-
-        /// <summary>
-        /// Calculates and updates the wrapped <see cref="TeamSeason"/> entity's Pythagorean wins and losses.
-        /// </summary>
-        public void CalculateExpectedWinsAndLosses()
-        {
-            if (_teamSeason.Games == 0)
-            {
-                _teamSeason.ExpectedWins = 0;
-                _teamSeason.ExpectedLosses = 0;
-                return;
-            }
-
-            var expPct = CalculateExpectedWinningPercentage(_teamSeason.PointsFor, _teamSeason.PointsAgainst);
-
-            if (expPct.HasValue)
-            {
-                _teamSeason.ExpectedWins = expPct.Value * _teamSeason.Games;
-                _teamSeason.ExpectedLosses = (1m - expPct.Value) * _teamSeason.Games;
-            }
-            else
-            {
-                _teamSeason.ExpectedWins = 0;
-                _teamSeason.ExpectedLosses = 0;
-            }
-        }
-
-        /// <summary>
-        /// Updates the offensive and defensive averages, factors, and indices for the wrapped <see cref="TeamSeason"/> entity.
-        /// </summary>
-        /// <param name="teamSeasonScheduleAveragePointsFor"></param>
-        /// <param name="teamSeasonScheduleAveragePointsAgainst"></param>
-        /// <param name="leagueSeasonAveragePoints"></param>
-        public void UpdateRankings(
-            decimal teamSeasonScheduleAveragePointsFor,
-            decimal teamSeasonScheduleAveragePointsAgainst,
-            decimal leagueSeasonAveragePoints)
-        {
-            var offense = UpdateRankings(
-                _teamSeason.PointsFor, _teamSeason.Games, teamSeasonScheduleAveragePointsAgainst, leagueSeasonAveragePoints);
-            OffensiveAverage = offense.Average;
-            OffensiveFactor = offense.Factor;
-            OffensiveIndex = offense.Index;
-
-            var defense = UpdateRankings(
-                _teamSeason.PointsAgainst, _teamSeason.Games, teamSeasonScheduleAveragePointsFor, leagueSeasonAveragePoints);
-            DefensiveAverage = defense.Average;
-            DefensiveFactor = defense.Factor;
-            DefensiveIndex = defense.Index;
-
-            CalculateFinalExpectedWinningPercentage();
-        }
-
-        private void CalculateFinalExpectedWinningPercentage()
-        {
-            if (_teamSeason.OffensiveIndex is null || _teamSeason.DefensiveIndex is null)
-            {
-                return;
-            }
-
-            _teamSeason.FinalExpectedWinningPercentage = CalculateExpectedWinningPercentage(
-                _teamSeason.OffensiveIndex.Value, _teamSeason.DefensiveIndex.Value);
-        }
-
-        private decimal? CalculateExpectedWinningPercentage(decimal pointsFor, decimal pointsAgainst)
-        {
-            if (pointsFor < 0 || pointsAgainst < 0)
-            {
-                throw new ArgumentOutOfRangeException($"Points values must be non-negative; got {pointsFor},  {pointsAgainst}.");
-            }
-
-            var o = Math.Pow((double)pointsFor, _exponent);
-            var d = Math.Pow((double)pointsAgainst, _exponent);
-            decimal? result = Divide((decimal)o, (decimal)(o + d));
-
-            return result;
-        }
-
-        private decimal? Divide(decimal numerator, decimal denominator)
-        {
-            if (denominator == 0)
-            {
-                return null;
-            }
-
-            return numerator / denominator;
-        }
-
-        private TeamSeasonRankingsData UpdateRankings(
-            int points, int games, decimal teamSeasonScheduleAveragePoints, decimal leagueSeasonAveragePoints)
-        {
-            if (games == 0)
-            {
-                return new TeamSeasonRankingsData(null, null, null);
-            }
-
-            decimal? average = Divide(points, games);
-            decimal? factor = Divide(average!.Value, teamSeasonScheduleAveragePoints);
-            decimal? index = factor.HasValue
-                ? (average.Value + factor.Value * leagueSeasonAveragePoints) / 2m
-                : null;
-
-            return new TeamSeasonRankingsData(average, factor, index);
-        }
-
-        private class TeamSeasonRankingsData
-        {
-            public TeamSeasonRankingsData(decimal? average, decimal? factor, decimal? index)
-            {
-                Average = average;
-                Factor = factor;
-                Index = index;
-            }
-
-            public decimal? Average { get; set; }
-            public decimal? Factor { get; set; }
-            public decimal? Index { get; set; }
         }
     }
 }

@@ -12,7 +12,7 @@ namespace EldredBrown.ProFootball.Net.Data.Decorators
         /// <summary>
         /// Gets or sets the name of the wrapped <see cref="TeamSeason"/> entity's team.
         /// </summary>
-        string TeamName { get; set; }
+        int TeamId { get; set; }
 
         /// <summary>
         /// Gets or sets the year of the wrapped <see cref="TeamSeason"/> entity's season.
@@ -22,17 +22,17 @@ namespace EldredBrown.ProFootball.Net.Data.Decorators
         /// <summary>
         /// Gets or sets the name of the wrapped <see cref="TeamSeason"/> entity's league.
         /// </summary>
-        string LeagueName {  get; set; }
+        int LeagueId {  get; set; }
 
         /// <summary>
         /// Gets or sets the name of the wrapped <see cref="TeamSeason"/> entity's conference.
         /// </summary>
-        string? ConferenceName { get; set; }
+        int? ConferenceId { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the wrapped <see cref="TeamSeason"/> entity's division.
         /// </summary>
-        string? DivisionName { get; set; }
+        int? DivisionId { get; set; }
 
         /// <summary>
         /// Gets or sets the number of games played by the wrapped <see cref="TeamSeason"/> entity.

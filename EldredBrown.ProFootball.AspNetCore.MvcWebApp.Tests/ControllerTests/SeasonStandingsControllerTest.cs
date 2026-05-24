@@ -56,25 +56,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public void SetSelectedSeasonYear_WhenSeasonYearArgIsNull_ShouldReturnBadRequest()
-        {
-            // Arrange
-            var seasonStandingsIndexViewModel = A.Fake<ISeasonStandingsIndexViewModel>();
-            var seasonRepository = A.Fake<ISeasonRepository>();
-            var seasonStandingsRepository = A.Fake<ISeasonStandingsRepository>();
-            var testController = new SeasonStandingsController(seasonStandingsIndexViewModel, seasonRepository,
-                seasonStandingsRepository);
-
-            int? seasonYear = null;
-
-            // Act
-            var result = testController.SetSelectedSeasonYear(seasonYear);
-
-            // Assert
-            result.ShouldBeOfType<BadRequestResult>();
-        }
-
-        [Fact]
         public void SetSelectedSeasonYear_WhenSeasonYearArgIsNotNull_ShouldSetSelectedSeasonYearAndRedirectToIndexView()
         {
             // Arrange
@@ -96,7 +77,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public void SetGroupByDivision_WhenGroupByDivisionIsNull_ShouldNotSetGroupByDivisionAndShouldRedirectToIndexView()
+        public void SetSelectedSeasonYear_WhenSeasonYearArgIsNull_ShouldReturnBadRequest()
         {
             // Arrange
             var seasonStandingsIndexViewModel = A.Fake<ISeasonStandingsIndexViewModel>();
@@ -105,15 +86,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var testController = new SeasonStandingsController(seasonStandingsIndexViewModel, seasonRepository,
                 seasonStandingsRepository);
 
-            bool? groupByDivision = null;
+            int? seasonYear = null;
 
             // Act
-            var result = testController.SetGroupByDivision(groupByDivision);
+            var result = testController.SetSelectedSeasonYear(seasonYear);
 
             // Assert
-            SeasonStandingsController.GroupByDivision.ShouldBeFalse();
-            result.ShouldBeOfType<RedirectToActionResult>();
-            ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
+            result.ShouldBeOfType<BadRequestResult>();
         }
 
         [Fact]
@@ -133,6 +112,27 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             // Assert
             SeasonStandingsController.GroupByDivision.ShouldBeTrue();
+            result.ShouldBeOfType<RedirectToActionResult>();
+            ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
+        }
+
+        [Fact]
+        public void SetGroupByDivision_WhenGroupByDivisionIsNull_ShouldNotSetGroupByDivisionAndShouldRedirectToIndexView()
+        {
+            // Arrange
+            var seasonStandingsIndexViewModel = A.Fake<ISeasonStandingsIndexViewModel>();
+            var seasonRepository = A.Fake<ISeasonRepository>();
+            var seasonStandingsRepository = A.Fake<ISeasonStandingsRepository>();
+            var testController = new SeasonStandingsController(seasonStandingsIndexViewModel, seasonRepository,
+                seasonStandingsRepository);
+
+            bool? groupByDivision = null;
+
+            // Act
+            var result = testController.SetGroupByDivision(groupByDivision);
+
+            // Assert
+            SeasonStandingsController.GroupByDivision.ShouldBeFalse();
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
         }

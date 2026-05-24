@@ -69,7 +69,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var leagueRepository = A.Fake<ILeagueRepository>();
             League? league = new League();
-            A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Throws<Exception>();
+            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
 
@@ -98,7 +98,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var leagueRepository = A.Fake<ILeagueRepository>();
             League? league = null;
-            A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Returns(league);
+            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -122,7 +122,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var leagueRepository = A.Fake<ILeagueRepository>();
             League? league = new League();
-            A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Returns(league);
+            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
 
             var sharedRepository = A.Fake<ISharedRepository>();
 
@@ -150,7 +150,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var leagueRepository = A.Fake<ILeagueRepository>();
-            A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Throws<Exception>();
+            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -176,7 +176,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var leagueRepository = A.Fake<ILeagueRepository>();
             League? league = null;
-            A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Returns(league);
+            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -202,7 +202,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var leagueRepository = A.Fake<ILeagueRepository>();
             League? league = new League();
-            A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Returns(league);
+            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(1);
@@ -235,7 +235,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var leagueRepository = A.Fake<ILeagueRepository>();
             League? league = new League();
-            A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Returns(league);
+            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(0);
@@ -267,7 +267,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var leagueRepository = A.Fake<ILeagueRepository>();
-            A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Throws<Exception>();
+            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -292,7 +292,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var leagueRepository = A.Fake<ILeagueRepository>();
             League? league = null;
-            A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Returns(league);
+            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -317,7 +317,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var leagueRepository = A.Fake<ILeagueRepository>();
             League? league = new League();
-            A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Returns(league);
+            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(1);
@@ -344,7 +344,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var leagueRepository = A.Fake<ILeagueRepository>();
             League? league = new League();
-            A.CallTo(() => leagueRepository.GetLeagueAsync(A<int>.Ignored)).Returns(league);
+            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(0);

@@ -70,7 +70,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             TeamSeason? teamSeason = new TeamSeason();
-            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(A<int>.Ignored)).Throws<Exception>();
+            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
 
@@ -99,7 +99,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             TeamSeason? teamSeason = null;
-            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(A<int>.Ignored)).Returns(teamSeason);
+            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(An<int>.Ignored)).Returns(teamSeason);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -123,7 +123,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             TeamSeason? teamSeason = new TeamSeason();
-            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(A<int>.Ignored)).Returns(teamSeason);
+            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(An<int>.Ignored)).Returns(teamSeason);
 
             var sharedRepository = A.Fake<ISharedRepository>();
 
@@ -151,7 +151,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(A<int>.Ignored)).Throws<Exception>();
+            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -177,7 +177,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             TeamSeason? teamSeason = null;
-            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(A<int>.Ignored)).Returns(teamSeason);
+            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(An<int>.Ignored)).Returns(teamSeason);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -203,7 +203,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             TeamSeason? teamSeason = new TeamSeason();
-            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(A<int>.Ignored)).Returns(teamSeason);
+            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(An<int>.Ignored)).Returns(teamSeason);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(1);
@@ -236,7 +236,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             TeamSeason? teamSeason = new TeamSeason();
-            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(A<int>.Ignored)).Returns(teamSeason);
+            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(An<int>.Ignored)).Returns(teamSeason);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(0);
@@ -268,7 +268,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(A<int>.Ignored)).Throws<Exception>();
+            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -293,7 +293,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             TeamSeason? teamSeason = null;
-            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(A<int>.Ignored)).Returns(teamSeason);
+            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(An<int>.Ignored)).Returns(teamSeason);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
@@ -318,7 +318,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             TeamSeason? teamSeason = new TeamSeason();
-            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(A<int>.Ignored)).Returns(teamSeason);
+            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(An<int>.Ignored)).Returns(teamSeason);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(1);
@@ -345,7 +345,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             TeamSeason? teamSeason = new TeamSeason();
-            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(A<int>.Ignored)).Returns(teamSeason);
+            A.CallTo(() => teamSeasonRepository.GetTeamSeasonAsync(An<int>.Ignored)).Returns(teamSeason);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(0);

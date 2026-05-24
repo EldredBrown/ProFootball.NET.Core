@@ -7,13 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EldredBrown.ProFootball.Asp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EldredBrown.ProFootball.AspNetCore.WebApp", "EldredBrown.ProFootball.AspNetCore.WebApp\EldredBrown.ProFootball.AspNetCore.WebApp.csproj", "{0B28395B-4029-4C6D-BB03-169E2412791C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EldredBrown.ProFootball.AspNetCore.WebApiApp", "EldredBrown.ProFootball.AspNetCore.WebApiApp\EldredBrown.ProFootball.AspNetCore.WebApiApp.csproj", "{BCD36B4A-62B0-4920-9095-5D5C0F69FA81}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EldredBrown.ProFootball.AspNetCore.ClientWebApp", "EldredBrown.ProFootball.AspNetCore.ClientWebApp\EldredBrown.ProFootball.AspNetCore.ClientWebApp.csproj", "{F3B3B037-30E1-442B-9F69-ECE808B35F02}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests", "EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests\EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.csproj", "{D7651C6D-02D2-41DC-90C3-AC46DD2F3A52}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests", "EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests\EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests.csproj", "{3116A659-7DD2-48A4-986E-A01BD02411A5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EldredBrown.ProFootball.Net.Data", "EldredBrown.ProFootball.Net.Data\EldredBrown.ProFootball.Net.Data.csproj", "{18FC503C-4F57-4F29-2AA3-945514D5C24A}"
 EndProject
@@ -22,10 +16,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EldredBrown.ProFootball.Net.Services", "EldredBrown.ProFootball.Net.Services\EldredBrown.ProFootball.Net.Services.csproj", "{023EBEE9-C98F-BF11-BEC1-11686A926523}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EldredBrown.ProFootball.Net.Services.Tests", "EldredBrown.ProFootball.Net.Services.Tests\EldredBrown.ProFootball.Net.Services.Tests.csproj", "{2AB64489-1A31-3D0D-04E2-C0846038B6EC}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EldredBrown.ProFootball.Net.WpfApp", "EldredBrown.ProFootball.Net.WpfApp\EldredBrown.ProFootball.Net.WpfApp.csproj", "{1E0073E6-479F-F268-FF34-94924D7EDCD6}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EldredBrown.ProFootball.Net.WpfApp.Tests", "EldredBrown.ProFootball.Net.WpfApp.Tests\EldredBrown.ProFootball.Net.WpfApp.Tests.csproj", "{27D59BD2-2FDE-A8C0-AC58-1CD202407F5A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,22 +31,10 @@ Global
 		{0B28395B-4029-4C6D-BB03-169E2412791C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B28395B-4029-4C6D-BB03-169E2412791C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B28395B-4029-4C6D-BB03-169E2412791C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BCD36B4A-62B0-4920-9095-5D5C0F69FA81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BCD36B4A-62B0-4920-9095-5D5C0F69FA81}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BCD36B4A-62B0-4920-9095-5D5C0F69FA81}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BCD36B4A-62B0-4920-9095-5D5C0F69FA81}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F3B3B037-30E1-442B-9F69-ECE808B35F02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F3B3B037-30E1-442B-9F69-ECE808B35F02}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F3B3B037-30E1-442B-9F69-ECE808B35F02}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F3B3B037-30E1-442B-9F69-ECE808B35F02}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D7651C6D-02D2-41DC-90C3-AC46DD2F3A52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D7651C6D-02D2-41DC-90C3-AC46DD2F3A52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7651C6D-02D2-41DC-90C3-AC46DD2F3A52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7651C6D-02D2-41DC-90C3-AC46DD2F3A52}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3116A659-7DD2-48A4-986E-A01BD02411A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3116A659-7DD2-48A4-986E-A01BD02411A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3116A659-7DD2-48A4-986E-A01BD02411A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3116A659-7DD2-48A4-986E-A01BD02411A5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{18FC503C-4F57-4F29-2AA3-945514D5C24A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{18FC503C-4F57-4F29-2AA3-945514D5C24A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18FC503C-4F57-4F29-2AA3-945514D5C24A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -73,14 +51,6 @@ Global
 		{2AB64489-1A31-3D0D-04E2-C0846038B6EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2AB64489-1A31-3D0D-04E2-C0846038B6EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2AB64489-1A31-3D0D-04E2-C0846038B6EC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1E0073E6-479F-F268-FF34-94924D7EDCD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1E0073E6-479F-F268-FF34-94924D7EDCD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1E0073E6-479F-F268-FF34-94924D7EDCD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1E0073E6-479F-F268-FF34-94924D7EDCD6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{27D59BD2-2FDE-A8C0-AC58-1CD202407F5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{27D59BD2-2FDE-A8C0-AC58-1CD202407F5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{27D59BD2-2FDE-A8C0-AC58-1CD202407F5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{27D59BD2-2FDE-A8C0-AC58-1CD202407F5A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

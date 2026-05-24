@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+
 using Microsoft.EntityFrameworkCore;
+
 using EldredBrown.ProFootball.Net.Data.Models;
-using Microsoft.IdentityModel.Tokens;
 
 namespace EldredBrown.ProFootball.Net.Data.Repositories
 {
@@ -26,6 +29,15 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="Conference"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Conference}"/> of all fetched entities.</returns>
+        public IEnumerable<Conference> GetConferences()
+        {
+            return _dbContext.Conferences;
+        }
+
+        /// <summary>
+        /// Gets all <see cref="Conference"/> entities in the data store.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerable{Conference}"/> of all fetched entities.</returns>
         public async Task<IEnumerable<Conference>> GetConferencesAsync()
         {
             return await _dbContext.Conferences.ToListAsync();
@@ -36,14 +48,41 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="id">The Id of the <see cref="Conference"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Conference"/> entity.</returns>
+        public Conference? GetConference(int id)
+        {
+            if (_dbContext.Conferences is null)
+            {
+                return null;
+            }
+
+            return _dbContext.Conferences.Find(id);
+        }
+
+        /// <summary>
+        /// Gets a single <see cref="Conference"/> entity from the data store by Id.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Conference"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="Conference"/> entity.</returns>
         public async Task<Conference?> GetConferenceAsync(int id)
         {
-            if (_dbContext.Conferences.IsNullOrEmpty())
+            if (_dbContext.Conferences is null)
             {
                 return null;
             }
 
             return await _dbContext.Conferences.FindAsync(id);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="Conference"/> entity to the data store.
+        /// </summary>
+        /// <param name="conference">The <see cref="Conference"/> entity to add.</param>
+        /// <returns>The added <see cref="Conference"/> entity.</returns>
+        public Conference Add(Conference conference)
+        {
+            _dbContext.Add(conference);
+
+            return conference;
         }
 
         /// <summary>
@@ -65,13 +104,35 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The updated <see cref="Conference"/> entity.</returns>
         public Conference Update(Conference conference)
         {
-            if (_dbContext.Conferences.IsNullOrEmpty())
+            if (_dbContext.Conferences is null)
             {
                 return conference;
             }
 
-            var entity = _dbContext.Conferences.Attach(conference);
-            entity.State = EntityState.Modified;
+            _dbContext.Conferences.Update(conference);
+
+            return conference;
+        }
+
+        /// <summary>
+        /// Deletes a <see cref="Conference"/> entity from the data store.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Conference"/> entity to delete.</param>
+        /// <returns>The deleted <see cref="Conference"/> entity.</returns>
+        public Conference? Delete(int id)
+        {
+            if (_dbContext.Conferences is null)
+            {
+                return null;
+            }
+
+            var conference = GetConference(id);
+            if (conference is null)
+            {
+                return null;
+            }
+
+            _dbContext.Conferences.Remove(conference);
 
             return conference;
         }
@@ -83,7 +144,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The deleted <see cref="Conference"/> entity.</returns>
         public async Task<Conference?> DeleteAsync(int id)
         {
-            if (_dbContext.Conferences.IsNullOrEmpty())
+            if (_dbContext.Conferences is null)
             {
                 return null;
             }
@@ -106,9 +167,21 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>
         /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
         /// </returns>
-        public async Task<bool> ConferenceExists(int id)
+        public bool ConferenceExists(int id)
         {
-            return await _dbContext.Conferences.AnyAsync(l => l.Id == id);
+            return _dbContext.Conferences.Any(c => c.Id == id);
+        }
+
+        /// <summary>
+        /// Checks to verify whether a specific <see cref="Conference"/> entity exists in the data store.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Conference"/> entity to verify.</param>
+        /// <returns>
+        /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
+        /// </returns>
+        public async Task<bool> ConferenceExistsAsync(int id)
+        {
+            return await _dbContext.Conferences.AnyAsync(c => c.Id == id);
         }
     }
 }

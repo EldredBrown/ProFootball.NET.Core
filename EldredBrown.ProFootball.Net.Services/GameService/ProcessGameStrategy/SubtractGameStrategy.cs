@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using EldredBrown.ProFootball.Net.Data.Decorators;
-using EldredBrown.ProFootball.Net.Data.Models;
+﻿using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 
 namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
@@ -10,110 +8,67 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
         /// <summary>
         /// Initializes a new instance of the <see cref="SubtractGameStrategy"/> class.
         /// </summary>
-        /// <param name="teamSeasonUtility">The <see cref="ITeamSeasonUtility"/> object that will modify <see cref="TeamSeason"/> entity data.</param>
         /// <param name="teamSeasonRepository">The repository by which team season data will be accessed.</param>
         public SubtractGameStrategy(ITeamSeasonRepository teamSeasonRepository)
             : base(teamSeasonRepository)
         {
         }
 
-        protected override void UpdateGamesForTeamSeasons(
-            ITeamSeasonDecorator? guestSeasonDecorator, ITeamSeasonDecorator? hostSeasonDecorator)
+        protected override void UpdateGamesForTeamSeasons(ITeamSeason? guestSeason, ITeamSeason? hostSeason)
         {
-            if (!(guestSeasonDecorator is null))
+            if (guestSeason is not null)
             {
-                guestSeasonDecorator.Games--;
+                guestSeason.Games--;
             }
 
-            if (!(hostSeasonDecorator is null))
+            if (hostSeason is not null)
             {
-                hostSeasonDecorator.Games--;
+                hostSeason.Games--;
             }
         }
 
         protected override void UpdateWinsLossesAndTiesForTeamSeasons(
-            ITeamSeasonDecorator? guestSeasonDecorator, ITeamSeasonDecorator? hostSeasonDecorator,
-            IGameDecorator gameDecorator)
+            ITeamSeason? guestSeason, ITeamSeason? hostSeason, Game game)
         {
-            if (gameDecorator.IsTie)
+            if (game.IsTie)
             {
-                if (!(guestSeasonDecorator is null))
+                if (guestSeason is not null)
                 {
-                    guestSeasonDecorator.Ties--;
+                    guestSeason.Ties--;
                 }
 
-                if (!(hostSeasonDecorator is null))
+                if (hostSeason is not null)
                 {
-                    hostSeasonDecorator.Ties--;
+                    hostSeason.Ties--;
                 }
             }
             else
             {
-                var seasonYear = gameDecorator.SeasonYear;
+                var (winnerSeason, loserSeason) = game.WinnerName == game.GuestName
+                    ? (guestSeason, hostSeason)
+                    : (hostSeason, guestSeason);
 
-                var winnerSeason =
-                    _teamSeasonRepository.GetTeamSeasonByTeamAndSeason(gameDecorator.WinnerName!, seasonYear);
-                if (!(winnerSeason is null))
+                if (winnerSeason is not null)
                 {
                     winnerSeason.Wins--;
                 }
-
-                var loserSeason =
-                    _teamSeasonRepository.GetTeamSeasonByTeamAndSeason(gameDecorator.LoserName!, seasonYear);
-                if (!(loserSeason is null))
+                if (loserSeason is not null)
                 {
                     loserSeason.Losses--;
                 }
             }
         }
 
-        protected override async Task UpdateWinsLossesAndTiesForTeamSeasonsAsync(
-            ITeamSeasonDecorator? guestSeasonDecorator, ITeamSeasonDecorator? hostSeasonDecorator,
-            IGameDecorator gameDecorator)
+        protected override void EditScoringDataForTeamSeason(ITeamSeason? teamSeason, int teamScore, int opponentScore)
         {
-            if (gameDecorator.IsTie)
-            {
-                if (!(guestSeasonDecorator is null))
-                {
-                    guestSeasonDecorator.Ties--;
-                }
-
-                if (!(hostSeasonDecorator is null))
-                {
-                    hostSeasonDecorator.Ties--;
-                }
-            }
-            else
-            {
-                var seasonYear = gameDecorator.SeasonYear;
-
-                var winnerSeason =
-                    await _teamSeasonRepository.GetTeamSeasonByTeamAndSeasonAsync(gameDecorator.WinnerName!, seasonYear);
-                if (!(winnerSeason is null))
-                {
-                    winnerSeason.Wins--;
-                }
-
-                var loserSeason =
-                    await _teamSeasonRepository.GetTeamSeasonByTeamAndSeasonAsync(gameDecorator.LoserName!, seasonYear);
-                if (!(loserSeason is null))
-                {
-                    loserSeason.Losses--;
-                }
-            }
-        }
-
-        protected override void EditScoringDataForTeamSeason(
-            ITeamSeasonDecorator? teamSeasonDecorator, int teamScore, int opponentScore)
-        {
-            if (teamSeasonDecorator is null)
+            if (teamSeason is null)
             {
                 return;
             }
 
-            teamSeasonDecorator.PointsFor -= teamScore;
-            teamSeasonDecorator.PointsAgainst -= opponentScore;
-            teamSeasonDecorator.CalculateExpectedWinsAndLosses();
+            teamSeason.PointsFor -= teamScore;
+            teamSeason.PointsAgainst -= opponentScore;
+            teamSeason.CalculateExpectedWinsAndLosses();
         }
     }
 }

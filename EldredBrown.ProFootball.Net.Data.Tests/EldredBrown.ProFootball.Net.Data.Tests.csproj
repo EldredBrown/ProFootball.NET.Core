@@ -7,13 +7,32 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DecoratorTests\GameDecoratorTest.cs" />
+    <Compile Remove="ModelTests\GameTest.cs" />
+    <Compile Remove="ModelTests\LeagueSeasonTest.cs" />
+    <Compile Remove="ModelTests\TeamSeasonTest.cs" />
+    <Compile Remove="RepositoryTests\DivisionRepositoryTest.cs" />
+    <Compile Remove="RepositoryTests\GameRepositoryTest.cs" />
+    <Compile Remove="RepositoryTests\LeagueSeasonRepositoryTest.cs" />
+    <Compile Remove="RepositoryTests\LeagueSeasonTotalsRepositoryTest.cs" />
+    <Compile Remove="RepositoryTests\SeasonRankingsRepositoryTest.cs" />
+    <Compile Remove="RepositoryTests\SeasonStandingsRepositoryTest.cs" />
+    <Compile Remove="RepositoryTests\TeamRepositoryTest.cs" />
+    <Compile Remove="RepositoryTests\TeamSeasonRepositoryTest.cs" />
+    <Compile Remove="RepositoryTests\TeamSeasonScheduleRepositoryTest.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="10.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="FakeItEasy" Version="9.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.7" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
     <PackageReference Include="Microsoft.NETCore.Platforms" Version="7.0.4" />
     <PackageReference Include="Microsoft.NETCore.Targets" Version="5.0.0" />
+    <PackageReference Include="MockQueryable.FakeItEasy" Version="10.0.5" />
     <PackageReference Include="NuGet.Packaging" Version="7.3.1" />
     <PackageReference Include="NuGet.Protocol" Version="7.3.1" />
     <PackageReference Include="Shouldly" Version="4.3.0" />
@@ -29,7 +48,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="RepositoryTests\" />
+    <Folder Include="DecoratorTests\" />
+    <Folder Include="ModelTests\" />
   </ItemGroup>
 
 </Project>

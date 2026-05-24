@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 using EldredBrown.ProFootball.Net.Services;
-using EldredBrown.ProFootball.Net.Data.Decorators;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 {
@@ -20,7 +19,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         private readonly ISeasonRepository _seasonRepository;
         private readonly ITeamSeasonRepository _teamSeasonRepository;
         private readonly ITeamSeasonScheduleRepository _teamSeasonScheduleRepository;
-        private readonly ISharedRepository _sharedRepository;
         private readonly IWeeklyUpdateService _weeklyUpdateService;
 
         /// <summary>
@@ -41,9 +39,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <param name="teamSeasonScheduleRepository">
         /// The <see cref="ITeamSeasonScheduleRepository"/> by which team season schedule data will be accessed.
         /// </param>
-        /// <param name="sharedRepository">
-        /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
-        /// </param>
         /// <param name="weeklyUpdateService">
         /// The <see cref="IWeeklyUpdateService"/> that will run weekly updates of the data store.
         /// </param>
@@ -53,7 +48,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             ISeasonRepository seasonRepository,
             ITeamSeasonRepository teamSeasonRepository,
             ITeamSeasonScheduleRepository teamSeasonScheduleRepository,
-            ISharedRepository sharedRepository,
             IWeeklyUpdateService weeklyUpdateService)
         {
             _teamSeasonIndexViewModel = teamSeasonIndexViewModel;
@@ -61,7 +55,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             _seasonRepository = seasonRepository;
             _teamSeasonRepository = teamSeasonRepository;
             _teamSeasonScheduleRepository = teamSeasonScheduleRepository;
-            _sharedRepository = sharedRepository;
             _weeklyUpdateService = weeklyUpdateService;
         }
 
@@ -79,8 +72,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             _teamSeasonIndexViewModel.Seasons = new SelectList(orderedSeasons, "Year", "Year", SelectedSeasonYear);
             _teamSeasonIndexViewModel.SelectedSeasonYear = SelectedSeasonYear;
             var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(SelectedSeasonYear);
-            var teamSeasonDecorators = teamSeasons.Select(ts => new TeamSeasonDecorator(ts)).ToList();
-            _teamSeasonIndexViewModel.TeamSeasons = teamSeasonDecorators;
+            _teamSeasonIndexViewModel.TeamSeasons = teamSeasons;
 
             return View(_teamSeasonIndexViewModel);
         }
@@ -104,7 +96,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             {
                 return NotFound();
             }
-            _teamSeasonDetailsViewModel.TeamSeason = new TeamSeasonDecorator(teamSeason);
+            _teamSeasonDetailsViewModel.TeamSeason = teamSeason;
 
             var teamName = teamSeason.TeamName;
             var seasonYear = teamSeason.SeasonYear;
@@ -126,7 +118,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> RunWeeklyUpdate()
         {
-            await _weeklyUpdateService.RunWeeklyUpdate(SelectedSeasonYear);
+            // TODO - 2026-05-15 - Remove hardcoded league name when multiple leagues are supported.
+            var leagueName = "NFL";
+
+            await _weeklyUpdateService.RunWeeklyUpdate(leagueName, SelectedSeasonYear);
 
             return RedirectToAction(nameof(Index));
         }

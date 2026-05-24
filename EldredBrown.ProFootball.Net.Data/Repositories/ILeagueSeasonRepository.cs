@@ -13,7 +13,20 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="LeagueSeason"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{LeagueSeason}"/> of all fetched entities.</returns>
+        IEnumerable<LeagueSeason> GetLeagueSeasons();
+
+        /// <summary>
+        /// Gets all <see cref="LeagueSeason"/> entities in the data store.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerable{LeagueSeason}"/> of all fetched entities.</returns>
         Task<IEnumerable<LeagueSeason>> GetLeagueSeasonsAsync();
+
+        /// <summary>
+        /// Gets a single <see cref="LeagueSeason"/> entity from the data store by Id.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="LeagueSeason"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="LeagueSeason"/> entity.</returns>
+        LeagueSeason? GetLeagueSeason(int id);
 
         /// <summary>
         /// Gets a single <see cref="LeagueSeason"/> entity from the data store by Id.
@@ -25,10 +38,25 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <summary>
         /// Gets a single <see cref="LeagueSeason"/> entity from the data store by league name and season year.
         /// </summary>
-        /// <param name="leagueName">The name of the league of the <see cref="LeagueSeason"/> entity to fetch.</param>
+        /// <param name="leagueId">The name of the league of the <see cref="LeagueSeason"/> entity to fetch.</param>
         /// <param name="seasonYear">The year of the season of the <see cref="LeagueSeason"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="LeagueSeason"/> entity.</returns>
-        Task<LeagueSeason?> GetLeagueSeasonByLeagueAndSeasonAsync(string leagueName, int seasonYear);
+        LeagueSeason? GetLeagueSeasonByLeagueAndSeason(int leagueId, int seasonYear);
+
+        /// <summary>
+        /// Gets a single <see cref="LeagueSeason"/> entity from the data store by league name and season year.
+        /// </summary>
+        /// <param name="leagueId">The ID of the league of the <see cref="LeagueSeason"/> entity to fetch.</param>
+        /// <param name="seasonYear">The year of the season of the <see cref="LeagueSeason"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="LeagueSeason"/> entity.</returns>
+        Task<LeagueSeason?> GetLeagueSeasonByLeagueAndSeasonAsync(int leagueId, int seasonYear);
+
+        /// <summary>
+        /// Adds a <see cref="LeagueSeason"/> entity to the data store.
+        /// </summary>
+        /// <param name="leagueSeason">The <see cref="LeagueSeason"/> entity to add.</param>
+        /// <returns>The added <see cref="LeagueSeason"/> entity.</returns>
+        LeagueSeason Add(LeagueSeason leagueSeason);
 
         /// <summary>
         /// Adds a <see cref="LeagueSeason"/> entity to the data store.
@@ -49,6 +77,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="id">The Id of the <see cref="LeagueSeason"/> entity to delete.</param>
         /// <returns>The deleted <see cref="LeagueSeason"/> entity.</returns>
+        LeagueSeason? Delete(int id);
+
+        /// <summary>
+        /// Deletes a <see cref="LeagueSeason"/> entity from the data store.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="LeagueSeason"/> entity to delete.</param>
+        /// <returns>The deleted <see cref="LeagueSeason"/> entity.</returns>
         Task<LeagueSeason?> DeleteAsync(int id);
 
         /// <summary>
@@ -58,6 +93,15 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>
         /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
         /// </returns>
-        Task<bool> LeagueSeasonExists(int id);
+        bool LeagueSeasonExists(int id);
+
+        /// <summary>
+        /// Checks to verify whether a specific <see cref="LeagueSeason"/> entity exists in the data store.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="LeagueSeason"/> entity to verify.</param>
+        /// <returns>
+        /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
+        /// </returns>
+        Task<bool> LeagueSeasonExistsAsync(int id);
     }
 }

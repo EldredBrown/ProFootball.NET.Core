@@ -1,4 +1,5 @@
 ﻿using EldredBrown.ProFootball.Net.Data.Models;
+using System.Threading.Tasks;
 
 namespace EldredBrown.ProFootball.Net.Data.Repositories
 {
@@ -14,6 +15,11 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         public LeagueSeasonTotals GetLeagueSeasonTotals(string leagueName, int seasonYear)
         {
             return _leagueSeasonTotals;
+        }
+
+        public async Task<LeagueSeasonTotals> GetLeagueSeasonTotalsAsync(string leagueName, int seasonYear)
+        {
+            return await Task.FromResult(_leagueSeasonTotals);
         }
 
         private LeagueSeasonTotals InitializeData()

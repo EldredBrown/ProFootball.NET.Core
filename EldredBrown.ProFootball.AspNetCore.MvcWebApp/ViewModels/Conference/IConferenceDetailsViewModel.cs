@@ -2,6 +2,6 @@
 {
     public interface IConferenceDetailsViewModel
     {
-        EldredBrown.ProFootball.Net.Data.Models.Conference Conference { get; set; }
+        ConferenceViewModel Conference { get; set; }
     }
 }

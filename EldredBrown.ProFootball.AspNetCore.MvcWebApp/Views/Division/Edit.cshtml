@@ -1,0 +1,55 @@
+﻿@using EldredBrown.ProFootball.Net.Data.Models
+@model Division
+
+@{
+    ViewData["Title"] = "Edit Division";
+}
+
+<h1>Division</h1>
+
+<h4>Edit</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+            <input class="form-control" type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label class="control-label" asp-for="Name"></label>
+                <input type="hidden" asp-for="Name" />
+                @Html.DisplayFor(model => model.Name)
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="LeagueName"></label>
+                <input class="form-control" asp-for="LeagueName" />
+                <span class="text-danger" asp-validation-for="LeagueName"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="ConferenceName"></label>
+                <input class="form-control" asp-for="ConferenceName" />
+                <span class="text-danger" asp-validation-for="ConferenceName"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="FirstSeasonYear"></label>
+                <input class="form-control" asp-for="FirstSeasonYear" />
+                <span class="text-danger" asp-validation-for="FirstSeasonYear"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label" asp-for="LastSeasonYear"></label>
+                <input class="form-control" asp-for="LastSeasonYear" />
+                <span class="text-danger" asp-validation-for="LastSeasonYear"></span>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" type="submit">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

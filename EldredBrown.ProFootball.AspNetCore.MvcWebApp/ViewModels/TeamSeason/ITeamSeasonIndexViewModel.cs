@@ -8,6 +8,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
     {
         SelectList Seasons { get; set; }
         int SelectedSeasonYear { get; set; }
-        IEnumerable<EldredBrown.ProFootball.Net.Data.Decorators.TeamSeasonDecorator> TeamSeasons { get; set; }
+        IEnumerable<EldredBrown.ProFootball.Net.Data.Models.ITeamSeason> TeamSeasons { get; set; }
     }
 }

@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Microsoft.EntityFrameworkCore;
+
 using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Data.Repositories
@@ -38,24 +41,6 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         public async Task<IEnumerable<Game>> GetGamesAsync()
         {
             return await _dbContext.Games.ToListAsync();
-        }
-
-        /// <summary>
-        /// Gets all <see cref="Game"/> entities in the data store for the specified season year.
-        /// </summary>
-        /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
-        public IEnumerable<Game> GetGamesBySeason(int seasonYear)
-        {
-            return GetGames().Where(g => g.SeasonYear == seasonYear);
-        }
-
-        /// <summary>
-        /// Gets all <see cref="Game"/> entities in the data store asynchronously for the specified season year.
-        /// </summary>
-        /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
-        public async Task<IEnumerable<Game>> GetGamesBySeasonAsync(int seasonYear)
-        {
-            return (await GetGamesAsync()).Where(g => g.SeasonYear == seasonYear);
         }
 
         /// <summary>
@@ -183,9 +168,32 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>
         /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
         /// </returns>
-        public async Task<bool> GameExists(int id)
+        public bool GameExists(int id)
+        {
+            return _dbContext.Games.Any(g => g.Id == id);
+        }
+
+        /// <summary>
+        /// Checks to verify whether a specific <see cref="Game"/> entity exists in the data store.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Game"/> entity to verify.</param>
+        /// <returns>
+        /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
+        /// </returns>
+        public async Task<bool> GameExistsAsync(int id)
         {
             return await _dbContext.Games.AnyAsync(g => g.Id == id);
+        }
+
+        public async Task<int> GetMaxWeekForSeasonAsync(int seasonYear)
+        {
+            var weeks = (await GetGamesAsync()).Where(g => g.SeasonYear == seasonYear);
+            if (weeks.Any())
+            {
+                return weeks.Max(g => g.Week);
+            }
+
+            return 0;
         }
     }
 }
