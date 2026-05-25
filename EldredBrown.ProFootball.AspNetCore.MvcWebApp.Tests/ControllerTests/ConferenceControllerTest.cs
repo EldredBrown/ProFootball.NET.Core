@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +24,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference> { };
@@ -33,16 +33,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSharedRepository = A.Fake<ISharedRepository>();
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
             var result = await testController.Index();
 
             // Assert
             A.CallTo(() => fakeConferenceRepository.GetConferencesAsync()).MustHaveHappenedOnceExactly();
-            fakeConferenceIndexViewModel.Conferences.ShouldBe(
-                conferences.Select(c => new ConferenceViewModel { Conference = c })
-            );
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(fakeConferenceIndexViewModel);
         }
@@ -54,14 +51,19 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
 
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            var conferenceViewModel = new ConferenceViewModel { };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapConferenceToViewModel(An<Conference>.Ignored))
+                .Returns(conferenceViewModel);
+
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
-            Conference? conference = new Conference();
+            var conference = new Conference { };
             A.CallTo(() => fakeConferenceRepository.GetConferenceAsync(An<int>.Ignored)).Returns(conference);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
             int? id = 0;
@@ -69,9 +71,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             // Assert
             A.CallTo(() => fakeConferenceRepository.GetConferenceAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeConferenceViewModelMapper.MapConferenceToViewModel(conference))
+                .MustHaveHappenedOnceExactly();
             fakeConferenceDetailsViewModel.Conference.ShouldNotBeNull();
             fakeConferenceDetailsViewModel.Conference.ShouldBeOfType<ConferenceViewModel>();
-            fakeConferenceDetailsViewModel.Conference.Conference.ShouldBe(conference);
+            fakeConferenceDetailsViewModel.Conference.ShouldBe(conferenceViewModel);
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(fakeConferenceDetailsViewModel);
         }
@@ -82,10 +86,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
             var result = await testController.Details(null);
@@ -100,6 +105,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             Conference? conference = null;
@@ -108,7 +114,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSharedRepository = A.Fake<ISharedRepository>();
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
             int? id = 0;
@@ -125,10 +131,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
             var result = testController.Create();
@@ -143,17 +150,25 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            var conference = new Conference { };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
+
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
+
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
-            var conference = new Conference { };
             var conferenceViewModel = new ConferenceViewModel { Conference = conference };
             var result = await testController.Create(conferenceViewModel);
 
             // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeConferenceRepository.AddAsync(conference)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<RedirectToActionResult>();
@@ -166,6 +181,18 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            var conference = new Conference
+            {
+                Id = 2,
+                ShortName = "C4",
+                LongName = "Conference 4",
+                LeagueId = 1,
+                FirstSeasonId = 1920
+            };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
@@ -201,21 +228,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
-            var conference = new Conference
-            {
-                Id = 2,
-                ShortName = "C4",
-                LongName = "Conference 4",
-                LeagueId = 1,
-                FirstSeasonId = 1920
-            };
             var conferenceViewModel = new ConferenceViewModel { Conference = conference };
             var result = await testController.Create(conferenceViewModel);
 
             // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeConferenceRepository.AddAsync(conference)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeConferenceRepository.GetConferencesAsync()).MustHaveHappenedOnceExactly();
@@ -235,6 +256,18 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
 
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            var conference = new Conference
+            {
+                Id = 4,
+                ShortName = "C2",
+                LongName = "Conference 4",
+                LeagueId = 1,
+                FirstSeasonId = 1920
+            };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
+
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
             {
@@ -269,21 +302,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
-            var conference = new Conference
-            {
-                Id = 4,
-                ShortName = "C2",
-                LongName = "Conference 4",
-                LeagueId = 1,
-                FirstSeasonId = 1920
-            };
             var conferenceViewModel = new ConferenceViewModel { Conference = conference };
             var result = await testController.Create(conferenceViewModel);
 
             // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeConferenceRepository.AddAsync(conference)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeConferenceRepository.GetConferencesAsync()).MustHaveHappenedOnceExactly();
@@ -303,6 +330,18 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
 
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            var conference = new Conference
+            {
+                Id = 4,
+                ShortName = "C4",
+                LongName = "Conference 2",
+                LeagueId = 1,
+                FirstSeasonId = 1920
+            };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
+
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
             {
@@ -337,21 +376,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
-            var conference = new Conference
-            {
-                Id = 4,
-                ShortName = "C4",
-                LongName = "Conference 2",
-                LeagueId = 1,
-                FirstSeasonId = 1920
-            };
             var conferenceViewModel = new ConferenceViewModel { Conference = conference };
             var result = await testController.Create(conferenceViewModel);
 
             // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeConferenceRepository.AddAsync(conference)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeConferenceRepository.GetConferencesAsync()).MustHaveHappenedOnceExactly();
@@ -370,6 +403,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            var conference = new Conference { };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
@@ -409,14 +447,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
-            var conference = new Conference { };
             var conferenceViewModel = new ConferenceViewModel { Conference = conference };
             var result = await testController.Create(conferenceViewModel);
 
             // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeConferenceRepository.AddAsync(conference)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeConferenceRepository.GetConferencesAsync()).MustHaveHappenedOnceExactly();
@@ -435,6 +474,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            var conference = new Conference { };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
@@ -474,14 +518,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
-            var conference = new Conference { };
             var conferenceViewModel = new ConferenceViewModel { Conference = conference };
             var result = await testController.Create(conferenceViewModel);
 
             // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeConferenceRepository.AddAsync(conference)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeConferenceRepository.GetConferencesAsync()).MustHaveHappenedOnceExactly();
@@ -500,6 +545,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            var conference = new Conference { };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
@@ -539,14 +589,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
-            var conference = new Conference { };
             var conferenceViewModel = new ConferenceViewModel { Conference = conference };
             var result = await testController.Create(conferenceViewModel);
 
             // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeConferenceRepository.AddAsync(conference)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeConferenceRepository.GetConferencesAsync()).MustHaveHappenedOnceExactly();
@@ -565,6 +616,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            var conference = new Conference { };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
@@ -604,14 +660,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
-            var conference = new Conference { };
             var conferenceViewModel = new ConferenceViewModel { Conference = conference };
             var result = await testController.Create(conferenceViewModel);
 
             // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeConferenceRepository.AddAsync(conference)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeConferenceRepository.GetConferencesAsync()).MustHaveHappenedOnceExactly();
@@ -630,10 +687,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             testController.ModelState.AddModelError("LongName", "Please enter a long name.");
 
@@ -643,6 +701,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Create(conferenceViewModel);
 
             // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustNotHaveHappened();
             A.CallTo(() => fakeConferenceRepository.AddAsync(conference)).MustNotHaveHappened();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustNotHaveHappened();
             result.ShouldBeOfType<ViewResult>();
@@ -655,6 +715,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             Conference? conference = new Conference { };
@@ -662,7 +723,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
             int? id = 0;
@@ -683,10 +744,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
             var result = await testController.Edit(null);
@@ -701,6 +763,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             Conference? conference = null;
@@ -708,7 +771,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
             int? id = 0;
@@ -725,21 +788,28 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
-            var fakeConferenceRepository = A.Fake<IConferenceRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
 
-            // Act
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
             int id = 1;
             var conference = new Conference
             {
                 Id = id
             };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
+
+            var fakeConferenceRepository = A.Fake<IConferenceRepository>();
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
+
+            // Act
             var conferenceViewModel = new ConferenceViewModel { Conference = conference };
             var result = await testController.Edit(id, conferenceViewModel);
 
             // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeConferenceRepository.Update(conference)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<RedirectToActionResult>();
@@ -752,10 +822,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
             int id = 0;
@@ -777,6 +848,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
 
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            int id = 1;
+            var conference = new Conference
+            {
+                Id = id
+            };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
+
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             A.CallTo(() => fakeConferenceRepository.ConferenceExistsAsync(An<int>.Ignored)).Returns(false);
 
@@ -784,18 +864,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateConcurrencyException>();
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
-            int id = 1;
-            var conference = new Conference
-            {
-                Id = id
-            };
             var conferenceViewModel = new ConferenceViewModel { Conference = conference };
             var result = await testController.Edit(id, conferenceViewModel);
 
             // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeConferenceRepository.Update(conference)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -806,6 +885,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
 
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            int id = 1;
+            var conference = new Conference
+            {
+                Id = id
+            };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
+
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             A.CallTo(() => fakeConferenceRepository.ConferenceExistsAsync(An<int>.Ignored)).Returns(true);
 
@@ -813,14 +901,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateConcurrencyException>();
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
-            int id = 1;
-            var conference = new Conference
-            {
-                Id = id
-            };
             var conferenceViewModel = new ConferenceViewModel { Conference = conference };
             var func = new Func<Task<IActionResult>>(async () => await testController.Edit(id, conferenceViewModel));
 
@@ -829,11 +912,98 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
+        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForUniqueKeyShortNameViolation_ShouldHandleExceptionAndReturnViewForSeason()
+        {
+            // Arrange
+            var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
+            var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            int id = 2;
+            var conference = new Conference
+            {
+                Id = id,
+                ShortName = "C3",
+                LongName = "Conference 2",
+                LeagueId = 1,
+                FirstSeasonId = 1920
+            };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
+
+            var fakeConferenceRepository = A.Fake<IConferenceRepository>();
+            var conferences = new List<Conference>
+            {
+                new Conference
+                {
+                    Id = 1,
+                    ShortName = "C1",
+                    LongName = "Conference 1",
+                    LeagueId = 1,
+                    FirstSeasonId = 1920
+                },
+                new Conference
+                {
+                    Id = 2,
+                    ShortName = "C3",
+                    LongName = "Conference 2",
+                    LeagueId = 1,
+                    FirstSeasonId = 1920
+                },
+                new Conference
+                {
+                    Id = 3,
+                    ShortName = "C3",
+                    LongName = "Conference 3",
+                    LeagueId = 1,
+                    FirstSeasonId = 1920
+                },
+            };
+            A.CallTo(() => fakeConferenceRepository.GetConferencesAsync()).Returns(conferences);
+
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
+
+            var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
+
+            // Act
+            var conferenceViewModel = new ConferenceViewModel { Conference = conference };
+            var result = await testController.Edit(id, conferenceViewModel);
+
+            // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeConferenceRepository.Update(conference)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            testController.ModelState.IsValid.ShouldBeFalse();
+            testController.ModelState.ErrorCount.ShouldBe(1);
+            testController.ModelState.ShouldContainKey("ShortName");
+            testController.ModelState["ShortName"].Errors[0].ErrorMessage
+                .ShouldBe("Unable to save changes. A conference with the same short name already exists.");
+            result.ShouldBeOfType<ViewResult>();
+            ((ViewResult)result).Model.ShouldBe(conferenceViewModel);
+        }
+
+        [Fact]
         public async Task EditPost_WhenDbUpdateExceptionIsCaughtForUniqueKeyLongNameViolation_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            int id = 2;
+            var conference = new Conference
+            {
+                Id = id,
+                ShortName = "C2",
+                LongName = "Conference 3",
+                LeagueId = 1,
+                FirstSeasonId = 1920
+            };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
@@ -869,22 +1039,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
-            int id = 2;
-            var conference = new Conference
-            {
-                Id = id,
-                ShortName = "C2",
-                LongName = "Conference 3",
-                LeagueId = 1,
-                FirstSeasonId = 1920
-            };
             var conferenceViewModel = new ConferenceViewModel { Conference = conference };
             var result = await testController.Edit(id, conferenceViewModel);
 
             // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeConferenceRepository.Update(conference)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey("LongName");
@@ -895,11 +1060,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForForeignKeyLeagueNameConflict_ShouldHandleExceptionAndReturnViewForSeason()
+        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForForeignKeyLeagueIdConflict_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            int id = 2;
+            var conference = new Conference { Id = id };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
@@ -939,15 +1110,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
-            int id = 2;
-            var conference = new Conference { Id = id };
             var conferenceViewModel = new ConferenceViewModel { Conference = conference };
             var result = await testController.Edit(id, conferenceViewModel);
 
             // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeConferenceRepository.Update(conference)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
@@ -963,6 +1136,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            int id = 2;
+            var conference = new Conference { Id = id };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
@@ -1002,15 +1181,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
-            int id = 2;
-            var conference = new Conference { Id = id };
             var conferenceViewModel = new ConferenceViewModel { Conference = conference };
             var result = await testController.Edit(id, conferenceViewModel);
 
             // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeConferenceRepository.Update(conference)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
@@ -1026,6 +1207,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            int id = 2;
+            var conference = new Conference { Id = id };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
@@ -1065,15 +1252,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
-            int id = 2;
-            var conference = new Conference { Id = id };
             var conferenceViewModel = new ConferenceViewModel { Conference = conference };
             var result = await testController.Edit(id, conferenceViewModel);
 
             // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeConferenceRepository.Update(conference)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
@@ -1089,6 +1278,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            int id = 2;
+            var conference = new Conference { Id = id };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(A<ConferenceViewModel>.Ignored))
+                .Returns(Task.FromResult(conference));
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
@@ -1128,15 +1323,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
-            int id = 2;
-            var conference = new Conference { Id = id };
             var conferenceViewModel = new ConferenceViewModel { Conference = conference };
             var result = await testController.Edit(id, conferenceViewModel);
 
             // Assert
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeConferenceRepository.Update(conference)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
@@ -1152,10 +1349,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             testController.ModelState.AddModelError("LongName", "Please enter a long name.");
 
@@ -1169,7 +1367,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Edit(id, conferenceViewModel);
 
             // Assert
-            A.CallTo(() => fakeConferenceRepository.Update(A<Conference>.Ignored)).MustNotHaveHappened();
+            A.CallTo(() => fakeConferenceViewModelMapper.MapViewModelToConference(conferenceViewModel))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeConferenceRepository.Update(conference)).MustNotHaveHappened();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustNotHaveHappened();
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(conferenceViewModel);
@@ -1182,13 +1382,18 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
 
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
+            var conferenceViewModel = new ConferenceViewModel { };
+            A.CallTo(() => fakeConferenceViewModelMapper.MapConferenceToViewModel(A<Conference>.Ignored))
+                .Returns(conferenceViewModel);
+
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             Conference? conference = new Conference { };
             A.CallTo(() => fakeConferenceRepository.GetConferenceAsync(An<int>.Ignored)).Returns(conference);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
             int? id = 0;
@@ -1196,11 +1401,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             // Assert
             A.CallTo(() => fakeConferenceRepository.GetConferenceAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeConferenceViewModelMapper.MapConferenceToViewModel(conference))
+                .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<ViewResult>();
             var resultModel = ((ViewResult)result).Model;
             resultModel.ShouldNotBeNull();
             resultModel.ShouldBeOfType<ConferenceViewModel>();
-            ((ConferenceViewModel)resultModel).Conference.ShouldBe(conference);
+            resultModel.ShouldBe(conferenceViewModel);
         }
 
         [Fact]
@@ -1209,10 +1416,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
             var result = await testController.Delete(null);
@@ -1227,6 +1435,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             Conference? conference = null;
@@ -1234,7 +1443,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
             int? id = 0;
@@ -1251,10 +1460,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeConferenceIndexViewModel = A.Fake<IConferenceIndexViewModel>();
             var fakeConferenceDetailsViewModel = A.Fake<IConferenceDetailsViewModel>();
+            var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new ConferenceController(fakeConferenceIndexViewModel, fakeConferenceDetailsViewModel,
-                fakeConferenceRepository, fakeSharedRepository);
+                fakeConferenceViewModelMapper, fakeConferenceRepository, fakeSharedRepository);
 
             // Act
             int id = 1;

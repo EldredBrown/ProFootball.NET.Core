@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -31,7 +30,11 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>An <see cref="IEnumerable{Conference}"/> of all fetched entities.</returns>
         public IEnumerable<Conference> GetConferences()
         {
-            return _dbContext.Conferences;
+            return _dbContext.Conferences
+                .Include(s => s.LeagueIdNavigation)
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation)
+                .ToList();
         }
 
         /// <summary>
@@ -40,7 +43,11 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>An <see cref="IEnumerable{Conference}"/> of all fetched entities.</returns>
         public async Task<IEnumerable<Conference>> GetConferencesAsync()
         {
-            return await _dbContext.Conferences.ToListAsync();
+            return await _dbContext.Conferences
+                .Include(s => s.LeagueIdNavigation)
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation)
+                .ToListAsync();
         }
 
         /// <summary>
@@ -55,7 +62,11 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            return _dbContext.Conferences.Find(id);
+            return _dbContext.Conferences
+                .Include(s => s.LeagueIdNavigation)
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation)
+                .FirstOrDefault(c => c.Id == id);
         }
 
         /// <summary>
@@ -70,7 +81,11 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            return await _dbContext.Conferences.FindAsync(id);
+            return await _dbContext.Conferences
+                .Include(s => s.LeagueIdNavigation)
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation)
+                .FirstOrDefaultAsync(c => c.Id == id);
         }
 
         /// <summary>

@@ -44,6 +44,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         League? GetLeagueByShortName(string shortName);
 
         /// <summary>
+        /// Gets a single <see cref="League"/> entity from the data store by Id.
+        /// </summary>
+        /// <param name="shortName">The short name of the <see cref="League"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="League"/> entity.</returns>
+        Task<League?> GetLeagueByShortNameAsync(string shortName);
+
+        /// <summary>
         /// Adds a <see cref="League"/> entity to the data store.
         /// </summary>
         /// <param name="league">The <see cref="League"/> entity to add.</param>

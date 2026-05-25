@@ -155,6 +155,110 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
+        public void GetLeagueByShortName_WhenLeaguesIsNotNull_ShouldSucceed()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            string shortName = "L1";
+            var league = new League
+            {
+                Id = 1,
+                ShortName = shortName,
+                LongName = "League 1",
+                FirstSeasonId = 1920
+            };
+            fakeDbContext.Leagues.Add(league);
+            fakeDbContext.SaveChanges();
+            var testRepository = new LeagueRepository(fakeDbContext);
+
+            // Act
+            var result = testRepository.GetLeagueByShortName(shortName);
+
+            // Assert
+            result.ShouldNotBeNull();
+            var expResult = fakeDbContext.Leagues.FirstOrDefault(l => l.ShortName == shortName);
+            result.ShouldBe(expResult);
+        }
+
+        [Fact]
+        public void GetLeagueByShortName_WhenLeaguesIsNull_ShouldReturnNull()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            fakeDbContext.Leagues = null;
+            fakeDbContext.SaveChanges();
+            var testRepository = new LeagueRepository(fakeDbContext);
+
+            // Act
+            var result = testRepository.GetLeagueByShortName("L1");
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task GetLeagueByShortNameAsync_WhenLeaguesIsNotNull_ShouldSucceed()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            string shortName = "L1";
+            var league = new League
+            {
+                Id = 1,
+                ShortName = shortName,
+                LongName = "League 1",
+                FirstSeasonId = 1920
+            };
+            fakeDbContext.Leagues.Add(league);
+            await fakeDbContext.SaveChangesAsync();
+            var testRepository = new LeagueRepository(fakeDbContext);
+
+            // Act
+            var result = await testRepository.GetLeagueByShortNameAsync(shortName);
+
+            // Assert
+            result.ShouldNotBeNull();
+            var expResult = await fakeDbContext.Leagues.FirstOrDefaultAsync(l => l.ShortName == shortName);
+            result.ShouldBe(expResult);
+        }
+
+        [Fact]
+        public async Task GetLeagueByShortNameAsync_WhenLeaguesIsNull_ShouldReturnNull()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            fakeDbContext.Leagues = null;
+            await fakeDbContext.SaveChangesAsync();
+            var testRepository = new LeagueRepository(fakeDbContext);
+
+            // Act
+            var result = await testRepository.GetLeagueByShortNameAsync("L1");
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
         public void Add_ShouldSucceed()
         {
             // Arrange

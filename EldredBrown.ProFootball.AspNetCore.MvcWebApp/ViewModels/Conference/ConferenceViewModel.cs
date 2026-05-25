@@ -1,20 +1,14 @@
-﻿using EldredBrown.ProFootball.Net.Data;
-using EldredBrown.ProFootball.Net.Data.Repositories;
-
-namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conference
+﻿namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conference
 {
     public class ConferenceViewModel
     {
-        private readonly ILeagueRepository _leagueRepository = new LeagueRepository(new ProFootballDbContext());
+        private string _leagueName;
 
         public ConferenceViewModel()
         {
             Conference = new EldredBrown.ProFootball.Net.Data.Models.Conference();
         }
 
-        /// <summary>
-        /// Gets or sets the conference of the current <see cref="ConferenceDetailsViewModel"/> object.
-        /// </summary>
         public EldredBrown.ProFootball.Net.Data.Models.Conference Conference { get; set; }
 
         public int Id
@@ -39,21 +33,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conference
         {
             get
             {
-                var parentLeague = _leagueRepository.GetLeague(Conference.LeagueId);
-                return parentLeague?.ShortName;
-            }
-            set
-            {
-                var parentLeague = _leagueRepository.GetLeagueByShortName(value);
-                if (parentLeague is null)
+                if (Conference.LeagueIdNavigation is null)
                 {
-                    Conference.LeagueId = -1;
+                    return _leagueName;
                 }
-                else
-                {
-                    Conference.LeagueId = parentLeague.Id;
-                }
+                return Conference.LeagueIdNavigation.ShortName;
             }
+            set { _leagueName = value; }
         }
 
         public int FirstSeasonYear
@@ -61,7 +47,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conference
             get { return Conference.FirstSeasonId; }
             set { Conference.FirstSeasonId = value; }
         }
-
 
         public int? LastSeasonYear
         {

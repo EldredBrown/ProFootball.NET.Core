@@ -19,6 +19,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     {
         private readonly IConferenceIndexViewModel _conferenceIndexViewModel;
         private readonly IConferenceDetailsViewModel _conferenceDetailsViewModel;
+        private readonly IConferenceViewModelMapper _conferenceViewModelMapper;
         private readonly IConferenceRepository _conferenceRepository;
         private readonly ISharedRepository _sharedRepository;
 
@@ -31,6 +32,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <param name="conferenceDetailsViewModel">
         /// The <see cref="IConferencesDetailsViewModel"/> that will provide ViewModel data to the Details view.
         /// </param>
+        /// <param name="conferenceViewModelMapper">
+        /// The <see cref="IConferenceViewModelMapper"/> by which conference data will be mapped to view models.
+        /// </param>
         /// <param name="conferenceRepository">
         /// The <see cref="IConferenceRepository"/> by which conference data will be accessed.
         /// </param>
@@ -40,12 +44,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         public ConferenceController(
             IConferenceIndexViewModel conferenceIndexViewModel,
             IConferenceDetailsViewModel conferenceDetailsViewModel,
+            IConferenceViewModelMapper conferenceViewModelMapper,
             IConferenceRepository conferenceRepository,
             ISharedRepository sharedRepository
         )
         {
             _conferenceIndexViewModel = conferenceIndexViewModel;
             _conferenceDetailsViewModel = conferenceDetailsViewModel;
+            _conferenceViewModelMapper = conferenceViewModelMapper;
             _conferenceRepository = conferenceRepository;
             _sharedRepository = sharedRepository;
         }
@@ -59,7 +65,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         public async Task<IActionResult> Index()
         {
             var conferences = await _conferenceRepository.GetConferencesAsync();
-            _conferenceIndexViewModel.Conferences = conferences.Select(c => new ConferenceViewModel { Conference = c });
+            _conferenceIndexViewModel.Conferences = conferences
+                .Select(c => _conferenceViewModelMapper.MapConferenceToViewModel(c))
+                .OrderBy(c => c.ShortName);
 
             return View(_conferenceIndexViewModel);
         }
@@ -84,7 +92,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            _conferenceDetailsViewModel.Conference = new ConferenceViewModel { Conference = conference };
+            _conferenceDetailsViewModel.Conference = _conferenceViewModelMapper.MapConferenceToViewModel(conference);
 
             return View(_conferenceDetailsViewModel);
         }
@@ -114,8 +122,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var conference = conferenceViewModel.Conference;
-
+                var conference = await _conferenceViewModelMapper.MapViewModelToConference(conferenceViewModel);
                 await _conferenceRepository.AddAsync(conference);
 
                 try
@@ -176,7 +183,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
             if (ModelState.IsValid)
             {
-                var conference = conferenceViewModel.Conference;
+                var conference = await _conferenceViewModelMapper.MapViewModelToConference(conferenceViewModel);
                 _conferenceRepository.Update(conference);
 
                 try
@@ -225,7 +232,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var conferenceViewModel = new ConferenceViewModel { Conference = conference };
+            var conferenceViewModel = _conferenceViewModelMapper.MapConferenceToViewModel(conference);
             return View(conferenceViewModel);
         }
 
@@ -275,17 +282,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private bool PrimaryKeyViolationExists(IEnumerable<Conference> conferences, Conference conference)
         {
-            return conferences.Any(l => l.Id == conference.Id);
+            return conferences.Any(c => c.Id == conference.Id);
         }
 
         private bool UniqueKeyShortNameViolationExistsOnCreate(IEnumerable<Conference> conferences, Conference conference)
         {
-            return conferences.Any(l => l.ShortName == conference.ShortName);
+            return conferences.Any(c => c.ShortName == conference.ShortName);
         }
 
         private bool UniqueKeyLongNameViolationExistsOnCreate(IEnumerable<Conference> conferences, Conference conference)
         {
-            return conferences.Any(l => l.LongName == conference.LongName);
+            return conferences.Any(c => c.LongName == conference.LongName);
         }
 
         private async Task HandleDbUpdateExceptionOnEdit(DbUpdateException ex, Conference conference)
@@ -293,7 +300,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             var conferences = await _conferenceRepository.GetConferencesAsync();
             var errMsgIntro = "Unable to save changes.";
 
-            if (UniqueKeyLongNameViolationExistsOnEdit(conferences, conference))
+            if (UniqueKeyShortNameViolationExistsOnEdit(conferences, conference))
+            {
+                ModelState.AddModelError("ShortName", $"{errMsgIntro} A conference with the same short name already exists.");
+            }
+            else if (UniqueKeyLongNameViolationExistsOnEdit(conferences, conference))
             {
                 ModelState.AddModelError("LongName", $"{errMsgIntro} A conference with the same long name already exists.");
             }
@@ -308,9 +319,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             }
         }
 
+        private bool UniqueKeyShortNameViolationExistsOnEdit(IEnumerable<Conference> conferences, Conference conference)
+        {
+            return conferences.Count(c => c.ShortName == conference.ShortName) > 1;
+        }
+
         private bool UniqueKeyLongNameViolationExistsOnEdit(IEnumerable<Conference> conferences, Conference conference)
         {
-            return conferences.Count(l => l.LongName == conference.LongName) > 1;
+            return conferences.Count(c => c.LongName == conference.LongName) > 1;
         }
     }
 }
