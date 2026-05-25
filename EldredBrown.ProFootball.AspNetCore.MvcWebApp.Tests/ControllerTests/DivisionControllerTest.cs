@@ -24,21 +24,22 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
 
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
-            var divisions = new List<Division>();
+            var divisions = new List<Division> { };
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).Returns(divisions);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
+
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
             var result = await testController.Index();
 
             // Assert
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).MustHaveHappenedOnceExactly();
-            fakeDivisionIndexViewModel.Divisions.ShouldBe(divisions);
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(fakeDivisionIndexViewModel);
         }
@@ -50,22 +51,31 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            var divisionViewModel = new DivisionViewModel { };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapDivisionToViewModel(An<Division>.Ignored))
+                .Returns(divisionViewModel);
+
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
-            Division? division = new Division();
+            var division = new Division { };
             A.CallTo(() => fakeDivisionRepository.GetDivisionAsync(An<int>.Ignored)).Returns(division);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
 
-            int? id = 0;
+            var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
+            int? id = 0;
             var result = await testController.Details(id);
 
             // Assert
             A.CallTo(() => fakeDivisionRepository.GetDivisionAsync(id.Value)).MustHaveHappenedOnceExactly();
-            fakeDivisionDetailsViewModel.Division.ShouldBe(division);
+            A.CallTo(() => fakeDivisionViewModelMapper.MapDivisionToViewModel(division))
+                .MustHaveHappenedOnceExactly();
+            fakeDivisionDetailsViewModel.Division.ShouldNotBeNull();
+            fakeDivisionDetailsViewModel.Division.ShouldBeOfType<DivisionViewModel>();
+            fakeDivisionDetailsViewModel.Division.ShouldBe(divisionViewModel);
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(fakeDivisionDetailsViewModel);
         }
@@ -76,15 +86,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
-
-            int? id = null;
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            var result = await testController.Details(id);
+            var result = await testController.Details(null);
 
             // Assert
             result.ShouldBeOfType<NotFoundResult>();
@@ -96,18 +105,19 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
 
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             Division? division = null;
             A.CallTo(() => fakeDivisionRepository.GetDivisionAsync(An<int>.Ignored)).Returns(division);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
 
-            int? id = 0;
+            var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
+            int? id = 0;
             var result = await testController.Details(id);
 
             // Assert
@@ -121,10 +131,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
             var result = testController.Create();
@@ -134,22 +145,30 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task CreatePost_WhenModelStateIsValid_ShouldAddDivisionToDataStoreAndRedirectToIndexView()
+        public async Task CreatePost_WhenModelStateIsValidAndNoExceptionCaught_ShouldAddDivisionToDataStoreAndRedirectToIndexView()
         {
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            var division = new Division { };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
+
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
 
-            var division = new Division();
+            var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            var result = await testController.Create(division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Create(divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeDivisionRepository.AddAsync(division)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<RedirectToActionResult>();
@@ -163,6 +182,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            var division = new Division
+            {
+                Id = 2,
+                Name = "Division 4",
+                FirstSeasonId = 1920
+            };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
+
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
@@ -170,25 +199,19 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 {
                     Id = 1,
                     Name = "Division 1",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 2,
                     Name = "Division 2",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 3,
                     Name = "Division 3",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    FirstSeasonId = 1920
                 },
             };
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).Returns(divisions);
@@ -197,20 +220,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
 
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            var division = new Division
-            {
-                Id = 2,
-                Name = "Division 4",
-                LeagueName = "L4",
-                ConferenceName = "C4",
-                FirstSeasonYear = 1920
-            };
-            var result = await testController.Create(division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Create(divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeDivisionRepository.AddAsync(division)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).MustHaveHappenedOnceExactly();
@@ -220,7 +238,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             testController.ModelState["Id"].Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. A division with the same Id already exists.");
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            ((ViewResult)result).Model.ShouldBe(divisionViewModel);
         }
 
         [Fact]
@@ -230,6 +248,18 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            var division = new Division
+            {
+                Id = 4,
+                Name = "Division 2",
+                LeagueId = 1,
+                ConferenceId = 1,
+                FirstSeasonId = 1920
+            };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
+
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
@@ -237,25 +267,25 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 {
                     Id = 1,
                     Name = "Division 1",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 2,
                     Name = "Division 2",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 3,
                     Name = "Division 3",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
             };
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).Returns(divisions);
@@ -264,20 +294,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
 
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            var division = new Division
-            {
-                Id = 4,
-                Name = "Division 2",
-                LeagueName = "L4",
-                ConferenceName = "C4",
-                FirstSeasonYear = 1920
-            };
-            var result = await testController.Create(division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Create(divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeDivisionRepository.AddAsync(division)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).MustHaveHappenedOnceExactly();
@@ -287,15 +312,20 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             testController.ModelState["Name"].Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. A division with the same name already exists.");
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            ((ViewResult)result).Model.ShouldBe(divisionViewModel);
         }
 
         [Fact]
-        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForForeignKeyLeagueNameViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
+        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForForeignKeyLeagueIdViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            var division = new Division { };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
 
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
@@ -304,25 +334,25 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 {
                     Id = 1,
                     Name = "Division 1",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 2,
                     Name = "Division 2",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 3,
                     Name = "Division 3",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
             };
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).Returns(divisions);
@@ -330,36 +360,43 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
-                innerException: new Exception("The INSERT statement conflicted with the FOREIGN KEY constraint \"FK_Division_League_LeagueName\".")
+                innerException: new Exception("The INSERT statement conflicted with the FOREIGN KEY constraint \"FK_Division_League_LeagueId\".")
             );
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            var division = new Division();
-            var result = await testController.Create(division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Create(divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeDivisionRepository.AddAsync(division)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
-            testController.ModelState.ShouldContainKey("LeagueName");
-            testController.ModelState["LeagueName"].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on LeagueName.");
+            testController.ModelState.ShouldContainKey(string.Empty);
+            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+                .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on LeagueId.");
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            ((ViewResult)result).Model.ShouldBe(divisionViewModel);
         }
 
         [Fact]
-        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForForeignKeyConferenceNameViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
+        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForForeignKeyConferenceIdViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            var division = new Division { };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
 
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
@@ -368,25 +405,25 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 {
                     Id = 1,
                     Name = "Division 1",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 2,
                     Name = "Division 2",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 3,
                     Name = "Division 3",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
             };
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).Returns(divisions);
@@ -394,36 +431,43 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
-                innerException: new Exception("The INSERT statement conflicted with the FOREIGN KEY constraint \"FK_Division_Conference_ConferenceName\".")
+                innerException: new Exception("The INSERT statement conflicted with the FOREIGN KEY constraint \"FK_Division_Conference_ConferenceId\".")
             );
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            var division = new Division();
-            var result = await testController.Create(division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Create(divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeDivisionRepository.AddAsync(division)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
-            testController.ModelState.ShouldContainKey("ConferenceName");
-            testController.ModelState["ConferenceName"].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on ConferenceName.");
+            testController.ModelState.ShouldContainKey(string.Empty);
+            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+                .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on ConferenceId.");
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            ((ViewResult)result).Model.ShouldBe(divisionViewModel);
         }
 
         [Fact]
-        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForForeignKeyFirstSeasonYearViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
+        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForForeignKeyFirstSeasonIdViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            var division = new Division { };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
 
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
@@ -432,25 +476,25 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 {
                     Id = 1,
                     Name = "Division 1",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 2,
                     Name = "Division 2",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 3,
                     Name = "Division 3",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
             };
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).Returns(divisions);
@@ -458,36 +502,43 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
-                innerException: new Exception("The INSERT statement conflicted with the FOREIGN KEY constraint \"FK_Division_Season_FirstSeasonYear\".")
+                innerException: new Exception("The INSERT statement conflicted with the FOREIGN KEY constraint \"FK_Division_Season_FirstSeasonId\".")
             );
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            var division = new Division();
-            var result = await testController.Create(division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Create(divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeDivisionRepository.AddAsync(division)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
-            testController.ModelState.ShouldContainKey("FirstSeasonYear");
-            testController.ModelState["FirstSeasonYear"].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on FirstSeasonYear.");
+            testController.ModelState.ShouldContainKey(string.Empty);
+            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+                .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on FirstSeasonId.");
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            ((ViewResult)result).Model.ShouldBe(divisionViewModel);
         }
 
         [Fact]
-        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForForeignKeyLastSeasonYearViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
+        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForForeignKeyLastSeasonIdViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            var division = new Division { };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
 
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
@@ -496,25 +547,25 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 {
                     Id = 1,
                     Name = "Division 1",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 2,
                     Name = "Division 2",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 3,
                     Name = "Division 3",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
             };
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).Returns(divisions);
@@ -522,28 +573,30 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
-                innerException: new Exception("The INSERT statement conflicted with the FOREIGN KEY constraint \"FK_Division_Season_LastSeasonYear\".")
+                innerException: new Exception("The INSERT statement conflicted with the FOREIGN KEY constraint \"FK_Division_Season_LastSeasonId\".")
             );
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            var division = new Division();
-            var result = await testController.Create(division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Create(divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeDivisionRepository.AddAsync(division)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
-            testController.ModelState.ShouldContainKey("LastSeasonYear");
-            testController.ModelState["LastSeasonYear"].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on LastSeasonYear.");
+            testController.ModelState.ShouldContainKey(string.Empty);
+            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+                .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on LastSeasonId.");
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            ((ViewResult)result).Model.ShouldBe(divisionViewModel);
         }
 
         [Fact]
@@ -553,6 +606,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            var division = new Division { };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
+
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
@@ -560,25 +618,19 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 {
                     Id = 1,
                     Name = "Division 1",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 2,
                     Name = "Division 2",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 3,
                     Name = "Division 3",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    FirstSeasonId = 1920
                 },
             };
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).Returns(divisions);
@@ -591,13 +643,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            var division = new Division();
-            var result = await testController.Create(division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Create(divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeDivisionRepository.AddAsync(division)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).MustHaveHappenedOnceExactly();
@@ -607,7 +661,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             testController.ModelState[string.Empty].Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. An unexpected error occurred.");
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            ((ViewResult)result).Model.ShouldBe(divisionViewModel);
         }
 
         [Fact]
@@ -616,23 +670,26 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
-            var division = new Division();
-
-            testController.ModelState.AddModelError("Name", "Please enter a name.");
+            testController.ModelState.AddModelError("Name", "Please enter a long name.");
 
             // Act
-            var result = await testController.Create(division);
+            var division = new Division { };
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Create(divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustNotHaveHappened();
             A.CallTo(() => fakeDivisionRepository.AddAsync(division)).MustNotHaveHappened();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustNotHaveHappened();
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            ((ViewResult)result).Model.ShouldBe(divisionViewModel);
         }
 
         [Fact]
@@ -641,24 +698,27 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
 
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
-            Division? division = new Division();
+            Division? division = new Division { };
             A.CallTo(() => fakeDivisionRepository.GetDivisionAsync(An<int>.Ignored)).Returns(division);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
-
-            int? id = 0;
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
+            int? id = 0;
             var result = await testController.Edit(id);
 
             // Assert
             A.CallTo(() => fakeDivisionRepository.GetDivisionAsync(id.Value)).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            var resultModel = ((ViewResult)result).Model;
+            resultModel.ShouldNotBeNull();
+            resultModel.ShouldBeOfType<DivisionViewModel>();
+            ((DivisionViewModel)resultModel).Division.ShouldBe(division);
         }
 
         [Fact]
@@ -667,15 +727,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
-
-            int? id = null;
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            var result = await testController.Edit(id);
+            var result = await testController.Edit(null);
 
             // Assert
             result.ShouldBeOfType<NotFoundResult>();
@@ -687,6 +746,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
 
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             Division? division = null;
@@ -694,11 +754,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
-
-            int? id = 0;
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
+            int? id = 0;
             var result = await testController.Edit(id);
 
             // Assert
@@ -712,21 +771,28 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
-            var fakeDivisionRepository = A.Fake<IDivisionRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
 
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
             int id = 1;
             var division = new Division
             {
-                Id = 1
+                Id = id
             };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
+
+            var fakeDivisionRepository = A.Fake<IDivisionRepository>();
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            var result = await testController.Edit(id, division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Edit(id, divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeDivisionRepository.Update(division)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<RedirectToActionResult>();
@@ -739,19 +805,20 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
+            // Act
             int id = 0;
             var division = new Division
             {
                 Id = 1
             };
-
-            // Act
-            var result = await testController.Edit(id, division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Edit(id, divisionViewModel);
 
             // Assert
             result.ShouldBeOfType<NotFoundResult>();
@@ -764,6 +831,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            int id = 1;
+            var division = new Division
+            {
+                Id = id
+            };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
+
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             A.CallTo(() => fakeDivisionRepository.DivisionExistsAsync(An<int>.Ignored)).Returns(false);
 
@@ -771,18 +847,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateConcurrencyException>();
 
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
-
-            int id = 1;
-            var division = new Division
-            {
-                Id = 1
-            };
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            var result = await testController.Edit(id, division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Edit(id, divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeDivisionRepository.Update(division)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -793,6 +868,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            int id = 1;
+            var division = new Division
+            {
+                Id = id
+            };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
+
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             A.CallTo(() => fakeDivisionRepository.DivisionExistsAsync(An<int>.Ignored)).Returns(true);
 
@@ -800,16 +884,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateConcurrencyException>();
 
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
-
-            int id = 1;
-            var division = new Division
-            {
-                Id = 1
-            };
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            var func = new Func<Task<IActionResult>>(async () => await testController.Edit(id, division));
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var func = new Func<Task<IActionResult>>(async () => await testController.Edit(id, divisionViewModel));
 
             // Assert
             await func.ShouldThrowAsync<DbUpdateConcurrencyException>();
@@ -822,6 +901,19 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            int id = 2;
+            var division = new Division
+            {
+                Id = id,
+                Name = "Division 3",
+                LeagueId = 1,
+                ConferenceId = 1,
+                FirstSeasonId = 1920
+            };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
+
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
@@ -829,25 +921,25 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 {
                     Id = 1,
                     Name = "Division 1",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 2,
                     Name = "Division 3",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 3,
                     Name = "Division 3",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
             };
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).Returns(divisions);
@@ -856,36 +948,38 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
 
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            int id = 2;
-            var division = new Division
-            {
-                Id = 2,
-                Name = "Division 3",
-                LeagueName = "L",
-                ConferenceName = "C",
-                FirstSeasonYear = 1920
-            };
-            var result = await testController.Edit(id, division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Edit(id, divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeDivisionRepository.Update(division)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey("Name");
             testController.ModelState["Name"].Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. A division with the same name already exists.");
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            ((ViewResult)result).Model.ShouldBe(divisionViewModel);
         }
 
         [Fact]
-        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForForeignKeyLeagueNameConflict_ShouldHandleExceptionAndReturnViewForSeason()
+        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForForeignKeyLeagueIdConflict_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            int id = 2;
+            var division = new Division { Id = id };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
 
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
@@ -894,25 +988,25 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 {
                     Id = 1,
                     Name = "Division 1",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 2,
-                    Name = "Division 2",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    Name = "Division 3",
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 3,
                     Name = "Division 3",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
             };
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).Returns(divisions);
@@ -920,34 +1014,43 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
-                innerException: new Exception("The UPDATE statement conflicted with the FOREIGN KEY constraint \"FK_Division_League_LeagueName\".")
+                innerException: new Exception("The UPDATE statement conflicted with the FOREIGN KEY constraint \"FK_Division_League_LeagueId\".")
             );
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            int id = 2;
-            var division = new Division { Id = 2 };
-            var result = await testController.Edit(id, division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Edit(id, divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeDivisionRepository.Update(division)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
-            testController.ModelState.ShouldContainKey("LeagueName");
-            testController.ModelState["LeagueName"].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on LeagueName.");
+            testController.ModelState.ShouldContainKey(string.Empty);
+            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+                .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on LeagueId.");
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            ((ViewResult)result).Model.ShouldBe(divisionViewModel);
         }
 
         [Fact]
-        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForForeignKeyConferenceNameConflict_ShouldHandleExceptionAndReturnViewForSeason()
+        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForForeignKeyConferenceIdConflict_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            int id = 2;
+            var division = new Division { Id = id };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
 
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
@@ -956,25 +1059,25 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 {
                     Id = 1,
                     Name = "Division 1",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 2,
-                    Name = "Division 2",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    Name = "Division 3",
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 3,
                     Name = "Division 3",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
             };
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).Returns(divisions);
@@ -982,34 +1085,43 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
-                innerException: new Exception("The UPDATE statement conflicted with the FOREIGN KEY constraint \"FK_Division_Conference_ConferenceName\".")
+                innerException: new Exception("The UPDATE statement conflicted with the FOREIGN KEY constraint \"FK_Division_Conference_ConferenceId\".")
             );
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            int id = 2;
-            var division = new Division { Id = 2 };
-            var result = await testController.Edit(id, division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Edit(id, divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeDivisionRepository.Update(division)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
-            testController.ModelState.ShouldContainKey("ConferenceName");
-            testController.ModelState["ConferenceName"].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on ConferenceName.");
+            testController.ModelState.ShouldContainKey(string.Empty);
+            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+                .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on ConferenceId.");
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            ((ViewResult)result).Model.ShouldBe(divisionViewModel);
         }
 
         [Fact]
-        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForForeignKeyFirstSeasonYearConflict_ShouldHandleExceptionAndReturnViewForSeason()
+        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForForeignKeyFirstSeasonIdConflict_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            int id = 2;
+            var division = new Division { Id = id };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
 
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
@@ -1018,25 +1130,25 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 {
                     Id = 1,
                     Name = "Division 1",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 2,
-                    Name = "Division 2",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    Name = "Division 3",
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 3,
                     Name = "Division 3",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
             };
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).Returns(divisions);
@@ -1044,34 +1156,43 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
-                innerException: new Exception("The UPDATE statement conflicted with the FOREIGN KEY constraint \"FK_Division_Season_FirstSeasonYear\".")
+                innerException: new Exception("The UPDATE statement conflicted with the FOREIGN KEY constraint \"FK_Division_Season_FirstSeasonId\".")
             );
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            int id = 2;
-            var division = new Division { Id = 2 };
-            var result = await testController.Edit(id, division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Edit(id, divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeDivisionRepository.Update(division)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
-            testController.ModelState.ShouldContainKey("FirstSeasonYear");
-            testController.ModelState["FirstSeasonYear"].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on FirstSeasonYear.");
+            testController.ModelState.ShouldContainKey(string.Empty);
+            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+                .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on FirstSeasonId.");
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            ((ViewResult)result).Model.ShouldBe(divisionViewModel);
         }
 
         [Fact]
-        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForForeignKeyLastSeasonYearConflict_ShouldHandleExceptionAndReturnViewForSeason()
+        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForForeignKeyLastSeasonIdConflict_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            int id = 2;
+            var division = new Division { Id = id };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
 
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
@@ -1080,25 +1201,25 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 {
                     Id = 1,
                     Name = "Division 1",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 2,
-                    Name = "Division 2",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    Name = "Division 3",
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 3,
                     Name = "Division 3",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
             };
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).Returns(divisions);
@@ -1106,26 +1227,29 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
-                innerException: new Exception("The UPDATE statement conflicted with the FOREIGN KEY constraint \"FK_Division_Season_LastSeasonYear\".")
+                innerException: new Exception("The UPDATE statement conflicted with the FOREIGN KEY constraint \"FK_Division_Season_LastSeasonId\".")
             );
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            int id = 2;
-            var division = new Division { Id = 2 };
-            var result = await testController.Edit(id, division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Edit(id, divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeDivisionRepository.Update(division)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
-            testController.ModelState.ShouldContainKey("LastSeasonYear");
-            testController.ModelState["LastSeasonYear"].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on LastSeasonYear.");
+            testController.ModelState.ShouldContainKey(string.Empty);
+            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+                .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on LastSeasonId.");
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            ((ViewResult)result).Model.ShouldBe(divisionViewModel);
         }
 
         [Fact]
@@ -1135,6 +1259,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            int id = 2;
+            var division = new Division { Id = id };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(A<DivisionViewModel>.Ignored))
+                .Returns(Task.FromResult(division));
+
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
@@ -1142,25 +1272,25 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 {
                     Id = 1,
                     Name = "Division 1",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 2,
-                    Name = "Division 2",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    Name = "Division 3",
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
                 new Division
                 {
                     Id = 3,
                     Name = "Division 3",
-                    LeagueName = "L",
-                    ConferenceName = "C",
-                    FirstSeasonYear = 1920
+                    LeagueId = 1,
+                    ConferenceId = 1,
+                    FirstSeasonId = 1920
                 },
             };
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).Returns(divisions);
@@ -1173,21 +1303,24 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            int id = 2;
-            var division = new Division { Id = 2 };
-            var result = await testController.Edit(id, division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Edit(id, divisionViewModel);
 
             // Assert
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeDivisionRepository.Update(division)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
             testController.ModelState[string.Empty].Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. An unexpected error occurred.");
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            ((ViewResult)result).Model.ShouldBe(divisionViewModel);
         }
 
         [Fact]
@@ -1196,26 +1329,30 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
+            testController.ModelState.AddModelError("Name", "Please enter a long name.");
+
+            // Act
             int id = 1;
             var division = new Division
             {
                 Id = 1
             };
-            testController.ModelState.AddModelError("Name", "Please enter a name.");
-
-            // Act
-            var result = await testController.Edit(id, division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            var result = await testController.Edit(id, divisionViewModel);
 
             // Assert
-            A.CallTo(() => fakeDivisionRepository.Update(A<Division>.Ignored)).MustNotHaveHappened();
+            A.CallTo(() => fakeDivisionViewModelMapper.MapViewModelToDivision(divisionViewModel))
+                .MustNotHaveHappened();
+            A.CallTo(() => fakeDivisionRepository.Update(division)).MustNotHaveHappened();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustNotHaveHappened();
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            ((ViewResult)result).Model.ShouldBe(divisionViewModel);
         }
 
         [Fact]
@@ -1225,23 +1362,32 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
 
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            var divisionViewModel = new DivisionViewModel { };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapDivisionToViewModel(A<Division>.Ignored))
+                .Returns(divisionViewModel);
+
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
-            Division? division = new Division();
+            Division? division = new Division { };
             A.CallTo(() => fakeDivisionRepository.GetDivisionAsync(An<int>.Ignored)).Returns(division);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
-
-            int? id = 0;
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
+            int? id = 0;
             var result = await testController.Delete(id);
 
             // Assert
             A.CallTo(() => fakeDivisionRepository.GetDivisionAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeDivisionViewModelMapper.MapDivisionToViewModel(division))
+                .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(division);
+            var resultModel = ((ViewResult)result).Model;
+            resultModel.ShouldNotBeNull();
+            resultModel.ShouldBeOfType<DivisionViewModel>();
+            resultModel.ShouldBe(divisionViewModel);
         }
 
         [Fact]
@@ -1250,15 +1396,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
-
-            int? id = null;
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
-            var result = await testController.Delete(id);
+            var result = await testController.Delete(null);
 
             // Assert
             result.ShouldBeOfType<NotFoundResult>();
@@ -1270,6 +1415,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
 
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             Division? division = null;
@@ -1277,11 +1423,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
-
-            int? id = 0;
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
+            int? id = 0;
             var result = await testController.Delete(id);
 
             // Assert
@@ -1295,14 +1440,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+            var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             var testController = new DivisionController(fakeDivisionIndexViewModel, fakeDivisionDetailsViewModel,
-                fakeDivisionRepository, fakeSharedRepository);
-
-            int id = 1;
+                fakeDivisionViewModelMapper, fakeDivisionRepository, fakeSharedRepository);
 
             // Act
+            int id = 1;
             var result = await testController.DeleteConfirmed(id);
 
             // Assert

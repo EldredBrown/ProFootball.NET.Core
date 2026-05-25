@@ -58,7 +58,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
                 .Returns<League>(null);
 
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear)).Returns<Season>(null);
 
             var testMapper = new ConferenceViewModelMapper(fakeLeagueRepository, fakeSeasonRepository);
 
@@ -69,8 +68,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
             A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(conferenceViewModel.LeagueName))
                 .MustHaveHappenedOnceExactly();
             conferenceViewModel.Conference.LeagueId.ShouldBe(-1);
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear))
-                .MustHaveHappenedOnceExactly();
             result.ShouldNotBeNull();
             result.ShouldBeOfType<Conference>();
             result.ShouldBe(conferenceViewModel.Conference);
@@ -100,7 +97,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
                 .Returns(parentLeague);
 
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear)).Returns<Season>(null);
 
             var testMapper = new ConferenceViewModelMapper(fakeLeagueRepository, fakeSeasonRepository);
 
@@ -111,8 +107,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
             A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(conferenceViewModel.LeagueName))
                 .MustHaveHappenedOnceExactly();
             conferenceViewModel.Conference.LeagueId.ShouldBe(-1);
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear))
-                .MustHaveHappenedOnceExactly();
             result.ShouldNotBeNull();
             result.ShouldBeOfType<Conference>();
             result.ShouldBe(conferenceViewModel.Conference);
@@ -142,7 +136,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
                 .Returns(parentLeague);
 
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear)).Returns<Season>(null);
 
             var testMapper = new ConferenceViewModelMapper(fakeLeagueRepository, fakeSeasonRepository);
 
@@ -153,8 +146,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
             A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(conferenceViewModel.LeagueName))
                 .MustHaveHappenedOnceExactly();
             conferenceViewModel.Conference.LeagueId.ShouldBe(parentLeague.Id);
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear))
-                .MustHaveHappenedOnceExactly();
             result.ShouldNotBeNull();
             result.ShouldBeOfType<Conference>();
             result.ShouldBe(conferenceViewModel.Conference);
@@ -175,13 +166,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
             };
 
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            var parentLeague = new League
-            {
-                Id = 1,
-                ShortName = "PL"
-            };
-            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(conferenceViewModel.LeagueName))
-                .Returns(parentLeague);
 
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear)).Returns<Season>(null);
@@ -215,13 +199,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
             };
 
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            var parentLeague = new League
-            {
-                Id = 1,
-                ShortName = "PL"
-            };
-            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(conferenceViewModel.LeagueName))
-                .Returns(parentLeague);
 
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var firstSeason = new Season { Id = 1 };

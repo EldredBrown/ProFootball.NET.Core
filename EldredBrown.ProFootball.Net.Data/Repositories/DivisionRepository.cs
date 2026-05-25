@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -31,7 +30,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>An <see cref="IEnumerable{Division}"/> of all fetched entities.</returns>
         public IEnumerable<Division> GetDivisions()
         {
-            return _dbContext.Divisions;
+            return _dbContext.Divisions
+                .Include(s => s.LeagueIdNavigation)
+                .Include(s => s.ConferenceIdNavigation)
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation)
+                .ToList();
         }
 
         /// <summary>
@@ -40,7 +44,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>An <see cref="IEnumerable{Division}"/> of all fetched entities.</returns>
         public async Task<IEnumerable<Division>> GetDivisionsAsync()
         {
-            return await _dbContext.Divisions.ToListAsync();
+            return await _dbContext.Divisions
+                .Include(s => s.LeagueIdNavigation)
+                .Include(s => s.ConferenceIdNavigation)
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation)
+                .ToListAsync();
         }
 
         /// <summary>
@@ -55,7 +64,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            return _dbContext.Divisions.Find(id);
+            return _dbContext.Divisions
+                .Include(s => s.LeagueIdNavigation)
+                .Include(s => s.ConferenceIdNavigation)
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation)
+                .FirstOrDefault(c => c.Id == id);
         }
 
         /// <summary>
@@ -70,49 +84,53 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            return await _dbContext.Divisions.FindAsync(id);
+            return await _dbContext.Divisions
+                .Include(s => s.LeagueIdNavigation)
+                .Include(s => s.ConferenceIdNavigation)
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation)
+                .FirstOrDefaultAsync(c => c.Id == id);
         }
 
         /// <summary>
         /// Adds a <see cref="Division"/> entity to the data store.
         /// </summary>
-        /// <param name="Division">The <see cref="Division"/> entity to add.</param>
+        /// <param name="division">The <see cref="Division"/> entity to add.</param>
         /// <returns>The added <see cref="Division"/> entity.</returns>
-        public Division Add(Division Division)
+        public Division Add(Division division)
         {
-            _dbContext.Add(Division);
+            _dbContext.Add(division);
 
-            return Division;
+            return division;
         }
 
         /// <summary>
         /// Adds a <see cref="Division"/> entity to the data store.
         /// </summary>
-        /// <param name="Division">The <see cref="Division"/> entity to add.</param>
+        /// <param name="division">The <see cref="Division"/> entity to add.</param>
         /// <returns>The added <see cref="Division"/> entity.</returns>
-        public async Task<Division> AddAsync(Division Division)
+        public async Task<Division> AddAsync(Division division)
         {
-            await _dbContext.AddAsync(Division);
+            await _dbContext.AddAsync(division);
 
-            return Division;
+            return division;
         }
 
         /// <summary>
         /// Updates a <see cref="Division"/> entity in the data store.
         /// </summary>
-        /// <param name="Division">The <see cref="Division"/> to update.</param>
+        /// <param name="division">The <see cref="Division"/> to update.</param>
         /// <returns>The updated <see cref="Division"/> entity.</returns>
-        public Division Update(Division Division)
+        public Division Update(Division division)
         {
             if (_dbContext.Divisions is null)
             {
-                return Division;
+                return division;
             }
 
-            var entity = _dbContext.Divisions.Attach(Division);
-            entity.State = EntityState.Modified;
+            _dbContext.Divisions.Update(division);
 
-            return Division;
+            return division;
         }
 
         /// <summary>
@@ -127,15 +145,15 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            var Division = GetDivision(id);
-            if (Division is null)
+            var division = GetDivision(id);
+            if (division is null)
             {
                 return null;
             }
 
-            _dbContext.Divisions.Remove(Division);
+            _dbContext.Divisions.Remove(division);
 
-            return Division;
+            return division;
         }
 
         /// <summary>
@@ -150,15 +168,15 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            var Division = await GetDivisionAsync(id);
-            if (Division is null)
+            var division = await GetDivisionAsync(id);
+            if (division is null)
             {
                 return null;
             }
 
-            _dbContext.Divisions.Remove(Division);
+            _dbContext.Divisions.Remove(division);
 
-            return Division;
+            return division;
         }
 
         /// <summary>
@@ -170,7 +188,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public bool DivisionExists(int id)
         {
-            return _dbContext.Divisions.Any(d => d.Id == id);
+            return _dbContext.Divisions.Any(c => c.Id == id);
         }
 
         /// <summary>
@@ -182,7 +200,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public async Task<bool> DivisionExistsAsync(int id)
         {
-            return await _dbContext.Divisions.AnyAsync(d => d.Id == id);
+            return await _dbContext.Divisions.AnyAsync(c => c.Id == id);
         }
     }
 }

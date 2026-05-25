@@ -89,6 +89,42 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         }
 
         /// <summary>
+        /// Gets a single <see cref="Conference"/> entity from the data store by Id.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Conference"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="Conference"/> entity.</returns>
+        public Conference? GetConferenceByShortName(string shortName)
+        {
+            if (_dbContext.Conferences is null)
+            {
+                return null;
+            }
+
+            return _dbContext.Conferences
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation)
+                .FirstOrDefault(c => c.ShortName == shortName);
+        }
+
+        /// <summary>
+        /// Gets a single <see cref="Conference"/> entity from the data store by Id.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Conference"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="Conference"/> entity.</returns>
+        public async Task<Conference?> GetConferenceByShortNameAsync(string shortName)
+        {
+            if (_dbContext.Conferences is null)
+            {
+                return null;
+            }
+
+            return await _dbContext.Conferences
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation)
+                .FirstOrDefaultAsync(c => c.ShortName == shortName);
+        }
+
+        /// <summary>
         /// Adds a <see cref="Conference"/> entity to the data store.
         /// </summary>
         /// <param name="conference">The <see cref="Conference"/> entity to add.</param>

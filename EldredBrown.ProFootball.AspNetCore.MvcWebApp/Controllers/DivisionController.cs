@@ -19,6 +19,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     {
         private readonly IDivisionIndexViewModel _divisionIndexViewModel;
         private readonly IDivisionDetailsViewModel _divisionDetailsViewModel;
+        private readonly IDivisionViewModelMapper _divisionViewModelMapper;
         private readonly IDivisionRepository _divisionRepository;
         private readonly ISharedRepository _sharedRepository;
 
@@ -31,6 +32,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <param name="divisionDetailsViewModel">
         /// The <see cref="IDivisionsDetailsViewModel"/> that will provide ViewModel data to the Details view.
         /// </param>
+        /// <param name="divisionViewModelMapper">
+        /// The <see cref="IDivisionViewModelMapper"/> by which division data will be mapped to view models.
+        /// </param>
         /// <param name="divisionRepository">
         /// The <see cref="IDivisionRepository"/> by which division data will be accessed.
         /// </param>
@@ -40,12 +44,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         public DivisionController(
             IDivisionIndexViewModel divisionIndexViewModel,
             IDivisionDetailsViewModel divisionDetailsViewModel,
+            IDivisionViewModelMapper divisionViewModelMapper,
             IDivisionRepository divisionRepository,
             ISharedRepository sharedRepository
         )
         {
             _divisionIndexViewModel = divisionIndexViewModel;
             _divisionDetailsViewModel = divisionDetailsViewModel;
+            _divisionViewModelMapper = divisionViewModelMapper;
             _divisionRepository = divisionRepository;
             _sharedRepository = sharedRepository;
         }
@@ -58,7 +64,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            _divisionIndexViewModel.Divisions = await _divisionRepository.GetDivisionsAsync();
+            var divisions = await _divisionRepository.GetDivisionsAsync();
+            _divisionIndexViewModel.Divisions = divisions
+                .Select(d => _divisionViewModelMapper.MapDivisionToViewModel(d))
+                .OrderBy(d => d.Name);
 
             return View(_divisionIndexViewModel);
         }
@@ -83,7 +92,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            _divisionDetailsViewModel.Division = division;
+            _divisionDetailsViewModel.Division = _divisionViewModelMapper.MapDivisionToViewModel(division);
 
             return View(_divisionDetailsViewModel);
         }
@@ -105,14 +114,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Processes the data posted back from the division create form.
         /// </summary>
-        /// <param name="division">A <see cref="Division"/> object with the data provided for the new division.</param>
+        /// <param name="divisionViewModel">A <see cref="Division"/> object with the data provided for the new division.</param>
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,LeagueName,ConferenceName,FirstSeasonYear,LastSeasonYear")] Division division)
+        public async Task<IActionResult> Create([Bind("Name,LeagueName,ConferenceName,FirstSeasonYear,LastSeasonYear")] DivisionViewModel divisionViewModel)
         {
             if (ModelState.IsValid)
             {
+                var division = await _divisionViewModelMapper.MapViewModelToDivision(divisionViewModel);
                 await _divisionRepository.AddAsync(division);
 
                 try
@@ -122,13 +132,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 catch (DbUpdateException ex)
                 {
                     await HandleDbUpdateExceptionOnCreate(ex, division);
-                    return View(division);
+                    return View(divisionViewModel);
                 }
 
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(division);
+            return View(divisionViewModel);
         }
 
         // GET: Divisions/Edit/5
@@ -150,7 +160,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            return View(division);
+            var divisionViewModel = new DivisionViewModel { Division = division };
+            return View(divisionViewModel);
         }
 
         // POST: Divisions/Edit/5
@@ -159,19 +170,20 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Processes the data posted back from the division edit form.
         /// </summary>
-        /// <param name="division">A <see cref="Division"/> object with the data provided for the division game.</param>
+        /// <param name="divisionViewModel">A <see cref="Division"/> object with the data provided for the division game.</param>
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,LeagueName,ConferenceName,FirstSeasonYear,LastSeasonYear")] Division division)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,LeagueName,ConferenceName,FirstSeasonYear,LastSeasonYear")] DivisionViewModel divisionViewModel)
         {
-            if (id != division.Id)
+            if (id != divisionViewModel.Id)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
+                var division = await _divisionViewModelMapper.MapViewModelToDivision(divisionViewModel);
                 _divisionRepository.Update(division);
 
                 try
@@ -192,13 +204,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 catch (DbUpdateException ex)
                 {
                     await HandleDbUpdateExceptionOnEdit(ex, division);
-                    return View(division);
+                    return View(divisionViewModel);
                 }
 
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(division);
+            return View(divisionViewModel);
         }
 
         // GET: Divisions/Delete/5
@@ -220,7 +232,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            return View(division);
+            var divisionViewModel = _divisionViewModelMapper.MapDivisionToViewModel(division);
+            return View(divisionViewModel);
         }
 
         // POST: Divisions/Delete/5
@@ -265,7 +278,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private bool PrimaryKeyViolationExists(IEnumerable<Division> divisions, Division division)
         {
-            return divisions.Any(l => l.Id == division.Id);
+            return divisions.Any(d => d.Id == division.Id);
         }
 
         private bool UniqueKeyViolationExistsOnCreate(IEnumerable<Division> divisions, Division division)
@@ -295,7 +308,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private bool UniqueKeyViolationExistsOnEdit(IEnumerable<Division> divisions, Division division)
         {
-            return divisions.Count(l => l.Name == division.Name) > 1;
+            return divisions.Count(d => d.Name == division.Name) > 1;
         }
     }
 }

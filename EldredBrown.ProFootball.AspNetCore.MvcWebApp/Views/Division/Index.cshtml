@@ -32,29 +32,30 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var division in Model.Divisions) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => division.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => division.LeagueName)
-            </td>
+        @foreach (var division in Model.Divisions)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => division.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => division.LeagueName)
+                </td>
                 <td>
                     @Html.DisplayFor(modelItem => division.ConferenceName)
                 </td>
                 <td>
-                @Html.DisplayFor(modelItem => division.FirstSeasonYear)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => division.LastSeasonYear)
-            </td>
-            <td>
-                <a class="btn btn-primary btn-sm" asp-action="Details" asp-route-id="@division.Id">Details</a>
-                <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@division.Id">Edit</a>
-                <a class="btn btn-primary btn-sm" asp-action="Delete" asp-route-id="@division.Id">Delete</a>
-            </td>
-        </tr>
-}
+                    @Html.DisplayFor(modelItem => division.FirstSeasonYear)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => division.LastSeasonYear)
+                </td>
+                <td>
+                    <a class="btn btn-primary btn-sm" asp-action="Details" asp-route-id="@division.Id">Details</a>
+                    <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@division.Id">Edit</a>
+                    <a class="btn btn-primary btn-sm" asp-action="Delete" asp-route-id="@division.Id">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

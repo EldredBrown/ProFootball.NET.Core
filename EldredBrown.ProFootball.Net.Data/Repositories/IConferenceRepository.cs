@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+
 using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Data.Repositories
@@ -34,6 +35,20 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <param name="id">The Id of the <see cref="Conference"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Conference"/> entity.</returns>
         Task<Conference?> GetConferenceAsync(int id);
+
+        /// <summary>
+        /// Gets a single <see cref="Conference"/> entity from the data store by Id.
+        /// </summary>
+        /// <param name="shortName">The short name of the <see cref="Conference"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="Conference"/> entity.</returns>
+        Conference? GetConferenceByShortName(string shortName);
+
+        /// <summary>
+        /// Gets a single <see cref="Conference"/> entity from the data store by Id.
+        /// </summary>
+        /// <param name="shortName">The short name of the <see cref="Conference"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="Conference"/> entity.</returns>
+        Task<Conference?> GetConferenceByShortNameAsync(string shortName);
 
         /// <summary>
         /// Adds a <see cref="Conference"/> entity to the data store.

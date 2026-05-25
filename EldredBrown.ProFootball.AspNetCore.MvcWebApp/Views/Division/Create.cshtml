@@ -1,5 +1,5 @@
-﻿@using EldredBrown.ProFootball.Net.Data.Models
-@model Division
+﻿@using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Division
+@model DivisionViewModel
 
 @{
     ViewData["Title"] = "Create Division";
@@ -50,5 +50,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

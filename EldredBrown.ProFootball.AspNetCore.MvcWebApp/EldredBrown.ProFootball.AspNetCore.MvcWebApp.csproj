@@ -5,13 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ViewModels\Division\**" />
     <Compile Remove="ViewModels\Game\**" />
     <Compile Remove="ViewModels\LeagueSeason\**" />
     <Compile Remove="ViewModels\SeasonStandings\**" />
     <Compile Remove="ViewModels\TeamSeason\**" />
     <Compile Remove="ViewModels\Team\**" />
-    <Compile Remove="Views\Division\**" />
     <Compile Remove="Views\GamePredictor\**" />
     <Compile Remove="Views\Game\**" />
     <Compile Remove="Views\LeagueSeason\**" />
@@ -19,13 +17,11 @@
     <Compile Remove="Views\TeamSeasonsAdmin\**" />
     <Compile Remove="Views\TeamSeason\**" />
     <Compile Remove="Views\Team\**" />
-    <Content Remove="ViewModels\Division\**" />
     <Content Remove="ViewModels\Game\**" />
     <Content Remove="ViewModels\LeagueSeason\**" />
     <Content Remove="ViewModels\SeasonStandings\**" />
     <Content Remove="ViewModels\TeamSeason\**" />
     <Content Remove="ViewModels\Team\**" />
-    <Content Remove="Views\Division\**" />
     <Content Remove="Views\GamePredictor\**" />
     <Content Remove="Views\Game\**" />
     <Content Remove="Views\LeagueSeason\**" />
@@ -33,13 +29,11 @@
     <Content Remove="Views\TeamSeasonsAdmin\**" />
     <Content Remove="Views\TeamSeason\**" />
     <Content Remove="Views\Team\**" />
-    <EmbeddedResource Remove="ViewModels\Division\**" />
     <EmbeddedResource Remove="ViewModels\Game\**" />
     <EmbeddedResource Remove="ViewModels\LeagueSeason\**" />
     <EmbeddedResource Remove="ViewModels\SeasonStandings\**" />
     <EmbeddedResource Remove="ViewModels\TeamSeason\**" />
     <EmbeddedResource Remove="ViewModels\Team\**" />
-    <EmbeddedResource Remove="Views\Division\**" />
     <EmbeddedResource Remove="Views\GamePredictor\**" />
     <EmbeddedResource Remove="Views\Game\**" />
     <EmbeddedResource Remove="Views\LeagueSeason\**" />
@@ -47,13 +41,11 @@
     <EmbeddedResource Remove="Views\TeamSeasonsAdmin\**" />
     <EmbeddedResource Remove="Views\TeamSeason\**" />
     <EmbeddedResource Remove="Views\Team\**" />
-    <None Remove="ViewModels\Division\**" />
     <None Remove="ViewModels\Game\**" />
     <None Remove="ViewModels\LeagueSeason\**" />
     <None Remove="ViewModels\SeasonStandings\**" />
     <None Remove="ViewModels\TeamSeason\**" />
     <None Remove="ViewModels\Team\**" />
-    <None Remove="Views\Division\**" />
     <None Remove="Views\GamePredictor\**" />
     <None Remove="Views\Game\**" />
     <None Remove="Views\LeagueSeason\**" />
@@ -64,7 +56,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Controllers\DivisionController.cs" />
     <Compile Remove="Controllers\GameController.cs" />
     <Compile Remove="Controllers\GamePredictorController.cs" />
     <Compile Remove="Controllers\LeagueSeasonController.cs" />

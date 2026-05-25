@@ -8,6 +8,6 @@
         /// <summary>
         /// Gets or sets the division of the current <see cref="DivisionDetailsViewModel"/> object.
         /// </summary>
-        public EldredBrown.ProFootball.Net.Data.Models.Division Division { get; set; }
+        public DivisionViewModel Division { get; set; }
     }
 }

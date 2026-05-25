@@ -11,7 +11,6 @@
     <Compile Remove="ModelTests\GameTest.cs" />
     <Compile Remove="ModelTests\LeagueSeasonTest.cs" />
     <Compile Remove="ModelTests\TeamSeasonTest.cs" />
-    <Compile Remove="RepositoryTests\DivisionRepositoryTest.cs" />
     <Compile Remove="RepositoryTests\GameRepositoryTest.cs" />
     <Compile Remove="RepositoryTests\LeagueSeasonRepositoryTest.cs" />
     <Compile Remove="RepositoryTests\LeagueSeasonTotalsRepositoryTest.cs" />

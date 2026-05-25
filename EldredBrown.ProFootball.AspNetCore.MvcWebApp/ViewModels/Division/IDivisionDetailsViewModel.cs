@@ -2,6 +2,6 @@
 {
     public interface IDivisionDetailsViewModel
     {
-        EldredBrown.ProFootball.Net.Data.Models.Division Division { get; set; }
+        DivisionViewModel Division { get; set; }
     }
 }

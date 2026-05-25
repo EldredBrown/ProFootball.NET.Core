@@ -22,7 +22,7 @@ public partial class Division
     public virtual League LeagueIdNavigation { get; set; } = null!;
 
     [ValidateNever]
-    public virtual Conference? ConferenceIdNavigation { get; set; }
+    public virtual Conference? ConferenceIdNavigation { get; set; } = null!;
 
     [ValidateNever]
     public virtual Season FirstSeasonIdNavigation { get; set; } = null!;
