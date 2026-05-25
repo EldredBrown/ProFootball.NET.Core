@@ -35,12 +35,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conference
             conference.LeagueId = parentLeague?.ShortName is not null ? parentLeague.Id : -1;
 
             var firstSeason = await _seasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear);
-            conference.FirstSeasonId = firstSeason.Id;
+            conference.FirstSeasonId = firstSeason is not null ? firstSeason.Id : -1;
 
             if (conferenceViewModel.LastSeasonYear is not null)
             {
                 var lastSeason = await _seasonRepository.GetSeasonAsync(conferenceViewModel.LastSeasonYear.Value);
-                conference.LastSeasonId = lastSeason.Id;
+                conference.LastSeasonId = lastSeason is not null ? lastSeason.Id : -1;
             }
 
             return conference;

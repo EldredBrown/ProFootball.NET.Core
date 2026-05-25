@@ -23,9 +23,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var conferences = new List<Conference>
             {
-                new Conference { Id = 1, ShortName = "C1", LongName = "Conference 1", FirstSeasonId = 1920 },
-                new Conference { Id = 2, ShortName = "C2", LongName = "Conference 2", FirstSeasonId = 1921 },
-                new Conference { Id = 3, ShortName = "C3", LongName = "Conference 3", FirstSeasonId = 1922 },
+                new Conference { Id = 1, ShortName = "C1", LongName = "Conference 1" },
+                new Conference { Id = 2, ShortName = "C2", LongName = "Conference 2" },
+                new Conference { Id = 3, ShortName = "C3", LongName = "Conference 3" },
             };
 
             var fakeDbSet = conferences.BuildMockDbSet();
@@ -53,9 +53,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var conferences = new List<Conference>
             {
-                new Conference { Id = 1, ShortName = "C1", LongName = "Conference 1", FirstSeasonId = 1920 },
-                new Conference { Id = 2, ShortName = "C2", LongName = "Conference 2", FirstSeasonId = 1921 },
-                new Conference { Id = 3, ShortName = "C3", LongName = "Conference 3", FirstSeasonId = 1922 },
+                new Conference { Id = 1, ShortName = "C1", LongName = "Conference 1" },
+                new Conference { Id = 2, ShortName = "C2", LongName = "Conference 2" },
+                new Conference { Id = 3, ShortName = "C3", LongName = "Conference 3" },
             };
 
             var fakeDbSet = conferences.BuildMockDbSet();
@@ -74,8 +74,19 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GetConference_WhenConferencesIsNotNull_ShouldSucceed()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Conferences = A.Fake<DbSet<Conference>>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            var firstSeason = new Season { Id = 1920 };
+            var lastSeason = new Season { Id = 1921 };
+            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
+            fakeDbContext.SaveChanges();
+
+            var parentLeague = new League { Id = 1, ShortName = "L1", LongName = "League 1" };
+            fakeDbContext.Leagues.Add(parentLeague);
+            fakeDbContext.SaveChanges();
 
             int id = 1;
             var conference = new Conference
@@ -83,14 +94,16 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 Id = id,
                 ShortName = "C1",
                 LongName = "Conference 1",
+                LeagueId = 1,
                 FirstSeasonId = 1920
             };
+            fakeDbContext.Conferences.Add(conference);
+            fakeDbContext.SaveChanges();
 
-            A.CallTo(() => fakeDbContext.Conferences.Find(An<int>.Ignored)).Returns(conference);
-            var repository = new ConferenceRepository(fakeDbContext);
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
-            var result = repository.GetConference(id);
+            var result = testRepository.GetConference(id);
 
             // Assert
             result.ShouldNotBeNull();
@@ -101,23 +114,38 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GetConference_WhenConferencesIsNull_ShouldReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
             fakeDbContext.Conferences = null;
-            var repository = new ConferenceRepository(fakeDbContext);
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
-            var result = repository.GetConference(1);
+            var result = testRepository.GetConference(1);
 
             // Assert
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void GetConferenceAsync_WhenConferencesIsNotNull_ShouldSucceed()
+        public async Task GetConferenceAsync_WhenConferencesIsNotNull_ShouldSucceed()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Conferences = A.Fake<DbSet<Conference>>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            var firstSeason = new Season { Id = 1920 };
+            var lastSeason = new Season { Id = 1921 };
+            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
+            fakeDbContext.SaveChanges();
+
+            var parentLeague = new League { Id = 1, ShortName = "L1", LongName = "League 1" };
+            fakeDbContext.Leagues.Add(parentLeague);
+            fakeDbContext.SaveChanges();
 
             int id = 1;
             var conference = new Conference
@@ -125,14 +153,16 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 Id = id,
                 ShortName = "C1",
                 LongName = "Conference 1",
+                LeagueId = 1,
                 FirstSeasonId = 1920
             };
+            fakeDbContext.Conferences.Add(conference);
+            fakeDbContext.SaveChanges();
 
-            _ = A.CallTo(() => fakeDbContext.Conferences.FindAsync(An<int>.Ignored)).Returns(new ValueTask<Conference?>(conference));
-            var repository = new ConferenceRepository(fakeDbContext);
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
-            var result = repository.GetConferenceAsync(id).Result;
+            var result = await testRepository.GetConferenceAsync(id);
 
             // Assert
             result.ShouldNotBeNull();
@@ -140,15 +170,19 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void GetConferenceAsync_WhenConferencesIsNull_ShouldReturnNull()
+        public async Task GetConferenceAsync_WhenConferencesIsNull_ShouldReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
             fakeDbContext.Conferences = null;
-            var repository = new ConferenceRepository(fakeDbContext);
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
-            var result = repository.GetConferenceAsync(1).Result;
+            var result = await testRepository.GetConferenceAsync(1);
 
             // Assert
             result.ShouldBeNull();
@@ -162,6 +196,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             fakeDbContext.Conferences = A.Fake<DbSet<Conference>>();
             var repository = new ConferenceRepository(fakeDbContext);
 
+            // Act
             var conference = new Conference
             {
                 Id = 1,
@@ -169,8 +204,6 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 LongName = "Conference 1",
                 FirstSeasonId = 1920
             };
-
-            // Act
             var result = repository.Add(conference);
 
             // Assert
@@ -186,6 +219,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             fakeDbContext.Conferences = A.Fake<DbSet<Conference>>();
             var repository = new ConferenceRepository(fakeDbContext);
 
+            // Act
             var conference = new Conference
             {
                 Id = 1,
@@ -193,8 +227,6 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 LongName = "Conference 1",
                 FirstSeasonId = 1920
             };
-
-            // Act
             var result = repository.AddAsync(conference).Result;
 
             // Assert
@@ -209,7 +241,6 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var options = new DbContextOptionsBuilder<ProFootballDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
-
             using var fakeDbContext = new ProFootballDbContext(options);
 
             var conference = new Conference
@@ -217,22 +248,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 Id = 1,
                 ShortName = "C1",
                 LongName = "Conference 1",
-                LeagueId = 1,
                 FirstSeasonId = 1920
             };
-
             fakeDbContext.Conferences.Add(conference);
-            await fakeDbContext.SaveChangesAsync();
+            fakeDbContext.SaveChanges();
 
-            var repository = new ConferenceRepository(fakeDbContext);
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
             conference.LastSeasonId = 2026;
-            repository.Update(conference);
-            await fakeDbContext.SaveChangesAsync();
+            testRepository.Update(conference);
+            fakeDbContext.SaveChanges();
 
             // Assert
-            var updated = await fakeDbContext.Conferences.FirstOrDefaultAsync(s => s.Id == 1);
+            var updated = fakeDbContext.Conferences.FirstOrDefault(s => s.Id == 1);
             updated.ShouldNotBeNull();
         }
 
@@ -240,25 +269,42 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Delete_WhenConferencesIsNotNullAndSelectedConferenceIsNotNull_ShouldSucceed()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Conferences = A.Fake<DbSet<Conference>>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
 
+            var firstSeason = new Season { Id = 1920 };
+            var lastSeason = new Season { Id = 1921 };
+            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
+            fakeDbContext.SaveChanges();
+
+            var parentLeague = new League { Id = 1, ShortName = "L1", LongName = "League 1" };
+            fakeDbContext.Leagues.Add(parentLeague);
+            fakeDbContext.SaveChanges();
+
+            int id = 1;
             var conference = new Conference
             {
-                Id = 1,
+                Id = id,
                 ShortName = "C1",
                 LongName = "Conference 1",
+                LeagueId = 1,
                 FirstSeasonId = 1920
             };
+            fakeDbContext.Conferences.Add(conference);
+            fakeDbContext.SaveChanges();
 
-            A.CallTo(() => fakeDbContext.Conferences.Find(An<int>.Ignored)).Returns(conference);
-            var repository = new ConferenceRepository(fakeDbContext);
+            var conferenceCountBeforeDelete = fakeDbContext.Conferences.Count();
+
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
-            var result = repository.Delete(conference.Id);
+            var result = testRepository.Delete(conference.Id);
+            fakeDbContext.SaveChanges();
 
             // Assert
-            A.CallTo(() => fakeDbContext.Conferences.Remove(conference)).MustHaveHappenedOnceExactly();
+            fakeDbContext.Conferences.Count().ShouldBe(conferenceCountBeforeDelete - 1);
             result.ShouldBe(conference);
         }
 
@@ -266,10 +312,15 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Delete_WhenConferencesIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
             fakeDbContext.Conferences = null;
-            var repository = new ConferenceRepository(fakeDbContext);
 
+            var testRepository = new ConferenceRepository(fakeDbContext);
+
+            // Act
             var conference = new Conference
             {
                 Id = 1,
@@ -277,9 +328,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 LongName = "Conference 1",
                 FirstSeasonId = 1920
             };
-
-            // Act
-            var result = repository.Delete(conference.Id);
+            var result = testRepository.Delete(conference.Id);
 
             // Assert
             result.ShouldBeNull();
@@ -288,62 +337,97 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void Delete_WhenConferencesIsNotNullAndSelectedConferenceIsNull_ShouldFailAndReturnNull()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Conferences = A.Fake<DbSet<Conference>>();
-            A.CallTo(() => fakeDbContext.Conferences.Find(An<int>.Ignored)).Returns(null);
-            var repository = new ConferenceRepository(fakeDbContext);
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
 
+            var firstSeason = new Season { Id = 1920 };
+            var lastSeason = new Season { Id = 1921 };
+
+            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
+            fakeDbContext.SaveChanges();
+
+            int id = 1;
             var conference = new Conference
             {
-                Id = 1,
+                Id = id,
                 ShortName = "C1",
                 LongName = "Conference 1",
                 FirstSeasonId = 1920
             };
+            fakeDbContext.Conferences.Add(conference);
+            fakeDbContext.SaveChanges();
+
+            var conferenceCountBeforeDelete = fakeDbContext.Conferences.Count();
+
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
-            var result = repository.Delete(conference.Id);
+            var result = testRepository.Delete(2);
+            fakeDbContext.SaveChanges();
 
             // Assert
-            A.CallTo(() => fakeDbContext.Conferences.Remove(conference)).MustNotHaveHappened();
+            fakeDbContext.Conferences.Count().ShouldBe(conferenceCountBeforeDelete);
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void DeleteAsync_WhenConferencesIsNotNullAndSelectedConferenceIsNotNull_ShouldSucceed()
+        public async Task DeleteAsync_WhenConferencesIsNotNullAndSelectedConferenceIsNotNull_ShouldSucceed()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Conferences = A.Fake<DbSet<Conference>>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
 
+            var firstSeason = new Season { Id = 1920 };
+            var lastSeason = new Season { Id = 1921 };
+            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
+            fakeDbContext.SaveChanges();
+
+            var parentLeague = new League { Id = 1, ShortName = "L1", LongName = "League 1" };
+            fakeDbContext.Leagues.Add(parentLeague);
+            fakeDbContext.SaveChanges();
+
+            int id = 1;
             var conference = new Conference
             {
-                Id = 1,
+                Id = id,
                 ShortName = "C1",
                 LongName = "Conference 1",
+                LeagueId = 1,
                 FirstSeasonId = 1920
             };
+            fakeDbContext.Conferences.Add(conference);
+            fakeDbContext.SaveChanges();
 
-            _ = A.CallTo(() => fakeDbContext.Conferences.FindAsync(An<int>.Ignored)).Returns(new ValueTask<Conference?>(conference));
-            var repository = new ConferenceRepository(fakeDbContext);
+            var conferenceCountBeforeDelete = fakeDbContext.Conferences.Count();
+
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
-            var result = repository.DeleteAsync(conference.Id).Result;
+            var result = await testRepository.DeleteAsync(conference.Id);
+            await fakeDbContext.SaveChangesAsync();
 
             // Assert
-            A.CallTo(() => fakeDbContext.Conferences.Remove(conference)).MustHaveHappenedOnceExactly();
+            fakeDbContext.Conferences.Count().ShouldBe(conferenceCountBeforeDelete - 1);
             result.ShouldBe(conference);
         }
 
         [Fact]
-        public void DeleteAsync_WhenConferencesIsNull_ShouldFailAndReturnNull()
+        public async Task DeleteAsync_WhenConferencesIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
             fakeDbContext.Conferences = null;
-            var repository = new ConferenceRepository(fakeDbContext);
 
+            var testRepository = new ConferenceRepository(fakeDbContext);
+
+            // Act
             var conference = new Conference
             {
                 Id = 1,
@@ -351,36 +435,47 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 LongName = "Conference 1",
                 FirstSeasonId = 1920
             };
-
-            // Act
-            var result = repository.DeleteAsync(conference.Id).Result;
+            var result = await testRepository.DeleteAsync(conference.Id);
 
             // Assert
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void DeleteAsync_WhenConferencesIsNotNullAndSelectedConferenceIsNull_ShouldFailAndReturnNull()
+        public async Task DeleteAsync_WhenConferencesIsNotNullAndSelectedConferenceIsNull_ShouldFailAndReturnNull()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Conferences = A.Fake<DbSet<Conference>>();
-            _ = A.CallTo(() => fakeDbContext.Conferences.FindAsync(An<int>.Ignored)).Returns(null);
-            var repository = new ConferenceRepository(fakeDbContext);
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
 
+            var firstSeason = new Season { Id = 1920 };
+            var lastSeason = new Season { Id = 1921 };
+
+            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
+            fakeDbContext.SaveChanges();
+
+            int id = 1;
             var conference = new Conference
             {
-                Id = 1,
+                Id = id,
                 ShortName = "C1",
                 LongName = "Conference 1",
                 FirstSeasonId = 1920
             };
+            fakeDbContext.Conferences.Add(conference);
+            fakeDbContext.SaveChanges();
+
+            var conferenceCountBeforeDelete = fakeDbContext.Conferences.Count();
+
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
-            var result = repository.DeleteAsync(conference.Id).Result;
+            var result = await testRepository.DeleteAsync(2);
+            await fakeDbContext.SaveChangesAsync();
 
             // Assert
-            A.CallTo(() => fakeDbContext.Conferences.Remove(conference)).MustNotHaveHappened();
+            fakeDbContext.Conferences.Count().ShouldBe(conferenceCountBeforeDelete);
             result.ShouldBeNull();
         }
 
@@ -398,13 +493,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 LongName = "Conference 1",
                 FirstSeasonId = 1920
             };
-
             var fakeDbSet = new List<Conference> { conference }.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.Conferences).Returns(fakeDbSet);
-            var repository = new ConferenceRepository(fakeDbContext);
+
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
-            var result = repository.ConferenceExists(conference.Id);
+            var result = testRepository.ConferenceExists(conference.Id);
 
             // Assert
             result.ShouldBeTrue();
@@ -424,20 +519,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 LongName = "Conference 1",
                 FirstSeasonId = 1920
             };
-
             var fakeDbSet = new List<Conference> { conference }.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.Conferences).Returns(fakeDbSet);
-            var repository = new ConferenceRepository(fakeDbContext);
+
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
-            var result = repository.ConferenceExists(2);
+            var result = testRepository.ConferenceExists(2);
 
             // Assert
             result.ShouldBeFalse();
         }
 
         [Fact]
-        public void ConferenceExistsAsync_WhenConferencesIsNotNullAndSelectedConferenceExists_ShouldReturnTrue()
+        public async Task ConferenceExistsAsync_WhenConferencesIsNotNullAndSelectedConferenceExists_ShouldReturnTrue()
         {
             // Arrange
             var fakeDbContext = A.Fake<ProFootballDbContext>();
@@ -450,20 +545,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 LongName = "Conference 1",
                 FirstSeasonId = 1920
             };
-
             var fakeDbSet = new List<Conference> { conference }.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.Conferences).Returns(fakeDbSet);
-            var repository = new ConferenceRepository(fakeDbContext);
+
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
-            var result = repository.ConferenceExistsAsync(conference.Id).Result;
+            var result = await testRepository.ConferenceExistsAsync(conference.Id);
 
             // Assert
             result.ShouldBeTrue();
         }
 
         [Fact]
-        public void ConferenceExistsAsync_WhenConferencesIsNotNullAndSelectedConferenceDoesNotExist_ShouldReturnFalse()
+        public async Task ConferenceExistsAsync_WhenConferencesIsNotNullAndSelectedConferenceDoesNotExist_ShouldReturnFalse()
         {
             // Arrange
             var fakeDbContext = A.Fake<ProFootballDbContext>();
@@ -476,13 +571,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 LongName = "Conference 1",
                 FirstSeasonId = 1920
             };
-
             var fakeDbSet = new List<Conference> { conference }.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.Conferences).Returns(fakeDbSet);
-            var repository = new ConferenceRepository(fakeDbContext);
+
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
-            var result = repository.ConferenceExistsAsync(2).Result;
+            var result = await testRepository.ConferenceExistsAsync(2);
 
             // Assert
             result.ShouldBeFalse();

@@ -23,9 +23,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var leagues = new List<League>
             {
-                new League { Id = 1, ShortName = "L1", LongName = "League 1", FirstSeasonId = 1920 },
-                new League { Id = 2, ShortName = "L2", LongName = "League 2", FirstSeasonId = 1921 },
-                new League { Id = 3, ShortName = "L3", LongName = "League 3", FirstSeasonId = 1922 },
+                new League { Id = 1, ShortName = "L1", LongName = "League 1" },
+                new League { Id = 2, ShortName = "L2", LongName = "League 2" },
+                new League { Id = 3, ShortName = "L3", LongName = "League 3" },
             };
 
             var fakeDbSet = leagues.BuildMockDbSet();
@@ -53,9 +53,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var leagues = new List<League>
             {
-                new League { Id = 1, ShortName = "L1", LongName = "League 1", FirstSeasonId = 1920 },
-                new League { Id = 2, ShortName = "L2", LongName = "League 2", FirstSeasonId = 1921 },
-                new League { Id = 3, ShortName = "L3", LongName = "League 3", FirstSeasonId = 1922 },
+                new League { Id = 1, ShortName = "L1", LongName = "League 1" },
+                new League { Id = 2, ShortName = "L2", LongName = "League 2" },
+                new League { Id = 3, ShortName = "L3", LongName = "League 3" },
             };
 
             var fakeDbSet = leagues.BuildMockDbSet();

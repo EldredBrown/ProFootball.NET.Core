@@ -40,26 +40,25 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
         }
 
         [Fact]
-        public async Task MapViewModelToConference_WhenParentLeagueIsNullAndLastSeasonYearIsNull_ShouldSucceed()
+        public async Task MapViewModelToConference_WhenParentLeagueNotFound_ShouldSetLeagueIdToMinusOne()
         {
             // Arrange
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(A<string>.Ignored)).Returns<League>(null);
-
             var conferenceViewModel = new ConferenceViewModel
             {
                 Id = 1,
                 ShortName = "TC",
                 LongName = "Test Conference",
-                LeagueName = "L1",
+                LeagueName = "TL",
                 FirstSeasonYear = 1,
                 LastSeasonYear = null
             };
 
+            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
+            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(conferenceViewModel.LeagueName))
+                .Returns<League>(null);
+
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var firstSeason = new Season { Id = 1 };
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear))
-                .Returns(firstSeason);
+            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear)).Returns<Season>(null);
 
             var testMapper = new ConferenceViewModelMapper(fakeLeagueRepository, fakeSeasonRepository);
 
@@ -72,39 +71,36 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
             conferenceViewModel.Conference.LeagueId.ShouldBe(-1);
             A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear))
                 .MustHaveHappenedOnceExactly();
-            conferenceViewModel.Conference.FirstSeasonId.ShouldBe(firstSeason.Id);
-            conferenceViewModel.Conference.LastSeasonId.ShouldBeNull();
             result.ShouldNotBeNull();
             result.ShouldBeOfType<Conference>();
             result.ShouldBe(conferenceViewModel.Conference);
         }
 
         [Fact]
-        public async Task MapViewModelToConference_WhenParentLeagueShortNameIsNullAndLastSeasonYearIsNull_ShouldSucceed()
+        public async Task MapViewModelToConference_WhenParentLeagueFoundAndShortNameIsNull_ShouldSetLeagueIdToMinusOne()
         {
             // Arrange
+            var conferenceViewModel = new ConferenceViewModel
+            {
+                Id = 1,
+                ShortName = "TC",
+                LongName = "Test Conference",
+                LeagueName = "TL",
+                FirstSeasonYear = 1,
+                LastSeasonYear = null
+            };
+
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
             var parentLeague = new League
             {
                 Id = 1,
                 ShortName = null
             };
-            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(A<string>.Ignored)).Returns<League>(parentLeague);
-
-            var conferenceViewModel = new ConferenceViewModel
-            {
-                Id = 1,
-                ShortName = "TC",
-                LongName = "Test Conference",
-                LeagueName = "L1",
-                FirstSeasonYear = 1,
-                LastSeasonYear = null
-            };
+            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(conferenceViewModel.LeagueName))
+                .Returns(parentLeague);
 
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var firstSeason = new Season { Id = 1 };
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear))
-                .Returns(firstSeason);
+            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear)).Returns<Season>(null);
 
             var testMapper = new ConferenceViewModelMapper(fakeLeagueRepository, fakeSeasonRepository);
 
@@ -117,39 +113,36 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
             conferenceViewModel.Conference.LeagueId.ShouldBe(-1);
             A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear))
                 .MustHaveHappenedOnceExactly();
-            conferenceViewModel.Conference.FirstSeasonId.ShouldBe(firstSeason.Id);
-            conferenceViewModel.Conference.LastSeasonId.ShouldBeNull();
             result.ShouldNotBeNull();
             result.ShouldBeOfType<Conference>();
             result.ShouldBe(conferenceViewModel.Conference);
         }
 
         [Fact]
-        public async Task MapViewModelToConference_WhenParentLeagueShortNameIsNotNullAndLastSeasonYearIsNull_ShouldSucceed()
+        public async Task MapViewModelToConference_WhenParentLeagueFoundAndShortNameIsNotNull_ShouldSetLeagueIdToParentLeagueId()
         {
             // Arrange
+            var conferenceViewModel = new ConferenceViewModel
+            {
+                Id = 1,
+                ShortName = "TC",
+                LongName = "Test Conference",
+                LeagueName = "TL",
+                FirstSeasonYear = 1,
+                LastSeasonYear = null
+            };
+
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
             var parentLeague = new League
             {
                 Id = 1,
                 ShortName = "PL"
             };
-            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(A<string>.Ignored)).Returns<League>(parentLeague);
-
-            var conferenceViewModel = new ConferenceViewModel
-            {
-                Id = 1,
-                ShortName = "TC",
-                LongName = "Test Conference",
-                LeagueName = "L1",
-                FirstSeasonYear = 1,
-                LastSeasonYear = null
-            };
+            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(conferenceViewModel.LeagueName))
+                .Returns(parentLeague);
 
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var firstSeason = new Season { Id = 1 };
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear))
-                .Returns(firstSeason);
+            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear)).Returns<Season>(null);
 
             var testMapper = new ConferenceViewModelMapper(fakeLeagueRepository, fakeSeasonRepository);
 
@@ -162,7 +155,118 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
             conferenceViewModel.Conference.LeagueId.ShouldBe(parentLeague.Id);
             A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear))
                 .MustHaveHappenedOnceExactly();
+            result.ShouldNotBeNull();
+            result.ShouldBeOfType<Conference>();
+            result.ShouldBe(conferenceViewModel.Conference);
+        }
+
+        [Fact]
+        public async Task MapViewModelToConference_WhenFirstSeasonNotFound_ShouldSetConferenceFirstSeasonIdToMinusOne()
+        {
+            // Arrange
+            var conferenceViewModel = new ConferenceViewModel
+            {
+                Id = 1,
+                ShortName = "TC",
+                LongName = "Test Conference",
+                LeagueName = "TL",
+                FirstSeasonYear = 1,
+                LastSeasonYear = null
+            };
+
+            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
+            var parentLeague = new League
+            {
+                Id = 1,
+                ShortName = "PL"
+            };
+            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(conferenceViewModel.LeagueName))
+                .Returns(parentLeague);
+
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear)).Returns<Season>(null);
+
+            var testMapper = new ConferenceViewModelMapper(fakeLeagueRepository, fakeSeasonRepository);
+
+            // Act
+            var result = await testMapper.MapViewModelToConference(conferenceViewModel);
+
+            // Assert
+            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear))
+                .MustHaveHappenedOnceExactly();
+            conferenceViewModel.Conference.FirstSeasonId.ShouldBe(-1);
+            result.ShouldNotBeNull();
+            result.ShouldBeOfType<Conference>();
+            result.ShouldBe(conferenceViewModel.Conference);
+        }
+
+        [Fact]
+        public async Task MapViewModelToConference_WhenFirstSeasonFound_ShouldSetConferenceFirstSeasonIdToFirstSeasonId()
+        {
+            // Arrange
+            var conferenceViewModel = new ConferenceViewModel
+            {
+                Id = 1,
+                ShortName = "TC",
+                LongName = "Test Conference",
+                LeagueName = "TL",
+                FirstSeasonYear = 1,
+                LastSeasonYear = null
+            };
+
+            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
+            var parentLeague = new League
+            {
+                Id = 1,
+                ShortName = "PL"
+            };
+            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(conferenceViewModel.LeagueName))
+                .Returns(parentLeague);
+
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var firstSeason = new Season { Id = 1 };
+            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear)).Returns(firstSeason);
+
+            var testMapper = new ConferenceViewModelMapper(fakeLeagueRepository, fakeSeasonRepository);
+
+            // Act
+            var result = await testMapper.MapViewModelToConference(conferenceViewModel);
+
+            // Assert
+            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear))
+                .MustHaveHappenedOnceExactly();
             conferenceViewModel.Conference.FirstSeasonId.ShouldBe(firstSeason.Id);
+            result.ShouldNotBeNull();
+            result.ShouldBeOfType<Conference>();
+            result.ShouldBe(conferenceViewModel.Conference);
+        }
+
+        [Fact]
+        public async Task MapViewModelToConference_WhenLastSeasonYearIsNull_ShouldSetConferenceLastSeasonIdToNull()
+        {
+            // Arrange
+            var conferenceViewModel = new ConferenceViewModel
+            {
+                Id = 1,
+                ShortName = "TC",
+                LongName = "Test Conference",
+                LeagueName = "TL",
+                FirstSeasonYear = 1,
+                LastSeasonYear = null
+            };
+
+            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
+
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var firstSeason = new Season { Id = 1 };
+            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear)).Returns(firstSeason);
+
+            var testMapper = new ConferenceViewModelMapper(fakeLeagueRepository, fakeSeasonRepository);
+
+            // Act
+            var result = await testMapper.MapViewModelToConference(conferenceViewModel);
+
+            // Assert
             conferenceViewModel.Conference.LastSeasonId.ShouldBeNull();
             result.ShouldNotBeNull();
             result.ShouldBeOfType<Conference>();
@@ -170,31 +274,58 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
         }
 
         [Fact]
-        public async Task MapViewModelToConference_WhenLastSeasonYearIsNotNull_ShouldSucceed()
+        public async Task MapViewModelToConference_WhenLastSeasonYearIsNotNullAndLastSeasonNotFound_ShouldSetConferenceLastSeasonIdToMinusOne()
         {
             // Arrange
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            var parentLeague = new League
-            {
-                Id = 1,
-                ShortName = "PL"
-            };
-            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(A<string>.Ignored)).Returns<League>(parentLeague);
-
             var conferenceViewModel = new ConferenceViewModel
             {
                 Id = 1,
                 ShortName = "TC",
                 LongName = "Test Conference",
-                LeagueName = "L1",
+                LeagueName = "TL",
                 FirstSeasonYear = 1,
                 LastSeasonYear = 2
             };
 
+            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
+
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var firstSeason = new Season { Id = 1 };
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear))
-                .Returns(firstSeason);
+            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear)).Returns(firstSeason);
+            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.LastSeasonYear.Value))
+                .Returns<Season>(null);
+
+            var testMapper = new ConferenceViewModelMapper(fakeLeagueRepository, fakeSeasonRepository);
+
+            // Act
+            var result = await testMapper.MapViewModelToConference(conferenceViewModel);
+
+            // Assert
+            conferenceViewModel.Conference.LastSeasonId.ShouldBe(-1);
+            result.ShouldNotBeNull();
+            result.ShouldBeOfType<Conference>();
+            result.ShouldBe(conferenceViewModel.Conference);
+        }
+
+        [Fact]
+        public async Task MapViewModelToConference_WhenLastSeasonYearIsNotNullAndLastSeasonFound_ShouldSetConferenceLastSeasonIdToLastSeasonId()
+        {
+            // Arrange
+            var conferenceViewModel = new ConferenceViewModel
+            {
+                Id = 1,
+                ShortName = "TC",
+                LongName = "Test Conference",
+                LeagueName = "TL",
+                FirstSeasonYear = 1,
+                LastSeasonYear = 2
+            };
+
+            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
+
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var firstSeason = new Season { Id = 1 };
+            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear)).Returns(firstSeason);
             var lastSeason = new Season { Id = 2 };
             A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.LastSeasonYear.Value))
                 .Returns(lastSeason);
@@ -205,14 +336,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
             var result = await testMapper.MapViewModelToConference(conferenceViewModel);
 
             // Assert
-            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(conferenceViewModel.LeagueName))
-                .MustHaveHappenedOnceExactly();
-            conferenceViewModel.Conference.LeagueId.ShouldBe(parentLeague.Id);
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.FirstSeasonYear))
-                .MustHaveHappenedOnceExactly();
-            conferenceViewModel.Conference.FirstSeasonId.ShouldBe(firstSeason.Id);
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(conferenceViewModel.LastSeasonYear.Value))
-                .MustHaveHappenedOnceExactly();
             conferenceViewModel.Conference.LastSeasonId.ShouldBe(lastSeason.Id);
             result.ShouldNotBeNull();
             result.ShouldBeOfType<Conference>();

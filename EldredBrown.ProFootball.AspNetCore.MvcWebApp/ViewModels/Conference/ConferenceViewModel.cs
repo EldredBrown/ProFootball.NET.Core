@@ -3,6 +3,8 @@
     public class ConferenceViewModel
     {
         private string _leagueName;
+        private int _firstSeasonYear;
+        private int? _lastSeasonYear;
 
         public ConferenceViewModel()
         {
@@ -44,14 +46,28 @@
 
         public int FirstSeasonYear
         {
-            get { return Conference.FirstSeasonId; }
-            set { Conference.FirstSeasonId = value; }
+            get
+            {
+                if (Conference.FirstSeasonIdNavigation is null)
+                {
+                    return _firstSeasonYear;
+                }
+                return Conference.FirstSeasonIdNavigation.Id;
+            }
+            set { _firstSeasonYear = value; }
         }
 
         public int? LastSeasonYear
         {
-            get { return Conference.LastSeasonId; }
-            set { Conference.LastSeasonId = value; }
+            get
+            {
+                if (Conference.LastSeasonIdNavigation is null)
+                {
+                    return _lastSeasonYear;
+                }
+                return Conference.LastSeasonIdNavigation.Id;
+            }
+            set { _lastSeasonYear = value; }
         }
     }
 }

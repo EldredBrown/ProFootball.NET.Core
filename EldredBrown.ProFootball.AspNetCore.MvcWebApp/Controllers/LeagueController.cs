@@ -174,7 +174,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ShortName,LongName,LeagueName,FirstSeasonYear,LastSeasonYear")] LeagueViewModel leagueViewModel)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,ShortName,LongName,FirstSeasonYear,LastSeasonYear")] LeagueViewModel leagueViewModel)
         {
             if (id != leagueViewModel.Id)
             {
