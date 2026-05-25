@@ -58,8 +58,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            _teamIndexViewModel.Teams = await _teamRepository.GetTeamsAsync();
-
+            var teams = await _teamRepository.GetTeamsAsync();
+            _teamIndexViewModel.Teams = teams.OrderBy(t => t.Name);
             return View(_teamIndexViewModel);
         }
 
@@ -260,12 +260,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private bool PrimaryKeyViolationExists(IEnumerable<Team> teams, Team team)
         {
-            return teams.Any(l => l.Id == team.Id);
+            return teams.Any(t => t.Id == team.Id);
         }
 
         private bool UniqueKeyViolationExistsOnCreate(IEnumerable<Team> teams, Team team)
         {
-            return teams.Any(d => d.Name == team.Name);
+            return teams.Any(t => t.Name == team.Name);
         }
 
         private async Task HandleDbUpdateExceptionOnEdit(DbUpdateException ex, Team team)
@@ -285,7 +285,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private bool UniqueKeyViolationExistsOnEdit(IEnumerable<Team> teams, Team team)
         {
-            return teams.Count(l => l.Name == team.Name) > 1;
+            return teams.Count(t => t.Name == team.Name) > 1;
         }
     }
 }

@@ -186,7 +186,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var conference = new Conference
             {
                 Id = 2,
-                ShortName = "L4",
+                ShortName = "C4",
                 LongName = "Conference 4",
                 FirstSeasonId = 1920
             };
@@ -199,21 +199,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 new Conference
                 {
                     Id = 1,
-                    ShortName = "L1",
+                    ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 2,
-                    ShortName = "L2",
+                    ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 3,
-                    ShortName = "L3",
+                    ShortName = "C3",
                     LongName = "Conference 3",
                     FirstSeasonId = 1920
                 },
@@ -256,7 +256,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var conference = new Conference
             {
                 Id = 4,
-                ShortName = "L2",
+                ShortName = "C2",
                 LongName = "Conference 4",
                 FirstSeasonId = 1920
             };
@@ -269,21 +269,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 new Conference
                 {
                     Id = 1,
-                    ShortName = "L1",
+                    ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 2,
-                    ShortName = "L2",
+                    ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 3,
-                    ShortName = "L3",
+                    ShortName = "C3",
                     LongName = "Conference 3",
                     FirstSeasonId = 1920
                 },
@@ -326,7 +326,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var conference = new Conference
             {
                 Id = 4,
-                ShortName = "L4",
+                ShortName = "C4",
                 LongName = "Conference 2",
                 FirstSeasonId = 1920
             };
@@ -339,21 +339,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 new Conference
                 {
                     Id = 1,
-                    ShortName = "L1",
+                    ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 2,
-                    ShortName = "L2",
+                    ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 3,
-                    ShortName = "L3",
+                    ShortName = "C3",
                     LongName = "Conference 3",
                     FirstSeasonId = 1920
                 },
@@ -403,21 +403,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 new Conference
                 {
                     Id = 1,
-                    ShortName = "L1",
+                    ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 2,
-                    ShortName = "L2",
+                    ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 3,
-                    ShortName = "L3",
+                    ShortName = "C3",
                     LongName = "Conference 3",
                     FirstSeasonId = 1920
                 },
@@ -471,21 +471,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 new Conference
                 {
                     Id = 1,
-                    ShortName = "L1",
+                    ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 2,
-                    ShortName = "L2",
+                    ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 3,
-                    ShortName = "L3",
+                    ShortName = "C3",
                     LongName = "Conference 3",
                     FirstSeasonId = 1920
                 },
@@ -539,21 +539,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 new Conference
                 {
                     Id = 1,
-                    ShortName = "L1",
+                    ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 2,
-                    ShortName = "L2",
+                    ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 3,
-                    ShortName = "L3",
+                    ShortName = "C3",
                     LongName = "Conference 3",
                     FirstSeasonId = 1920
                 },
@@ -607,21 +607,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 new Conference
                 {
                     Id = 1,
-                    ShortName = "L1",
+                    ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 2,
-                    ShortName = "L2",
+                    ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 3,
-                    ShortName = "L3",
+                    ShortName = "C3",
                     LongName = "Conference 3",
                     FirstSeasonId = 1920
                 },
@@ -899,7 +899,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var conference = new Conference
             {
                 Id = id,
-                ShortName = "L3",
+                ShortName = "C3",
                 LongName = "Conference 2",
                 FirstSeasonId = 1920
             };
@@ -912,21 +912,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 new Conference
                 {
                     Id = 1,
-                    ShortName = "L1",
+                    ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 2,
-                    ShortName = "L3",
+                    ShortName = "C3",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 3,
-                    ShortName = "L3",
+                    ShortName = "C3",
                     LongName = "Conference 3",
                     FirstSeasonId = 1920
                 },
@@ -969,7 +969,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var conference = new Conference
             {
                 Id = id,
-                ShortName = "L2",
+                ShortName = "C2",
                 LongName = "Conference 3",
                 FirstSeasonId = 1920
             };
@@ -982,21 +982,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 new Conference
                 {
                     Id = 1,
-                    ShortName = "L1",
+                    ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 2,
-                    ShortName = "L2",
+                    ShortName = "C2",
                     LongName = "Conference 3",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 3,
-                    ShortName = "L3",
+                    ShortName = "C3",
                     LongName = "Conference 3",
                     FirstSeasonId = 1920
                 },
@@ -1046,21 +1046,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 new Conference
                 {
                     Id = 1,
-                    ShortName = "L1",
+                    ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 2,
-                    ShortName = "L2",
+                    ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 3,
-                    ShortName = "L3",
+                    ShortName = "C3",
                     LongName = "Conference 3",
                     FirstSeasonId = 1920
                 },
@@ -1114,21 +1114,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 new Conference
                 {
                     Id = 1,
-                    ShortName = "L1",
+                    ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 2,
-                    ShortName = "L2",
+                    ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 3,
-                    ShortName = "L3",
+                    ShortName = "C3",
                     LongName = "Conference 3",
                     FirstSeasonId = 1920
                 },
@@ -1182,21 +1182,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 new Conference
                 {
                     Id = 1,
-                    ShortName = "L1",
+                    ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 2,
-                    ShortName = "L2",
+                    ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 3,
-                    ShortName = "L3",
+                    ShortName = "C3",
                     LongName = "Conference 3",
                     FirstSeasonId = 1920
                 },
@@ -1250,21 +1250,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 new Conference
                 {
                     Id = 1,
-                    ShortName = "L1",
+                    ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 2,
-                    ShortName = "L2",
+                    ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
                 new Conference
                 {
                     Id = 3,
-                    ShortName = "L3",
+                    ShortName = "C3",
                     LongName = "Conference 3",
                     FirstSeasonId = 1920
                 },

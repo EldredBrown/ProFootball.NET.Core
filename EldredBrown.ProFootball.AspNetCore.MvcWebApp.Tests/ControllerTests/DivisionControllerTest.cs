@@ -1279,7 +1279,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 new Division
                 {
                     Id = 2,
-                    Name = "Division 3",
+                    Name = "Division 2",
                     LeagueId = 1,
                     ConferenceId = 1,
                     FirstSeasonId = 1920

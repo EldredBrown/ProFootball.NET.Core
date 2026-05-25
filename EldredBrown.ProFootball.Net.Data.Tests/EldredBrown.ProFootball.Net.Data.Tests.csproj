@@ -16,7 +16,6 @@
     <Compile Remove="RepositoryTests\LeagueSeasonTotalsRepositoryTest.cs" />
     <Compile Remove="RepositoryTests\SeasonRankingsRepositoryTest.cs" />
     <Compile Remove="RepositoryTests\SeasonStandingsRepositoryTest.cs" />
-    <Compile Remove="RepositoryTests\TeamRepositoryTest.cs" />
     <Compile Remove="RepositoryTests\TeamSeasonRepositoryTest.cs" />
     <Compile Remove="RepositoryTests\TeamSeasonScheduleRepositoryTest.cs" />
   </ItemGroup>

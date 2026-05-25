@@ -30,7 +30,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>An <see cref="IEnumerable{Team}"/> of all fetched entities.</returns>
         public IEnumerable<Team> GetTeams()
         {
-            return _dbContext.Teams;
+            return _dbContext.Teams.ToList();
         }
 
         /// <summary>
@@ -75,31 +75,31 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <summary>
         /// Adds a <see cref="Team"/> entity to the data store.
         /// </summary>
-        /// <param name="Team">The <see cref="Team"/> entity to add.</param>
+        /// <param name="team">The <see cref="Team"/> entity to add.</param>
         /// <returns>The added <see cref="Team"/> entity.</returns>
-        public Team Add(Team Team)
+        public Team Add(Team team)
         {
-            _dbContext.Add(Team);
+            _dbContext.Add(team);
 
-            return Team;
+            return team;
         }
 
         /// <summary>
         /// Adds a <see cref="Team"/> entity to the data store.
         /// </summary>
-        /// <param name="Team">The <see cref="Team"/> entity to add.</param>
+        /// <param name="team">The <see cref="Team"/> entity to add.</param>
         /// <returns>The added <see cref="Team"/> entity.</returns>
-        public async Task<Team> AddAsync(Team Team)
+        public async Task<Team> AddAsync(Team team)
         {
-            await _dbContext.AddAsync(Team);
+            await _dbContext.AddAsync(team);
 
-            return Team;
+            return team;
         }
 
         /// <summary>
         /// Updates a <see cref="Team"/> entity in the data store.
         /// </summary>
-        /// <param name="Team">The <see cref="Team"/> to update.</param>
+        /// <param name="team">The <see cref="Team"/> to update.</param>
         /// <returns>The updated <see cref="Team"/> entity.</returns>
         public Team Update(Team team)
         {
@@ -108,14 +108,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return team;
             }
 
-            //var entity = _dbContext.Teams.Attach(team);
-            //entity.State = EntityState.Modified;
-            //_dbContext.Teams.Update(team);
-            var existing = _dbContext.Teams.Find(team.Id);
-            if (existing is null)
-                return team;
-
-            _dbContext.Entry(existing).CurrentValues.SetValues(team);
+            _dbContext.Teams.Update(team);
 
             return team;
         }
@@ -132,15 +125,15 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            var Team = GetTeam(id);
-            if (Team is null)
+            var team = GetTeam(id);
+            if (team is null)
             {
                 return null;
             }
 
-            _dbContext.Teams.Remove(Team);
+            _dbContext.Teams.Remove(team);
 
-            return Team;
+            return team;
         }
 
         /// <summary>
@@ -155,15 +148,15 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            var Team = await GetTeamAsync(id);
-            if (Team is null)
+            var team = await GetTeamAsync(id);
+            if (team is null)
             {
                 return null;
             }
 
-            _dbContext.Teams.Remove(Team);
+            _dbContext.Teams.Remove(team);
 
-            return Team;
+            return team;
         }
 
         /// <summary>
@@ -175,7 +168,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public bool TeamExists(int id)
         {
-            return _dbContext.Teams.Any(t => t.Id == id);
+            return _dbContext.Teams.Any(c => c.Id == id);
         }
 
         /// <summary>
@@ -187,7 +180,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public async Task<bool> TeamExistsAsync(int id)
         {
-            return await _dbContext.Teams.AnyAsync(t => t.Id == id);
+            return await _dbContext.Teams.AnyAsync(c => c.Id == id);
         }
     }
 }

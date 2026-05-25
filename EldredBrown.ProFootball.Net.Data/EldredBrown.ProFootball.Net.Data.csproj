@@ -16,7 +16,6 @@
     <Compile Remove="Repositories\ILeagueSeasonTotalsRepository.cs" />
     <Compile Remove="Repositories\ISeasonRankingsRepository.cs" />
     <Compile Remove="Repositories\ISeasonStandingsRepository.cs" />
-    <Compile Remove="Repositories\ITeamRepository.cs" />
     <Compile Remove="Repositories\ITeamSeasonRepository.cs" />
     <Compile Remove="Repositories\ITeamSeasonScheduleRepository.cs" />
     <Compile Remove="Repositories\LeagueSeasonRepository.cs" />
@@ -24,7 +23,6 @@
     <Compile Remove="Repositories\MockLeagueSeasonTotalsRepository.cs" />
     <Compile Remove="Repositories\SeasonRankingsRepository.cs" />
     <Compile Remove="Repositories\SeasonStandingsRepository.cs" />
-    <Compile Remove="Repositories\TeamRepository.cs" />
     <Compile Remove="Repositories\TeamSeasonRepository.cs" />
     <Compile Remove="Repositories\TeamSeasonScheduleRepository.cs" />
   </ItemGroup>
