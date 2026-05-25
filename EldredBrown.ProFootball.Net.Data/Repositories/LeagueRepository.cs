@@ -30,7 +30,10 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>An <see cref="IEnumerable{League}"/> of all fetched entities.</returns>
         public IEnumerable<League> GetLeagues()
         {
-            return _dbContext.Leagues;
+            return _dbContext.Leagues
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation)
+                .ToList();
         }
 
         /// <summary>
@@ -39,7 +42,10 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>An <see cref="IEnumerable{League}"/> of all fetched entities.</returns>
         public async Task<IEnumerable<League>> GetLeaguesAsync()
         {
-            return await _dbContext.Leagues.ToListAsync();
+            return await _dbContext.Leagues
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation)
+                .ToListAsync();
         }
 
         /// <summary>
@@ -54,7 +60,10 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            return _dbContext.Leagues.Find(id);
+            return _dbContext.Leagues
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation)
+                .FirstOrDefault(l => l.Id == id);
         }
 
         /// <summary>
@@ -69,7 +78,10 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            return await _dbContext.Leagues.FindAsync(id);
+            return await _dbContext.Leagues
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation)
+                .FirstOrDefaultAsync(l => l.Id == id);
         }
 
         /// <summary>
@@ -84,7 +96,10 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            return _dbContext.Leagues.FirstOrDefault(l => l.ShortName == shortName);
+            return _dbContext.Leagues
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation)
+                .FirstOrDefault(l => l.ShortName == shortName);
         }
 
         /// <summary>
@@ -99,7 +114,10 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            return await _dbContext.Leagues.FirstOrDefaultAsync(l => l.ShortName == shortName);
+            return await _dbContext.Leagues
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation)
+                .FirstOrDefaultAsync(l => l.ShortName == shortName);
         }
 
         /// <summary>
@@ -138,8 +156,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return league;
             }
 
-            var entity = _dbContext.Leagues.Attach(league);
-            entity.State = EntityState.Modified;
+            _dbContext.Leagues.Update(league);
 
             return league;
         }

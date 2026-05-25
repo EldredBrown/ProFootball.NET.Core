@@ -20,10 +20,10 @@
                 <label asp-for="Leagues.SingleOrDefault().LongName"></label>
             </th>
             <th>
-                <label asp-for="Leagues.SingleOrDefault().FirstSeasonId"></label>
+                <label asp-for="Leagues.SingleOrDefault().FirstSeasonYear"></label>
             </th>
             <th>
-                <label asp-for="Leagues.SingleOrDefault().LastSeasonId"></label>
+                <label asp-for="Leagues.SingleOrDefault().LastSeasonYear"></label>
             </th>
             <th></th>
         </tr>
@@ -38,10 +38,10 @@
                 @Html.DisplayFor(modelItem => league.LongName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => league.FirstSeasonId)
+                @Html.DisplayFor(modelItem => league.FirstSeasonYear)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => league.LastSeasonId)
+                @Html.DisplayFor(modelItem => league.LastSeasonYear)
             </td>
             <td>
                 <a class="btn btn-primary btn-sm" asp-action="Details" asp-route-id="@league.Id">Details</a>

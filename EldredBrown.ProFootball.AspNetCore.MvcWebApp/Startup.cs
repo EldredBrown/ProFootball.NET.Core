@@ -84,6 +84,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
             services.AddScoped<ISeasonDetailsViewModel, SeasonDetailsViewModel>();
             services.AddScoped<ILeagueIndexViewModel, LeagueIndexViewModel>();
             services.AddScoped<ILeagueDetailsViewModel, LeagueDetailsViewModel>();
+            services.AddScoped<ILeagueViewModelMapper, LeagueViewModelMapper>();
             services.AddScoped<IConferenceIndexViewModel, ConferenceIndexViewModel>();
             services.AddScoped<IConferenceDetailsViewModel, ConferenceDetailsViewModel>();
             services.AddScoped<IConferenceViewModelMapper, ConferenceViewModelMapper>();

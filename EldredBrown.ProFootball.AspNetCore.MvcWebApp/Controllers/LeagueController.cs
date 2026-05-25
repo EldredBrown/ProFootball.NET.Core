@@ -19,6 +19,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     {
         private readonly ILeagueIndexViewModel _leagueIndexViewModel;
         private readonly ILeagueDetailsViewModel _leagueDetailsViewModel;
+        private readonly ILeagueViewModelMapper _leagueViewModelMapper;
         private readonly ILeagueRepository _leagueRepository;
         private readonly ISharedRepository _sharedRepository;
 
@@ -31,6 +32,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <param name="leagueDetailsViewModel">
         /// The <see cref="ILeaguesDetailsViewModel"/> that will provide ViewModel data to the Details view.
         /// </param>
+        /// <param name="leagueViewModelMapper">
+        /// The <see cref="ILeagueViewModelMapper"/> by which league data will be mapped to view models.
+        /// </param>
         /// <param name="leagueRepository">
         /// The <see cref="ILeagueRepository"/> by which league data will be accessed.
         /// </param>
@@ -40,12 +44,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         public LeagueController(
             ILeagueIndexViewModel leagueIndexViewModel,
             ILeagueDetailsViewModel leagueDetailsViewModel,
+            ILeagueViewModelMapper leagueViewModelMapper,
             ILeagueRepository leagueRepository,
             ISharedRepository sharedRepository
         )
         {
             _leagueIndexViewModel = leagueIndexViewModel;
             _leagueDetailsViewModel = leagueDetailsViewModel;
+            _leagueViewModelMapper = leagueViewModelMapper;
             _leagueRepository = leagueRepository;
             _sharedRepository = sharedRepository;
         }
@@ -58,7 +64,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            _leagueIndexViewModel.Leagues = await _leagueRepository.GetLeaguesAsync();
+            var leagues = await _leagueRepository.GetLeaguesAsync();
+            _leagueIndexViewModel.Leagues = leagues
+                .Select(l => _leagueViewModelMapper.MapLeagueToViewModel(l))
+                .OrderBy(l => l.ShortName);
 
             return View(_leagueIndexViewModel);
         }
@@ -83,7 +92,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            _leagueDetailsViewModel.League = league;
+            _leagueDetailsViewModel.League = _leagueViewModelMapper.MapLeagueToViewModel(league);
 
             return View(_leagueDetailsViewModel);
         }
@@ -105,14 +114,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Processes the data posted back from the league create form.
         /// </summary>
-        /// <param name="league">A <see cref="League"/> object with the data provided for the new league.</param>
+        /// <param name="leagueViewModel">A <see cref="League"/> object with the data provided for the new league.</param>
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ShortName,LongName,FirstSeasonId,LastSeasonId")] League league)
+        public async Task<IActionResult> Create([Bind("ShortName,LongName,FirstSeasonYear,LastSeasonYear")] LeagueViewModel leagueViewModel)
         {
             if (ModelState.IsValid)
             {
+                var league = await _leagueViewModelMapper.MapViewModelToLeague(leagueViewModel);
                 await _leagueRepository.AddAsync(league);
 
                 try
@@ -122,13 +132,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 catch (DbUpdateException ex)
                 {
                     await HandleDbUpdateExceptionOnCreate(ex, league);
-                    return View(league);
+                    return View(leagueViewModel);
                 }
 
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(league);
+            return View(leagueViewModel);
         }
 
         // GET: Leagues/Edit/5
@@ -150,7 +160,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            return View(league);
+            var leagueViewModel = new LeagueViewModel { League = league };
+            return View(leagueViewModel);
         }
 
         // POST: Leagues/Edit/5
@@ -159,19 +170,20 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Processes the data posted back from the league edit form.
         /// </summary>
-        /// <param name="league">A <see cref="League"/> object with the data provided for the league game.</param>
+        /// <param name="leagueViewModel">A <see cref="League"/> object with the data provided for the league game.</param>
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ShortName,LongName,FirstSeasonId,LastSeasonId")] League league)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,ShortName,LongName,LeagueName,FirstSeasonYear,LastSeasonYear")] LeagueViewModel leagueViewModel)
         {
-            if (id != league.Id)
+            if (id != leagueViewModel.Id)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
+                var league = await _leagueViewModelMapper.MapViewModelToLeague(leagueViewModel);
                 _leagueRepository.Update(league);
 
                 try
@@ -192,13 +204,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 catch (DbUpdateException ex)
                 {
                     await HandleDbUpdateExceptionOnEdit(ex, league);
-                    return View(league);
+                    return View(leagueViewModel);
                 }
 
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(league);
+            return View(leagueViewModel);
         }
 
         // GET: Leagues/Delete/5
@@ -220,7 +232,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            return View(league);
+            var leagueViewModel = _leagueViewModelMapper.MapLeagueToViewModel(league);
+            return View(leagueViewModel);
         }
 
         // POST: Leagues/Delete/5
@@ -269,17 +282,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private bool PrimaryKeyViolationExists(IEnumerable<League> leagues, League league)
         {
-            return leagues.Any(l => l.Id == league.Id);
+            return leagues.Any(c => c.Id == league.Id);
         }
 
         private bool UniqueKeyShortNameViolationExistsOnCreate(IEnumerable<League> leagues, League league)
         {
-            return leagues.Any(l => l.ShortName == league.ShortName);
+            return leagues.Any(c => c.ShortName == league.ShortName);
         }
 
         private bool UniqueKeyLongNameViolationExistsOnCreate(IEnumerable<League> leagues, League league)
         {
-            return leagues.Any(l => l.LongName == league.LongName);
+            return leagues.Any(c => c.LongName == league.LongName);
         }
 
         private async Task HandleDbUpdateExceptionOnEdit(DbUpdateException ex, League league)
@@ -308,12 +321,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private bool UniqueKeyShortNameViolationExistsOnEdit(IEnumerable<League> leagues, League league)
         {
-            return leagues.Count(l => l.ShortName == league.ShortName) > 1;
+            return leagues.Count(c => c.ShortName == league.ShortName) > 1;
         }
 
         private bool UniqueKeyLongNameViolationExistsOnEdit(IEnumerable<League> leagues, League league)
         {
-            return leagues.Count(l => l.LongName == league.LongName) > 1;
+            return leagues.Count(c => c.LongName == league.LongName) > 1;
         }
     }
 }

@@ -33,7 +33,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// The <see cref="IConferencesDetailsViewModel"/> that will provide ViewModel data to the Details view.
         /// </param>
         /// <param name="conferenceViewModelMapper">
-        /// The <see cref="IConferenceViewModelMapper"/> by which conference data will be mapped to view models.
+        /// The <see cref="ILeagueViewModelMapper"/> by which conference data will be mapped to view models.
         /// </param>
         /// <param name="conferenceRepository">
         /// The <see cref="IConferenceRepository"/> by which conference data will be accessed.

@@ -2,6 +2,6 @@
 {
     public interface ILeagueDetailsViewModel
     {
-        EldredBrown.ProFootball.Net.Data.Models.League League { get; set; }
+        LeagueViewModel League { get; set; }
     }
 }
