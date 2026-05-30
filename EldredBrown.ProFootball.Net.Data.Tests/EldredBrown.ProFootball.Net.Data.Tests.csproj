@@ -10,8 +10,6 @@
     <Compile Remove="DecoratorTests\GameDecoratorTest.cs" />
     <Compile Remove="ModelTests\GameTest.cs" />
     <Compile Remove="ModelTests\LeagueSeasonTest.cs" />
-    <Compile Remove="ModelTests\TeamSeasonTest.cs" />
-    <Compile Remove="RepositoryTests\GameRepositoryTest.cs" />
     <Compile Remove="RepositoryTests\LeagueSeasonRepositoryTest.cs" />
     <Compile Remove="RepositoryTests\LeagueSeasonTotalsRepositoryTest.cs" />
     <Compile Remove="RepositoryTests\SeasonRankingsRepositoryTest.cs" />
@@ -47,7 +45,6 @@
 
   <ItemGroup>
     <Folder Include="DecoratorTests\" />
-    <Folder Include="ModelTests\" />
   </ItemGroup>
 
 </Project>

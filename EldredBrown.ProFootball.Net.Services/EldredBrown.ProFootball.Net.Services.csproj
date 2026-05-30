@@ -9,14 +9,6 @@
   <ItemGroup>
     <Compile Remove="GamePredictorService\GamePredictorService.cs" />
     <Compile Remove="GamePredictorService\IGamePredictorService.cs" />
-    <Compile Remove="GameService\GameService.cs" />
-    <Compile Remove="GameService\IGameService.cs" />
-    <Compile Remove="GameService\ProcessGameStrategy\AddGameStrategy.cs" />
-    <Compile Remove="GameService\ProcessGameStrategy\IProcessGameStrategyFactory.cs" />
-    <Compile Remove="GameService\ProcessGameStrategy\NullGameStrategy.cs" />
-    <Compile Remove="GameService\ProcessGameStrategy\ProcessGameStrategyBase.cs" />
-    <Compile Remove="GameService\ProcessGameStrategy\ProcessGameStrategyFactory.cs" />
-    <Compile Remove="GameService\ProcessGameStrategy\SubtractGameStrategy.cs" />
     <Compile Remove="WeeklyUpdateService\IWeeklyUpdateService.cs" />
     <Compile Remove="WeeklyUpdateService\WeeklyUpdateService.cs" />
   </ItemGroup>
@@ -35,8 +27,6 @@
 
   <ItemGroup>
     <Folder Include="GamePredictorService\" />
-    <Folder Include="GameService\" />
-    <Folder Include="GameService\ProcessGameStrategy\" />
     <Folder Include="WeeklyUpdateService\" />
   </ItemGroup>
 

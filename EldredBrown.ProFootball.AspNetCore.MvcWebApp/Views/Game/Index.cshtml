@@ -10,13 +10,13 @@
 <form>
     <div class="form-group">
         <label class="col-form-label">Season</label>
-        <select onchange="document.location.href=`/Games/SetSelectedSeasonYear?SeasonYear=${this.options[this.selectedIndex].value}`;"
+        <select onchange="document.location.href=`/Game/SetSelectedSeasonYear?SeasonYear=${this.options[this.selectedIndex].value}`;"
                 asp-for="SelectedSeasonYear" asp-items="Model.Seasons">
         </select>
     </div>
     <div class="form-group">
         <label class="col-form-label">Week</label>
-        <select onchange = "document.location.href=`/Games/SetSelectedWeek?Week=${this.options[this.selectedIndex].value}`;"
+        <select onchange = "document.location.href=`/Game/SetSelectedWeek?Week=${this.options[this.selectedIndex].value}`;"
                 asp-for="SelectedWeek" asp-items="Model.Weeks">
         </select>
     </div>

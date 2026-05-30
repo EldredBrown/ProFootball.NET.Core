@@ -6,8 +6,8 @@
     public class GameDetailsViewModel : IGameDetailsViewModel
     {
         /// <summary>
-        /// Gets or sets the game of the current view model.
+        /// Gets or sets the game of the current <see cref="GameDetailsViewModel"/> object.
         /// </summary>
-        public EldredBrown.ProFootball.Net.Data.Models.Game Game { get; set; }
+        public GameViewModel Game { get; set; }
     }
 }

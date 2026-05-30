@@ -1,20 +1,17 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-using EldredBrown.ProFootball.Net.Data.Models;
-
-namespace EldredBrown.ProFootball.Net.Data.Decorators
+namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
 {
-    public class TeamSeasonDecorator : TeamSeason, ITeamSeasonDecorator
+    public class TeamSeasonViewModel
     {
-        private readonly TeamSeason _teamSeason;
+        private readonly EldredBrown.ProFootball.Net.Data.Models.TeamSeason _teamSeason;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TeamSeasonDecorator"/> class.
         /// </summary>
         /// <param name="teamSeason">The <see cref="TeamSeason"/> entity that will be wrapped inside this object.</param>
-        public TeamSeasonDecorator(TeamSeason teamSeason)
+        public TeamSeasonViewModel(EldredBrown.ProFootball.Net.Data.Models.TeamSeason teamSeason)
         {
             _teamSeason = teamSeason;
         }
@@ -46,8 +43,8 @@ namespace EldredBrown.ProFootball.Net.Data.Decorators
         [Required(ErrorMessage = "Please enter a year.")]
         public new int SeasonYear
         {
-            get { return _teamSeason.SeasonYear; }
-            set { _teamSeason.SeasonYear = value; }
+            get { return _teamSeason.SeasonId; }
+            set { _teamSeason.SeasonId = value; }
         }
 
         /// <summary>
@@ -128,7 +125,7 @@ namespace EldredBrown.ProFootball.Net.Data.Decorators
         [Display(Name = "W%")]
         public new decimal? WinningPercentage
         {
-            get{ return _teamSeason.WinningPercentage; }
+            get { return _teamSeason.WinningPercentage; }
         }
 
         /// <summary>
@@ -253,5 +250,6 @@ namespace EldredBrown.ProFootball.Net.Data.Decorators
             get { return _teamSeason.FinalExpectedWinningPercentage; }
             set { _teamSeason.FinalExpectedWinningPercentage = value; }
         }
+
     }
 }

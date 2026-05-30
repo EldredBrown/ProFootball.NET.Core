@@ -1,4 +1,6 @@
-﻿namespace EldredBrown.ProFootball.Net.Data.Models;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
+namespace EldredBrown.ProFootball.Net.Data.Models;
 
 public partial class Game
 {
@@ -20,5 +22,6 @@ public partial class Game
 
     public string? Notes { get; set; }
 
+    [ValidateNever]
     public virtual Season SeasonIdNavigation { get; set; } = null!;
 }

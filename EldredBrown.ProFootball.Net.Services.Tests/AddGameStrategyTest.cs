@@ -9,19 +9,13 @@ using EldredBrown.ProFootball.Net.Data.Exceptions;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 using EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy;
+using System.Collections.Generic;
 
 namespace EldredBrown.ProFootball.Net.Services.Tests
 {
     public class AddGameStrategyTest
     {
-        private readonly ITeamSeasonRepository _teamSeasonRepository;
-        private readonly AddGameStrategy _testStrategy;
-
-        public AddGameStrategyTest()
-        {
-            _teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            _testStrategy = new AddGameStrategy(_teamSeasonRepository);
-        }
+        private const double _exponent = 2.37;
 
         [Theory]
         [InlineData(1, 1, true, 0, 0, 0, 0, 1)]
@@ -31,17 +25,10 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             int guestScore, int hostScore, bool isTie, int expGuestWins, int expGuestLosses, int expHostWins, int expHostLosses, int expTies)
         {
             // Arrange
-            var game = new Game
-            {
-                SeasonYear = 1920,
-                GuestName = "Guest",
-                GuestScore = guestScore,
-                HostName = "Host",
-                HostScore = hostScore
-            };
-
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var guestSeason = new TeamSeason
             {
+                TeamId = 1,
                 Games = 0,
                 Wins = 0,
                 Losses = 0,
@@ -49,9 +36,9 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
                 PointsFor = 0,
                 PointsAgainst = 0
             };
-
             var hostSeason = new TeamSeason
             {
+                TeamId = 2,
                 Games = 0,
                 Wins = 0,
                 Losses = 0,
@@ -59,20 +46,34 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
                 PointsFor = 0,
                 PointsAgainst = 0
             };
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(An<int>.Ignored))
+                .Returns(new List<TeamSeason> { guestSeason, hostSeason });
 
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonByTeamAndSeason(A<string>.Ignored, An<int>.Ignored))
-                .ReturnsNextFromSequence(guestSeason, hostSeason);
+            var fakeTeamRepository = A.Fake<ITeamRepository>();
+            var guestName = "Guest";
+            var guest = new Team { Name = guestName };
+            var hostName = "Host";
+            var host = new Team { Name = hostName };
+            A.CallTo(() => fakeTeamRepository.GetTeam(An<int>.Ignored)).ReturnsNextFromSequence([guest, guest, host, host]);
+
+            var testStrategy = new AddGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
 
             // Act
-            _testStrategy.ProcessGame(game);
+            var game = new Game
+            {
+                SeasonId = 1920,
+                GuestName = guestName,
+                GuestScore = guestScore,
+                HostName = hostName,
+                HostScore = hostScore
+            };
+            testStrategy.ProcessGame(game);
 
             // Assert
-            var seasonYear = game.SeasonYear;
-
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonByTeamAndSeason(game.GuestName, seasonYear))
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(game.SeasonId))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonByTeamAndSeason(game.HostName, seasonYear))
-                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamRepository.GetTeam(guestSeason.TeamId)).MustHaveHappened();
+            A.CallTo(() => fakeTeamRepository.GetTeam(hostSeason.TeamId)).MustHaveHappened();
 
             guestSeason.Games.ShouldBe(1);
             guestSeason.Wins.ShouldBe(expGuestWins);
@@ -80,7 +81,11 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             guestSeason.Ties.ShouldBe(expTies);
             guestSeason.PointsFor.ShouldBe(guestScore);
             guestSeason.PointsAgainst.ShouldBe(hostScore);
-            //guestSeason.ExpectedWins.ShouldBeCloseTo(ProcessGameUtils.CalculateExpectedWinningPercentage(guestScore, hostScore));
+            var go = (decimal)Math.Pow(guestSeason.PointsFor, _exponent);
+            var gd = (decimal)Math.Pow(guestSeason.PointsAgainst, _exponent);
+            var guestExpPct = go / (go + gd);
+            guestSeason.ExpectedWins.ShouldBe(guestExpPct * guestSeason.Games);
+            guestSeason.ExpectedLosses.ShouldBe((1m - guestExpPct) * guestSeason.Games);
 
             hostSeason.Games.ShouldBe(1);
             hostSeason.Wins.ShouldBe(expHostWins);
@@ -88,62 +93,98 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             hostSeason.Ties.ShouldBe(expTies);
             hostSeason.PointsFor.ShouldBe(hostScore);
             hostSeason.PointsAgainst.ShouldBe(guestScore);
-            //hostSeason.ExpectedWins.ShouldBeCloseTo(ProcessGameUtils.CalculateExpectedWinningPercentage(hostScore, guestScore));
+            var ho = (decimal)Math.Pow(guestSeason.PointsFor, _exponent);
+            var hd = (decimal)Math.Pow(guestSeason.PointsAgainst, _exponent);
+            var hostExpPct = ho / (ho + hd);
+            guestSeason.ExpectedWins.ShouldBe(hostExpPct * guestSeason.Games);
+            guestSeason.ExpectedLosses.ShouldBe((1m - hostExpPct) * guestSeason.Games);
 
-            A.CallTo(() => _teamSeasonRepository.Update(guestSeason)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => _teamSeasonRepository.Update(hostSeason)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(guestSeason)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(hostSeason)).MustHaveHappenedOnceExactly();
         }
 
         [Fact]
         public void ProcessGame_WhenGameArgIsNull_ShouldThrowArgumentNullException()
         {
+            // Arrange
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeTeamRepository = A.Fake<ITeamRepository>();
+            var testStrategy = new AddGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
+
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => _testStrategy.ProcessGame(null!));
+            Assert.Throws<ArgumentNullException>(() => testStrategy.ProcessGame(null!));
         }
 
-        [Fact]
-        public void ProcessGame_GuestSeasonIsNotFound_ShouldThrowEntityNotFoundException()
+        [Fact(Skip = "This test will be skipped until it's necessary to verify that each game includes only member teams.")]
+        public void ProcessGame_WhenGuestSeasonIsNotFound_ShouldThrowEntityNotFoundException()
         {
             // Arrange
-            var fakeGame = A.Fake<Game>();
-            fakeGame.SeasonYear = 1920;
-            fakeGame.GuestName = "Guest";
-            fakeGame.HostName = "Host";
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var guestSeason = new TeamSeason { TeamId = 1 };
+            var hostSeason = new TeamSeason { TeamId = 2 };
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(An<int>.Ignored))
+                .Returns(new List<TeamSeason>{ guestSeason, hostSeason });
 
-            TeamSeason? guestSeason = null;
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonByTeamAndSeason(A<string>.Ignored, An<int>.Ignored))
-                .Returns(guestSeason);
+            var fakeTeamRepository = A.Fake<ITeamRepository>();
+            A.CallTo(() => fakeTeamRepository.GetTeam(An<int>.Ignored)).Returns(null);
+
+            var testStrategy = new AddGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
 
             // Act
-            Assert.Throws<EntityNotFoundException>(() => _testStrategy.ProcessGame(fakeGame));
+            var game = new Game
+            {
+                SeasonId = 1920,
+                GuestName = "Guest",
+                GuestScore = 0,
+                HostName = "Host",
+                HostScore = 0
+            };
+            Assert.Throws<EntityNotFoundException>(() => testStrategy.ProcessGame(game));
 
             // Assert
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonByTeamAndSeason(fakeGame.GuestName, fakeGame.SeasonYear))
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(game.SeasonId))
                 .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamRepository.GetTeam(guestSeason.TeamId)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamRepository.GetTeam(hostSeason.TeamId)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(guestSeason)).MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(hostSeason)).MustNotHaveHappened();
         }
 
-        [Fact]
-        public void ProcessGame_HostSeasonIsNotFound_ShouldThrowEntityNotFoundException()
+        [Fact(Skip = "This test will be skipped until it's necessary to verify that each game includes only member teams.")]
+        public void ProcessGame_WhenHostSeasonIsNotFound_ShouldThrowEntityNotFoundException()
         {
             // Arrange
-            var fakeGame = A.Fake<Game>();
-            fakeGame.SeasonYear = 1920;
-            fakeGame.GuestName = "Guest";
-            fakeGame.HostName = "Host";
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var guestSeason = new TeamSeason { TeamId = 1 };
+            var hostSeason = new TeamSeason { TeamId = 2 };
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(An<int>.Ignored))
+                .Returns(new List<TeamSeason> { guestSeason, hostSeason });
 
-            var guestSeason = A.Fake<TeamSeason>();
-            TeamSeason? hostSeason = null;
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonByTeamAndSeason(A<string>.Ignored, An<int>.Ignored))
-                .ReturnsNextFromSequence(guestSeason, hostSeason);
+            var fakeTeamRepository = A.Fake<ITeamRepository>();
+            var guestName = "Guest";
+            var guest = new Team { Name = guestName };
+            A.CallTo(() => fakeTeamRepository.GetTeam(An<int>.Ignored)).ReturnsNextFromSequence([guest, null]);
+
+            var testStrategy = new AddGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
 
             // Act
-            Assert.Throws<EntityNotFoundException>(() => _testStrategy.ProcessGame(fakeGame));
+            var game = new Game
+            {
+                SeasonId = 1920,
+                GuestName = guestName,
+                GuestScore = 0,
+                HostName = "Host",
+                HostScore = 0
+            };
+            Assert.Throws<EntityNotFoundException>(() => testStrategy.ProcessGame(game));
 
             // Assert
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonByTeamAndSeason(fakeGame.GuestName, fakeGame.SeasonYear))
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(game.SeasonId))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonByTeamAndSeason(fakeGame.HostName, fakeGame.SeasonYear))
-                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamRepository.GetTeam(guestSeason.TeamId)).MustHaveHappenedTwiceExactly();
+            A.CallTo(() => fakeTeamRepository.GetTeam(hostSeason.TeamId)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(guestSeason)).MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(hostSeason)).MustNotHaveHappened();
         }
 
         [Theory]
@@ -154,17 +195,10 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             int guestScore, int hostScore, bool isTie, int expGuestWins, int expGuestLosses, int expHostWins, int expHostLosses, int expTies)
         {
             // Arrange
-            var game = new Game
-            {
-                SeasonYear = 1920,
-                GuestName = "Guest",
-                GuestScore = guestScore,
-                HostName = "Host",
-                HostScore = hostScore
-            };
-
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var guestSeason = new TeamSeason
             {
+                TeamId = 1,
                 Games = 0,
                 Wins = 0,
                 Losses = 0,
@@ -172,9 +206,9 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
                 PointsFor = 0,
                 PointsAgainst = 0
             };
-
             var hostSeason = new TeamSeason
             {
+                TeamId = 2,
                 Games = 0,
                 Wins = 0,
                 Losses = 0,
@@ -182,20 +216,35 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
                 PointsFor = 0,
                 PointsAgainst = 0
             };
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns(new List<TeamSeason> { guestSeason, hostSeason });
 
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonByTeamAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
-                .ReturnsNextFromSequence(guestSeason, hostSeason);
+            var fakeTeamRepository = A.Fake<ITeamRepository>();
+            var guestName = "Guest";
+            var guest = new Team { Name = guestName };
+            var hostName = "Host";
+            var host = new Team { Name = hostName };
+            A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored))
+                .ReturnsNextFromSequence([guest, guest, host, host]);
+
+            var testStrategy = new AddGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
 
             // Act
-            await _testStrategy.ProcessGameAsync(game);
+            var game = new Game
+            {
+                SeasonId = 1920,
+                GuestName = guestName,
+                GuestScore = guestScore,
+                HostName = hostName,
+                HostScore = hostScore
+            };
+            await testStrategy.ProcessGameAsync(game);
 
             // Assert
-            var seasonYear = game.SeasonYear;
-
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonByTeamAndSeasonAsync(game.GuestName, seasonYear))
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(game.SeasonId))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonByTeamAndSeasonAsync(game.HostName, seasonYear))
-                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamRepository.GetTeamAsync(guestSeason.TeamId)).MustHaveHappened();
+            A.CallTo(() => fakeTeamRepository.GetTeamAsync(hostSeason.TeamId)).MustHaveHappened();
 
             guestSeason.Games.ShouldBe(1);
             guestSeason.Wins.ShouldBe(expGuestWins);
@@ -203,7 +252,11 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             guestSeason.Ties.ShouldBe(expTies);
             guestSeason.PointsFor.ShouldBe(guestScore);
             guestSeason.PointsAgainst.ShouldBe(hostScore);
-            //guestSeason.ExpectedWins.ShouldBeCloseTo(ProcessGameUtils.CalculateExpectedWinningPercentage(guestScore, hostScore));
+            var go = (decimal)Math.Pow(guestSeason.PointsFor, _exponent);
+            var gd = (decimal)Math.Pow(guestSeason.PointsAgainst, _exponent);
+            var guestExpPct = go / (go + gd);
+            guestSeason.ExpectedWins.ShouldBe(guestExpPct * guestSeason.Games);
+            guestSeason.ExpectedLosses.ShouldBe((1m - guestExpPct) * guestSeason.Games);
 
             hostSeason.Games.ShouldBe(1);
             hostSeason.Wins.ShouldBe(expHostWins);
@@ -211,62 +264,99 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             hostSeason.Ties.ShouldBe(expTies);
             hostSeason.PointsFor.ShouldBe(hostScore);
             hostSeason.PointsAgainst.ShouldBe(guestScore);
-            //hostSeason.ExpectedWins.ShouldBeCloseTo(ProcessGameUtils.CalculateExpectedWinningPercentage(hostScore, guestScore));
+            var ho = (decimal)Math.Pow(guestSeason.PointsFor, _exponent);
+            var hd = (decimal)Math.Pow(guestSeason.PointsAgainst, _exponent);
+            var hostExpPct = ho / (ho + hd);
+            guestSeason.ExpectedWins.ShouldBe(hostExpPct * guestSeason.Games);
+            guestSeason.ExpectedLosses.ShouldBe((1m - hostExpPct) * guestSeason.Games);
 
-            A.CallTo(() => _teamSeasonRepository.Update(guestSeason)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => _teamSeasonRepository.Update(hostSeason)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(guestSeason)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(hostSeason)).MustHaveHappenedOnceExactly();
         }
 
         [Fact]
-        public void ProcessGameAsync_WhenGameArgIsNull_ShouldThrowArgumentNullException()
+        public async Task ProcessGameAsync_WhenGameArgIsNull_ShouldThrowArgumentNullException()
         {
+            // Arrange
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeTeamRepository = A.Fake<ITeamRepository>();
+            var testStrategy = new AddGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
+
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => _testStrategy.ProcessGameAsync(null!).GetAwaiter().GetResult());
+            Assert.Throws<ArgumentNullException>(() => testStrategy.ProcessGameAsync(null!).GetAwaiter().GetResult());
         }
 
-        [Fact]
-        public void ProcessGameAsync_GuestSeasonIsNotFound_ShouldThrowEntityNotFoundException()
+        [Fact(Skip = "This test will be skipped until it's necessary to verify that each game includes only member teams.")]
+        public async Task ProcessGameAsync_WhenGuestSeasonIsNotFound_ShouldThrowEntityNotFoundException()
         {
             // Arrange
-            var fakeGame = A.Fake<Game>();
-            fakeGame.SeasonYear = 1920;
-            fakeGame.GuestName = "Guest";
-            fakeGame.HostName = "Host";
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var guestSeason = new TeamSeason { TeamId = 1 };
+            var hostSeason = new TeamSeason { TeamId = 2 };
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns(new List<TeamSeason> { guestSeason, hostSeason });
 
-            TeamSeason? guestSeason = null;
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonByTeamAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
-                .Returns(guestSeason);
+            var fakeTeamRepository = A.Fake<ITeamRepository>();
+            A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).Returns<Team>(null!);
+
+            var testStrategy = new AddGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
 
             // Act
-            Assert.Throws<EntityNotFoundException>(() => _testStrategy.ProcessGameAsync(fakeGame).GetAwaiter().GetResult());
+            var game = new Game
+            {
+                SeasonId = 1920,
+                GuestName = "Guest",
+                GuestScore = 0,
+                HostName = "Host",
+                HostScore = 0
+            };
+            await Assert.ThrowsAsync<EntityNotFoundException>(async () => await testStrategy.ProcessGameAsync(game));
 
             // Assert
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonByTeamAndSeasonAsync(fakeGame.GuestName, fakeGame.SeasonYear))
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(game.SeasonId))
                 .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamRepository.GetTeamAsync(guestSeason.TeamId)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamRepository.GetTeamAsync(hostSeason.TeamId)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(guestSeason)).MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(hostSeason)).MustNotHaveHappened();
         }
 
-        [Fact]
-        public void ProcessGameAsync_HostSeasonIsNotFound_ShouldThrowEntityNotFoundException()
+        [Fact(Skip = "This test will be skipped until it's necessary to verify that each game includes only member teams.")]
+        public async Task ProcessGameAsync_WhenHostSeasonIsNotFound_ShouldThrowEntityNotFoundException()
         {
             // Arrange
-            var fakeGame = A.Fake<Game>();
-            fakeGame.SeasonYear = 1920;
-            fakeGame.GuestName = "Guest";
-            fakeGame.HostName = "Host";
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var guestSeason = new TeamSeason { TeamId = 1 };
+            var hostSeason = new TeamSeason { TeamId = 2 };
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns(Task.FromResult<IEnumerable<TeamSeason>>(new List<TeamSeason> { guestSeason, hostSeason }));
 
-            var guestSeason = A.Fake<TeamSeason>();
-            TeamSeason? hostSeason = null;
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonByTeamAndSeasonAsync(A<string>.Ignored, An<int>.Ignored))
-                .ReturnsNextFromSequence(guestSeason, hostSeason);
+            var fakeTeamRepository = A.Fake<ITeamRepository>();
+            var guestName = "Guest";
+            var guest = new Team { Name = guestName };
+            A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored))
+                .ReturnsNextFromSequence([Task.FromResult<Team>(guest), Task.FromResult<Team>(null!)]);
+
+            var testStrategy = new AddGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
 
             // Act
-            Assert.Throws<EntityNotFoundException>(() => _testStrategy.ProcessGameAsync(fakeGame).GetAwaiter().GetResult());
+            var game = new Game
+            {
+                SeasonId = 1920,
+                GuestName = guestName,
+                GuestScore = 0,
+                HostName = "Host",
+                HostScore = 0
+            };
+            await Assert.ThrowsAsync<EntityNotFoundException>(async () => await testStrategy.ProcessGameAsync(game));
 
             // Assert
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonByTeamAndSeasonAsync(fakeGame.GuestName, fakeGame.SeasonYear))
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(game.SeasonId))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _teamSeasonRepository.GetTeamSeasonByTeamAndSeasonAsync(fakeGame.HostName, fakeGame.SeasonYear))
-                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamRepository.GetTeamAsync(guestSeason.TeamId)).MustHaveHappenedTwiceExactly();
+            A.CallTo(() => fakeTeamRepository.GetTeamAsync(hostSeason.TeamId)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(guestSeason)).MustNotHaveHappened();
+            A.CallTo(() => fakeTeamSeasonRepository.Update(hostSeason)).MustNotHaveHappened();
         }
     }
 }

@@ -26,38 +26,38 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 new Game
                 {
                     Id = 1,
-                    SeasonYear = 1920,
+                    SeasonId = 1920,
                     Week = 1,
                     GuestName = "Guest 1",
                     GuestScore = 0,
                     HostName = "Host 1",
                     HostScore = 0,
                     IsPlayoff = false,
-                    Notes = "Notes 1"
+                    Notes = "Notes"
                 },
                 new Game
                 {
                     Id = 2,
-                    SeasonYear = 1920,
+                    SeasonId = 1920,
                     Week = 1,
                     GuestName = "Guest 2",
                     GuestScore = 0,
                     HostName = "Host 2",
                     HostScore = 0,
                     IsPlayoff = false,
-                    Notes = "Notes 2"
+                    Notes = "Notes"
                 },
                 new Game
                 {
                     Id = 3,
-                    SeasonYear = 1920,
+                    SeasonId = 1920,
                     Week = 1,
                     GuestName = "Guest 3",
                     GuestScore = 0,
                     HostName = "Host 3",
                     HostScore = 0,
                     IsPlayoff = false,
-                    Notes = "Notes 3"
+                    Notes = "Notes"
                 },
             };
 
@@ -89,38 +89,38 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 new Game
                 {
                     Id = 1,
-                    SeasonYear = 1920,
+                    SeasonId = 1920,
                     Week = 1,
                     GuestName = "Guest 1",
                     GuestScore = 0,
                     HostName = "Host 1",
                     HostScore = 0,
                     IsPlayoff = false,
-                    Notes = "Notes 1"
+                    Notes = "Notes"
                 },
                 new Game
                 {
                     Id = 2,
-                    SeasonYear = 1920,
+                    SeasonId = 1920,
                     Week = 1,
                     GuestName = "Guest 2",
                     GuestScore = 0,
                     HostName = "Host 2",
                     HostScore = 0,
                     IsPlayoff = false,
-                    Notes = "Notes 2"
+                    Notes = "Notes"
                 },
                 new Game
                 {
                     Id = 3,
-                    SeasonYear = 1920,
+                    SeasonId = 1920,
                     Week = 1,
                     GuestName = "Guest 3",
                     GuestScore = 0,
                     HostName = "Host 3",
                     HostScore = 0,
                     IsPlayoff = false,
-                    Notes = "Notes 3"
+                    Notes = "Notes"
                 },
             };
 
@@ -140,28 +140,40 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GetGame_WhenGamesIsNotNull_ShouldSucceed()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Games = A.Fake<DbSet<Game>>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            var firstSeason = new Season { Id = 1920 };
+            var lastSeason = new Season { Id = 1921 };
+            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
+            fakeDbContext.SaveChanges();
+
+            var parentLeague = new League { Id = 1, ShortName = "L", LongName = "League 1" };
+            fakeDbContext.Leagues.Add(parentLeague);
+            fakeDbContext.SaveChanges();
 
             int id = 1;
             var game = new Game
             {
-                Id = id,
-                SeasonYear = 1920,
+                Id = 1,
+                SeasonId = 1920,
                 Week = 1,
                 GuestName = "Guest 1",
                 GuestScore = 0,
                 HostName = "Host 1",
                 HostScore = 0,
                 IsPlayoff = false,
-                Notes = "Notes 1"
+                Notes = "Notes"
             };
+            fakeDbContext.Games.Add(game);
+            fakeDbContext.SaveChanges();
 
-            A.CallTo(() => fakeDbContext.Games.Find(An<int>.Ignored)).Returns(game);
-            var repository = new GameRepository(fakeDbContext);
+            var testRepository = new GameRepository(fakeDbContext);
 
             // Act
-            var result = repository.GetGame(id);
+            var result = testRepository.GetGame(id);
 
             // Assert
             result.ShouldNotBeNull();
@@ -172,43 +184,59 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GetGame_WhenGamesIsNull_ShouldReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
             fakeDbContext.Games = null;
-            var repository = new GameRepository(fakeDbContext);
+            var testRepository = new GameRepository(fakeDbContext);
 
             // Act
-            var result = repository.GetGame(1);
+            var result = testRepository.GetGame(1);
 
             // Assert
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void GetGameAsync_WhenGamesIsNotNull_ShouldSucceed()
+        public async Task GetGameAsync_WhenGamesIsNotNull_ShouldSucceed()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Games = A.Fake<DbSet<Game>>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            var firstSeason = new Season { Id = 1920 };
+            var lastSeason = new Season { Id = 1921 };
+            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
+            fakeDbContext.SaveChanges();
+
+            var parentLeague = new League { Id = 1, ShortName = "L1", LongName = "League 1" };
+            fakeDbContext.Leagues.Add(parentLeague);
+            fakeDbContext.SaveChanges();
 
             int id = 1;
             var game = new Game
             {
-                Id = id,
-                SeasonYear = 1920,
+                Id = 1,
+                SeasonId = 1920,
                 Week = 1,
                 GuestName = "Guest 1",
                 GuestScore = 0,
                 HostName = "Host 1",
                 HostScore = 0,
                 IsPlayoff = false,
-                Notes = "Notes 1"
+                Notes = "Notes"
             };
+            fakeDbContext.Games.Add(game);
+            fakeDbContext.SaveChanges();
 
-            _ = A.CallTo(() => fakeDbContext.Games.FindAsync(An<int>.Ignored)).Returns(new ValueTask<Game?>(game));
-            var repository = new GameRepository(fakeDbContext);
+            var testRepository = new GameRepository(fakeDbContext);
 
             // Act
-            var result = repository.GetGameAsync(id).Result;
+            var result = await testRepository.GetGameAsync(id);
 
             // Assert
             result.ShouldNotBeNull();
@@ -216,15 +244,19 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void GetGameAsync_WhenGamesIsNull_ShouldReturnNull()
+        public async Task GetGameAsync_WhenGamesIsNull_ShouldReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
             fakeDbContext.Games = null;
-            var repository = new GameRepository(fakeDbContext);
+            var testRepository = new GameRepository(fakeDbContext);
 
             // Act
-            var result = repository.GetGameAsync(1).Result;
+            var result = await testRepository.GetGameAsync(1);
 
             // Assert
             result.ShouldBeNull();
@@ -238,20 +270,19 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             fakeDbContext.Games = A.Fake<DbSet<Game>>();
             var repository = new GameRepository(fakeDbContext);
 
+            // Act
             var game = new Game
             {
                 Id = 1,
-                SeasonYear = 1920,
+                SeasonId = 1920,
                 Week = 1,
-                GuestName = "Guest",
+                GuestName = "Guest 1",
                 GuestScore = 0,
-                HostName = "Host",
+                HostName = "Host 1",
                 HostScore = 0,
                 IsPlayoff = false,
                 Notes = "Notes"
             };
-
-            // Act
             var result = repository.Add(game);
 
             // Assert
@@ -267,20 +298,19 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             fakeDbContext.Games = A.Fake<DbSet<Game>>();
             var repository = new GameRepository(fakeDbContext);
 
+            // Act
             var game = new Game
             {
                 Id = 1,
-                SeasonYear = 1920,
+                SeasonId = 1920,
                 Week = 1,
-                GuestName = "Guest",
+                GuestName = "Guest 1",
                 GuestScore = 0,
-                HostName = "Host",
+                HostName = "Host 1",
                 HostScore = 0,
                 IsPlayoff = false,
                 Notes = "Notes"
             };
-
-            // Act
             var result = repository.AddAsync(game).Result;
 
             // Assert
@@ -288,41 +318,39 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             result.ShouldBe(game);
         }
 
-        [Fact(Skip = "Unique constraints in Game entity do not permit changes to values.")]
+        [Fact]
         public async Task Update_WhenGamesIsNotNull_ShouldSucceed_WithInMemoryDb()
         {
             // Arrange
             var options = new DbContextOptionsBuilder<ProFootballDbContext>()
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
-
             using var fakeDbContext = new ProFootballDbContext(options);
 
             var game = new Game
             {
                 Id = 1,
-                SeasonYear = 1920,
+                SeasonId = 1920,
                 Week = 1,
-                GuestName = "Guest",
+                GuestName = "Guest 1",
                 GuestScore = 0,
-                HostName = "Host",
+                HostName = "Host 1",
                 HostScore = 0,
                 IsPlayoff = false,
                 Notes = "Notes"
             };
-
             fakeDbContext.Games.Add(game);
-            await fakeDbContext.SaveChangesAsync();
+            fakeDbContext.SaveChanges();
 
-            var repository = new GameRepository(fakeDbContext);
+            var testRepository = new GameRepository(fakeDbContext);
 
             // Act
-            game.Notes = "Updated Notes";
-            repository.Update(game);
-            await fakeDbContext.SaveChangesAsync();
+            game.SeasonId = 2026;
+            testRepository.Update(game);
+            fakeDbContext.SaveChanges();
 
             // Assert
-            var updated = await fakeDbContext.Games.FirstOrDefaultAsync(s => s.Id == 1);
+            var updated = fakeDbContext.Games.FirstOrDefault(s => s.Id == 1);
             updated.ShouldNotBeNull();
         }
 
@@ -330,30 +358,46 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Delete_WhenGamesIsNotNullAndSelectedGameIsNotNull_ShouldSucceed()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Games = A.Fake<DbSet<Game>>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
 
+            var firstSeason = new Season { Id = 1920 };
+            var lastSeason = new Season { Id = 1921 };
+            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
+            fakeDbContext.SaveChanges();
+
+            var parentLeague = new League { Id = 1, ShortName = "L1", LongName = "League 1" };
+            fakeDbContext.Leagues.Add(parentLeague);
+            fakeDbContext.SaveChanges();
+
+            int id = 1;
             var game = new Game
             {
                 Id = 1,
-                SeasonYear = 1920,
+                SeasonId = 1920,
                 Week = 1,
-                GuestName = "Guest",
+                GuestName = "Guest 1",
                 GuestScore = 0,
-                HostName = "Host",
+                HostName = "Host 1",
                 HostScore = 0,
                 IsPlayoff = false,
                 Notes = "Notes"
             };
+            fakeDbContext.Games.Add(game);
+            fakeDbContext.SaveChanges();
 
-            A.CallTo(() => fakeDbContext.Games.Find(An<int>.Ignored)).Returns(game);
-            var repository = new GameRepository(fakeDbContext);
+            var gameCountBeforeDelete = fakeDbContext.Games.Count();
+
+            var testRepository = new GameRepository(fakeDbContext);
 
             // Act
-            var result = repository.Delete(game.Id);
+            var result = testRepository.Delete(game.Id);
+            fakeDbContext.SaveChanges();
 
             // Assert
-            A.CallTo(() => fakeDbContext.Games.Remove(game)).MustHaveHappenedOnceExactly();
+            fakeDbContext.Games.Count().ShouldBe(gameCountBeforeDelete - 1);
             result.ShouldBe(game);
         }
 
@@ -361,25 +405,28 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Delete_WhenGamesIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
             fakeDbContext.Games = null;
-            var repository = new GameRepository(fakeDbContext);
 
+            var testRepository = new GameRepository(fakeDbContext);
+
+            // Act
             var game = new Game
             {
                 Id = 1,
-                SeasonYear = 1920,
+                SeasonId = 1920,
                 Week = 1,
-                GuestName = "Guest",
+                GuestName = "Guest 1",
                 GuestScore = 0,
-                HostName = "Host",
+                HostName = "Host 1",
                 HostScore = 0,
                 IsPlayoff = false,
                 Notes = "Notes"
             };
-
-            // Act
-            var result = repository.Delete(game.Id);
+            var result = testRepository.Delete(game.Id);
 
             // Assert
             result.ShouldBeNull();
@@ -388,119 +435,164 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void Delete_WhenGamesIsNotNullAndSelectedGameIsNull_ShouldFailAndReturnNull()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Games = A.Fake<DbSet<Game>>();
-            A.CallTo(() => fakeDbContext.Games.Find(An<int>.Ignored)).Returns(null);
-            var repository = new GameRepository(fakeDbContext);
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
 
+            var firstSeason = new Season { Id = 1920 };
+            var lastSeason = new Season { Id = 1921 };
+
+            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
+            fakeDbContext.SaveChanges();
+
+            int id = 1;
             var game = new Game
             {
                 Id = 1,
-                SeasonYear = 1920,
+                SeasonId = 1920,
                 Week = 1,
-                GuestName = "Guest",
+                GuestName = "Guest 1",
                 GuestScore = 0,
-                HostName = "Host",
+                HostName = "Host 1",
                 HostScore = 0,
                 IsPlayoff = false,
                 Notes = "Notes"
             };
+            fakeDbContext.Games.Add(game);
+            fakeDbContext.SaveChanges();
+
+            var gameCountBeforeDelete = fakeDbContext.Games.Count();
+
+            var testRepository = new GameRepository(fakeDbContext);
 
             // Act
-            var result = repository.Delete(game.Id);
+            var result = testRepository.Delete(2);
+            fakeDbContext.SaveChanges();
 
             // Assert
-            A.CallTo(() => fakeDbContext.Games.Remove(game)).MustNotHaveHappened();
+            fakeDbContext.Games.Count().ShouldBe(gameCountBeforeDelete);
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void DeleteAsync_WhenGamesIsNotNullAndSelectedGameIsNotNull_ShouldSucceed()
+        public async Task DeleteAsync_WhenGamesIsNotNullAndSelectedGameIsNotNull_ShouldSucceed()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Games = A.Fake<DbSet<Game>>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
 
+            var firstSeason = new Season { Id = 1920 };
+            var lastSeason = new Season { Id = 1921 };
+            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
+            fakeDbContext.SaveChanges();
+
+            var parentLeague = new League { Id = 1, ShortName = "L1", LongName = "League 1" };
+            fakeDbContext.Leagues.Add(parentLeague);
+            fakeDbContext.SaveChanges();
+
+            int id = 1;
             var game = new Game
             {
                 Id = 1,
-                SeasonYear = 1920,
+                SeasonId = 1920,
                 Week = 1,
-                GuestName = "Guest",
+                GuestName = "Guest 1",
                 GuestScore = 0,
-                HostName = "Host",
+                HostName = "Host 1",
                 HostScore = 0,
                 IsPlayoff = false,
                 Notes = "Notes"
             };
+            fakeDbContext.Games.Add(game);
+            fakeDbContext.SaveChanges();
 
-            _ = A.CallTo(() => fakeDbContext.Games.FindAsync(An<int>.Ignored)).Returns(new ValueTask<Game?>(game));
-            var repository = new GameRepository(fakeDbContext);
+            var gameCountBeforeDelete = fakeDbContext.Games.Count();
+
+            var testRepository = new GameRepository(fakeDbContext);
 
             // Act
-            var result = repository.DeleteAsync(game.Id).Result;
+            var result = await testRepository.DeleteAsync(game.Id);
+            await fakeDbContext.SaveChangesAsync();
 
             // Assert
-            A.CallTo(() => fakeDbContext.Games.Remove(game)).MustHaveHappenedOnceExactly();
+            fakeDbContext.Games.Count().ShouldBe(gameCountBeforeDelete - 1);
             result.ShouldBe(game);
         }
 
         [Fact]
-        public void DeleteAsync_WhenGamesIsNull_ShouldFailAndReturnNull()
+        public async Task DeleteAsync_WhenGamesIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
             fakeDbContext.Games = null;
-            var repository = new GameRepository(fakeDbContext);
 
+            var testRepository = new GameRepository(fakeDbContext);
+
+            // Act
             var game = new Game
             {
                 Id = 1,
-                SeasonYear = 1920,
+                SeasonId = 1920,
                 Week = 1,
-                GuestName = "Guest",
+                GuestName = "Guest 1",
                 GuestScore = 0,
-                HostName = "Host",
+                HostName = "Host 1",
                 HostScore = 0,
                 IsPlayoff = false,
                 Notes = "Notes"
             };
-
-            // Act
-            var result = repository.DeleteAsync(game.Id).Result;
+            var result = await testRepository.DeleteAsync(game.Id);
 
             // Assert
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void DeleteAsync_WhenGamesIsNotNullAndSelectedGameIsNull_ShouldFailAndReturnNull()
+        public async Task DeleteAsync_WhenGamesIsNotNullAndSelectedGameIsNull_ShouldFailAndReturnNull()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Games = A.Fake<DbSet<Game>>();
-            _ = A.CallTo(() => fakeDbContext.Games.FindAsync(An<int>.Ignored)).Returns(null);
-            var repository = new GameRepository(fakeDbContext);
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
 
+            var firstSeason = new Season { Id = 1920 };
+            var lastSeason = new Season { Id = 1921 };
+
+            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
+            fakeDbContext.SaveChanges();
+
+            int id = 1;
             var game = new Game
             {
                 Id = 1,
-                SeasonYear = 1920,
+                SeasonId = 1920,
                 Week = 1,
-                GuestName = "Guest",
+                GuestName = "Guest 1",
                 GuestScore = 0,
-                HostName = "Host",
+                HostName = "Host 1",
                 HostScore = 0,
                 IsPlayoff = false,
                 Notes = "Notes"
             };
+            fakeDbContext.Games.Add(game);
+            fakeDbContext.SaveChanges();
+
+            var gameCountBeforeDelete = fakeDbContext.Games.Count();
+
+            var testRepository = new GameRepository(fakeDbContext);
 
             // Act
-            var result = repository.DeleteAsync(game.Id).Result;
+            var result = await testRepository.DeleteAsync(2);
+            await fakeDbContext.SaveChangesAsync();
 
             // Assert
-            A.CallTo(() => fakeDbContext.Games.Remove(game)).MustNotHaveHappened();
+            fakeDbContext.Games.Count().ShouldBe(gameCountBeforeDelete);
             result.ShouldBeNull();
         }
 
@@ -514,22 +606,22 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var game = new Game
             {
                 Id = 1,
-                SeasonYear = 1920,
+                SeasonId = 1920,
                 Week = 1,
-                GuestName = "Guest",
+                GuestName = "Guest 1",
                 GuestScore = 0,
-                HostName = "Host",
+                HostName = "Host 1",
                 HostScore = 0,
                 IsPlayoff = false,
                 Notes = "Notes"
             };
-
             var fakeDbSet = new List<Game> { game }.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.Games).Returns(fakeDbSet);
-            var repository = new GameRepository(fakeDbContext);
+
+            var testRepository = new GameRepository(fakeDbContext);
 
             // Act
-            var result = repository.GameExists(game.Id);
+            var result = testRepository.GameExists(game.Id);
 
             // Assert
             result.ShouldBeTrue();
@@ -545,29 +637,29 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var game = new Game
             {
                 Id = 1,
-                SeasonYear = 1920,
+                SeasonId = 1920,
                 Week = 1,
-                GuestName = "Guest",
+                GuestName = "Guest 1",
                 GuestScore = 0,
-                HostName = "Host",
+                HostName = "Host 1",
                 HostScore = 0,
                 IsPlayoff = false,
                 Notes = "Notes"
             };
-
             var fakeDbSet = new List<Game> { game }.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.Games).Returns(fakeDbSet);
-            var repository = new GameRepository(fakeDbContext);
+
+            var testRepository = new GameRepository(fakeDbContext);
 
             // Act
-            var result = repository.GameExists(2);
+            var result = testRepository.GameExists(2);
 
             // Assert
             result.ShouldBeFalse();
         }
 
         [Fact]
-        public void GameExistsAsync_WhenGamesIsNotNullAndSelectedGameExists_ShouldReturnTrue()
+        public async Task GameExistsAsync_WhenGamesIsNotNullAndSelectedGameExists_ShouldReturnTrue()
         {
             // Arrange
             var fakeDbContext = A.Fake<ProFootballDbContext>();
@@ -576,29 +668,29 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var game = new Game
             {
                 Id = 1,
-                SeasonYear = 1920,
+                SeasonId = 1920,
                 Week = 1,
-                GuestName = "Guest",
+                GuestName = "Guest 1",
                 GuestScore = 0,
-                HostName = "Host",
+                HostName = "Host 1",
                 HostScore = 0,
                 IsPlayoff = false,
                 Notes = "Notes"
             };
-
             var fakeDbSet = new List<Game> { game }.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.Games).Returns(fakeDbSet);
-            var repository = new GameRepository(fakeDbContext);
+
+            var testRepository = new GameRepository(fakeDbContext);
 
             // Act
-            var result = repository.GameExistsAsync(game.Id).Result;
+            var result = await testRepository.GameExistsAsync(game.Id);
 
             // Assert
             result.ShouldBeTrue();
         }
 
         [Fact]
-        public void GameExistsAsync_WhenGamesIsNotNullAndSelectedGameDoesNotExist_ShouldReturnFalse()
+        public async Task GameExistsAsync_WhenGamesIsNotNullAndSelectedGameDoesNotExist_ShouldReturnFalse()
         {
             // Arrange
             var fakeDbContext = A.Fake<ProFootballDbContext>();
@@ -607,22 +699,22 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var game = new Game
             {
                 Id = 1,
-                SeasonYear = 1920,
+                SeasonId = 1920,
                 Week = 1,
-                GuestName = "Guest",
+                GuestName = "Guest 1",
                 GuestScore = 0,
-                HostName = "Host",
+                HostName = "Host 1",
                 HostScore = 0,
                 IsPlayoff = false,
                 Notes = "Notes"
             };
-
             var fakeDbSet = new List<Game> { game }.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.Games).Returns(fakeDbSet);
-            var repository = new GameRepository(fakeDbContext);
+
+            var testRepository = new GameRepository(fakeDbContext);
 
             // Act
-            var result = repository.GameExistsAsync(2).Result;
+            var result = await testRepository.GameExistsAsync(2);
 
             // Assert
             result.ShouldBeFalse();

@@ -22,6 +22,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         /// <summary>
         /// Gets or sets the collection of team seasons for the current view model.
         /// </summary>
-        public IEnumerable<EldredBrown.ProFootball.Net.Data.Models.ITeamSeason> TeamSeasons { get; set; }
+        public IEnumerable<EldredBrown.ProFootball.Net.Data.Models.TeamSeason> TeamSeasons { get; set; }
     }
 }

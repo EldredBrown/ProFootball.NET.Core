@@ -16,19 +16,14 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
     public class GameServiceTest
     {
         private readonly IGameRepository _gameRepository;
-        private readonly ITeamSeasonRepository _teamSeasonRepository;
-        private readonly ISharedRepository _sharedRepository;
         private readonly IProcessGameStrategyFactory _processGameStrategyFactory;
         private readonly GameService _testService;
 
         public GameServiceTest()
         {
             _gameRepository = A.Fake<IGameRepository>();
-            _teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            _sharedRepository = A.Fake<ISharedRepository>();
             _processGameStrategyFactory = A.Fake<IProcessGameStrategyFactory>();
-            _testService = new GameService(_gameRepository, _teamSeasonRepository, _sharedRepository,
-                _processGameStrategyFactory);
+            _testService = new GameService(_gameRepository, _processGameStrategyFactory);
         }
 
         [Fact]
@@ -45,7 +40,6 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
 
             // Assert
             A.CallTo(() => _gameRepository.Add(newGame)).MustHaveHappened();
-            A.CallTo(() => _sharedRepository.SaveChanges()).MustHaveHappenedOnceExactly();
             A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Up)).MustHaveHappened();
             A.CallTo(() => strategy.ProcessGame(A<Game>.Ignored)).MustHaveHappenedOnceExactly();
         }
@@ -78,7 +72,6 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
 
             // Assert
             A.CallTo(() => _gameRepository.AddAsync(newGame)).MustHaveHappened();
-            A.CallTo(() => _sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Up)).MustHaveHappened();
             A.CallTo(() => strategy.ProcessGameAsync(A<Game>.Ignored)).MustHaveHappenedOnceExactly();
         }
@@ -121,7 +114,6 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Up)).MustHaveHappened();
             A.CallTo(() => downStrategy.ProcessGame(A<Game>.Ignored)).MustHaveHappenedOnceExactly();
             A.CallTo(() => upStrategy.ProcessGame(A<Game>.Ignored)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => _sharedRepository.SaveChanges()).MustHaveHappenedOnceExactly();
         }
 
         [Fact]
@@ -195,7 +187,6 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Up)).MustHaveHappened();
             A.CallTo(() => downStrategy.ProcessGameAsync(A<Game>.Ignored)).MustHaveHappenedOnceExactly();
             A.CallTo(() => upStrategy.ProcessGameAsync(A<Game>.Ignored)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => _sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
         }
 
         [Fact]
@@ -261,7 +252,6 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             A.CallTo(() => _gameRepository.GetGame(id)).MustHaveHappened();
             A.CallTo(() => _gameRepository.Delete(id)).MustHaveHappened();
             A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Down)).MustHaveHappened();
-            A.CallTo(() => _sharedRepository.SaveChanges()).MustHaveHappenedOnceExactly();
         }
 
         [Fact]
@@ -296,7 +286,6 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             A.CallTo(() => _gameRepository.GetGameAsync(id)).MustHaveHappened();
             A.CallTo(() => _gameRepository.DeleteAsync(id)).MustHaveHappened();
             A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Down)).MustHaveHappened();
-            A.CallTo(() => _sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
         }
 
         [Fact]

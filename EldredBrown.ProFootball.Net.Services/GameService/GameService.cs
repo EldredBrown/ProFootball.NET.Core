@@ -14,8 +14,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
     public class GameService : IGameService
     {
         private readonly IGameRepository _gameRepository;
-        private readonly ITeamSeasonRepository _teamSeasonRepository;
-        private readonly ISharedRepository _sharedRepository;
+        //private readonly ITeamSeasonRepository _teamSeasonRepository;
         private readonly IProcessGameStrategyFactory _processGameStrategyFactory;
 
         /// <summary>
@@ -23,14 +22,15 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
         /// </summary>
         /// <param name="gameRepository">The repository by which game data will be accessed.</param>
         /// <param name="teamSeasonRepository">The repository by which team season data will be accessed.</param>
-        /// <param name="sharedRepository">The <see cref="ISharedRepository"/> by which shared data resources will be accessed.</param>
         /// <param name="processGameStrategyFactory">The factory that will initialize the needed <see cref="ProcessGameStrategyBase"/> subclass.</param>
-        public GameService(IGameRepository gameRepository, ITeamSeasonRepository teamSeasonRepository,
-            ISharedRepository sharedRepository, IProcessGameStrategyFactory processGameStrategyFactory)
+        public GameService(
+            IGameRepository gameRepository,
+            //ITeamSeasonRepository teamSeasonRepository,
+            IProcessGameStrategyFactory processGameStrategyFactory
+        )
         {
             _gameRepository = gameRepository;
-            _teamSeasonRepository = teamSeasonRepository;
-            _sharedRepository = sharedRepository;
+            //_teamSeasonRepository = teamSeasonRepository;
             _processGameStrategyFactory = processGameStrategyFactory;
         }
 
@@ -42,13 +42,11 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
         {
             Guard.ThrowIfNull(newGame, $"{GetType()}.{nameof(AddGame)}: {nameof(newGame)}");
 
-            //ValidateTeamsInNewGame(newGame);
+            //await ValidateTeamsInNewGameAsync(newGame);
 
             _gameRepository.Add(newGame);
 
             EditTeamSeasons(Direction.Up, newGame);
-
-            _sharedRepository.SaveChanges();
         }
 
         /// <summary>
@@ -62,10 +60,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
             //await ValidateTeamsInNewGameAsync(newGame);
 
             await _gameRepository.AddAsync(newGame);
-
             await EditTeamSeasonsAsync(Direction.Up, newGame);
-
-            await _sharedRepository.SaveChangesAsync();
         }
 
         /// <summary>
@@ -78,9 +73,9 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
             Guard.ThrowIfNull(newGame, $"{GetType()}.{nameof(EditGame)}: {nameof(newGame)}");
             Guard.ThrowIfNull(oldGame, $"{GetType()}.{nameof(EditGame)}: {nameof(oldGame)}");
 
-            //ValidateTeamsInNewGame(newGame);
+            //await ValidateTeamsInNewGameAsync(newGame);
 
-            var selectedGame = _gameRepository.GetGame(oldGame.Id);
+            var selectedGame = _gameRepository.GetGame(newGame.Id);
             if (selectedGame is null)
             {
                 throw new EntityNotFoundException(
@@ -93,8 +88,6 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
 
             EditTeamSeasons(Direction.Down, oldGame);
             EditTeamSeasons(Direction.Up, newGame);
-
-            _sharedRepository.SaveChanges();
         }
 
         /// <summary>
@@ -122,8 +115,6 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
 
             await EditTeamSeasonsAsync(Direction.Down, oldGame);
             await EditTeamSeasonsAsync(Direction.Up, newGame);
-
-            await _sharedRepository.SaveChangesAsync();
         }
 
         /// <summary>
@@ -142,7 +133,6 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
             EditTeamSeasons(Direction.Down, oldGame);
 
             _gameRepository.Delete(id);
-            _sharedRepository.SaveChanges();
         }
 
         /// <summary>
@@ -159,9 +149,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
             }
 
             await EditTeamSeasonsAsync(Direction.Down, oldGame);
-
             await _gameRepository.DeleteAsync(id);
-            await _sharedRepository.SaveChangesAsync();
         }
 
         private void EditTeamSeasons(Direction direction, Game game)

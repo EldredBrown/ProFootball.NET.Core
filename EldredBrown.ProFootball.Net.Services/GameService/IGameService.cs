@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+
 using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Services.GameServiceNS

@@ -10,6 +10,7 @@ using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 using EldredBrown.ProFootball.Net.Services.GameServiceNS;
+using Microsoft.AspNetCore.Http;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 {
@@ -18,20 +19,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     /// </summary>
     public class GameController : Controller
     {
-        public static int SelectedSeasonYear = 1920;
-        public static int? SelectedWeek;
-        public static Game OldGame;
-
         private readonly IGameIndexViewModel _gameIndexViewModel;
         private readonly IGameDetailsViewModel _gameDetailsViewModel;
+        private readonly IGameViewModelMapper _gameViewModelMapper;
         private readonly IGameService _gameService;
-        private readonly ISeasonRepository _seasonRepository;
-        private readonly ITeamRepository _teamRepository;
         private readonly IGameRepository _gameRepository;
+        private readonly ITeamRepository _teamRepository;
+        private readonly ISeasonRepository _seasonRepository;
         private readonly ISharedRepository _sharedRepository;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GameController"/> class.
+        /// Initializes a new instance of the <see cref="GamesController"/> class.
         /// </summary>
         /// <param name="gameIndexViewModel">
         /// The <see cref="IGameIndexViewModel"/> that will provide ViewModel data to the Index view.
@@ -39,36 +37,42 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <param name="gameDetailsViewModel">
         /// The <see cref="IGameDetailsViewModel"/> that will provide ViewModel data to the Details view.
         /// </param>
+        /// <param name="gameViewModelMapper">
+        /// The <see cref="IGameViewModelMapper"/> by which game data will be mapped to view models.
+        /// </param>
         /// <param name="gameService">
         /// The <see cref="IGameService"/> for processing Game data.
         /// </param>
-        /// <param name="seasonRepository">
-        /// The <see cref="ISeasonRepository"/> by which season data will be accessed.
+        /// <param name="gameRepository">
+        /// The <see cref="IGameRepository"/> by which game data will be accessed.
         /// </param>
         /// <param name="teamRepository">
         /// The <see cref="ITeamRepository"/> by which team data will be accessed.
         /// </param>
-        /// <param name="gameRepository">
-        /// The <see cref="IGameRepository"/> by which game data will be accessed.
+        /// <param name="seasonRepository">
+        /// The <see cref="ISeasonRepository"/> by which season data will be accessed.
         /// </param>
         /// <param name="sharedRepository">
         /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
         /// </param>
         public GameController(
-            IGameIndexViewModel gameIndexViewModel,
-            IGameDetailsViewModel gameDetailsViewModel,
+            IGameIndexViewModel gamesIndexViewModel,
+            IGameDetailsViewModel gamesDetailsViewModel,
+            IGameViewModelMapper gameViewModelMapper,
             IGameService gameService,
-            ISeasonRepository seasonRepository,
-            ITeamRepository teamRepository,
             IGameRepository gameRepository,
-            ISharedRepository sharedRepository)
+            ITeamRepository teamRepository,
+            ISeasonRepository seasonRepository,
+            ISharedRepository sharedRepository
+        )
         {
-            _gameIndexViewModel = gameIndexViewModel;
-            _gameDetailsViewModel = gameDetailsViewModel;
+            _gameIndexViewModel = gamesIndexViewModel;
+            _gameDetailsViewModel = gamesDetailsViewModel;
+            _gameViewModelMapper = gameViewModelMapper;
             _gameService = gameService;
-            _seasonRepository = seasonRepository;
-            _teamRepository = teamRepository;
             _gameRepository = gameRepository;
+            _teamRepository = teamRepository;
+            _seasonRepository = seasonRepository;
             _sharedRepository = sharedRepository;
         }
 
@@ -80,16 +84,23 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var (seasons, orderedSeasons) = await GetSeasonsAndOrderedSeasons();
-            _gameIndexViewModel.Seasons = new SelectList(orderedSeasons, "Year", "Year", SelectedSeasonYear);
-            _gameIndexViewModel.SelectedSeasonYear = SelectedSeasonYear;
+            var seasons = await GetOrderedSeasons();
+            var selectedSeasonYear = HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
+            if (selectedSeasonYear is null)
+            {
+                SetSelectedSeasonYear(seasons.First().Id);
+                selectedSeasonYear = HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
+            }
+            _gameIndexViewModel.Seasons = new SelectList(seasons, "Id", "Id", selectedSeasonYear);
+            _gameIndexViewModel.SelectedSeasonYear = selectedSeasonYear;
 
-            var weeks = GetWeeks(seasons, firstIndex: 0);
-            _gameIndexViewModel.Weeks = new SelectList(weeks, SelectedWeek);
-            _gameIndexViewModel.SelectedWeek = SelectedWeek;
+            var weeks = GetWeeks(seasons, selectedSeasonYear, firstIndex : 0);
+            var selectedWeek = HttpContext.Session.GetObject<int?>("SelectedWeek");
+            _gameIndexViewModel.Weeks = new SelectList(weeks, selectedWeek);
+            _gameIndexViewModel.SelectedWeek = selectedWeek;
 
-            var games = await GetGames();
-            _gameIndexViewModel.Games = games;
+            var games = await GetGames(selectedSeasonYear, selectedWeek);
+            _gameIndexViewModel.Games = games.Select(g => _gameViewModelMapper.MapGameToViewModel(g));
 
             return View(_gameIndexViewModel);
         }
@@ -114,7 +125,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            _gameDetailsViewModel.Game = game;
+            _gameDetailsViewModel.Game = _gameViewModelMapper.MapGameToViewModel(game);
 
             return View(_gameDetailsViewModel);
         }
@@ -127,12 +138,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var (seasons, orderedSeasons) = await GetSeasonsAndOrderedSeasons();
-            ViewBag.Seasons = new SelectList(orderedSeasons, "Year", "Year", SelectedSeasonYear);
+            var seasons = await GetOrderedSeasons();
+            var selectedSeasonYear = HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
+            ViewBag.Seasons = new SelectList(seasons, "Id", "Id", selectedSeasonYear);
 
-            int firstIndex = 1;
-            var weeks = GetWeeks(seasons, firstIndex);
-            int selectedWeek = SelectedWeek ?? firstIndex;
+            var weeks = GetWeeks(seasons, selectedSeasonYear, firstIndex: 0);
+            var selectedWeek = HttpContext.Session.GetObject<int?>("SelectedWeek");
             ViewBag.Weeks = new SelectList(weeks, selectedWeek);
 
             // TODO: Uncomment this when the slate of teams is finalized.
@@ -149,29 +160,48 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Processes the data posted back from the game create form.
         /// </summary>
-        /// <param name="game">A <see cref="Game"/> object with the data provided for the new game.</param>
+        /// <param name="gameViewModel">A <see cref="Game"/> object with the data provided for the new game.</param>
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("SeasonYear,Week,GuestName,GuestScore,HostName,HostScore,WinnerName,WinnerScore,LoserName,LoserScore,IsPlayoffGame,Notes")] Game game)
+        public async Task<IActionResult> Create([Bind("SeasonYear,Week,GuestName,GuestScore,HostName,HostScore,IsPlayoff,Notes")] GameViewModel gameViewModel)
         {
             if (ModelState.IsValid)
             {
+                var game = await _gameViewModelMapper.MapViewModelToGame(gameViewModel);
                 await _gameService.AddGameAsync(game);
-                await _sharedRepository.SaveChangesAsync();
 
-                return RedirectToAction(nameof(Create));
+                try
+                {
+                    await _sharedRepository.SaveChangesAsync();
+                }
+                catch (DbUpdateException ex)
+                {
+                    await HandleDbUpdateExceptionOnCreate(ex, game);
+                    return View(gameViewModel);
+                }
+
+                SetSelectedWeek(game.Week);
+                return RedirectToAction(nameof(Index));
             }
 
-            return View(game);
+            var seasons = await GetOrderedSeasons();
+            var selectedSeasonYear = HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
+            ViewBag.Seasons = new SelectList(seasons, "Id", "Id", selectedSeasonYear);
+
+            var weeks = GetWeeks(seasons, selectedSeasonYear, firstIndex: 0);
+            var selectedWeek = HttpContext.Session.GetObject<int?>("SelectedWeek");
+            ViewBag.Weeks = new SelectList(weeks, selectedWeek);
+
+            return View(gameViewModel);
         }
 
         // GET: Games/Edit/5
-        [HttpGet]
         /// <summary>
         /// Renders a view of the game edit form.
         /// </summary>
         /// <returns>The rendered view of the game edit form.</returns>
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id is null)
@@ -185,21 +215,24 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var (seasons, orderedSeasons) = await GetSeasonsAndOrderedSeasons();
-            ViewBag.Seasons = new SelectList(orderedSeasons, "Year", "Year", game.SeasonYear);
+            var gameViewModel = _gameViewModelMapper.MapGameToViewModel(game);
+            var selectedSeasonYear = gameViewModel.SeasonYear;
+
+            var seasons = await GetOrderedSeasons();
+            ViewBag.Seasons = new SelectList(seasons, "Id", "Id", selectedSeasonYear);
 
             int firstIndex = 1;
-            var weeks = GetWeeks(seasons, firstIndex);
-            ViewBag.Weeks = new SelectList(weeks, game.Week);
+            var weeks = GetWeeks(seasons, selectedSeasonYear, firstIndex);
+            ViewBag.Weeks = new SelectList(weeks, gameViewModel.Week);
 
             // TODO: Uncomment this when the slate of teams is finalized.
             //var teams = await _teamRepository.GetTeams();
             //ViewBag.GuestName = new SelectList(teams, "Name", "Name");
             //ViewBag.HostName = new SelectList(teams, "Name", "Name");
 
-            OldGame = game;
-
-            return View(game);
+            //OldGame = game;
+            HttpContext.Session.SetObject("OldGame", game);
+            return View(gameViewModel);
         }
 
         // POST: Games/Edit/5
@@ -208,27 +241,31 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Processes the data posted back from the game edit form.
         /// </summary>
-        /// <param name="game">A <see cref="Game"/> object with the data provided for the updated game.</param>
+        /// <param name="gameViewModel">A <see cref="Game"/> object with the data provided for the game game.</param>
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,SeasonYear,Week,GuestName,GuestScore,HostName,HostScore,WinnerName,WinnerScore,LoserName,LoserScore,IsPlayoffGame,Notes")] Game game)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,SeasonYear,Week,GuestName,GuestScore,HostName,HostScore,IsPlayoff,Notes")] GameViewModel gameViewModel)
         {
-            if (id != game.Id)
+            if (id != gameViewModel.Id)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
+                var game = await _gameViewModelMapper.MapViewModelToGame(gameViewModel);
+                _gameRepository.Update(game);
+
                 try
                 {
-                    await _gameService.EditGameAsync(game, OldGame!);
+                    var oldGame = HttpContext.Session.GetObject<Game>("OldGame");
+                    await _gameService.EditGameAsync(game, oldGame!);
                     await _sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await _gameRepository.GameExistsAsync(game.Id))
+                    if (!(await _gameRepository.GameExistsAsync(game.Id)))
                     {
                         return NotFound();
                     }
@@ -237,11 +274,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                         throw;
                     }
                 }
+                catch (DbUpdateException ex)
+                {
+                    await HandleDbUpdateExceptionOnEdit(ex, game);
+                    return View(gameViewModel);
+                }
 
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(game);
+            return View(gameViewModel);
         }
 
         // GET: Games/Delete/5
@@ -263,7 +305,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            return View(game);
+            var gameViewModel = _gameViewModelMapper.MapGameToViewModel(game);
+            return View(gameViewModel);
         }
 
         // POST: Games/Delete/5
@@ -294,7 +337,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return BadRequest();
             }
 
-            SelectedSeasonYear = seasonYear.Value;
+            HttpContext.Session.SetObject("SelectedSeasonYear", seasonYear);
+            HttpContext.Session.SetObject<int?>("SelectedWeek", null);
 
             return RedirectToAction(nameof(Index));
         }
@@ -306,52 +350,111 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <returns>The rendered view of the <see cref="RedirectToActionResult"/>.</returns>
         public IActionResult SetSelectedWeek(int? week)
         {
-            SelectedWeek = week;
+            HttpContext.Session.SetObject("SelectedWeek", week);
 
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task<IEnumerable<Game>> GetGames()
+        private async Task<IEnumerable<Game>> GetGames(int? selectedSeasonYear, int? selectedWeek)
         {
-            var games = await _gameRepository.GetGamesAsync();
-            games = games.Where(g => g.SeasonYear == SelectedSeasonYear);
-            if (SelectedWeek.HasValue)
+            var games = (await _gameRepository.GetGamesAsync()).Where(g => g.SeasonId == selectedSeasonYear);
+            if (selectedWeek.HasValue)
             {
-                games = games.Where(g => g.Week == SelectedWeek.Value);
+                games = games.Where(g => g.Week == selectedWeek);
             }
-            games = games.ToList();
-
             return games;
         }
 
-        private async Task<(IEnumerable<Season>, IOrderedEnumerable<Season>)> GetSeasonsAndOrderedSeasons()
+        private async Task<IOrderedEnumerable<Season>> GetOrderedSeasons()
         {
-            var seasons = await _seasonRepository.GetSeasonsAsync();
-            var orderedSeasons = seasons.OrderByDescending(s => s.Year);
-            return (seasons, orderedSeasons);
+            return (await _seasonRepository.GetSeasonsAsync())
+                .OrderByDescending(s => s.Id);
         }
 
-        private static List<int?> GetWeeks(IEnumerable<Season> seasons, int firstIndex)
+        private List<int?> GetWeeks(IEnumerable<Season> seasons, int? selectedSeasonYear, int firstIndex)
         {
             var weeks = new List<int?>();
 
-            var selectedSeason = seasons.FirstOrDefault(s => s.Year == SelectedSeasonYear);
+            var selectedSeason = seasons.FirstOrDefault(s => s.Id == selectedSeasonYear);
             if (selectedSeason is not null)
             {
                 for (int i = firstIndex; i <= selectedSeason.NumOfWeeksScheduled; i++)
                 {
-                    if (i == 0)
-                    {
-                        weeks.Add(null);
-                    }
-                    else
-                    {
-                        weeks.Add(i);
-                    }
+                    weeks.Add(i == 0 ? null : i);
                 }
             }
 
             return weeks;
+        }
+
+        private async Task HandleDbUpdateExceptionOnCreate(DbUpdateException ex, Game game)
+        {
+            var games = await _gameRepository.GetGamesAsync();
+            var errMsgIntro = "Unable to save changes.";
+
+            if (PrimaryKeyViolationExists(games, game))
+            {
+                ModelState.AddModelError("Id", $"{errMsgIntro} A game with the same Id already exists.");
+            }
+            else if (UniqueKeyViolationExistsOnCreate(games, game))
+            {
+                ModelState.AddModelError(string.Empty, $"{errMsgIntro} A game with the same season, week, guest, and host already exists.");
+            }
+            else if (ForeignKeyUtils.ForeignKeyConstraintConflictExistsOnCreate(ex.InnerException.Message))
+            {
+                ForeignKeyUtils.AddModelErrorForForeignKeyConstraintConflict(errMsgIntro, ex.InnerException.Message,
+                    ModelState);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, $"{errMsgIntro} An unexpected error occurred.");
+            }
+        }
+
+        private bool PrimaryKeyViolationExists(IEnumerable<Game> games, Game game)
+        {
+            return games.Any(g => g.Id == game.Id);
+        }
+
+        private bool UniqueKeyViolationExistsOnCreate(IEnumerable<Game> games, Game game)
+        {
+            return games.Any(
+                g => g.SeasonId == game.SeasonId &&
+                g.Week == game.Week &&
+                g.GuestName == game.GuestName &&
+                g.HostName == game.HostName
+            );
+        }
+
+        private async Task HandleDbUpdateExceptionOnEdit(DbUpdateException ex, Game game)
+        {
+            var games = await _gameRepository.GetGamesAsync();
+            var errMsgIntro = "Unable to save changes.";
+
+            if (UniqueKeyViolationExistsOnEdit(games, game))
+            {
+                ModelState.AddModelError(string.Empty,
+                    $"{errMsgIntro} A game with the same season, week, guest, and host already exists.");
+            }
+            else if (ForeignKeyUtils.ForeignKeyConstraintConflictExistsOnEdit(ex.InnerException.Message))
+            {
+                ForeignKeyUtils.AddModelErrorForForeignKeyConstraintConflict(errMsgIntro, ex.InnerException.Message,
+                    ModelState);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, $"{errMsgIntro} An unexpected error occurred.");
+            }
+        }
+
+        private bool UniqueKeyViolationExistsOnEdit(IEnumerable<Game> games, Game game)
+        {
+            return games.Count(
+                g => g.SeasonId == game.SeasonId &&
+                g.Week == game.Week &&
+                g.GuestName == game.GuestName &&
+                g.HostName == game.HostName
+            ) > 1;
         }
     }
 }

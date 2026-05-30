@@ -9,7 +9,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
         private static NullGameStrategy? _instance;
 
         private NullGameStrategy()
-            : base(null!)
+            : base(null!, null!)
         {
         }
 

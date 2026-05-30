@@ -304,10 +304,7 @@ public partial class ProFootballDbContext : DbContext
             entity.ToTable("TeamSeason");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.TeamId)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("team_name");
+            entity.Property(e => e.TeamId).HasColumnName("team_id");
             entity.Property(e => e.SeasonId).HasColumnName("season_id");
             entity.Property(e => e.LeagueId).HasColumnName("league_id");
             entity.Property(e => e.ConferenceId).HasColumnName("conference_id");

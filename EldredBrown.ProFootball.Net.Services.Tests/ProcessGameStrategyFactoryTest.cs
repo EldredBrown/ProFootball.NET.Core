@@ -1,6 +1,7 @@
 ﻿using FakeItEasy;
 using Shouldly;
 using Xunit;
+
 using EldredBrown.ProFootball.Net.Data.Repositories;
 using EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy;
 
@@ -12,8 +13,9 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
 
         public ProcessGameStrategyFactoryTest()
         {
+            var teamRepository = A.Fake<ITeamRepository>();
             var teamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            _factory = new ProcessGameStrategyFactory(teamSeasonRepository);
+            _factory = new ProcessGameStrategyFactory(teamRepository, teamSeasonRepository);
         }
 
         [Fact]

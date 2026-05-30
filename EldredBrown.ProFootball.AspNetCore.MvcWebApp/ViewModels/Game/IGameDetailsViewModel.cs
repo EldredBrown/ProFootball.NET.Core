@@ -2,6 +2,6 @@
 {
     public interface IGameDetailsViewModel
     {
-        EldredBrown.ProFootball.Net.Data.Models.Game Game { get; set; }
+        GameViewModel Game { get; set; }
     }
 }

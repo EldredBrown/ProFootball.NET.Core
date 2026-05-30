@@ -8,13 +8,16 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
         /// <summary>
         /// Initializes a new instance of the <see cref="SubtractGameStrategy"/> class.
         /// </summary>
+        /// <param name="teamRepository">The repository by which team data will be accessed.</param>
         /// <param name="teamSeasonRepository">The repository by which team season data will be accessed.</param>
-        public SubtractGameStrategy(ITeamSeasonRepository teamSeasonRepository)
-            : base(teamSeasonRepository)
-        {
-        }
+        public SubtractGameStrategy(
+            ITeamRepository teamRepository,
+            ITeamSeasonRepository teamSeasonRepository
+        )
+            : base(teamRepository, teamSeasonRepository)
+        { }
 
-        protected override void UpdateGamesForTeamSeasons(ITeamSeason? guestSeason, ITeamSeason? hostSeason)
+        protected override void UpdateGamesForTeamSeasons(TeamSeason? guestSeason, TeamSeason? hostSeason)
         {
             if (guestSeason is not null)
             {
@@ -28,7 +31,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
         }
 
         protected override void UpdateWinsLossesAndTiesForTeamSeasons(
-            ITeamSeason? guestSeason, ITeamSeason? hostSeason, Game game)
+            TeamSeason? guestSeason, TeamSeason? hostSeason, Game game)
         {
             if (game.IsTie)
             {
@@ -59,7 +62,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
             }
         }
 
-        protected override void EditScoringDataForTeamSeason(ITeamSeason? teamSeason, int teamScore, int opponentScore)
+        protected override void EditScoringDataForTeamSeason(TeamSeason? teamSeason, int teamScore, int opponentScore)
         {
             if (teamSeason is null)
             {
@@ -68,7 +71,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
 
             teamSeason.PointsFor -= teamScore;
             teamSeason.PointsAgainst -= opponentScore;
-            teamSeason.CalculateExpectedWinsAndLosses();
+            CalculateExpectedWinsAndLosses(teamSeason);
         }
     }
 }

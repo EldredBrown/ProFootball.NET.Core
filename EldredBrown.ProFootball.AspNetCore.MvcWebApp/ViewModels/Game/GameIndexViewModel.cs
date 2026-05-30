@@ -17,7 +17,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game
         /// <summary>
         /// Gets or sets the year of the selected season for the current view model.
         /// </summary>
-        public int SelectedSeasonYear { get; set; }
+        public int? SelectedSeasonYear { get; set; }
 
         /// <summary>
         /// Gets or sets the list that lets users select a week.
@@ -32,6 +32,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game
         /// <summary>
         /// Gets or sets the collection of games for the current view model.
         /// </summary>
-        public IEnumerable<EldredBrown.ProFootball.Net.Data.Models.Game> Games { get; set; }
+        public IEnumerable<GameViewModel> Games { get; set; }
     }
 }

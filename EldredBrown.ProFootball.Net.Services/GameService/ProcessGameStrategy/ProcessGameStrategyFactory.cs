@@ -7,14 +7,19 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
     /// </summary>
     public class ProcessGameStrategyFactory : IProcessGameStrategyFactory
     {
+        private readonly ITeamRepository _teamRepository;
         private readonly ITeamSeasonRepository _teamSeasonRepository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProcessGameStrategyFactory"/> class.
         /// </summary>
         /// <param name="teamSeasonRepository">The repository by which team season data will be accessed.</param>
-        public ProcessGameStrategyFactory(ITeamSeasonRepository teamSeasonRepository)
+        public ProcessGameStrategyFactory(
+            ITeamRepository teamRepository,
+            ITeamSeasonRepository teamSeasonRepository
+        )
         {
+            _teamRepository = teamRepository;
             _teamSeasonRepository = teamSeasonRepository;
         }
 
@@ -27,8 +32,8 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
         {
             ProcessGameStrategyBase processGameStrategy = direction switch
             {
-                Direction.Up => new AddGameStrategy(_teamSeasonRepository),
-                Direction.Down => new SubtractGameStrategy(_teamSeasonRepository),
+                Direction.Up => new AddGameStrategy(_teamRepository, _teamSeasonRepository),
+                Direction.Down => new SubtractGameStrategy(_teamRepository, _teamSeasonRepository),
                 _ => NullGameStrategy.Instance
             };
 

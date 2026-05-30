@@ -14,15 +14,15 @@ using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.League;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conference;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Division;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Team;
-//using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game;
+//using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason;
 //using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.LeagueSeason;
 //using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.SeasonStandings;
-//using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason;
 using EldredBrown.ProFootball.Net.Data;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 using EldredBrown.ProFootball.Net.Services;
-//using EldredBrown.ProFootball.Net.Services.GameServiceNS;
-using Microsoft.Extensions.Logging;
+using EldredBrown.ProFootball.Net.Services.GameServiceNS;
+using EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
 {
@@ -48,9 +48,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
 
             services.AddDbContext<ProFootballDbContext>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("ProFootballDb"))
-                    .LogTo(Console.WriteLine, LogLevel.Information)
-                    .EnableSensitiveDataLogging(); // shows actual parameter values);
+                options.UseSqlServer(Configuration.GetConnectionString("ProFootballDb"));
             });
 
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -68,15 +66,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
             services.AddScoped<IConferenceRepository, ConferenceRepository>();
             services.AddScoped<IDivisionRepository, DivisionRepository>();
             services.AddScoped<ITeamRepository, TeamRepository>();
-            //services.AddScoped<IGameRepository, GameRepository>();
+            services.AddScoped<IGameRepository, GameRepository>();
+            services.AddScoped<ITeamSeasonRepository, TeamSeasonRepository>();
             //services.AddScoped<ILeagueSeasonRepository, LeagueSeasonRepository>();
-            //services.AddScoped<ITeamSeasonRepository, TeamSeasonRepository>();
             //services.AddScoped<ITeamSeasonScheduleRepository, TeamSeasonScheduleRepository>();
             //services.AddScoped<ISeasonStandingsRepository, SeasonStandingsRepository>();
             //services.AddScoped<ISeasonRankingsRepository, SeasonRankingsRepository>();
             services.AddScoped<ISharedRepository, SharedRepository>();
 
-            //services.AddScoped<IGameService, GameService>();
+            services.AddScoped<IGameService, GameService>();
+            services.AddScoped<IProcessGameStrategyFactory, ProcessGameStrategyFactory>();
             //services.AddScoped<IWeeklyUpdateService, WeeklyUpdateService>();
             //services.AddScoped<IGamePredictorService, GamePredictorService>();
 
@@ -93,8 +92,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
             services.AddScoped<IDivisionViewModelMapper, DivisionViewModelMapper>();
             services.AddScoped<ITeamIndexViewModel, TeamIndexViewModel>();
             services.AddScoped<ITeamDetailsViewModel, TeamDetailsViewModel>();
-            //services.AddScoped<IGameIndexViewModel, GameIndexViewModel>();
-            //services.AddScoped<IGameDetailsViewModel, GameDetailsViewModel>();
+            services.AddScoped<IGameIndexViewModel, GameIndexViewModel>();
+            services.AddScoped<IGameDetailsViewModel, GameDetailsViewModel>();
+            services.AddScoped<IGameViewModelMapper, GameViewModelMapper>();
             //services.AddScoped<ILeagueSeasonIndexViewModel, LeagueSeasonIndexViewModel>();
             //services.AddScoped<ILeagueSeasonDetailsViewModel, LeagueSeasonDetailsViewModel>();
             //services.AddScoped<ITeamSeasonIndexViewModel, TeamSeasonIndexViewModel>();

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,7 +18,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <summary>
         /// Initializes a new instance of the <see cref="GameRepository"/> class.
         /// </summary>
-        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
+        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the data store.</param>
         public GameRepository(ProFootballDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -29,18 +28,22 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="Game"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
-        public IEnumerable<Game>? GetGames()
+        public IEnumerable<Game> GetGames()
         {
-            return _dbContext.Games;
+            return _dbContext.Games
+                .Include(s => s.SeasonIdNavigation)
+                .ToList();
         }
 
         /// <summary>
-        /// Gets all <see cref="Game"/> entities in the data store asynchronously.
+        /// Gets all <see cref="Game"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
         public async Task<IEnumerable<Game>> GetGamesAsync()
         {
-            return await _dbContext.Games.ToListAsync();
+            return await _dbContext.Games
+                .Include(s => s.SeasonIdNavigation)
+                .ToListAsync();
         }
 
         /// <summary>
@@ -55,11 +58,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            return _dbContext.Games.Find(id);
+            return _dbContext.Games
+                .Include(s => s.SeasonIdNavigation)
+                .FirstOrDefault(c => c.Id == id);
         }
 
         /// <summary>
-        /// Gets a single <see cref="Game"/> entity from the data store asynchronously by Id.
+        /// Gets a single <see cref="Game"/> entity from the data store by Id.
         /// </summary>
         /// <param name="id">The Id of the <see cref="Game"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Game"/> entity.</returns>
@@ -70,7 +75,9 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            return await _dbContext.Games.FindAsync(id);
+            return await _dbContext.Games
+                .Include(s => s.SeasonIdNavigation)
+                .FirstOrDefaultAsync(c => c.Id == id);
         }
 
         /// <summary>
@@ -86,7 +93,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         }
 
         /// <summary>
-        /// Adds a <see cref="Game"/> entity to the data store asynchrously.
+        /// Adds a <see cref="Game"/> entity to the data store.
         /// </summary>
         /// <param name="game">The <see cref="Game"/> entity to add.</param>
         /// <returns>The added <see cref="Game"/> entity.</returns>
@@ -100,7 +107,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <summary>
         /// Updates a <see cref="Game"/> entity in the data store.
         /// </summary>
-        /// <param name="game">The <see cref="Game"/> entity to update.</param>
+        /// <param name="game">The <see cref="Game"/> to update.</param>
         /// <returns>The updated <see cref="Game"/> entity.</returns>
         public Game Update(Game game)
         {
@@ -109,8 +116,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return game;
             }
 
-            var entity = _dbContext.Games.Attach(game);
-            entity.State = EntityState.Modified;
+            _dbContext.Update(game);
 
             return game;
         }
@@ -139,7 +145,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         }
 
         /// <summary>
-        /// Deletes a <see cref="Game"/> entity from the data store asynchronously.
+        /// Deletes a <see cref="Game"/> entity from the data store.
         /// </summary>
         /// <param name="id">The Id of the <see cref="Game"/> entity to delete.</param>
         /// <returns>The deleted <see cref="Game"/> entity.</returns>
@@ -170,7 +176,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public bool GameExists(int id)
         {
-            return _dbContext.Games.Any(g => g.Id == id);
+            return _dbContext.Games.Any(c => c.Id == id);
         }
 
         /// <summary>
@@ -182,18 +188,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public async Task<bool> GameExistsAsync(int id)
         {
-            return await _dbContext.Games.AnyAsync(g => g.Id == id);
-        }
-
-        public async Task<int> GetMaxWeekForSeasonAsync(int seasonYear)
-        {
-            var weeks = (await GetGamesAsync()).Where(g => g.SeasonYear == seasonYear);
-            if (weeks.Any())
-            {
-                return weeks.Max(g => g.Week);
-            }
-
-            return 0;
+            return await _dbContext.Games.AnyAsync(c => c.Id == id);
         }
     }
 }

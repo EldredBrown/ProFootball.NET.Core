@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+
 using System.Threading.Tasks;
+
 using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Data.Repositories
@@ -13,10 +15,10 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="Game"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
-        IEnumerable<Game>? GetGames();
+        IEnumerable<Game> GetGames();
 
         /// <summary>
-        /// Gets all <see cref="Game"/> entities in the data store asynchronously.
+        /// Gets all <see cref="Game"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
         Task<IEnumerable<Game>> GetGamesAsync();
@@ -29,7 +31,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         Game? GetGame(int id);
 
         /// <summary>
-        /// Gets a single <see cref="Game"/> entity from the data store asynchronously by Id.
+        /// Gets a single <see cref="Game"/> entity from the data store by Id.
         /// </summary>
         /// <param name="id">The Id of the <see cref="Game"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Game"/> entity.</returns>
@@ -43,7 +45,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         Game Add(Game game);
 
         /// <summary>
-        /// Adds a <see cref="Game"/> entity to the data store asynchrously.
+        /// Adds a <see cref="Game"/> entity to the data store.
         /// </summary>
         /// <param name="game">The <see cref="Game"/> entity to add.</param>
         /// <returns>The added <see cref="Game"/> entity.</returns>
@@ -52,7 +54,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <summary>
         /// Updates a <see cref="Game"/> entity in the data store.
         /// </summary>
-        /// <param name="game">The <see cref="Game"/> entity to update.</param>
+        /// <param name="game">The <see cref="Game"/> to update.</param>
         /// <returns>The updated <see cref="Game"/> entity.</returns>
         Game Update(Game game);
 
@@ -64,7 +66,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         Game? Delete(int id);
 
         /// <summary>
-        /// Deletes a <see cref="Game"/> entity from the data store asynchronously.
+        /// Deletes a <see cref="Game"/> entity from the data store.
         /// </summary>
         /// <param name="id">The Id of the <see cref="Game"/> entity to delete.</param>
         /// <returns>The deleted <see cref="Game"/> entity.</returns>
@@ -87,7 +89,5 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
         /// </returns>
         Task<bool> GameExistsAsync(int id);
-
-        Task<int> GetMaxWeekForSeasonAsync(int seasonYear);
     }
 }
