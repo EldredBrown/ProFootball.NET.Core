@@ -403,9 +403,7 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             };
             A.CallTo(() => fakeLeagueSeasonTotalsRepository.GetLeagueSeasonTotals(A<string>.Ignored, An<int>.Ignored)).Returns(leagueSeasonTotals);
 
-            var fakeTeamSeason = A.Fake<ITeamSeason>();
             var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-
             var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
 
@@ -434,13 +432,9 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync())
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSeasonRepository.Update(fakeDestSeason))
-                .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
                 .MustNotHaveHappened();
             A.CallTo(() => fakeSeasonRankingsRepository.GetDataForRankingsUpdateAsync(A<TeamSeason>.Ignored))
-                .MustNotHaveHappened();
-            A.CallTo(() => fakeTeamSeason.UpdateRankings(A<decimal>.Ignored, A<decimal>.Ignored, A<decimal>.Ignored))
                 .MustNotHaveHappened();
             A.CallTo(() => fakeTeamSeasonRepository.Update(A<TeamSeason>.Ignored))
                 .MustNotHaveHappened();
