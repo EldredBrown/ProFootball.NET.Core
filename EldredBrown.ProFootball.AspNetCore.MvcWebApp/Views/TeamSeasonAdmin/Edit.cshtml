@@ -1,18 +1,19 @@
-﻿@using EldredBrown.ProFootball.Net.Data.Models
-@model TeamSeason
+﻿@using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
+@model TeamSeasonViewModel
 
 @{
-    ViewData["Title"] = "Create Team Season";
+    ViewData["Title"] = "Edit Team Season";
 }
 
 <h1>Team Season</h1>
 
-<h4>Create</h4>
+<h4>Edit</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Edit">
             <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+            <input type="hidden" asp-for="Id" />
             <div class="form-group">
                 <label class="control-label" asp-for="TeamName"></label>
                 <input class="form-control" asp-for="TeamName" />
@@ -29,14 +30,18 @@
                 <span class="text-danger" asp-validation-for="LeagueName"></span>
             </div>
             <div class="form-group">
-                <button class="btn btn-primary" type="submit">Create</button>
+                <p>
+                    <button class="btn btn-primary" type="submit">Save</button>
+                </p>
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <p>
+        <a asp-action="Index">Back to List</a>
+    </p>
 </div>
 
 @section Scripts {

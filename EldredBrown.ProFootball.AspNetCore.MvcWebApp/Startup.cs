@@ -15,7 +15,7 @@ using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conference;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Division;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Team;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game;
-//using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason;
 //using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.LeagueSeason;
 //using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.SeasonStandings;
 using EldredBrown.ProFootball.Net.Data;
@@ -61,6 +61,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
+            services.AddScoped<IConnectionStringProvider, DbContextConnectionStringProvider>();
+            services.AddScoped<IDbConnectionFactory, SqlConnectionFactory>();
+
             services.AddScoped<ISeasonRepository, SeasonRepository>();
             services.AddScoped<ILeagueRepository, LeagueRepository>();
             services.AddScoped<IConferenceRepository, ConferenceRepository>();
@@ -68,15 +71,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
             services.AddScoped<ITeamRepository, TeamRepository>();
             services.AddScoped<IGameRepository, GameRepository>();
             services.AddScoped<ITeamSeasonRepository, TeamSeasonRepository>();
-            //services.AddScoped<ILeagueSeasonRepository, LeagueSeasonRepository>();
-            //services.AddScoped<ITeamSeasonScheduleRepository, TeamSeasonScheduleRepository>();
+            services.AddScoped<ITeamSeasonScheduleRepository, TeamSeasonScheduleRepository>();
+            services.AddScoped<ILeagueSeasonRepository, LeagueSeasonRepository>();
+            services.AddScoped<ILeagueSeasonTotalsRepository, LeagueSeasonTotalsRepository>();
+            services.AddScoped<ISeasonRankingsRepository, SeasonRankingsRepository>();
             //services.AddScoped<ISeasonStandingsRepository, SeasonStandingsRepository>();
-            //services.AddScoped<ISeasonRankingsRepository, SeasonRankingsRepository>();
             services.AddScoped<ISharedRepository, SharedRepository>();
 
             services.AddScoped<IGameService, GameService>();
             services.AddScoped<IProcessGameStrategyFactory, ProcessGameStrategyFactory>();
-            //services.AddScoped<IWeeklyUpdateService, WeeklyUpdateService>();
+            services.AddScoped<IWeeklyUpdateService, WeeklyUpdateService>();
             //services.AddScoped<IGamePredictorService, GamePredictorService>();
 
             services.AddScoped<ISeasonIndexViewModel, SeasonIndexViewModel>();
@@ -95,10 +99,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
             services.AddScoped<IGameIndexViewModel, GameIndexViewModel>();
             services.AddScoped<IGameDetailsViewModel, GameDetailsViewModel>();
             services.AddScoped<IGameViewModelMapper, GameViewModelMapper>();
+            services.AddScoped<ITeamSeasonViewModelMapper, TeamSeasonViewModelMapper>();
+            services.AddScoped<ITeamSeasonIndexViewModel, TeamSeasonIndexViewModel>();
+            services.AddScoped<ITeamSeasonDetailsViewModel, TeamSeasonDetailsViewModel>();
+            services.AddScoped<ITeamSeasonViewModelMapper, TeamSeasonViewModelMapper>();
             //services.AddScoped<ILeagueSeasonIndexViewModel, LeagueSeasonIndexViewModel>();
             //services.AddScoped<ILeagueSeasonDetailsViewModel, LeagueSeasonDetailsViewModel>();
-            //services.AddScoped<ITeamSeasonIndexViewModel, TeamSeasonIndexViewModel>();
-            //services.AddScoped<ITeamSeasonDetailsViewModel, TeamSeasonDetailsViewModel>();
             //services.AddScoped<ISeasonStandingsIndexViewModel, SeasonStandingsIndexViewModel>();
 
             services.AddServiceLibrary();

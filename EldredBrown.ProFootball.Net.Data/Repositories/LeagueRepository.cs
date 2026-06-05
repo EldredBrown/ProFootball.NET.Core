@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 using EldredBrown.ProFootball.Net.Data.Models;
 
@@ -28,24 +29,18 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="League"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{League}"/> of all fetched entities.</returns>
-        public IEnumerable<League> GetLeagues()
+        public IEnumerable<League>? GetLeagues()
         {
-            return _dbContext.Leagues
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation)
-                .ToList();
+            return GetLeaguesDbSetWithNavigationProperties()?.ToList();
         }
 
         /// <summary>
         /// Gets all <see cref="League"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{League}"/> of all fetched entities.</returns>
-        public async Task<IEnumerable<League>> GetLeaguesAsync()
+        public async Task<IEnumerable<League>?> GetLeaguesAsync()
         {
-            return await _dbContext.Leagues
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation)
-                .ToListAsync();
+            return await GetLeaguesDbSetWithNavigationProperties()?.ToListAsync();
         }
 
         /// <summary>
@@ -55,15 +50,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The fetched <see cref="League"/> entity.</returns>
         public League? GetLeague(int id)
         {
-            if (_dbContext.Leagues is null)
-            {
-                return null;
-            }
-
-            return _dbContext.Leagues
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation)
-                .FirstOrDefault(l => l.Id == id);
+            return GetLeagues()?.FirstOrDefault(ts => ts.Id == id);
         }
 
         /// <summary>
@@ -73,15 +60,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The fetched <see cref="League"/> entity.</returns>
         public async Task<League?> GetLeagueAsync(int id)
         {
-            if (_dbContext.Leagues is null)
-            {
-                return null;
-            }
-
-            return await _dbContext.Leagues
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation)
-                .FirstOrDefaultAsync(l => l.Id == id);
+            return (await GetLeaguesAsync())?.FirstOrDefault(ts => ts.Id == id);
         }
 
         /// <summary>
@@ -91,15 +70,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The fetched <see cref="League"/> entity.</returns>
         public League? GetLeagueByShortName(string shortName)
         {
-            if (_dbContext.Leagues is null)
-            {
-                return null;
-            }
-
-            return _dbContext.Leagues
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation)
-                .FirstOrDefault(l => l.ShortName == shortName);
+            return GetLeagues()?.FirstOrDefault(ts => ts.ShortName == shortName);
         }
 
         /// <summary>
@@ -109,15 +80,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The fetched <see cref="League"/> entity.</returns>
         public async Task<League?> GetLeagueByShortNameAsync(string shortName)
         {
-            if (_dbContext.Leagues is null)
-            {
-                return null;
-            }
-
-            return await _dbContext.Leagues
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation)
-                .FirstOrDefaultAsync(l => l.ShortName == shortName);
+            return (await GetLeaguesAsync())?.FirstOrDefault(l => l.ShortName == shortName);
         }
 
         /// <summary>
@@ -128,7 +91,6 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         public League Add(League league)
         {
             _dbContext.Add(league);
-
             return league;
         }
 
@@ -140,7 +102,6 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         public async Task<League> AddAsync(League league)
         {
             await _dbContext.AddAsync(league);
-
             return league;
         }
 
@@ -156,8 +117,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return league;
             }
 
-            _dbContext.Leagues.Update(league);
-
+            _dbContext.Update(league);
             return league;
         }
 
@@ -179,8 +139,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Leagues.Remove(league);
-
+            _dbContext.Remove(league);
             return league;
         }
 
@@ -202,8 +161,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Leagues.Remove(league);
-
+            _dbContext.Remove(league);
             return league;
         }
 
@@ -216,7 +174,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public bool LeagueExists(int id)
         {
-            return _dbContext.Leagues.Any(l => l.Id == id);
+            return GetLeagues()?.Any(l => l.Id == id) ?? false;
         }
 
         /// <summary>
@@ -228,7 +186,14 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public async Task<bool> LeagueExistsAsync(int id)
         {
-            return await _dbContext.Leagues.AnyAsync(l => l.Id == id);
+            return (await GetLeaguesAsync())?.Any(l => l.Id == id) ?? false;
+        }
+
+        private IIncludableQueryable<League, Season?>? GetLeaguesDbSetWithNavigationProperties()
+        {
+            return _dbContext.Leagues?
+                .Include(s => s.FirstSeasonIdNavigation)
+                .Include(s => s.LastSeasonIdNavigation);
         }
     }
 }

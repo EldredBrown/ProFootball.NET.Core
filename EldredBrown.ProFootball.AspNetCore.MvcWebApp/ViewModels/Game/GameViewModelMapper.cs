@@ -16,9 +16,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game
             _seasonRepository = seasonRepository;
         }
 
-        public GameViewModel MapGameToViewModel(
-            EldredBrown.ProFootball.Net.Data.Models.Game game
-        )
+        public GameViewModel MapGameToViewModel(EldredBrown.ProFootball.Net.Data.Models.Game game)
         {
             return new GameViewModel { Game = game };
         }

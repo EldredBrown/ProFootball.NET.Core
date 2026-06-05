@@ -7,7 +7,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
     public interface ITeamSeasonIndexViewModel
     {
         SelectList Seasons { get; set; }
-        int SelectedSeasonYear { get; set; }
-        IEnumerable<EldredBrown.ProFootball.Net.Data.Models.TeamSeason> TeamSeasons { get; set; }
+        int? SelectedSeasonYear { get; set; }
+        IEnumerable<TeamSeasonViewModel> TeamSeasons { get; set; }
     }
 }

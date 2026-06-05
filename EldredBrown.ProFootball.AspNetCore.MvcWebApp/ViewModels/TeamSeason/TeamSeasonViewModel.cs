@@ -5,24 +5,30 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
 {
     public class TeamSeasonViewModel
     {
-        private readonly EldredBrown.ProFootball.Net.Data.Models.TeamSeason _teamSeason;
+        private string _teamName;
+        private int _seasonYear;
+        private string _leagueName;
+        private string _conferenceName;
+        private string _divisionName;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TeamSeasonDecorator"/> class.
+        /// Initializes a new instance of the <see cref="TeamSeasonViewModel"/> class.
         /// </summary>
         /// <param name="teamSeason">The <see cref="TeamSeason"/> entity that will be wrapped inside this object.</param>
-        public TeamSeasonViewModel(EldredBrown.ProFootball.Net.Data.Models.TeamSeason teamSeason)
+        public TeamSeasonViewModel()
         {
-            _teamSeason = teamSeason;
+            TeamSeason = new EldredBrown.ProFootball.Net.Data.Models.TeamSeason();
         }
+
+        public EldredBrown.ProFootball.Net.Data.Models.TeamSeason TeamSeason { get; set; }
 
         /// <summary>
         /// Gets or sets the Id of the wrapped <see cref="TeamSeason"/> entity.
         /// </summary>
-        public new int Id
+        public int Id
         {
-            get { return _teamSeason.Id; }
-            set { _teamSeason.Id = value; }
+            get { return TeamSeason.Id; }
+            set { TeamSeason.Id = value; }
         }
 
         /// <summary>
@@ -30,10 +36,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         /// </summary>
         [Display(Name = "Team")]
         [Required(ErrorMessage = "Please enter a team name.")]
-        public new int TeamId
+        public string TeamName
         {
-            get { return _teamSeason.TeamId; }
-            set { _teamSeason.TeamId = value; }
+            get
+            {
+                if (TeamSeason.TeamIdNavigation is null)
+                {
+                    return _teamName;
+                }
+                return TeamSeason.TeamIdNavigation.Name;
+            }
+            set { _teamName = value; }
         }
 
         /// <summary>
@@ -41,10 +54,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         /// </summary>
         [Display(Name = "Season")]
         [Required(ErrorMessage = "Please enter a year.")]
-        public new int SeasonYear
+        public int SeasonYear
         {
-            get { return _teamSeason.SeasonId; }
-            set { _teamSeason.SeasonId = value; }
+            get
+            {
+                if (TeamSeason.SeasonIdNavigation is null)
+                {
+                    return _seasonYear;
+                }
+                return TeamSeason.SeasonIdNavigation.Id;
+            }
+            set { _seasonYear = value; }
         }
 
         /// <summary>
@@ -52,70 +72,91 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         /// </summary>
         [Display(Name = "League")]
         [Required(ErrorMessage = "Please enter a league name.")]
-        public new int LeagueId
+        public string LeagueName
         {
-            get { return _teamSeason.LeagueId; }
-            set { _teamSeason.LeagueId = value; }
+            get
+            {
+                if (TeamSeason.LeagueIdNavigation is null)
+                {
+                    return _leagueName;
+                }
+                return TeamSeason.LeagueIdNavigation.ShortName;
+            }
+            set { _leagueName = value; }
         }
 
         /// <summary>
         /// Gets or sets the name of the wrapped <see cref="TeamSeason"/> entity's conference.
         /// </summary>
         [Display(Name = "Conference")]
-        public new int? ConferenceId
+        public string ConferenceName
         {
-            get { return _teamSeason.ConferenceId; }
-            set { _teamSeason.ConferenceId = value; }
+            get
+            {
+                if (TeamSeason.ConferenceIdNavigation is null)
+                {
+                    return _conferenceName;
+                }
+                return TeamSeason.ConferenceIdNavigation.ShortName;
+            }
+            set { _conferenceName = value; }
         }
 
         /// <summary>
         /// Gets or sets the name of the wrapped <see cref="TeamSeason"/> entity's division.
         /// </summary>
         [Display(Name = "Division")]
-        public new int? DivisionId
+        public string DivisionName
         {
-            get { return _teamSeason.DivisionId; }
-            set { _teamSeason.DivisionId = value; }
+            get
+            {
+                if (TeamSeason.DivisionIdNavigation is null)
+                {
+                    return _divisionName;
+                }
+                return TeamSeason.DivisionIdNavigation.Name;
+            }
+            set { _divisionName = value; }
         }
 
         /// <summary>
         /// Gets or sets the number of games played by the wrapped <see cref="TeamSeason"/> entity.
         /// </summary>
         [DefaultValue(0)]
-        public new int Games
+        public int Games
         {
-            get { return _teamSeason.Games; }
-            set { _teamSeason.Games = value; }
+            get { return TeamSeason.Games; }
+            set { TeamSeason.Games = value; }
         }
 
         /// <summary>
         /// Gets or sets the number of games won by the wrapped <see cref="TeamSeason"/> entity.
         /// </summary>
         [DefaultValue(0)]
-        public new int Wins
+        public int Wins
         {
-            get { return _teamSeason.Wins; }
-            set { _teamSeason.Wins = value; }
+            get { return TeamSeason.Wins; }
+            set { TeamSeason.Wins = value; }
         }
 
         /// <summary>
         /// Gets or sets the number of games lost by the wrapped <see cref="TeamSeason"/> entity.
         /// </summary>
         [DefaultValue(0)]
-        public new int Losses
+        public int Losses
         {
-            get { return _teamSeason.Losses; }
-            set { _teamSeason.Losses = value; }
+            get { return TeamSeason.Losses; }
+            set { TeamSeason.Losses = value; }
         }
 
         /// <summary>
         /// Gets or sets the number of games tied by the wrapped <see cref="TeamSeason"/> entity.
         /// </summary>
         [DefaultValue(0)]
-        public new int Ties
+        public int Ties
         {
-            get { return _teamSeason.Ties; }
-            set { _teamSeason.Ties = value; }
+            get { return TeamSeason.Ties; }
+            set { TeamSeason.Ties = value; }
         }
 
         /// <summary>
@@ -123,9 +164,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         /// </summary>
         [DisplayFormat(DataFormatString = "{0:#.000}")]
         [Display(Name = "W%")]
-        public new decimal? WinningPercentage
+        public decimal? WinningPercentage
         {
-            get { return _teamSeason.WinningPercentage; }
+            get { return TeamSeason.WinningPercentage; }
         }
 
         /// <summary>
@@ -133,10 +174,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         /// </summary>
         [Display(Name = "Points For")]
         [DefaultValue(0)]
-        public new int PointsFor
+        public int PointsFor
         {
-            get { return _teamSeason.PointsFor; }
-            set { _teamSeason.PointsFor = value; }
+            get { return TeamSeason.PointsFor; }
+            set { TeamSeason.PointsFor = value; }
         }
 
         /// <summary>
@@ -144,10 +185,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         /// </summary>
         [Display(Name = "Points Against")]
         [DefaultValue(0)]
-        public new int PointsAgainst
+        public int PointsAgainst
         {
-            get { return _teamSeason.PointsAgainst; }
-            set { _teamSeason.PointsAgainst = value; }
+            get { return TeamSeason.PointsAgainst; }
+            set { TeamSeason.PointsAgainst = value; }
         }
 
         /// <summary>
@@ -156,10 +197,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         [DisplayFormat(DataFormatString = "{0:N1}")]
         [Display(Name = "Expected Wins")]
         [DefaultValue(0)]
-        public new decimal ExpectedWins
+        public decimal ExpectedWins
         {
-            get { return _teamSeason.ExpectedWins; }
-            set { _teamSeason.ExpectedWins = value; }
+            get { return TeamSeason.ExpectedWins; }
+            set { TeamSeason.ExpectedWins = value; }
         }
 
         /// <summary>
@@ -168,10 +209,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         [DisplayFormat(DataFormatString = "{0:N1}")]
         [Display(Name = "Expected Losses")]
         [DefaultValue(0)]
-        public new decimal ExpectedLosses
+        public decimal ExpectedLosses
         {
-            get { return _teamSeason.ExpectedLosses; }
-            set { _teamSeason.ExpectedLosses = value; }
+            get { return TeamSeason.ExpectedLosses; }
+            set { TeamSeason.ExpectedLosses = value; }
         }
 
         /// <summary>
@@ -179,10 +220,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         /// </summary>
         [DisplayFormat(DataFormatString = "{0:N2}")]
         [Display(Name = "Offensive Average")]
-        public new decimal? OffensiveAverage
+        public decimal? OffensiveAverage
         {
-            get { return _teamSeason.OffensiveAverage; }
-            set { _teamSeason.OffensiveAverage = value; }
+            get { return TeamSeason.OffensiveAverage; }
+            set { TeamSeason.OffensiveAverage = value; }
         }
 
         /// <summary>
@@ -190,10 +231,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         /// </summary>
         [DisplayFormat(DataFormatString = "{0:#.000}")]
         [Display(Name = "Offensive Factor")]
-        public new decimal? OffensiveFactor
+        public decimal? OffensiveFactor
         {
-            get { return _teamSeason.OffensiveFactor; }
-            set { _teamSeason.OffensiveFactor = value; }
+            get { return TeamSeason.OffensiveFactor; }
+            set { TeamSeason.OffensiveFactor = value; }
         }
 
         /// <summary>
@@ -201,10 +242,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         /// </summary>
         [DisplayFormat(DataFormatString = "{0:N2}")]
         [Display(Name = "Offensive Index")]
-        public new decimal? OffensiveIndex
+        public decimal? OffensiveIndex
         {
-            get { return _teamSeason.OffensiveIndex; }
-            set { _teamSeason.OffensiveIndex = value; }
+            get { return TeamSeason.OffensiveIndex; }
+            set { TeamSeason.OffensiveIndex = value; }
         }
 
         /// <summary>
@@ -212,10 +253,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         /// </summary>
         [DisplayFormat(DataFormatString = "{0:N2}")]
         [Display(Name = "Defensive Average")]
-        public new decimal? DefensiveAverage
+        public decimal? DefensiveAverage
         {
-            get { return _teamSeason.DefensiveAverage; }
-            set { _teamSeason.DefensiveAverage = value; }
+            get { return TeamSeason.DefensiveAverage; }
+            set { TeamSeason.DefensiveAverage = value; }
         }
 
         /// <summary>
@@ -223,10 +264,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         /// </summary>
         [DisplayFormat(DataFormatString = "{0:#.000}")]
         [Display(Name = "Defensive Factor")]
-        public new decimal? DefensiveFactor
+        public decimal? DefensiveFactor
         {
-            get { return _teamSeason.DefensiveFactor; }
-            set { _teamSeason.DefensiveFactor = value; }
+            get { return TeamSeason.DefensiveFactor; }
+            set { TeamSeason.DefensiveFactor = value; }
         }
 
         /// <summary>
@@ -234,10 +275,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         /// </summary>
         [DisplayFormat(DataFormatString = "{0:N2}")]
         [Display(Name = "Defensive Index")]
-        public new decimal? DefensiveIndex
+        public decimal? DefensiveIndex
         {
-            get { return _teamSeason.DefensiveIndex; }
-            set { _teamSeason.DefensiveIndex = value; }
+            get { return TeamSeason.DefensiveIndex; }
+            set { TeamSeason.DefensiveIndex = value; }
         }
 
         /// <summary>
@@ -245,11 +286,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason
         /// </summary>
         [DisplayFormat(DataFormatString = "{0:#.000}")]
         [Display(Name = "Final Exp. W%")]
-        public new decimal? FinalExpectedWinningPercentage
+        public decimal? FinalExpectedWinningPercentage
         {
-            get { return _teamSeason.FinalExpectedWinningPercentage; }
-            set { _teamSeason.FinalExpectedWinningPercentage = value; }
+            get { return TeamSeason.FinalExpectedWinningPercentage; }
+            set { TeamSeason.FinalExpectedWinningPercentage = value; }
         }
-
     }
 }

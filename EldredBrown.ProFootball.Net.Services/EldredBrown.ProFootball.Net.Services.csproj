@@ -9,8 +9,6 @@
   <ItemGroup>
     <Compile Remove="GamePredictorService\GamePredictorService.cs" />
     <Compile Remove="GamePredictorService\IGamePredictorService.cs" />
-    <Compile Remove="WeeklyUpdateService\IWeeklyUpdateService.cs" />
-    <Compile Remove="WeeklyUpdateService\WeeklyUpdateService.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,7 +25,6 @@
 
   <ItemGroup>
     <Folder Include="GamePredictorService\" />
-    <Folder Include="WeeklyUpdateService\" />
   </ItemGroup>
 
 </Project>

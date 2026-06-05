@@ -30,10 +30,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var fakeDbSet = conferences.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.Conferences).Returns(fakeDbSet);
-            var repository = new ConferenceRepository(fakeDbContext);
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
-            var result = repository.GetConferences();
+            var result = testRepository.GetConferences();
 
             // Assert
             result.ShouldNotBeNull();
@@ -60,10 +60,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var fakeDbSet = conferences.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.Conferences).Returns(fakeDbSet);
-            var repository = new ConferenceRepository(fakeDbContext);
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
-            var result = repository.GetConferences();
+            var result = testRepository.GetConferences();
 
             // Assert
             result.ShouldNotBeNull();
@@ -119,7 +119,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
 
-            fakeDbContext.Conferences = null;
+            fakeDbContext.Conferences = null!;
             var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
@@ -178,7 +178,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
 
-            fakeDbContext.Conferences = null;
+            fakeDbContext.Conferences = null!;
             var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
@@ -194,7 +194,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             var fakeDbContext = A.Fake<ProFootballDbContext>();
             fakeDbContext.Conferences = A.Fake<DbSet<Conference>>();
-            var repository = new ConferenceRepository(fakeDbContext);
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
             var conference = new Conference
@@ -204,7 +204,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 LongName = "Conference 1",
                 FirstSeasonId = 1920
             };
-            var result = repository.Add(conference);
+            var result = testRepository.Add(conference);
 
             // Assert
             A.CallTo(() => fakeDbContext.Add(conference)).MustHaveHappenedOnceExactly();
@@ -212,12 +212,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void AddAsync_ShouldSucceed()
+        public async Task AddAsync_ShouldSucceed()
         {
             // Arrange
             var fakeDbContext = A.Fake<ProFootballDbContext>();
             fakeDbContext.Conferences = A.Fake<DbSet<Conference>>();
-            var repository = new ConferenceRepository(fakeDbContext);
+            var testRepository = new ConferenceRepository(fakeDbContext);
 
             // Act
             var conference = new Conference
@@ -227,7 +227,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 LongName = "Conference 1",
                 FirstSeasonId = 1920
             };
-            var result = repository.AddAsync(conference).Result;
+            var result = await testRepository.AddAsync(conference);
 
             // Assert
             A.CallTo(() => fakeDbContext.AddAsync(conference)).MustHaveHappenedOnceExactly();
@@ -316,7 +316,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
-            fakeDbContext.Conferences = null;
+            fakeDbContext.Conferences = null!;
 
             var testRepository = new ConferenceRepository(fakeDbContext);
 
@@ -423,7 +423,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
-            fakeDbContext.Conferences = null;
+            fakeDbContext.Conferences = null!;
 
             var testRepository = new ConferenceRepository(fakeDbContext);
 

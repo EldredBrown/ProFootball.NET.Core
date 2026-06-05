@@ -11,8 +11,6 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
 {
     public class ProcessGameStrategyBase
     {
-        private const double _exponent = 2.37;
-
         protected readonly ITeamRepository _teamRepository;
         protected readonly ITeamSeasonRepository _teamSeasonRepository;
 
@@ -112,35 +110,6 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
         }
 
         /// <summary>
-        /// Updates the offensive and defensive averages, factors, and indices for this <see cref="TeamSeason"/> object.
-        /// </summary>
-        /// <param name="teamSeason"/>
-        /// <param name="teamSeasonScheduleAveragePointsFor"/>
-        /// <param name="teamSeasonScheduleAveragePointsAgainst"/>
-        /// <param name="leagueSeasonAveragePoints"/>
-        public void UpdateRankings(
-            TeamSeason teamSeason,
-            decimal teamSeasonScheduleAveragePointsFor,
-            decimal teamSeasonScheduleAveragePointsAgainst,
-            decimal leagueSeasonAveragePoints
-        )
-        {
-            var offense = UpdateRankings(teamSeason.PointsFor, teamSeason.Games, teamSeasonScheduleAveragePointsAgainst,
-                leagueSeasonAveragePoints);
-            teamSeason.OffensiveAverage = offense.Average;
-            teamSeason.OffensiveFactor = offense.Factor;
-            teamSeason.OffensiveIndex = offense.Index;
-
-            var defense = UpdateRankings(teamSeason.PointsAgainst, teamSeason.Games, teamSeasonScheduleAveragePointsFor,
-                leagueSeasonAveragePoints);
-            teamSeason.DefensiveAverage = defense.Average;
-            teamSeason.DefensiveFactor = defense.Factor;
-            teamSeason.DefensiveIndex = defense.Index;
-
-            CalculateFinalExpectedWinningPercentage(teamSeason);
-        }
-
-        /// <summary>
         /// Calculates and updates this <see cref="TeamSeason"/> model's expected wins and losses.
         /// <param name="teamSeason"/>
         /// </summary>
@@ -153,7 +122,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
                 return;
             }
 
-            var expPct = CalculateExpectedWinningPercentage(teamSeason.PointsFor, teamSeason.PointsAgainst);
+            var expPct = MathUtils.CalculateExpectedWinningPercentage(teamSeason.PointsFor, teamSeason.PointsAgainst);
 
             if (expPct.HasValue)
             {
@@ -196,72 +165,6 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
         {
             throw new NotImplementedException(
                 nameof(EditScoringDataForTeamSeason) + " must be implemented in a subclass.");
-        }
-
-        private decimal? CalculateExpectedWinningPercentage(decimal pointsFor, decimal pointsAgainst)
-        {
-            if (pointsFor < 0 || pointsAgainst < 0)
-            {
-                throw new ArgumentOutOfRangeException($"Points values must be non-negative; got {pointsFor},  {pointsAgainst}.");
-            }
-
-            var o = Math.Pow((double)pointsFor, _exponent);
-            var d = Math.Pow((double)pointsAgainst, _exponent);
-            decimal? result = Divide((decimal)o, (decimal)(o + d));
-            return result;
-        }
-
-        private void CalculateFinalExpectedWinningPercentage(TeamSeason teamSeason)
-        {
-            if (teamSeason.OffensiveIndex is null || teamSeason.DefensiveIndex is null)
-            {
-                teamSeason.FinalExpectedWinningPercentage = null;
-                return;
-            }
-
-            teamSeason.FinalExpectedWinningPercentage = CalculateExpectedWinningPercentage(
-                teamSeason.OffensiveIndex.Value, teamSeason.DefensiveIndex.Value);
-        }
-
-        private decimal? Divide(decimal numerator, decimal denominator)
-        {
-            if (denominator == 0)
-            {
-                return null;
-            }
-
-            return numerator / denominator;
-        }
-
-        private TeamSeasonRankingsData UpdateRankings(int points, int games,
-            decimal teamSeasonScheduleAveragePoints, decimal leagueSeasonAveragePoints)
-        {
-            if (games == 0)
-            {
-                return new TeamSeasonRankingsData(average: null, factor: null, index: null);
-            }
-
-            decimal? average = Divide(points, games);
-            decimal? factor = Divide(average!.Value, teamSeasonScheduleAveragePoints);
-            decimal? index = factor.HasValue
-                ? (average.Value + factor.Value * leagueSeasonAveragePoints) / 2m
-                : null;
-
-            return new TeamSeasonRankingsData(average, factor, index);
-        }
-
-        private class TeamSeasonRankingsData
-        {
-            public TeamSeasonRankingsData(decimal? average, decimal? factor, decimal? index)
-            {
-                Average = average;
-                Factor = factor;
-                Index = index;
-            }
-
-            public decimal? Average { get; set; }
-            public decimal? Factor { get; set; }
-            public decimal? Index { get; set; }
         }
     }
 }

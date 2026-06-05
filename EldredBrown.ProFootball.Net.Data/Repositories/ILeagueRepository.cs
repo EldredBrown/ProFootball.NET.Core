@@ -14,13 +14,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="League"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{League}"/> of all fetched entities.</returns>
-        IEnumerable<League> GetLeagues();
+        IEnumerable<League>? GetLeagues();
 
         /// <summary>
         /// Gets all <see cref="League"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{League}"/> of all fetched entities.</returns>
-        Task<IEnumerable<League>> GetLeaguesAsync();
+        Task<IEnumerable<League>?> GetLeaguesAsync();
 
         /// <summary>
         /// Gets a single <see cref="League"/> entity from the data store by Id.

@@ -1,4 +1,6 @@
-﻿namespace EldredBrown.ProFootball.Net.Data.Models;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
+namespace EldredBrown.ProFootball.Net.Data.Models;
 
 public partial class TeamSeason
 {
@@ -44,13 +46,18 @@ public partial class TeamSeason
 
     public decimal? FinalExpectedWinningPercentage { get; set; }
 
+    [ValidateNever]
     public virtual Team TeamIdNavigation { get; set; } = null!;
 
+    [ValidateNever]
     public virtual Season SeasonIdNavigation { get; set; } = null!;
 
+    [ValidateNever]
     public virtual League LeagueIdNavigation { get; set; } = null!;
 
+    [ValidateNever]
     public virtual Conference? ConferenceIdNavigation { get; set; }
 
+    [ValidateNever]
     public virtual Division? DivisionIdNavigation { get; set; }
 }

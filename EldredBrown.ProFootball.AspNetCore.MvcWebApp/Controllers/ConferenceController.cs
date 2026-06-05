@@ -66,8 +66,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         {
             var conferences = await _conferenceRepository.GetConferencesAsync();
             _conferenceIndexViewModel.Conferences = conferences
-                .Select(l => _conferenceViewModelMapper.MapConferenceToViewModel(l))
-                .OrderBy(l => l.ShortName);
+                .Select(c => _conferenceViewModelMapper.MapConferenceToViewModel(c))
+                .OrderBy(c => c.ShortName)
+                .ToList();
 
             return View(_conferenceIndexViewModel);
         }

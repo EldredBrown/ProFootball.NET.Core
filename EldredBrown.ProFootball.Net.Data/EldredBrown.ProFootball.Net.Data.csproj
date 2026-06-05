@@ -8,17 +8,9 @@
   <ItemGroup>
     <Compile Remove="Decorators\GameDecorator.cs" />
     <Compile Remove="Decorators\IGameDecorator.cs" />
-    <Compile Remove="Repositories\ILeagueSeasonRepository.cs" />
-    <Compile Remove="Repositories\ILeagueSeasonTotalsRepository.cs" />
-    <Compile Remove="Repositories\ISeasonRankingsRepository.cs" />
     <Compile Remove="Repositories\ISeasonStandingsRepository.cs" />
-    <Compile Remove="Repositories\ITeamSeasonScheduleRepository.cs" />
-    <Compile Remove="Repositories\LeagueSeasonRepository.cs" />
-    <Compile Remove="Repositories\LeagueSeasonTotalsRepository.cs" />
     <Compile Remove="Repositories\MockLeagueSeasonTotalsRepository.cs" />
-    <Compile Remove="Repositories\SeasonRankingsRepository.cs" />
     <Compile Remove="Repositories\SeasonStandingsRepository.cs" />
-    <Compile Remove="Repositories\TeamSeasonScheduleRepository.cs" />
   </ItemGroup>
 
   <ItemGroup>

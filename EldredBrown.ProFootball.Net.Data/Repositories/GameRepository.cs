@@ -190,5 +190,17 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             return await _dbContext.Games.AnyAsync(c => c.Id == id);
         }
+
+        public async Task<int> GetMaxWeekForSeasonAsync(int seasonId)
+        {
+            var games = await GetGamesAsync();
+            var gamesForSeason = games.Where(g => g.SeasonId == seasonId);
+            var weeks = gamesForSeason.Select(g => g.Week);
+            if (weeks.Any())
+            {
+                return weeks.Max();
+            }
+            return 0;
+        }
     }
 }

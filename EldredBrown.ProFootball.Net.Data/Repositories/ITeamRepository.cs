@@ -14,13 +14,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="Team"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Team}"/> of all fetched entities.</returns>
-        IEnumerable<Team> GetTeams();
+        IEnumerable<Team>? GetTeams();
 
         /// <summary>
         /// Gets all <see cref="Team"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Team}"/> of all fetched entities.</returns>
-        Task<IEnumerable<Team>> GetTeamsAsync();
+        Task<IEnumerable<Team>?> GetTeamsAsync();
 
         /// <summary>
         /// Gets a single <see cref="Team"/> entity from the data store by Id.
@@ -35,6 +35,20 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <param name="id">The Id of the <see cref="Team"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Team"/> entity.</returns>
         Task<Team?> GetTeamAsync(int id);
+
+        /// <summary>
+        /// Gets a single <see cref="Team"/> entity from the data store by Id.
+        /// </summary>
+        /// <param name="name">The name of the <see cref="Team"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="Team"/> entity.</returns>
+        Team? GetTeamByName(string name);
+
+        /// <summary>
+        /// Gets a single <see cref="Team"/> entity from the data store by Id.
+        /// </summary>
+        /// <param name="name">The name of the <see cref="Team"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="Team"/> entity.</returns>
+        Task<Team?> GetTeamByNameAsync(string name);
 
         /// <summary>
         /// Adds a <see cref="Team"/> entity to the data store.

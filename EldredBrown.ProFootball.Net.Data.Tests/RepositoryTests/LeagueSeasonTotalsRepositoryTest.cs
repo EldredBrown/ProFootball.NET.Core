@@ -1,10 +1,8 @@
-﻿using EldredBrown.ProFootball.Net.Data.Models;
-using EldredBrown.ProFootball.Net.Data.Repositories;
-using FakeItEasy;
-using Microsoft.EntityFrameworkCore;
-using NuGet.Protocol.Core.Types;
-using Shouldly;
+﻿using Shouldly;
 using Xunit;
+
+using EldredBrown.ProFootball.Net.Data.Models;
+using EldredBrown.ProFootball.Net.Data.Repositories;
 
 namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 {
@@ -21,42 +19,42 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GetLeagueSeasonTotals_ShouldReturnLeagueSeasonTotals()
         {
             // Arrange
-            var leagueName = "NFL";
-            var seasonYear = 1920;
+            var leagueId = 1;
+            var seasonId = 1920;
 
             var expected = new LeagueSeasonTotals { };
 
             _testRepository.TotalsToReturn = expected;
 
             // Act
-            var result = _testRepository.GetLeagueSeasonTotals(leagueName, seasonYear);
+            var result = _testRepository.GetLeagueSeasonTotals(leagueId, seasonId);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
-            _testRepository.CapturedLeagueName.ShouldBe(leagueName);
-            _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
+            _testRepository.CapturedLeagueId.ShouldBe(leagueId);
+            _testRepository.CapturedSeasonId.ShouldBe(seasonId);
         }
 
         [Fact]
         public async Task GetLeagueSeasonTotalsAsync_ShouldReturnLeagueSeasonTotals()
         {
             // Arrange
-            var leagueName = "NFL";
-            var seasonYear = 1920;
+            var leagueId = 1;
+            var seasonId = 1920;
 
             var expected = new LeagueSeasonTotals { };
 
             _testRepository.TotalsToReturn = expected;
 
             // Act
-            var result = await _testRepository.GetLeagueSeasonTotalsAsync(leagueName, seasonYear);
+            var result = await _testRepository.GetLeagueSeasonTotalsAsync(leagueId, seasonId);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
-            _testRepository.CapturedLeagueName.ShouldBe(leagueName);
-            _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
+            _testRepository.CapturedLeagueId.ShouldBe(leagueId);
+            _testRepository.CapturedSeasonId.ShouldBe(seasonId);
         }
 
         /// <summary>
@@ -68,25 +66,23 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Pass null for dbContext — the override means it is never touched in tests.
             public TestableLeagueSeasonTotalsRepository() : base(null!) { }
 
-            public string? CapturedLeagueName { get; private set; }
-            public int CapturedSeasonYear { get; private set; }
+            public int CapturedLeagueId { get; private set; }
+            public int CapturedSeasonId { get; private set; }
 
             public LeagueSeasonTotals TotalsToReturn { get; set; }
                 = new LeagueSeasonTotals { };
 
-            protected override LeagueSeasonTotals ExecuteGetLeagueSeasonTotals(
-                string leagueName, int seasonYear)
+            protected override LeagueSeasonTotals? ExecuteGetLeagueSeasonTotals(int leagueId, int seasonId)
             {
-                CapturedLeagueName = leagueName;
-                CapturedSeasonYear = seasonYear;
+                CapturedLeagueId = leagueId;
+                CapturedSeasonId = seasonId;
                 return TotalsToReturn;
             }
 
-            protected override async Task<LeagueSeasonTotals> ExecuteGetLeagueSeasonTotalsAsync(
-                string leagueName, int seasonYear)
+            protected override async Task<LeagueSeasonTotals?> ExecuteGetLeagueSeasonTotalsAsync(int leagueId, int seasonId)
             {
-                CapturedLeagueName = leagueName;
-                CapturedSeasonYear = seasonYear;
+                CapturedLeagueId = leagueId;
+                CapturedSeasonId = seasonId;
                 return await Task.FromResult(TotalsToReturn);
             }
         }

@@ -116,7 +116,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
 
-            fakeDbContext.Teams = null;
+            fakeDbContext.Teams = null!;
             var testRepository = new TeamRepository(fakeDbContext);
 
             // Act
@@ -172,7 +172,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
 
-            fakeDbContext.Teams = null;
+            fakeDbContext.Teams = null!;
             var testRepository = new TeamRepository(fakeDbContext);
 
             // Act
@@ -204,7 +204,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void AddAsync_ShouldSucceed()
+        public async Task AddAsync_ShouldSucceed()
         {
             // Arrange
             var fakeDbContext = A.Fake<ProFootballDbContext>();
@@ -217,7 +217,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 Id = 1,
                 Name = "Team 1"
             };
-            var result = repository.AddAsync(team).Result;
+            var result = await repository.AddAsync(team);
 
             // Assert
             A.CallTo(() => fakeDbContext.AddAsync(team)).MustHaveHappenedOnceExactly();
@@ -301,7 +301,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
-            fakeDbContext.Teams = null;
+            fakeDbContext.Teams = null!;
 
             var testRepository = new TeamRepository(fakeDbContext);
 
@@ -401,7 +401,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
-            fakeDbContext.Teams = null;
+            fakeDbContext.Teams = null!;
 
             var testRepository = new TeamRepository(fakeDbContext);
 

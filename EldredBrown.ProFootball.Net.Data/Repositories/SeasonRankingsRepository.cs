@@ -13,14 +13,19 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
     public class SeasonRankingsRepository : ISeasonRankingsRepository
     {
         private readonly ProFootballDbContext _dbContext;
+        private readonly IConnectionStringProvider _connectionStringProvider;
+        private readonly IDbConnectionFactory _connectionFactory;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TeamSeasonScheduleProfileRepository"/> class.
         /// </summary>
         /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
-        public SeasonRankingsRepository(ProFootballDbContext dbContext)
+        public SeasonRankingsRepository(ProFootballDbContext dbContext, 
+            IConnectionStringProvider connectionStringProvider, IDbConnectionFactory connectionFactory)
         {
             _dbContext = dbContext;
+            _connectionStringProvider = connectionStringProvider;
+            _connectionFactory = connectionFactory;
         }
 
         /// <summary>
@@ -110,19 +115,20 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// The <see cref="TeamSeason"/> entity to fetch data for.
         /// </param>
         /// <returns>The fetched <see cref="Dictionary{string, Dictionary{string, object}}"/> dictionary.</returns>
-        public Dictionary<string, Dictionary<string, object>> GetDataForRankingsUpdate(ITeamSeason teamSeason)
+        public Dictionary<string, Dictionary<string, object>> GetDataForRankingsUpdate(TeamSeason teamSeason)
         {
             var results = new Dictionary<string, Dictionary<string, object>>();
             var resultKeys = new[] { "TeamSeasonScheduleTotals", "TeamSeasonScheduleAverages", "LeagueSeason" };
 
-            var connectionString = _dbContext.Database.GetDbConnection().ConnectionString;
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand("dbo.sp_GetDataForRankingsUpdate", connection);
-            command.CommandType = CommandType.StoredProcedure;
+            var connectionString = _connectionStringProvider.GetConnectionString();
+            using var connection = _connectionFactory.CreateConnection(connectionString);
 
-            command.Parameters.AddWithValue("@teamId", teamSeason.TeamId);
-            command.Parameters.AddWithValue("@leagueId", teamSeason.LeagueId);
-            command.Parameters.AddWithValue("@seasonYear", teamSeason.SeasonYear);
+            using var command = connection.CreateCommand();
+            command.CommandText = "dbo.sp_GetDataForRankingsUpdate";
+            command.CommandType = CommandType.StoredProcedure;
+            command.Parameters.Add(new SqlParameter("@team_id", teamSeason.TeamId));
+            command.Parameters.Add(new SqlParameter("@league_id", teamSeason.LeagueId));
+            command.Parameters.Add(new SqlParameter("@season_id", teamSeason.SeasonId));
 
             connection.Open();
 
@@ -143,55 +149,6 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 if (i < resultKeys.Length - 1)
                 {
                     reader.NextResult();
-                }
-            }
-
-            return results;
-        }
-
-        /// <summary>
-        /// Gets a dictionary of data for the weekly rankings update 
-        /// (<see cref="Dictionary{string, Dictionary{string, object}}"/>) from the data store for the specified 
-        /// <see cref="TeamSeason"/> entity.
-        /// </summary>
-        /// <param name="teamSeason">
-        /// The <see cref="TeamSeason"/> entity to fetch data for.
-        /// </param>
-        /// <returns>The fetched <see cref="Dictionary{string, Dictionary{string, object}}"/> dictionary.</returns>
-        public async Task<Dictionary<string, Dictionary<string, object>>> 
-            GetDataForRankingsUpdateAsync(ITeamSeason teamSeason)
-        {
-            var results = new Dictionary<string, Dictionary<string, object>>();
-            var resultKeys = new[] { "TeamSeasonScheduleTotals", "TeamSeasonScheduleAverages", "LeagueSeason" };
-
-            var connectionString = _dbContext.Database.GetDbConnection().ConnectionString;
-            using var connection = new SqlConnection(connectionString);
-            using var command = new SqlCommand("dbo.sp_GetDataForRankingsUpdate", connection);
-            command.CommandType = CommandType.StoredProcedure;
-
-            command.Parameters.AddWithValue("@teamId", teamSeason.TeamId);
-            command.Parameters.AddWithValue("@leagueId", teamSeason.LeagueId);
-            command.Parameters.AddWithValue("@seasonYear", teamSeason.SeasonYear);
-
-            await connection.OpenAsync();
-
-            using var reader = await command.ExecuteReaderAsync();
-
-            for (int i = 0; i < resultKeys.Length; i++)
-            {
-                if (await reader.ReadAsync())
-                {
-                    var row = new Dictionary<string, object>();
-                    for (int col = 0; col < reader.FieldCount; col++)
-                    {
-                        row[reader.GetName(col)] = reader.IsDBNull(col) ? null : reader.GetValue(col);
-                    }
-                    results[resultKeys[i]] = row;
-                }
-
-                if (i < resultKeys.Length - 1)
-                {
-                    await reader.NextResultAsync();
                 }
             }
 

@@ -1,4 +1,6 @@
-﻿namespace EldredBrown.ProFootball.Net.Data.Models;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
+namespace EldredBrown.ProFootball.Net.Data.Models;
 
 public partial class LeagueSeason
 {
@@ -14,7 +16,9 @@ public partial class LeagueSeason
 
     public decimal? AveragePoints { get; set; }
 
+    [ValidateNever]
     public virtual League LeagueIdNavigation { get; set; } = null!;
 
+    [ValidateNever]
     public virtual Season SeasonIdNavigation { get; set; } = null!;
 }

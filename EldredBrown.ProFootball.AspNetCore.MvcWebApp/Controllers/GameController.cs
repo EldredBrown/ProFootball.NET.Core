@@ -38,7 +38,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// The <see cref="IGameDetailsViewModel"/> that will provide ViewModel data to the Details view.
         /// </param>
         /// <param name="gameViewModelMapper">
-        /// The <see cref="IGameViewModelMapper"/> by which game data will be mapped to view models.
+        /// The <see cref="ITeamSeasonViewModelMapper"/> by which game data will be mapped to view models.
         /// </param>
         /// <param name="gameService">
         /// The <see cref="IGameService"/> for processing Game data.
@@ -100,7 +100,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             _gameIndexViewModel.SelectedWeek = selectedWeek;
 
             var games = await GetGames(selectedSeasonYear, selectedWeek);
-            _gameIndexViewModel.Games = games.Select(g => _gameViewModelMapper.MapGameToViewModel(g));
+            _gameIndexViewModel.Games = games.Select(g => _gameViewModelMapper.MapGameToViewModel(g)).ToList();
 
             return View(_gameIndexViewModel);
         }
@@ -362,13 +362,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             {
                 games = games.Where(g => g.Week == selectedWeek);
             }
-            return games;
+            return games.ToList();
         }
 
-        private async Task<IOrderedEnumerable<Season>> GetOrderedSeasons()
+        private async Task<IEnumerable<Season>> GetOrderedSeasons()
         {
             return (await _seasonRepository.GetSeasonsAsync())
-                .OrderByDescending(s => s.Id);
+                .OrderByDescending(s => s.Id)
+                .ToList();
         }
 
         private List<int?> GetWeeks(IEnumerable<Season> seasons, int? selectedSeasonYear, int firstIndex)

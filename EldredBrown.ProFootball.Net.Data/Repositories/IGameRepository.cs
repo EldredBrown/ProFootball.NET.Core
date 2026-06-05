@@ -89,5 +89,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
         /// </returns>
         Task<bool> GameExistsAsync(int id);
+
+        Task<int> GetMaxWeekForSeasonAsync(int seasonId);
     }
 }

@@ -11,8 +11,6 @@
     <Compile Remove="ControllerTests\GamePredictorControllerTest.cs" />
     <Compile Remove="ControllerTests\LeagueSeasonControllerTest.cs" />
     <Compile Remove="ControllerTests\SeasonStandingsControllerTest.cs" />
-    <Compile Remove="ControllerTests\TeamSeasonControllerTest.cs" />
-    <Compile Remove="ControllerTests\TeamSeasonsAdminControllerTest.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -67,7 +67,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             var divisions = await _divisionRepository.GetDivisionsAsync();
             _divisionIndexViewModel.Divisions = divisions
                 .Select(d => _divisionViewModelMapper.MapDivisionToViewModel(d))
-                .OrderBy(d => d.Name);
+                .OrderBy(d => d.Name)
+                .ToList();
 
             return View(_divisionIndexViewModel);
         }

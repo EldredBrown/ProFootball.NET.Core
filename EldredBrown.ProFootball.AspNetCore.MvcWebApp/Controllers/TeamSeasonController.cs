@@ -7,15 +7,15 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 using EldredBrown.ProFootball.Net.Services;
+using EldredBrown.ProFootball.Net.Data;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 {
     public class TeamSeasonController : Controller
     {
-        public static int SelectedSeasonYear = 1920;
-
         private readonly ITeamSeasonIndexViewModel _teamSeasonIndexViewModel;
         private readonly ITeamSeasonDetailsViewModel _teamSeasonDetailsViewModel;
+        private readonly ITeamSeasonViewModelMapper _teamSeasonViewModelMapper;
         private readonly ISeasonRepository _seasonRepository;
         private readonly ITeamSeasonRepository _teamSeasonRepository;
         private readonly ITeamSeasonScheduleRepository _teamSeasonScheduleRepository;
@@ -45,13 +45,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         public TeamSeasonController(
             ITeamSeasonIndexViewModel teamSeasonIndexViewModel,
             ITeamSeasonDetailsViewModel teamSeasonDetailsViewModel,
+            ITeamSeasonViewModelMapper teamSeasonViewModelMapper,
             ISeasonRepository seasonRepository,
             ITeamSeasonRepository teamSeasonRepository,
             ITeamSeasonScheduleRepository teamSeasonScheduleRepository,
-            IWeeklyUpdateService weeklyUpdateService)
+            IWeeklyUpdateService weeklyUpdateService
+        )
         {
             _teamSeasonIndexViewModel = teamSeasonIndexViewModel;
             _teamSeasonDetailsViewModel = teamSeasonDetailsViewModel;
+            _teamSeasonViewModelMapper = teamSeasonViewModelMapper;
             _seasonRepository = seasonRepository;
             _teamSeasonRepository = teamSeasonRepository;
             _teamSeasonScheduleRepository = teamSeasonScheduleRepository;
@@ -66,14 +69,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var seasons = await _seasonRepository.GetSeasonsAsync();
-            var orderedSeasons = seasons.OrderByDescending(s => s.Year);
+            var seasons = (await _seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Id);
 
-            _teamSeasonIndexViewModel.Seasons = new SelectList(orderedSeasons, "Year", "Year", SelectedSeasonYear);
-            _teamSeasonIndexViewModel.SelectedSeasonYear = SelectedSeasonYear;
-            var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(SelectedSeasonYear);
-            _teamSeasonIndexViewModel.TeamSeasons = teamSeasons;
+            var selectedSeasonYear = HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
+            if (selectedSeasonYear is null)
+            {
+                SetSelectedSeasonYear(seasons.First().Id);
+                selectedSeasonYear = HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
+            }
+            _teamSeasonIndexViewModel.Seasons = new SelectList(seasons, "Id", "Id", selectedSeasonYear);
+            _teamSeasonIndexViewModel.SelectedSeasonYear = selectedSeasonYear;
 
+            var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(selectedSeasonYear.Value);
+            _teamSeasonIndexViewModel.TeamSeasons = teamSeasons
+                .Select(ts => _teamSeasonViewModelMapper.MapTeamSeasonToViewModel(ts))
+                .ToList();
             return View(_teamSeasonIndexViewModel);
         }
 
@@ -96,16 +106,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             {
                 return NotFound();
             }
-            _teamSeasonDetailsViewModel.TeamSeason = teamSeason;
+            _teamSeasonDetailsViewModel.TeamSeason = _teamSeasonViewModelMapper.MapTeamSeasonToViewModel(teamSeason);
 
-            var teamName = teamSeason.TeamName;
-            var seasonYear = teamSeason.SeasonYear;
+            var teamId = teamSeason.TeamId;
+            var seasonId = teamSeason.SeasonId;
             _teamSeasonDetailsViewModel.TeamSeasonScheduleProfile =
-                await _teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamName, seasonYear);
+                await _teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonId);
             _teamSeasonDetailsViewModel.TeamSeasonScheduleTotals =
-                await _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamName, seasonYear);
+                await _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonId);
             _teamSeasonDetailsViewModel.TeamSeasonScheduleAverages =
-                await _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamName, seasonYear);
+                await _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonId);
 
             return View(_teamSeasonDetailsViewModel);
         }
@@ -118,10 +128,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> RunWeeklyUpdate()
         {
-            // TODO - 2026-05-15 - Remove hardcoded league name when multiple leagues are supported.
-            var leagueName = "NFL";
+            // TODO - 2026-05-15 - Remove the following hack when multiple leagues are supported.
+            var dbContext = new ProFootballDbContext();
+            var leagueRepository = new LeagueRepository(dbContext);
+            var leagueName = "APFA";
+            var leagueId = (await leagueRepository.GetLeagueByShortNameAsync(leagueName)).Id;
 
-            await _weeklyUpdateService.RunWeeklyUpdate(leagueName, SelectedSeasonYear);
+            var selectedSeasonYear = HttpContext.Session.GetObject<int>("SelectedSeasonYear");
+            await _weeklyUpdateService.RunWeeklyUpdate(leagueId, selectedSeasonYear);
 
             return RedirectToAction(nameof(Index));
         }
@@ -138,7 +152,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return BadRequest();
             }
 
-            SelectedSeasonYear = seasonYear.Value;
+            HttpContext.Session.SetObject("SelectedSeasonYear", seasonYear);
 
             return RedirectToAction(nameof(Index));
         }

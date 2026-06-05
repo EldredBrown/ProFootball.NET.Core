@@ -10,12 +10,7 @@
     <Compile Remove="DecoratorTests\GameDecoratorTest.cs" />
     <Compile Remove="ModelTests\GameTest.cs" />
     <Compile Remove="ModelTests\LeagueSeasonTest.cs" />
-    <Compile Remove="RepositoryTests\LeagueSeasonRepositoryTest.cs" />
-    <Compile Remove="RepositoryTests\LeagueSeasonTotalsRepositoryTest.cs" />
-    <Compile Remove="RepositoryTests\SeasonRankingsRepositoryTest.cs" />
     <Compile Remove="RepositoryTests\SeasonStandingsRepositoryTest.cs" />
-    <Compile Remove="RepositoryTests\TeamSeasonRepositoryTest.cs" />
-    <Compile Remove="RepositoryTests\TeamSeasonScheduleRepositoryTest.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -24,10 +24,24 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeLeagueIndexViewModel = A.Fake<ILeagueIndexViewModel>();
             var fakeLeagueDetailsViewModel = A.Fake<ILeagueDetailsViewModel>();
+
             var fakeLeagueViewModelMapper = A.Fake<ILeagueViewModelMapper>();
+            var leagueViewModels = new List<LeagueViewModel>
+            {
+                new LeagueViewModel { Id = 1 },
+                new LeagueViewModel { Id = 2 },
+                new LeagueViewModel { Id = 3 },
+            };
+            A.CallTo(() => fakeLeagueViewModelMapper.MapLeagueToViewModel(A<League>.Ignored))
+                .ReturnsNextFromSequence(leagueViewModels.ToArray());
 
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            var leagues = new List<League> { };
+            var leagues = new List<League>
+            {
+                new League { Id = 1 },
+                new League { Id = 2 },
+                new League { Id = 3 },
+            };
             A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).Returns(leagues);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
@@ -40,6 +54,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             // Assert
             A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).MustHaveHappenedOnceExactly();
+            foreach (var league in leagues)
+            {
+                A.CallTo(() => fakeLeagueViewModelMapper.MapLeagueToViewModel(league))
+                    .MustHaveHappenedOnceExactly();
+            }
+            fakeLeagueIndexViewModel.Leagues.ShouldBe(leagueViewModels);
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(fakeLeagueIndexViewModel);
         }

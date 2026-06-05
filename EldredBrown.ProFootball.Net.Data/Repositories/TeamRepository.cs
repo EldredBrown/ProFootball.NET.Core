@@ -28,18 +28,18 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="Team"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Team}"/> of all fetched entities.</returns>
-        public IEnumerable<Team> GetTeams()
+        public IEnumerable<Team>? GetTeams()
         {
-            return _dbContext.Teams.ToList();
+            return _dbContext.Teams?.ToList();
         }
 
         /// <summary>
         /// Gets all <see cref="Team"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Team}"/> of all fetched entities.</returns>
-        public async Task<IEnumerable<Team>> GetTeamsAsync()
+        public async Task<IEnumerable<Team>?> GetTeamsAsync()
         {
-            return await _dbContext.Teams.ToListAsync();
+            return await _dbContext.Teams?.ToListAsync();
         }
 
         /// <summary>
@@ -49,12 +49,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The fetched <see cref="Team"/> entity.</returns>
         public Team? GetTeam(int id)
         {
-            if (_dbContext.Teams is null)
-            {
-                return null;
-            }
-
-            return _dbContext.Teams.Find(id);
+            return GetTeams()?.FirstOrDefault(t => t.Id == id);
         }
 
         /// <summary>
@@ -64,12 +59,27 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The fetched <see cref="Team"/> entity.</returns>
         public async Task<Team?> GetTeamAsync(int id)
         {
-            if (_dbContext.Teams is null)
-            {
-                return null;
-            }
+            return (await GetTeamsAsync())?.FirstOrDefault(t => t.Id == id);
+        }
 
-            return await _dbContext.Teams.FindAsync(id);
+        /// <summary>
+        /// Gets a single <see cref="Team"/> entity from the data store by Id.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Team"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="Team"/> entity.</returns>
+        public Team? GetTeamByName(string name)
+        {
+            return GetTeams()?.FirstOrDefault(t => t.Name == name);
+        }
+
+        /// <summary>
+        /// Gets a single <see cref="Team"/> entity from the data store by Id.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Team"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="Team"/> entity.</returns>
+        public async Task<Team?> GetTeamByNameAsync(string name)
+        {
+            return (await GetTeamsAsync())?.FirstOrDefault(t => t.Name == name);
         }
 
         /// <summary>
@@ -103,13 +113,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The updated <see cref="Team"/> entity.</returns>
         public Team Update(Team team)
         {
-            if (_dbContext.Teams is null)
-            {
-                return team;
-            }
-
-            _dbContext.Teams.Update(team);
-
+            _dbContext.Update(team);
             return team;
         }
 
@@ -131,7 +135,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Teams.Remove(team);
+            _dbContext.Remove(team);
 
             return team;
         }
@@ -154,7 +158,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Teams.Remove(team);
+            _dbContext.Remove(team);
 
             return team;
         }
@@ -168,7 +172,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public bool TeamExists(int id)
         {
-            return _dbContext.Teams.Any(c => c.Id == id);
+            return GetTeams()?.Any(c => c.Id == id) ?? false;
         }
 
         /// <summary>
@@ -180,7 +184,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public async Task<bool> TeamExistsAsync(int id)
         {
-            return await _dbContext.Teams.AnyAsync(c => c.Id == id);
+            return (await GetTeamsAsync())?.Any(c => c.Id == id) ?? false;
         }
     }
 }

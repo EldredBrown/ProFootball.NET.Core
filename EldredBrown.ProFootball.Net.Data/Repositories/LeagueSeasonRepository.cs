@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -52,7 +51,10 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            return _dbContext.LeagueSeasons.Find(id);
+            return _dbContext.LeagueSeasons
+                .Include(ls => ls.LeagueIdNavigation)
+                .Include(ls => ls.SeasonIdNavigation)
+                .FirstOrDefault(ls => ls.Id == id);
         }
 
         /// <summary>
@@ -67,31 +69,38 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            return await _dbContext.LeagueSeasons.FindAsync(id);
+            return await _dbContext.LeagueSeasons
+                .Include(ls => ls.LeagueIdNavigation)
+                .Include(ls => ls.SeasonIdNavigation)
+                .FirstOrDefaultAsync(ls => ls.Id == id);
         }
 
         /// <summary>
         /// Gets a single <see cref="LeagueSeason"/> entity from the data store by league name and season year.
         /// </summary>
         /// <param name="leagueName">The name of the league of the <see cref="LeagueSeason"/> entity to fetch.</param>
-        /// <param name="seasonYear">The year of the season of the <see cref="LeagueSeason"/> entity to fetch.</param>
+        /// <param name="seasonId">The year of the season of the <see cref="LeagueSeason"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="LeagueSeason"/> entity.</returns>
-        public LeagueSeason? GetLeagueSeasonByLeagueAndSeason(int leagueId, int seasonYear)
+        public LeagueSeason? GetLeagueSeasonByLeagueAndSeason(int leagueId, int seasonId)
         {
-            return _dbContext.LeagueSeasons.FirstOrDefault(
-                ls => ls.LeagueId == leagueId && ls.SeasonYear == seasonYear);
+            return _dbContext.LeagueSeasons
+                .Include(ls => ls.LeagueIdNavigation)
+                .Include(ls => ls.SeasonIdNavigation)
+                .FirstOrDefault(ls => ls.LeagueId == leagueId && ls.SeasonId == seasonId);
         }
 
         /// <summary>
         /// Gets a single <see cref="LeagueSeason"/> entity from the data store by league name and season year.
         /// </summary>
         /// <param name="leagueName">The name of the league of the <see cref="LeagueSeason"/> entity to fetch.</param>
-        /// <param name="seasonYear">The year of the season of the <see cref="LeagueSeason"/> entity to fetch.</param>
+        /// <param name="seasonId">The year of the season of the <see cref="LeagueSeason"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="LeagueSeason"/> entity.</returns>
-        public async Task<LeagueSeason?> GetLeagueSeasonByLeagueAndSeasonAsync(int leagueId, int seasonYear)
+        public async Task<LeagueSeason?> GetLeagueSeasonByLeagueAndSeasonAsync(int leagueId, int seasonId)
         {
-            return await _dbContext.LeagueSeasons.FirstOrDefaultAsync(
-                ls => ls.LeagueId == leagueId && ls.SeasonYear == seasonYear);
+            return await _dbContext.LeagueSeasons
+                .Include(ls => ls.LeagueIdNavigation)
+                .Include(ls => ls.SeasonIdNavigation)
+                .FirstOrDefaultAsync(ls => ls.LeagueId == leagueId && ls.SeasonId == seasonId);
         }
 
         /// <summary>
@@ -130,8 +139,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return leagueSeason;
             }
 
-            var entity = _dbContext.LeagueSeasons.Attach(leagueSeason);
-            entity.State = EntityState.Modified;
+            _dbContext.Update(leagueSeason);
 
             return leagueSeason;
         }

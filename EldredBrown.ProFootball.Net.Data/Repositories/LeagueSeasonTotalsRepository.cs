@@ -7,7 +7,7 @@ using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Data.Repositories
 {
-    public class LeagueSeasonTotalsRepository
+    public class LeagueSeasonTotalsRepository : ILeagueSeasonTotalsRepository
     {
         private readonly ProFootballDbContext _dbContext;
 
@@ -31,9 +31,9 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// The season year of the <see cref="LeagueSeasonTotals"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="LeagueSeasonTotals"/> entity.</returns>
-        public LeagueSeasonTotals? GetLeagueSeasonTotals(string leagueName, int seasonYear)
+        public LeagueSeasonTotals? GetLeagueSeasonTotals(int leagueId, int seasonId)
         {
-            return ExecuteGetLeagueSeasonTotals(leagueName, seasonYear);
+            return ExecuteGetLeagueSeasonTotals(leagueId, seasonId);
         }
 
         /// <summary>
@@ -47,26 +47,25 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// The season year of the <see cref="LeagueSeasonTotals"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="LeagueSeasonTotals"/> entity.</returns>
-        public async Task<LeagueSeasonTotals?> GetLeagueSeasonTotalsAsync(string leagueName, int seasonYear)
+        public async Task<LeagueSeasonTotals?> GetLeagueSeasonTotalsAsync(int leagueId, int seasonId)
         {
-            return await ExecuteGetLeagueSeasonTotalsAsync(leagueName, seasonYear);
+            return await ExecuteGetLeagueSeasonTotalsAsync(leagueId, seasonId);
         }
 
-        protected virtual LeagueSeasonTotals? ExecuteGetLeagueSeasonTotals(string leagueName, int seasonYear)
+        protected virtual LeagueSeasonTotals? ExecuteGetLeagueSeasonTotals(int leagueId, int seasonId)
         {
             return _dbContext.LeagueSeasonTotals
                 .FromSqlInterpolated(
-                    $"EXEC sp_GetLeagueSeasonTotals @leagueName = {leagueName}, @seasonYear = {seasonYear}")
+                    $"EXEC sp_GetLeagueSeasonTotals @leagueId = {leagueId}, @seasonId = {seasonId}")
                 .ToList()
                 .FirstOrDefault();
         }
 
-        protected virtual async Task<LeagueSeasonTotals?> ExecuteGetLeagueSeasonTotalsAsync(
-            string leagueName, int seasonYear)
+        protected virtual async Task<LeagueSeasonTotals?> ExecuteGetLeagueSeasonTotalsAsync(int leagueId, int seasonId)
         {
             return (await _dbContext.LeagueSeasonTotals
                 .FromSqlInterpolated(
-                    $"EXEC sp_GetLeagueSeasonTotals @leagueName = {leagueName}, @seasonYear = {seasonYear}")
+                    $"EXEC sp_GetLeagueSeasonTotals @league_id = {leagueId}, @season_id = {seasonId}")
                 .ToListAsync())
                 .FirstOrDefault();
         }

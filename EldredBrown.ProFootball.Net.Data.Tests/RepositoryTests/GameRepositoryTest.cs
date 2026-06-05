@@ -189,7 +189,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
 
-            fakeDbContext.Games = null;
+            fakeDbContext.Games = null!;
             var testRepository = new GameRepository(fakeDbContext);
 
             // Act
@@ -252,7 +252,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
 
-            fakeDbContext.Games = null;
+            fakeDbContext.Games = null!;
             var testRepository = new GameRepository(fakeDbContext);
 
             // Act
@@ -291,7 +291,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void AddAsync_ShouldSucceed()
+        public async Task AddAsync_ShouldSucceed()
         {
             // Arrange
             var fakeDbContext = A.Fake<ProFootballDbContext>();
@@ -311,7 +311,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 IsPlayoff = false,
                 Notes = "Notes"
             };
-            var result = repository.AddAsync(game).Result;
+            var result = await repository.AddAsync(game);
 
             // Assert
             A.CallTo(() => fakeDbContext.AddAsync(game)).MustHaveHappenedOnceExactly();
@@ -375,7 +375,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             int id = 1;
             var game = new Game
             {
-                Id = 1,
+                Id = id,
                 SeasonId = 1920,
                 Week = 1,
                 GuestName = "Guest 1",
@@ -393,7 +393,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var testRepository = new GameRepository(fakeDbContext);
 
             // Act
-            var result = testRepository.Delete(game.Id);
+            var result = testRepository.Delete(id);
             fakeDbContext.SaveChanges();
 
             // Assert
@@ -409,7 +409,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
-            fakeDbContext.Games = null;
+            fakeDbContext.Games = null!;
 
             var testRepository = new GameRepository(fakeDbContext);
 
@@ -449,7 +449,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             int id = 1;
             var game = new Game
             {
-                Id = 1,
+                Id = id,
                 SeasonId = 1920,
                 Week = 1,
                 GuestName = "Guest 1",
@@ -496,7 +496,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             int id = 1;
             var game = new Game
             {
-                Id = 1,
+                Id = id,
                 SeasonId = 1920,
                 Week = 1,
                 GuestName = "Guest 1",
@@ -514,7 +514,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var testRepository = new GameRepository(fakeDbContext);
 
             // Act
-            var result = await testRepository.DeleteAsync(game.Id);
+            var result = await testRepository.DeleteAsync(id);
             await fakeDbContext.SaveChangesAsync();
 
             // Assert
@@ -530,7 +530,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
-            fakeDbContext.Games = null;
+            fakeDbContext.Games = null!;
 
             var testRepository = new GameRepository(fakeDbContext);
 
@@ -570,7 +570,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             int id = 1;
             var game = new Game
             {
-                Id = 1,
+                Id = id,
                 SeasonId = 1920,
                 Week = 1,
                 GuestName = "Guest 1",
@@ -718,6 +718,56 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             // Assert
             result.ShouldBeFalse();
+        }
+
+        [Fact]
+        public async Task GetMaxWeekForSeasonAsync_WhenWeeksExistForSeason_ShouldReturnMaxWeek()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            var seasonId = 1920;
+            var season = new Season { Id = seasonId };
+            fakeDbContext.Seasons.Add(season);
+
+            var game1 = new Game { Id = 1, SeasonId = seasonId, Week = 1, GuestName = "Guest", HostName = "Host" };
+            var game2 = new Game { Id = 2, SeasonId = seasonId, Week = 2, GuestName = "Guest", HostName = "Host" };
+            var game3 = new Game { Id = 3, SeasonId = seasonId, Week = 3, GuestName = "Guest", HostName = "Host" };
+            fakeDbContext.Games.AddRange(game1, game2, game3);
+            fakeDbContext.SaveChanges();
+
+            var testRepository = new GameRepository(fakeDbContext);
+
+            // Act
+            var result = await testRepository.GetMaxWeekForSeasonAsync(1920);
+
+            // Assert
+            result.ShouldBe(3);
+        }
+
+        [Fact]
+        public async Task GetMaxWeekForSeasonAsync_WhenWeeksDoNotExistForSeason_ShouldReturnZero()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            var seasonId = 1920;
+            var season = new Season { Id = seasonId };
+            fakeDbContext.Seasons.Add(season);
+
+            var testRepository = new GameRepository(fakeDbContext);
+
+            // Act
+            var result = await testRepository.GetMaxWeekForSeasonAsync(1920);
+
+            // Assert
+            result.ShouldBe(0);
         }
     }
 }

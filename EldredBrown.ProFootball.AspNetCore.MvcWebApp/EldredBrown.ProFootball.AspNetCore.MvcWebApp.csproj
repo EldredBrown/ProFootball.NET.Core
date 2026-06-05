@@ -11,41 +11,34 @@
     <Compile Remove="Views\LeagueSeason\**" />
     <Compile Remove="Views\SeasonStandings\**" />
     <Compile Remove="Views\TeamSeasonsAdmin\**" />
-    <Compile Remove="Views\TeamSeason\**" />
     <Content Remove="ViewModels\LeagueSeason\**" />
     <Content Remove="ViewModels\SeasonStandings\**" />
     <Content Remove="Views\GamePredictor\**" />
     <Content Remove="Views\LeagueSeason\**" />
     <Content Remove="Views\SeasonStandings\**" />
     <Content Remove="Views\TeamSeasonsAdmin\**" />
-    <Content Remove="Views\TeamSeason\**" />
     <EmbeddedResource Remove="ViewModels\LeagueSeason\**" />
     <EmbeddedResource Remove="ViewModels\SeasonStandings\**" />
     <EmbeddedResource Remove="Views\GamePredictor\**" />
     <EmbeddedResource Remove="Views\LeagueSeason\**" />
     <EmbeddedResource Remove="Views\SeasonStandings\**" />
     <EmbeddedResource Remove="Views\TeamSeasonsAdmin\**" />
-    <EmbeddedResource Remove="Views\TeamSeason\**" />
     <None Remove="ViewModels\LeagueSeason\**" />
     <None Remove="ViewModels\SeasonStandings\**" />
     <None Remove="Views\GamePredictor\**" />
     <None Remove="Views\LeagueSeason\**" />
     <None Remove="Views\SeasonStandings\**" />
     <None Remove="Views\TeamSeasonsAdmin\**" />
-    <None Remove="Views\TeamSeason\**" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="Controllers\GamePredictorController.cs" />
     <Compile Remove="Controllers\LeagueSeasonController.cs" />
     <Compile Remove="Controllers\SeasonStandingsController.cs" />
-    <Compile Remove="Controllers\TeamSeasonAdminController.cs" />
-    <Compile Remove="Controllers\TeamSeasonController.cs" />
     <Compile Remove="ViewModels\ILeagueDetailsViewModel.cs" />
     <Compile Remove="ViewModels\ILeagueIndexViewModel.cs" />
     <Compile Remove="ViewModels\LeagueDetailsViewModel.cs" />
     <Compile Remove="ViewModels\LeagueIndexViewModel.cs" />
-    <Compile Remove="ViewModels\TeamSeason\TeamSeasonViewModel.cs" />
   </ItemGroup>
 
   <ItemGroup>

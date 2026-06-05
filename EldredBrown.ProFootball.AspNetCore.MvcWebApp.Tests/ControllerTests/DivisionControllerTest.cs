@@ -24,10 +24,24 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var fakeDivisionIndexViewModel = A.Fake<IDivisionIndexViewModel>();
             var fakeDivisionDetailsViewModel = A.Fake<IDivisionDetailsViewModel>();
+
             var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
+            var divisionViewModels = new List<DivisionViewModel>
+            {
+                new DivisionViewModel { Id = 1 },
+                new DivisionViewModel { Id = 2 },
+                new DivisionViewModel { Id = 3 },
+            };
+            A.CallTo(() => fakeDivisionViewModelMapper.MapDivisionToViewModel(A<Division>.Ignored))
+                .ReturnsNextFromSequence(divisionViewModels.ToArray());
 
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
-            var divisions = new List<Division> { };
+            var divisions = new List<Division>
+            {
+                new Division { Id = 1 },
+                new Division { Id = 2 },
+                new Division { Id = 3 },
+            };
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).Returns(divisions);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
@@ -40,6 +54,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             // Assert
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).MustHaveHappenedOnceExactly();
+            foreach (var division in divisions)
+            {
+                A.CallTo(() => fakeDivisionViewModelMapper.MapDivisionToViewModel(division))
+                    .MustHaveHappenedOnceExactly();
+            }
+            fakeDivisionIndexViewModel.Divisions.ShouldBe(divisionViewModels);
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(fakeDivisionIndexViewModel);
         }

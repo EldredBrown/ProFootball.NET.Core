@@ -32,26 +32,27 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// The season year of the <see cref="TeamSeasonScheduleProfile"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="IEnumerable{OpponentProfile}"/> collection.</returns>
-        public IEnumerable<TeamSeasonOpponentProfile> GetTeamSeasonScheduleProfile(string teamName, int seasonYear)
+        public IEnumerable<TeamSeasonOpponentProfile> GetTeamSeasonScheduleProfile(int teamId, int seasonId)
         {
-            return ExecuteGetTeamSeasonScheduleProfile(teamName, seasonYear);
+            return ExecuteGetTeamSeasonScheduleProfile(teamId, seasonId);
         }
 
         /// <summary>
         /// Gets a single team season schedule profile (<see cref="IEnumerable{OpponentProfile}"/>) asynchronously from
         /// the data store by team name and season year.
         /// </summary>
-        /// <param name="teamName">
+        /// <param name="teamId">
         /// The team name of the <see cref="TeamSeasonScheduleProfile"/> entity to fetch.
         /// </param>
-        /// <param name="seasonYear">
+        /// <param name="seasonId">
         /// The season year of the <see cref="TeamSeasonScheduleProfile"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="IEnumerable{OpponentProfile}"/> collection.</returns>
-        public async Task<IEnumerable<TeamSeasonOpponentProfile>> GetTeamSeasonScheduleProfileAsync(string teamName,
-            int seasonYear)
+        public async Task<IEnumerable<TeamSeasonOpponentProfile>> GetTeamSeasonScheduleProfileAsync(
+            int teamId, int seasonId
+        )
         {
-            return await ExecuteGetTeamSeasonScheduleProfileAsync(teamName, seasonYear);
+            return await ExecuteGetTeamSeasonScheduleProfileAsync(teamId, seasonId);
         }
 
         /// <summary>
@@ -65,9 +66,9 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// The season year of the <see cref="TeamSeasonScheduleTotals"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="TeamSeasonScheduleTotals"/> entity.</returns>
-        public TeamSeasonScheduleTotals GetTeamSeasonScheduleTotals(string teamName, int seasonYear)
+        public TeamSeasonScheduleTotals GetTeamSeasonScheduleTotals(int teamId, int seasonId)
         {
-            return ExecuteGetTeamSeasonScheduleTotals(teamName, seasonYear);
+            return ExecuteGetTeamSeasonScheduleTotals(teamId, seasonId);
         }
 
         /// <summary>
@@ -81,10 +82,9 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// The season year of the <see cref="TeamSeasonScheduleTotals"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="TeamSeasonScheduleTotals"/> entity.</returns>
-        public async Task<TeamSeasonScheduleTotals> GetTeamSeasonScheduleTotalsAsync(string teamName,
-            int seasonYear)
+        public async Task<TeamSeasonScheduleTotals> GetTeamSeasonScheduleTotalsAsync(int teamId, int seasonId)
         {
-            return await ExecuteGetTeamSeasonScheduleTotalsAsync(teamName, seasonYear);
+            return await ExecuteGetTeamSeasonScheduleTotalsAsync(teamId, seasonId);
         }
 
         /// <summary>
@@ -98,9 +98,9 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// The season year of the <see cref="TeamSeasonScheduleAverages"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="TeamSeasonScheduleAverages"/> entity.</returns>
-        public TeamSeasonScheduleAverages GetTeamSeasonScheduleAverages(string teamName, int seasonYear)
+        public TeamSeasonScheduleAverages GetTeamSeasonScheduleAverages(int teamId, int seasonId)
         {
-            return ExecuteGetTeamSeasonScheduleAverages(teamName, seasonYear);
+            return ExecuteGetTeamSeasonScheduleAverages(teamId, seasonId);
         }
 
         /// <summary>
@@ -114,66 +114,67 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// The season year of the <see cref="TeamSeasonScheduleAverages"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="TeamSeasonScheduleAverages"/> entity.</returns>
-        public async Task<TeamSeasonScheduleAverages> GetTeamSeasonScheduleAveragesAsync(string teamName,
-            int seasonYear)
+        public async Task<TeamSeasonScheduleAverages> GetTeamSeasonScheduleAveragesAsync(int teamId, int seasonId)
         {
-            return await ExecuteGetTeamSeasonScheduleAveragesAsync(teamName, seasonYear);
+            return await ExecuteGetTeamSeasonScheduleAveragesAsync(teamId, seasonId);
         }
 
         protected virtual IEnumerable<TeamSeasonOpponentProfile> ExecuteGetTeamSeasonScheduleProfile(
-            string teamName, int seasonYear)
+            int teamId, int seasonId
+        )
         {
             return _dbContext.TeamSeasonScheduleProfile
                 .FromSqlInterpolated(
-                    $"EXEC sp_GetTeamSeasonScheduleProfile @teamName = {teamName}, @seasonYear = {seasonYear}")
+                    $"EXEC sp_GetTeamSeasonScheduleProfile @team_id = {teamId}, @season_id = {seasonId}")
                 .ToList();
         }
 
         protected virtual async Task<IEnumerable<TeamSeasonOpponentProfile>> ExecuteGetTeamSeasonScheduleProfileAsync(
-            string teamName, int seasonYear)
+            int teamId, int seasonId
+        )
         {
             return await _dbContext.TeamSeasonScheduleProfile
                 .FromSqlInterpolated(
-                    $"EXEC sp_GetTeamSeasonScheduleProfile @teamName = {teamName}, @seasonYear = {seasonYear}")
+                    $"EXEC sp_GetTeamSeasonScheduleProfile @team_id = {teamId}, @season_id = {seasonId}")
                 .ToListAsync();
         }
 
-        protected virtual TeamSeasonScheduleTotals ExecuteGetTeamSeasonScheduleTotals(
-            string teamName, int seasonYear)
+        protected virtual TeamSeasonScheduleTotals ExecuteGetTeamSeasonScheduleTotals(int teamId, int seasonId)
         {
             return _dbContext.TeamSeasonScheduleTotals
                 .FromSqlInterpolated(
-                    $"EXEC sp_GetTeamSeasonScheduleTotals @teamName = {teamName}, @seasonYear = {seasonYear}")
+                    $"EXEC sp_GetTeamSeasonScheduleTotals @team_id = {teamId}, @season_id = {seasonId}")
                 .ToList()
                 .FirstOrDefault();
         }
 
         protected virtual async Task<TeamSeasonScheduleTotals> ExecuteGetTeamSeasonScheduleTotalsAsync(
-            string teamName, int seasonYear)
+            int teamId, int seasonId
+        )
         {
             return (await _dbContext.TeamSeasonScheduleTotals
                 .FromSqlInterpolated(
-                    $"sp_GetTeamSeasonScheduleTotals {teamName}, {seasonYear}")
+                    $"sp_GetTeamSeasonScheduleTotals @team_id = {teamId}, @season_id = {seasonId}")
                 .ToListAsync())
                 .FirstOrDefault();
         }
 
-        protected virtual TeamSeasonScheduleAverages ExecuteGetTeamSeasonScheduleAverages(
-            string teamName, int seasonYear)
+        protected virtual TeamSeasonScheduleAverages ExecuteGetTeamSeasonScheduleAverages(int teamId, int seasonId)
         {
             return _dbContext.TeamSeasonScheduleAverages
                 .FromSqlInterpolated(
-                    $"EXEC sp_GetTeamSeasonScheduleAverages @teamName = {teamName}, @seasonYear = {seasonYear}")
+                    $"EXEC sp_GetTeamSeasonScheduleAverages @team_id = {teamId}, @season_id = {seasonId}")
                 .ToList()
                 .FirstOrDefault();
         }
 
         protected virtual async Task<TeamSeasonScheduleAverages> ExecuteGetTeamSeasonScheduleAveragesAsync(
-            string teamName, int seasonYear)
+            int teamId, int seasonId
+        )
         {
             return (await _dbContext.TeamSeasonScheduleAverages
                 .FromSqlInterpolated(
-                    $"sp_GetTeamSeasonScheduleAverages {teamName}, {seasonYear}")
+                    $"sp_GetTeamSeasonScheduleAverages @team_id = {teamId}, @season_id = {seasonId}")
                 .ToListAsync())
                 .FirstOrDefault();
         }

@@ -115,7 +115,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
 
-            fakeDbContext.Leagues = null;
+            fakeDbContext.Leagues = null!;
             var testRepository = new LeagueRepository(fakeDbContext);
 
             // Act
@@ -170,7 +170,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
 
-            fakeDbContext.Leagues = null;
+            fakeDbContext.Leagues = null!;
             var testRepository = new LeagueRepository(fakeDbContext);
 
             // Act
@@ -225,7 +225,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
 
-            fakeDbContext.Leagues = null;
+            fakeDbContext.Leagues = null!;
             var testRepository = new LeagueRepository(fakeDbContext);
 
             // Act
@@ -280,7 +280,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
 
-            fakeDbContext.Leagues = null;
+            fakeDbContext.Leagues = null!;
             var testRepository = new LeagueRepository(fakeDbContext);
 
             // Act
@@ -314,7 +314,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void AddAsync_ShouldSucceed()
+        public async Task AddAsync_ShouldSucceed()
         {
             // Arrange
             var fakeDbContext = A.Fake<ProFootballDbContext>();
@@ -329,7 +329,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 LongName = "League 1",
                 FirstSeasonId = 1920
             };
-            var result = repository.AddAsync(league).Result;
+            var result = await repository.AddAsync(league);
 
             // Assert
             A.CallTo(() => fakeDbContext.AddAsync(league)).MustHaveHappenedOnceExactly();
@@ -413,7 +413,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
-            fakeDbContext.Leagues = null;
+            fakeDbContext.Leagues = null!;
 
             var testRepository = new LeagueRepository(fakeDbContext);
 
@@ -515,7 +515,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
             using var fakeDbContext = new ProFootballDbContext(options);
-            fakeDbContext.Leagues = null;
+            fakeDbContext.Leagues = null!;
 
             var testRepository = new LeagueRepository(fakeDbContext);
 

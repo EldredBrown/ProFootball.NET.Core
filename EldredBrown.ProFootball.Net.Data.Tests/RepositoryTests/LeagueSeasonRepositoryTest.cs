@@ -23,17 +23,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var leagueSeasons = new List<LeagueSeason>
             {
-                new LeagueSeason { Id = 1, LeagueName = "NFL", SeasonYear = 1920 },
-                new LeagueSeason { Id = 2, LeagueName = "NFL", SeasonYear = 1921 },
-                new LeagueSeason { Id = 3, LeagueName = "NFL", SeasonYear = 1922 },
+                new LeagueSeason { Id = 1, LeagueId = 1, SeasonId = 1920 },
+                new LeagueSeason { Id = 2, LeagueId = 1, SeasonId = 1921 },
+                new LeagueSeason { Id = 3, LeagueId = 1, SeasonId = 1922 },
             };
 
             var fakeDbSet = leagueSeasons.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.LeagueSeasons).Returns(fakeDbSet);
-            var repository = new LeagueSeasonRepository(fakeDbContext);
+            var testRepository = new LeagueSeasonRepository(fakeDbContext);
 
             // Act
-            var result = repository.GetLeagueSeasons();
+            var result = testRepository.GetLeagueSeasons();
 
             // Assert
             result.ShouldNotBeNull();
@@ -45,7 +45,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void GetLeagueSeasonsAsync_ShouldSucceed()
+        public async Task GetLeagueSeasonsAsync_ShouldSucceed()
         {
             // Arrange
             var fakeDbContext = A.Fake<ProFootballDbContext>();
@@ -53,17 +53,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var leagueSeasons = new List<LeagueSeason>
             {
-                new LeagueSeason { Id = 1, LeagueName = "NFL", SeasonYear = 1920 },
-                new LeagueSeason { Id = 2, LeagueName = "NFL", SeasonYear = 1921 },
-                new LeagueSeason { Id = 3, LeagueName = "NFL", SeasonYear = 1922 },
+                new LeagueSeason { Id = 1, LeagueId = 1, SeasonId = 1920 },
+                new LeagueSeason { Id = 2, LeagueId = 1, SeasonId = 1921 },
+                new LeagueSeason { Id = 3, LeagueId = 1, SeasonId = 1922 },
             };
 
             var fakeDbSet = leagueSeasons.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.LeagueSeasons).Returns(fakeDbSet);
-            var repository = new LeagueSeasonRepository(fakeDbContext);
+            var testRepository = new LeagueSeasonRepository(fakeDbContext);
 
             // Act
-            var result = repository.GetLeagueSeasonsAsync().Result;
+            var result = await testRepository.GetLeagueSeasonsAsync();
 
             // Assert
             result.ShouldNotBeNull();
@@ -74,22 +74,35 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GetLeagueSeason_WhenLeagueSeasonsIsNotNull_ShouldSucceed()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.LeagueSeasons = A.Fake<DbSet<LeagueSeason>>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            var seasonId = 1920;
+            var season = new Season { Id = seasonId };
+            fakeDbContext.Seasons.Add(season);
+
+            var leagueId = 1;
+            var league = new League { Id = leagueId, LongName = "League", ShortName = "L" };
+            fakeDbContext.Leagues.Add(league);
+
+            fakeDbContext.SaveChanges();
 
             int id = 1;
             var leagueSeason = new LeagueSeason
             {
                 Id = id,
-                LeagueName = "NFL",
-                SeasonYear = 1920
+                LeagueId = 1,
+                SeasonId = 1920
             };
+            fakeDbContext.LeagueSeasons.Add(leagueSeason );
+            fakeDbContext.SaveChanges();
 
-            A.CallTo(() => fakeDbContext.LeagueSeasons.Find(An<int>.Ignored)).Returns(leagueSeason);
-            var repository = new LeagueSeasonRepository(fakeDbContext);
+            var testRepository = new LeagueSeasonRepository(fakeDbContext);
 
             // Act
-            var result = repository.GetLeagueSeason(id);
+            var result = testRepository.GetLeagueSeason(id);
 
             // Assert
             result.ShouldNotBeNull();
@@ -100,38 +113,54 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GetLeagueSeason_WhenLeagueSeasonsIsNull_ShouldReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.LeagueSeasons = null;
-            var repository = new LeagueSeasonRepository(fakeDbContext);
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            fakeDbContext.LeagueSeasons = null!;
+            var testRepository = new LeagueSeasonRepository(fakeDbContext);
 
             // Act
-            var result = repository.GetLeagueSeason(1);
+            var result = testRepository.GetLeagueSeason(1);
 
             // Assert
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void GetLeagueSeasonAsync_WhenLeagueSeasonsIsNotNull_ShouldSucceed()
+        public async Task GetLeagueSeasonAsync_WhenLeagueSeasonsIsNotNull_ShouldSucceed()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.LeagueSeasons = A.Fake<DbSet<LeagueSeason>>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            var leagueId = 1;
+            var league = new League { Id = leagueId, LongName = "League", ShortName = "L" };
+            fakeDbContext.Leagues.Add(league);
+
+            var seasonId = 1920;
+            var season = new Season { Id = seasonId };
+            fakeDbContext.Seasons.Add(season);
+
+            fakeDbContext.SaveChanges();
 
             int id = 1;
             var leagueSeason = new LeagueSeason
             {
                 Id = id,
-                LeagueName = "NFL",
-                SeasonYear = 1920
+                LeagueId = 1,
+                SeasonId = 1920
             };
+            fakeDbContext.LeagueSeasons.Add(leagueSeason);
+            fakeDbContext.SaveChanges();
 
-            _ = A.CallTo(() => fakeDbContext.LeagueSeasons.FindAsync(An<int>.Ignored))
-                .Returns(new ValueTask<LeagueSeason?>(leagueSeason));
-            var repository = new LeagueSeasonRepository(fakeDbContext);
+            var testRepository = new LeagueSeasonRepository(fakeDbContext);
 
             // Act
-            var result = repository.GetLeagueSeasonAsync(id).Result;
+            var result = await testRepository.GetLeagueSeasonAsync(id);
 
             // Assert
             result.ShouldNotBeNull();
@@ -139,15 +168,19 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void GetLeagueSeasonAsync_WhenLeagueSeasonsIsNull_ShouldReturnNull()
+        public async Task GetLeagueSeasonAsync_WhenLeagueSeasonsIsNull_ShouldReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.LeagueSeasons = null;
-            var repository = new LeagueSeasonRepository(fakeDbContext);
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            fakeDbContext.LeagueSeasons = null!;
+            var testRepository = new LeagueSeasonRepository(fakeDbContext);
 
             // Act
-            var result = repository.GetLeagueSeasonAsync(1).Result;
+            var result = await testRepository.GetLeagueSeasonAsync(1);
 
             // Assert
             result.ShouldBeNull();
@@ -164,8 +197,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var leagueSeason = new LeagueSeason
             {
                 Id = 1,
-                LeagueName = "NFL",
-                SeasonYear = 1920
+                LeagueId = 1,
+                SeasonId = 1920
             };
 
             // Act
@@ -177,7 +210,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void AddAsync_ShouldSucceed()
+        public async Task AddAsync_ShouldSucceed()
         {
             // Arrange
             var fakeDbContext = A.Fake<ProFootballDbContext>();
@@ -187,12 +220,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var leagueSeason = new LeagueSeason
             {
                 Id = 1,
-                LeagueName = "NFL",
-                SeasonYear = 1920
+                LeagueId = 1,
+                SeasonId = 1920
             };
 
             // Act
-            var result = repository.AddAsync(leagueSeason).Result;
+            var result = await repository.AddAsync(leagueSeason);
 
             // Assert
             A.CallTo(() => fakeDbContext.AddAsync(leagueSeason)).MustHaveHappenedOnceExactly();
@@ -212,23 +245,23 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var leagueSeason = new LeagueSeason
             {
                 Id = 1,
-                LeagueName = "NFL",
-                SeasonYear = 1920,
+                LeagueId = 1,
+                SeasonId = 1920,
                 TotalGames = 1,
             };
 
             fakeDbContext.LeagueSeasons.Add(leagueSeason);
-            await fakeDbContext.SaveChangesAsync();
+            fakeDbContext.SaveChanges();
 
             var repository = new LeagueSeasonRepository(fakeDbContext);
 
             // Act
             leagueSeason.TotalGames = 100;
             repository.Update(leagueSeason);
-            await fakeDbContext.SaveChangesAsync();
+            fakeDbContext.SaveChanges();
 
             // Assert
-            var updated = await fakeDbContext.LeagueSeasons.FirstOrDefaultAsync(ls => ls.Id == 1);
+            var updated = fakeDbContext.LeagueSeasons.FirstOrDefault(ls => ls.Id == 1);
             updated.ShouldNotBeNull();
         }
 
@@ -236,25 +269,41 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Delete_WhenLeagueSeasonsIsNotNullAndSelectedLeagueSeasonIsNotNull_ShouldSucceed()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.LeagueSeasons = A.Fake<DbSet<LeagueSeason>>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            var leagueId = 1;
+            var league = new League { Id = leagueId, LongName = "League", ShortName = "L" };
+            fakeDbContext.Leagues.Add(league);
+
+            var seasonId = 1920;
+            var season = new Season { Id = seasonId };
+            fakeDbContext.Seasons.Add(season);
+
+            fakeDbContext.SaveChanges();
 
             var leagueSeason = new LeagueSeason
             {
                 Id = 1,
-                LeagueName = "NFL",
-                SeasonYear = 1920,
+                LeagueId = 1,
+                SeasonId = 1920,
                 TotalGames = 1,
             };
+            fakeDbContext.LeagueSeasons.Add(leagueSeason);
+            fakeDbContext.SaveChanges();
 
-            A.CallTo(() => fakeDbContext.LeagueSeasons.Find(An<int>.Ignored)).Returns(leagueSeason);
-            var repository = new LeagueSeasonRepository(fakeDbContext);
+            var leagueSeasonCountBeforeDelete = fakeDbContext.LeagueSeasons.Count();
+
+            var testRepository = new LeagueSeasonRepository(fakeDbContext);
 
             // Act
-            var result = repository.Delete(leagueSeason.Id);
+            var result = testRepository.Delete(leagueSeason.Id);
+            fakeDbContext.SaveChanges();
 
             // Assert
-            A.CallTo(() => fakeDbContext.LeagueSeasons.Remove(leagueSeason)).MustHaveHappenedOnceExactly();
+            fakeDbContext.LeagueSeasons.Count().ShouldBe(leagueSeasonCountBeforeDelete - 1);
             result.ShouldBe(leagueSeason);
         }
 
@@ -262,20 +311,24 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Delete_WhenLeagueSeasonsIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.LeagueSeasons = null;
-            var repository = new LeagueSeasonRepository(fakeDbContext);
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+            fakeDbContext.Leagues = null!;
 
+            var testRepository = new LeagueSeasonRepository(fakeDbContext);
+
+            // Act
             var leagueSeason = new LeagueSeason
             {
                 Id = 1,
-                LeagueName = "NFL",
-                SeasonYear = 1920,
+                LeagueId = 1,
+                SeasonId = 1920,
                 TotalGames = 1,
             };
 
-            // Act
-            var result = repository.Delete(leagueSeason.Id);
+            var result = testRepository.Delete(leagueSeason.Id);
 
             // Assert
             result.ShouldBeNull();
@@ -284,100 +337,151 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void Delete_WhenLeagueSeasonsIsNotNullAndSelectedLeagueSeasonIsNull_ShouldFailAndReturnNull()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.LeagueSeasons = A.Fake<DbSet<LeagueSeason>>();
-            A.CallTo(() => fakeDbContext.LeagueSeasons.Find(An<int>.Ignored)).Returns(null);
-            var repository = new LeagueSeasonRepository(fakeDbContext);
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            var leagueId = 1;
+            var league = new League { Id = leagueId, LongName = "League", ShortName = "L" };
+            fakeDbContext.Leagues.Add(league);
+
+            var seasonId = 1920;
+            var season = new Season { Id = seasonId };
+            fakeDbContext.Seasons.Add(season);
+
+            fakeDbContext.SaveChanges();
 
             var leagueSeason = new LeagueSeason
             {
                 Id = 1,
-                LeagueName = "NFL",
-                SeasonYear = 1920,
+                LeagueId = 1,
+                SeasonId = 1920,
                 TotalGames = 1,
             };
+            fakeDbContext.LeagueSeasons.Add(leagueSeason);
+            fakeDbContext.SaveChanges();
+
+            var leagueSeasonCountBeforeDelete = fakeDbContext.LeagueSeasons.Count();
+    
+            var testRepository = new LeagueSeasonRepository(fakeDbContext);
 
             // Act
-            var result = repository.Delete(leagueSeason.Id);
+            var result = testRepository.Delete(2);
+            fakeDbContext.SaveChanges();
 
             // Assert
-            A.CallTo(() => fakeDbContext.LeagueSeasons.Remove(leagueSeason)).MustNotHaveHappened();
+            fakeDbContext.LeagueSeasons.Count().ShouldBe(leagueSeasonCountBeforeDelete);
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void DeleteAsync_WhenLeagueSeasonsIsNotNullAndSelectedLeagueSeasonIsNotNull_ShouldSucceed()
+        public async Task DeleteAsync_WhenLeagueSeasonsIsNotNullAndSelectedLeagueSeasonIsNotNull_ShouldSucceed()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.LeagueSeasons = A.Fake<DbSet<LeagueSeason>>();
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            var leagueId = 1;
+            var league = new League { Id = leagueId, LongName = "League", ShortName = "L" };
+            fakeDbContext.Leagues.Add(league);
+
+            var seasonId = 1920;
+            var season = new Season { Id = seasonId };
+            fakeDbContext.Seasons.Add(season);
+
+            fakeDbContext.SaveChanges();
 
             var leagueSeason = new LeagueSeason
             {
                 Id = 1,
-                LeagueName = "NFL",
-                SeasonYear = 1920,
+                LeagueId = 1,
+                SeasonId = 1920,
                 TotalGames = 1,
             };
+            fakeDbContext.LeagueSeasons.Add(leagueSeason);
+            fakeDbContext.SaveChanges();
 
-            _ = A.CallTo(() => fakeDbContext.LeagueSeasons.FindAsync(An<int>.Ignored)).Returns(
-                new ValueTask<LeagueSeason?>(leagueSeason));
-            var repository = new LeagueSeasonRepository(fakeDbContext);
+            var leagueSeasonCountBeforeDelete = fakeDbContext.LeagueSeasons.Count();
+
+            var testRepository = new LeagueSeasonRepository(fakeDbContext);
 
             // Act
-            var result = repository.DeleteAsync(leagueSeason.Id).Result;
+            var result = await testRepository.DeleteAsync(leagueSeason.Id);
+            fakeDbContext.SaveChanges();
 
             // Assert
-            A.CallTo(() => fakeDbContext.LeagueSeasons.Remove(leagueSeason)).MustHaveHappenedOnceExactly();
+            fakeDbContext.LeagueSeasons.Count().ShouldBe(leagueSeasonCountBeforeDelete - 1);
             result.ShouldBe(leagueSeason);
         }
 
         [Fact]
-        public void DeleteAsync_WhenLeagueSeasonsIsNull_ShouldFailAndReturnNull()
+        public async Task DeleteAsync_WhenLeagueSeasonsIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.LeagueSeasons = null;
-            var repository = new LeagueSeasonRepository(fakeDbContext);
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+            fakeDbContext.Leagues = null!;
 
+            var testRepository = new LeagueSeasonRepository(fakeDbContext);
+
+            // Act
             var leagueSeason = new LeagueSeason
             {
                 Id = 1,
-                LeagueName = "NFL",
-                SeasonYear = 1920,
+                LeagueId = 1,
+                SeasonId = 1920,
                 TotalGames = 1,
             };
 
-            // Act
-            var result = repository.DeleteAsync(leagueSeason.Id).Result;
+            var result = await testRepository.DeleteAsync(leagueSeason.Id);
 
             // Assert
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void DeleteAsync_WhenLeagueSeasonsIsNotNullAndSelectedLeagueSeasonIsNull_ShouldFailAndReturnNull()
+        public async Task DeleteAsync_WhenLeagueSeasonsIsNotNullAndSelectedLeagueSeasonIsNull_ShouldFailAndReturnNull()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.LeagueSeasons = A.Fake<DbSet<LeagueSeason>>();
-            _ = A.CallTo(() => fakeDbContext.LeagueSeasons.FindAsync(An<int>.Ignored)).Returns(null);
-            var repository = new LeagueSeasonRepository(fakeDbContext);
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            var leagueId = 1;
+            var league = new League { Id = leagueId, LongName = "League", ShortName = "L" };
+            fakeDbContext.Leagues.Add(league);
+
+            var seasonId = 1920;
+            var season = new Season { Id = seasonId };
+            fakeDbContext.Seasons.Add(season);
+
+            fakeDbContext.SaveChanges();
 
             var leagueSeason = new LeagueSeason
             {
                 Id = 1,
-                LeagueName = "NFL",
-                SeasonYear = 1920,
+                LeagueId = 1,
+                SeasonId = 1920,
                 TotalGames = 1,
             };
+            fakeDbContext.LeagueSeasons.Add(leagueSeason);
+            fakeDbContext.SaveChanges();
+
+            var leagueSeasonCountBeforeDelete = fakeDbContext.LeagueSeasons.Count();
+
+            var testRepository = new LeagueSeasonRepository(fakeDbContext);
 
             // Act
-            var result = repository.DeleteAsync(leagueSeason.Id).Result;
+            var result = await testRepository.DeleteAsync(2);
+            fakeDbContext.SaveChanges();
 
             // Assert
-            A.CallTo(() => fakeDbContext.LeagueSeasons.Remove(leagueSeason)).MustNotHaveHappened();
+            fakeDbContext.LeagueSeasons.Count().ShouldBe(leagueSeasonCountBeforeDelete);
             result.ShouldBeNull();
         }
 
@@ -391,17 +495,16 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var leagueSeason = new LeagueSeason
             {
                 Id = 1,
-                LeagueName = "NFL",
-                SeasonYear = 1920,
-                TotalGames = 1,
+                LeagueId = 1,
+                SeasonId = 1920
             };
 
             var fakeDbSet = new List<LeagueSeason> { leagueSeason }.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.LeagueSeasons).Returns(fakeDbSet);
-            var repository = new LeagueSeasonRepository(fakeDbContext);
+            var testRepository = new LeagueSeasonRepository(fakeDbContext);
 
             // Act
-            var result = repository.LeagueSeasonExists(leagueSeason.Id);
+            var result = testRepository.LeagueSeasonExists(leagueSeason.Id);
 
             // Assert
             result.ShouldBeTrue();
@@ -417,24 +520,23 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var leagueSeason = new LeagueSeason
             {
                 Id = 1,
-                LeagueName = "NFL",
-                SeasonYear = 1920,
-                TotalGames = 1,
+                LeagueId = 1,
+                SeasonId = 1920
             };
 
             var fakeDbSet = new List<LeagueSeason> { leagueSeason }.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.LeagueSeasons).Returns(fakeDbSet);
-            var repository = new LeagueSeasonRepository(fakeDbContext);
+            var testRepository = new LeagueSeasonRepository(fakeDbContext);
 
             // Act
-            var result = repository.LeagueSeasonExists(2);
+            var result = testRepository.LeagueSeasonExists(2);
 
             // Assert
             result.ShouldBeFalse();
         }
 
         [Fact]
-        public void LeagueSeasonExistsAsync_WhenLeagueSeasonsIsNotNullAndSelectedLeagueSeasonExists_ShouldReturnTrue()
+        public async Task LeagueSeasonExistsAsync_WhenLeagueSeasonsIsNotNullAndSelectedLeagueSeasonExists_ShouldReturnTrue()
         {
             // Arrange
             var fakeDbContext = A.Fake<ProFootballDbContext>();
@@ -443,24 +545,23 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var leagueSeason = new LeagueSeason
             {
                 Id = 1,
-                LeagueName = "NFL",
-                SeasonYear = 1920,
-                TotalGames = 1,
+                LeagueId = 1,
+                SeasonId = 1920
             };
 
             var fakeDbSet = new List<LeagueSeason> { leagueSeason }.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.LeagueSeasons).Returns(fakeDbSet);
-            var repository = new LeagueSeasonRepository(fakeDbContext);
+            var testRepository = new LeagueSeasonRepository(fakeDbContext);
 
             // Act
-            var result = repository.LeagueSeasonExistsAsync(leagueSeason.Id).Result;
+            var result = await testRepository.LeagueSeasonExistsAsync(leagueSeason.Id);
 
             // Assert
             result.ShouldBeTrue();
         }
 
         [Fact]
-        public void LeagueSeasonExistsAsync_WhenLeagueSeasonsIsNotNullAndSelectedLeagueSeasonDoesNotExist_ShouldReturnFalse()
+        public async Task LeagueSeasonExistsAsync_WhenLeagueSeasonsIsNotNullAndSelectedLeagueSeasonDoesNotExist_ShouldReturnFalse()
         {
             // Arrange
             var fakeDbContext = A.Fake<ProFootballDbContext>();
@@ -469,17 +570,16 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var leagueSeason = new LeagueSeason
             {
                 Id = 1,
-                LeagueName = "NFL",
-                SeasonYear = 1920,
-                TotalGames = 1,
+                LeagueId = 1,
+                SeasonId = 1920
             };
 
             var fakeDbSet = new List<LeagueSeason> { leagueSeason }.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.LeagueSeasons).Returns(fakeDbSet);
-            var repository = new LeagueSeasonRepository(fakeDbContext);
+            var testRepository = new LeagueSeasonRepository(fakeDbContext);
 
             // Act
-            var result = repository.LeagueSeasonExistsAsync(2).Result;
+            var result = await testRepository.LeagueSeasonExistsAsync(2);
 
             // Assert
             result.ShouldBeFalse();

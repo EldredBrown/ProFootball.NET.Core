@@ -10,7 +10,7 @@
 <form>
     <div class="form-group">
         <label class="col-form-label">Season</label>
-        <select onchange="document.location.href=`/TeamSeasons/SetSelectedSeasonYear?SeasonYear=${this.options[this.selectedIndex].value}`;"
+        <select onchange="document.location.href=`/TeamSeason/SetSelectedSeasonYear?SeasonYear=${this.options[this.selectedIndex].value}`;"
                 asp-for="SelectedSeasonYear" asp-items="Model.Seasons">
         </select >
     </div>
@@ -44,10 +44,10 @@
                 <label>PA</label>
             </th>
             <th>
-                <label>PythW</label>
+                <label>ExpW</label>
             </th>
             <th>
-                <label>PythL</label>
+                <label>ExpL</label>
             </th>
             <th>
                 <label>OA</label>
@@ -68,7 +68,7 @@
                 <label>DI</label>
             </th>
             <th>
-                <label>FinPythPct</label>
+                <label>FinExpPct</label>
             </th>
             <th></th>
         </tr>

@@ -199,6 +199,7 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
 
                     b.ToTable("LeagueSeason");
                 });
+
             modelBuilder.Entity("EldredBrown.ProFootball.Net.Data.Models.TeamSeason", b =>
             {
                 b.Property<int>("Id")

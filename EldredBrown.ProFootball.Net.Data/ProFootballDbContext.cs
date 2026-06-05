@@ -382,10 +382,146 @@ public partial class ProFootballDbContext : DbContext
             entity.HasIndex(e => new { e.TeamId, e.SeasonId }, "UQ_TeamSeason_LeagueId_SeasonId").IsUnique();
         });
 
-        modelBuilder.Entity<TeamSeasonOpponentProfile>().HasNoKey();
-        modelBuilder.Entity<TeamSeasonScheduleTotals>().HasNoKey();
-        modelBuilder.Entity<TeamSeasonScheduleAverages>().HasNoKey();
-        modelBuilder.Entity<LeagueSeasonTotals>().HasNoKey();
+        modelBuilder.Entity<TeamSeasonOpponentProfile>(entity =>
+        {
+            entity.ToTable("TeamSeasonScheduleProfile");
+
+            entity.Property(e => e.Opponent)
+                .HasColumnType("nvarchar(50)")
+                .HasColumnName("opponent");
+
+            entity.Property(e => e.GamePointsFor)
+                .HasColumnType("int")
+                .HasColumnName("game_points_for");
+
+            entity.Property(e => e.GamePointsAgainst)
+                .HasColumnType("int")
+                .HasColumnName("game_points_against");
+
+            entity.Property(e => e.OpponentWins)
+                .HasColumnType("int")
+                .HasColumnName("opponent_wins");
+
+            entity.Property(e => e.OpponentLosses)
+                .HasColumnType("int")
+                .HasColumnName("opponent_losses");
+
+            entity.Property(e => e.OpponentTies)
+                .HasColumnType("int")
+                .HasColumnName("opponent_ties");
+
+            entity.Property(e => e.OpponentWinningPercentage)
+                .HasColumnType("decimal(18,17)")
+                .HasColumnName("opponent_winning_percentage");
+
+            entity.Property(e => e.OpponentWeightedGames)
+                .HasColumnType("int")
+                .HasColumnName("opponent_weighted_games");
+
+            entity.Property(e => e.OpponentWeightedPointsFor)
+                .HasColumnType("int")
+                .HasColumnName("opponent_weighted_points_for");
+
+            entity.Property(e => e.OpponentWeightedPointsAgainst)
+                .HasColumnType("int")
+                .HasColumnName("opponent_weighted_points_against");
+
+            entity.HasNoKey();
+        });
+
+        modelBuilder.Entity<TeamSeasonScheduleTotals>(entity =>
+        {
+            entity.ToTable("TeamSeasonScheduleTotals");
+
+            entity.Property(e => e.Games)
+                .HasColumnType("int")
+                .HasColumnName("games");
+
+            entity.Property(e => e.PointsFor)
+                .HasColumnType("int")
+                .HasColumnName("points_for");
+
+            entity.Property(e => e.PointsAgainst)
+                .HasColumnType("int")
+                .HasColumnName("points_against");
+
+            entity.Property(e => e.ScheduleWins)
+                .HasColumnType("int")
+                .HasColumnName("schedule_wins");
+
+            entity.Property(e => e.ScheduleLosses)
+                .HasColumnType("int")
+                .HasColumnName("schedule_losses");
+
+            entity.Property(e => e.ScheduleTies)
+                .HasColumnType("int")
+                .HasColumnName("schedule_ties");
+
+            entity.Property(e => e.ScheduleWinningPercentage)
+                .HasColumnType("decimal(18,17)")
+                .HasColumnName("schedule_winning_percentage");
+
+            entity.Property(e => e.ScheduleGames)
+                .HasColumnType("int")
+                .HasColumnName("schedule_games");
+
+            entity.Property(e => e.SchedulePointsFor)
+                .HasColumnType("int")
+                .HasColumnName("schedule_points_for");
+
+            entity.Property(e => e.SchedulePointsAgainst)
+                .HasColumnType("int")
+                .HasColumnName("schedule_points_against");
+
+            entity.HasNoKey();
+        });
+
+        modelBuilder.Entity<TeamSeasonScheduleAverages>(entity =>
+        {
+            entity.ToTable("TeamSeasonScheduleAverages");
+
+            entity.Property(e => e.PointsFor)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("avg_points_for");
+
+            entity.Property(e => e.PointsAgainst)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("avg_points_against");
+
+            entity.Property(e => e.SchedulePointsFor)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("avg_schedule_points_for");
+
+            entity.Property(e => e.SchedulePointsAgainst)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("avg_schedule_points_against");
+
+            entity.HasNoKey();
+        });
+
+        modelBuilder.Entity<LeagueSeasonTotals>(entity =>
+        {
+            entity.ToTable("LeagueSeasonTotals");
+
+            entity.Property(e => e.TotalGames)
+                .HasColumnType("int")
+                .HasColumnName("total_games");
+
+            entity.Property(e => e.TotalPoints)
+                .HasColumnType("int")
+                .HasColumnName("total_points");
+
+            entity.Property(e => e.AveragePoints)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("average_points");
+
+            entity.Property(e => e.WeekCount)
+                .HasColumnType("int")
+                .HasColumnName("week_count");
+
+            entity.HasNoKey();
+        });
+
         modelBuilder.Entity<SeasonTeamStanding>().HasNoKey();
         modelBuilder.Entity<RankingsOffensiveTeamSeason>().HasNoKey();
         modelBuilder.Entity<RankingsDefensiveTeamSeason>().HasNoKey();

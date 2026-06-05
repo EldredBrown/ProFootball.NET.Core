@@ -223,7 +223,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Index();
 
             // Assert
-            var orderedSeasons = seasons.OrderByDescending(s => s.Id);
+            var orderedSeasons = seasons.OrderByDescending(s => s.Id).ToList();
 
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
             fakeGameIndexViewModel.Seasons.ShouldBeOfType<SelectList>();
@@ -242,6 +242,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             fakeGameIndexViewModel.SelectedWeek.ShouldBeNull();
 
             A.CallTo(() => fakeGameRepository.GetGamesAsync()).MustHaveHappenedOnceExactly();
+            games = games.Where(g => g.SeasonId == firstSeasonId).ToList();
+            foreach (var game in games)
+            {
+                A.CallTo(() => fakeGameViewModelMapper.MapGameToViewModel(game))
+                    .MustHaveHappenedOnceExactly();
+            }
             fakeGameIndexViewModel.Games.ShouldBe(gameViewModels);
 
             result.ShouldBeOfType<ViewResult>();
@@ -449,7 +455,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Index();
 
             // Assert
-            var orderedSeasons = seasons.OrderByDescending(s => s.Id);
+            var orderedSeasons = seasons.OrderByDescending(s => s.Id).ToList();
 
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
             fakeGameIndexViewModel.Seasons.ShouldBeOfType<SelectList>();
@@ -467,6 +473,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             fakeGameIndexViewModel.SelectedWeek.ShouldBeNull();
 
             A.CallTo(() => fakeGameRepository.GetGamesAsync()).MustHaveHappenedOnceExactly();
+            games = games.Where(g => g.SeasonId == selectedSeasonYear).ToList();
+            foreach (var game in games)
+            {
+                A.CallTo(() => fakeGameViewModelMapper.MapGameToViewModel(game))
+                    .MustHaveHappenedOnceExactly();
+            }
             fakeGameIndexViewModel.Games.ShouldBe(gameViewModels);
 
             result.ShouldBeOfType<ViewResult>();
@@ -670,6 +682,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             fakeGameIndexViewModel.SelectedWeek.ShouldBe(selectedWeek);
 
             A.CallTo(() => fakeGameRepository.GetGamesAsync()).MustHaveHappenedOnceExactly();
+            games = games.Where(g => g.SeasonId == selectedSeasonYear && g.Week == selectedWeek).ToList();
+            foreach (var game in games)
+            {
+                A.CallTo(() => fakeGameViewModelMapper.MapGameToViewModel(game))
+                    .MustHaveHappenedOnceExactly();
+            }
             fakeGameIndexViewModel.Games.ShouldBe(gameViewModels);
 
             result.ShouldBeOfType<ViewResult>();

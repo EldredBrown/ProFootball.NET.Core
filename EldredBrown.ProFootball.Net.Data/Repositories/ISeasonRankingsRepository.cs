@@ -76,17 +76,6 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// The <see cref="TeamSeason"/> entity to fetch data for.
         /// </param>
         /// <returns>The fetched <see cref="Dictionary{string, Dictionary{string, object}}"/> dictionary.</returns>
-        Dictionary<string, Dictionary<string, object>> GetDataForRankingsUpdate(ITeamSeason teamSeason);
-
-        /// <summary>
-        /// Gets a dictionary of data for the weekly rankings update 
-        /// (<see cref="Dictionary{string, Dictionary{string, object}}"/>) from the data store for the specified 
-        /// <see cref="TeamSeason"/> entity.
-        /// </summary>
-        /// <param name="teamSeason">
-        /// The <see cref="TeamSeason"/> entity to fetch data for.
-        /// </param>
-        /// <returns>The fetched <see cref="Dictionary{string, Dictionary{string, object}}"/> dictionary.</returns>
-        Task<Dictionary<string, Dictionary<string, object>>> GetDataForRankingsUpdateAsync(ITeamSeason teamSeason);
+        Dictionary<string, Dictionary<string, object>> GetDataForRankingsUpdate(TeamSeason teamSeason);
     }
 }

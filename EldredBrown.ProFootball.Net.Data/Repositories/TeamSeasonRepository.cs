@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 using EldredBrown.ProFootball.Net.Data.Models;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace EldredBrown.ProFootball.Net.Data.Repositories
 {
@@ -28,18 +29,19 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="TeamSeason"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{TeamSeason}"/> of all fetched entities.</returns>
-        public IEnumerable<TeamSeason> GetTeamSeasons()
+        public IEnumerable<TeamSeason>? GetTeamSeasons()
         {
-            return _dbContext.TeamSeasons.ToList();
+            return GetTeamSeasonsDbSetWithNavigationProperties()?.ToList();
         }
 
         /// <summary>
         /// Gets all <see cref="TeamSeason "/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{TeamSeason}"/> of all fetched entities.</returns>
-        public async Task<IEnumerable<TeamSeason>> GetTeamSeasonsAsync()
+        public async Task<IEnumerable<TeamSeason>?> GetTeamSeasonsAsync()
         {
-            return await _dbContext.TeamSeasons.ToListAsync();
+            var dbSet = GetTeamSeasonsDbSetWithNavigationProperties();
+            return dbSet is not null ? await dbSet.ToListAsync() : null;
         }
 
         /// <summary>
@@ -47,9 +49,9 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="seasonId">The season year of the <see cref="TeamSeason"/> entities to fetch.</param>
         /// <returns>An <see cref="IEnumerable{TeamSeason}"/> of all fetched entities.</returns>
-        public IEnumerable<TeamSeason> GetTeamSeasonsBySeason(int seasonId)
+        public IEnumerable<TeamSeason>? GetTeamSeasonsBySeason(int seasonId)
         {
-            return GetTeamSeasons().Where(ts => ts.SeasonId == seasonId);
+            return GetTeamSeasons()?.Where(ts => ts.SeasonId == seasonId);
         }
 
         /// <summary>
@@ -57,9 +59,9 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="seasonId">The season year of the <see cref="TeamSeason"/> entities to fetch.</param>
         /// <returns>An <see cref="IEnumerable{TeamSeason}"/> of all fetched entities.</returns>
-        public async Task<IEnumerable<TeamSeason>> GetTeamSeasonsBySeasonAsync(int seasonId)
+        public async Task<IEnumerable<TeamSeason>?> GetTeamSeasonsBySeasonAsync(int seasonId)
         {
-            return (await GetTeamSeasonsAsync()).Where(ts => ts.SeasonId == seasonId);
+            return (await GetTeamSeasonsAsync())?.Where(ts => ts.SeasonId == seasonId);
         }
 
         /// <summary>
@@ -69,12 +71,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The fetched <see cref="TeamSeason"/> entity.</returns>
         public TeamSeason? GetTeamSeason(int id)
         {
-            if (_dbContext.TeamSeasons is null)
-            {
-                return null;
-            }
-
-            return _dbContext.TeamSeasons.Find(id);
+            return GetTeamSeasons()?.FirstOrDefault(ts => ts.Id == id);
         }
 
         /// <summary>
@@ -84,12 +81,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The fetched <see cref="TeamSeason"/> entity.</returns>
         public async Task<TeamSeason?> GetTeamSeasonAsync(int id)
         {
-            if (_dbContext.TeamSeasons is null)
-            {
-                return null;
-            }
-
-            return await _dbContext.TeamSeasons.FindAsync(id);
+            return (await GetTeamSeasonsAsync())?.FirstOrDefault(ts => ts.Id == id);
         }
 
         /// <summary>
@@ -100,8 +92,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The fetched <see cref="TeamSeason"/> entity.</returns>
         public TeamSeason? GetTeamSeasonByTeamAndSeason(int teamId, int seasonId)
         {
-            return _dbContext.TeamSeasons
-                .FirstOrDefault(ts => ts.TeamId == teamId && ts.SeasonId == seasonId);
+            return GetTeamSeasons()?.FirstOrDefault(ts => ts.TeamId == teamId && ts.SeasonId == seasonId);
         }
 
         /// <summary>
@@ -112,8 +103,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The fetched <see cref="TeamSeason"/> entity.</returns>
         public async Task<TeamSeason?> GetTeamSeasonByTeamAndSeasonAsync(int teamId, int seasonId)
         {
-            return await _dbContext.TeamSeasons
-                .FirstOrDefaultAsync(ts => ts.TeamId == teamId && ts.SeasonId == seasonId);
+            return (await GetTeamSeasonsAsync())?.FirstOrDefault(ts => ts.TeamId == teamId && ts.SeasonId == seasonId);
         }
 
         /// <summary>
@@ -124,7 +114,6 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         public TeamSeason Add(TeamSeason teamSeason)
         {
             _dbContext.Add(teamSeason);
-
             return teamSeason;
         }
 
@@ -136,7 +125,6 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         public async Task<TeamSeason> AddAsync(TeamSeason teamSeason)
         {
             await _dbContext.AddAsync(teamSeason);
-
             return teamSeason;
         }
 
@@ -145,11 +133,11 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="teamSeason">The <see cref="TeamSeason"/> to update.</param>
         /// <returns>The updated <see cref="TeamSeason"/> entity.</returns>
-        public TeamSeason Update(TeamSeason? teamSeason)
+        public TeamSeason? Update(TeamSeason? teamSeason)
         {
             if (teamSeason is null)
             {
-                return teamSeason;
+                return null;
             }
 
             if (_dbContext.TeamSeasons is null)
@@ -158,7 +146,6 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
             }
 
             _dbContext.Update(teamSeason);
-
             return teamSeason;
         }
 
@@ -180,8 +167,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.TeamSeasons.Remove(teamSeason as TeamSeason);
-
+            _dbContext.Remove(teamSeason);
             return teamSeason;
         }
 
@@ -203,8 +189,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.TeamSeasons.Remove(teamSeason as TeamSeason);
-
+            _dbContext.Remove(teamSeason);
             return teamSeason;
         }
 
@@ -217,7 +202,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public bool TeamSeasonExists(int id)
         {
-            return _dbContext.TeamSeasons.Any(ts => ts.Id == id);
+            return GetTeamSeasons()?.Any(ts => ts.Id == id) ?? false;
         }
 
         /// <summary>
@@ -229,7 +214,17 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public async Task<bool> TeamSeasonExistsAsync(int id)
         {
-            return await _dbContext.TeamSeasons.AnyAsync(ts => ts.Id == id);
+            return (await GetTeamSeasonsAsync())?.Any(ts => ts.Id == id) ?? false;
+        }
+
+        private IIncludableQueryable<TeamSeason, Division?>? GetTeamSeasonsDbSetWithNavigationProperties()
+        {
+            return _dbContext.TeamSeasons?
+                .Include(ts => ts.TeamIdNavigation)
+                .Include(ts => ts.SeasonIdNavigation)
+                .Include(ts => ts.LeagueIdNavigation)
+                .Include(ts => ts.ConferenceIdNavigation)
+                .Include(ts => ts.DivisionIdNavigation);
         }
     }
 }

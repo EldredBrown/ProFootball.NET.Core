@@ -331,10 +331,10 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
 
             modelBuilder.Entity("EldredBrown.ProFootball.Net.Data.Entities.TeamSeasonOpponentProfile", b =>
                 {
-                    b.Property<int?>("GamePointsAgainst")
+                    b.Property<int?>("GamePointsFor")
                         .HasColumnType("int");
 
-                    b.Property<int?>("GamePointsFor")
+                    b.Property<int?>("GamePointsAgainst")
                         .HasColumnType("int");
 
                     b.Property<string>("Opponent")

@@ -67,7 +67,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             var leagues = await _leagueRepository.GetLeaguesAsync();
             _leagueIndexViewModel.Leagues = leagues
                 .Select(l => _leagueViewModelMapper.MapLeagueToViewModel(l))
-                .OrderBy(l => l.ShortName);
+                .OrderBy(l => l.ShortName)
+                .ToList();
 
             return View(_leagueIndexViewModel);
         }

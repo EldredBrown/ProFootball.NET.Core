@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <Compile Remove="GamePredictorServiceTest.cs" />
-    <Compile Remove="WeeklyUpdateServiceTest.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -8,13 +8,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.ModelTests
     public class TeamSeasonTest
     {
         [Theory]
-        [InlineData(0, 0, 0, 0, null)]
-        [InlineData(2, 2, 0, 0, 1.000d)]
-        [InlineData(2, 1, 1, 0, 0.500d)]
-        [InlineData(2, 0, 2, 0, 0.000d)]
         [InlineData(2, 1, 0, 1, 0.750d)]
         [InlineData(2, 0, 1, 1, 0.250d)]
         [InlineData(2, 0, 0, 2, 0.500d)]
+        [InlineData(2, 2, 0, 0, 1.000d)]
+        [InlineData(2, 1, 1, 0, 0.500d)]
+        [InlineData(2, 0, 2, 0, 0.000d)]
+        [InlineData(0, 0, 0, 0, null)]
         public void WinningPercentage_ShouldReturnCorrectValue(int games, int wins, int losses, int ties, double? expected)
         {
             // Arrange
