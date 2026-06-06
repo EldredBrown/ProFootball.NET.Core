@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 using EldredBrown.ProFootball.Net.Data.Models;
 
@@ -18,7 +20,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <summary>
         /// Initializes a new instance of the <see cref="GameRepository"/> class.
         /// </summary>
-        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the data store.</param>
+        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
         public GameRepository(ProFootballDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -28,22 +30,63 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="Game"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
-        public IEnumerable<Game> GetGames()
+        public IEnumerable<Game>? GetGames()
         {
-            return _dbContext.Games
-                .Include(s => s.SeasonIdNavigation)
-                .ToList();
+            return GetGamesDbSetWithNavigationProperties()?.ToList();
+        }
+
+        /// <summary>
+        /// Gets all <see cref="Game"/> entities in the data store asynchronously.
+        /// </summary>
+        /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
+        public async Task<IEnumerable<Game>?> GetGamesAsync()
+        {
+            var games = GetGamesDbSetWithNavigationProperties();
+            return games is null ? null : await games.ToListAsync();
         }
 
         /// <summary>
         /// Gets all <see cref="Game"/> entities in the data store.
         /// </summary>
+        /// <param name="seasonId">The Id of the season for which to fetch games.</param>
         /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
-        public async Task<IEnumerable<Game>> GetGamesAsync()
+        public IEnumerable<Game>? GetGamesBySeason(int seasonId)
         {
-            return await _dbContext.Games
-                .Include(s => s.SeasonIdNavigation)
-                .ToListAsync();
+            return GetGames()?.Where(g => g.SeasonId == seasonId).ToList();
+        }
+
+        /// <summary>
+        /// Gets all <see cref="Game"/> entities in the data store.
+        /// </summary>
+        /// <param name="seasonId">The Id of the season for which to fetch games.</param>
+        /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
+        public async Task<IEnumerable<Game>?> GetGamesBySeasonAsync(int seasonId)
+        {
+            var games = await GetGamesAsync();
+            return games is null ? null : games.Where(g => g.SeasonId == seasonId).ToList();
+        }
+
+        /// <summary>
+        /// Gets all <see cref="Game"/> entities in the data store.
+        /// </summary>
+        /// <param name="seasonId">The Id of the season for which to fetch games.</param>
+        /// <param name="week">The week for which to fetch games.</param>
+        /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
+        public IEnumerable<Game>? GetGamesBySeasonAndWeek(int seasonId, int week)
+        {
+            return GetGames()?.Where(g => g.SeasonId == seasonId && g.Week == week).ToList();
+        }
+
+        /// <summary>
+        /// Gets all <see cref="Game"/> entities in the data store.
+        /// </summary>
+        /// <param name="seasonId">The Id of the season for which to fetch games.</param>
+        /// <param name="week">The week for which to fetch games.</param>
+        /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
+        public async Task<IEnumerable<Game>?> GetGamesBySeasonAndWeekAsync(int seasonId, int week)
+        {
+            var games = await GetGamesAsync();
+            return games is null ? null : games.Where(g => g.SeasonId == seasonId && g.Week == week).ToList();
         }
 
         /// <summary>
@@ -53,31 +96,51 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The fetched <see cref="Game"/> entity.</returns>
         public Game? GetGame(int id)
         {
-            if (_dbContext.Games is null)
-            {
-                return null;
-            }
-
-            return _dbContext.Games
-                .Include(s => s.SeasonIdNavigation)
-                .FirstOrDefault(c => c.Id == id);
+            return GetGames()?.FirstOrDefault(g => g.Id == id);
         }
 
         /// <summary>
-        /// Gets a single <see cref="Game"/> entity from the data store by Id.
+        /// Gets a single <see cref="Game"/> entity from the data store asynchronously by Id.
         /// </summary>
         /// <param name="id">The Id of the <see cref="Game"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Game"/> entity.</returns>
         public async Task<Game?> GetGameAsync(int id)
         {
-            if (_dbContext.Games is null)
-            {
-                return null;
-            }
+            return (await GetGamesAsync())?.FirstOrDefault(g => g.Id == id);
+        }
 
-            return await _dbContext.Games
-                .Include(s => s.SeasonIdNavigation)
-                .FirstOrDefaultAsync(c => c.Id == id);
+        /// <summary>
+        /// Gets a single <see cref="Game"/> entity from the data store by season, week, guest team, and host team.
+        /// </summary>
+        /// <param name="seasonId">The Id of the season for which to fetch a game.</param>
+        /// <param name="week">The week for which to fetch a game.</param>
+        /// <param name="guestName">The name of the guest team for which to fetch a game.</param>
+        /// <param name="hostName">The name of the host team for which to fetch a game.</param>
+        /// <returns>The fetched <see cref="Game"/> entity.</returns>
+        public Game? GetGameBySeasonWeekGuestAndHost(int seasonId, int week, string guestName, string hostName)
+        {
+            return GetGames()?.FirstOrDefault(g =>
+                g.SeasonId == seasonId &&
+                g.Week == week &&
+                g.GuestName == guestName &&
+                g.HostName == hostName);
+        }
+
+        /// <summary>
+        /// Gets a single <see cref="Game"/> entity from the data store by season, week, guest team, and host team.
+        /// </summary>
+        /// <param name="seasonId">The Id of the season for which to fetch a game.</param>
+        /// <param name="week">The week for which to fetch a game.</param>
+        /// <param name="guestName">The name of the guest team for which to fetch a game.</param>
+        /// <param name="hostName">The name of the host team for which to fetch a game.</param>
+        /// <returns>The fetched <see cref="Game"/> entity.</returns>
+        public async Task<Game?> GetGameBySeasonWeekGuestAndHostAsync(int seasonId, int week, string guestName, string hostName)
+        {
+            return (await GetGamesAsync())?.FirstOrDefault(g =>
+                g.SeasonId == seasonId &&
+                g.Week == week &&
+                g.GuestName == guestName &&
+                g.HostName == hostName);
         }
 
         /// <summary>
@@ -87,8 +150,14 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The added <see cref="Game"/> entity.</returns>
         public Game Add(Game game)
         {
-            _dbContext.Add(game);
+            ArgumentNullException.ThrowIfNull(game);
 
+            if (_dbContext.Games is null)
+            {
+                return game;
+            }
+
+            _dbContext.Add(game);
             return game;
         }
 
@@ -99,25 +168,32 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The added <see cref="Game"/> entity.</returns>
         public async Task<Game> AddAsync(Game game)
         {
-            await _dbContext.AddAsync(game);
+            ArgumentNullException.ThrowIfNull(game);
 
+            if (_dbContext.Games is null)
+            {
+                return game;
+            }
+
+            await _dbContext.AddAsync(game);
             return game;
         }
 
         /// <summary>
         /// Updates a <see cref="Game"/> entity in the data store.
         /// </summary>
-        /// <param name="game">The <see cref="Game"/> to update.</param>
+        /// <param name="game">The <see cref="Game"/> entity to update.</param>
         /// <returns>The updated <see cref="Game"/> entity.</returns>
         public Game Update(Game game)
         {
+            ArgumentNullException.ThrowIfNull(game);
+
             if (_dbContext.Games is null)
             {
                 return game;
             }
 
             _dbContext.Update(game);
-
             return game;
         }
 
@@ -139,8 +215,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Games.Remove(game);
-
+            _dbContext.Remove(game);
             return game;
         }
 
@@ -162,8 +237,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Games.Remove(game);
-
+            _dbContext.Remove(game);
             return game;
         }
 
@@ -176,7 +250,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public bool GameExists(int id)
         {
-            return _dbContext.Games.Any(c => c.Id == id);
+            return GetGames()?.Any(g => g.Id == id) ?? false;
         }
 
         /// <summary>
@@ -188,19 +262,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public async Task<bool> GameExistsAsync(int id)
         {
-            return await _dbContext.Games.AnyAsync(c => c.Id == id);
+            return (await GetGamesAsync())?.Any(g => g.Id == id) ?? false;
         }
 
-        public async Task<int> GetMaxWeekForSeasonAsync(int seasonId)
+        private IIncludableQueryable<Game, Season?>? GetGamesDbSetWithNavigationProperties()
         {
-            var games = await GetGamesAsync();
-            var gamesForSeason = games.Where(g => g.SeasonId == seasonId);
-            var weeks = gamesForSeason.Select(g => g.Week);
-            if (weeks.Any())
-            {
-                return weeks.Max();
-            }
-            return 0;
+            return _dbContext.Games?
+                .Include(ts => ts.SeasonIdNavigation);
         }
     }
 }

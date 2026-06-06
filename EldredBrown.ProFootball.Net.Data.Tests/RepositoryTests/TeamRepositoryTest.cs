@@ -12,28 +12,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 {
     public class TeamRepositoryTest
     {
-        public TeamRepositoryTest() { }
-
         [Fact]
-        public void GetTeams_ShouldSucceed()
+        public void GetTeams_WhenDbSetIsNeitherNullNorEmpty_ShouldReturnTeams()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Teams = A.Fake<DbSet<Team>>();
-
-            var teams = new List<Team>
-            {
-                new Team { Id = 1, Name = "Team 1" },
-                new Team { Id = 2, Name = "Team 2" },
-                new Team { Id = 3, Name = "Team 3" },
-            };
-
-            var fakeDbSet = teams.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Teams).Returns(fakeDbSet);
-            var repository = new TeamRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
 
             // Act
-            var result = repository.GetTeams();
+            var result = testRepository.GetTeams();
 
             // Assert
             result.ShouldNotBeNull();
@@ -45,158 +30,315 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void GetTeamsAsync_ShouldSucceed()
+        public void GetTeams_WhenDbSetIsNull_ShouldReturnNull()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Teams = A.Fake<DbSet<Team>>();
-
-            var teams = new List<Team>
-            {
-                new Team { Id = 1, Name = "Team 1" },
-                new Team { Id = 2, Name = "Team 2" },
-                new Team { Id = 3, Name = "Team 3" },
-            };
-
-            var fakeDbSet = teams.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Teams).Returns(fakeDbSet);
-            var repository = new TeamRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
             // Act
-            var result = repository.GetTeams();
+            var result = testRepository.GetTeams();
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public void GetTeams_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
+        {
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            // Act
+            var result = testRepository.GetTeams();
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.Count().ShouldBe(0);
+        }
+
+        [Fact]
+        public async Task GetTeamsAsync_WhenDbSetIsNeitherNullNorEmpty_ShouldReturnTeams()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            // Act
+            var result = await testRepository.GetTeamsAsync();
 
             // Assert
             result.ShouldNotBeNull();
             result.Count().ShouldBe(3);
+            foreach (var item in result)
+            {
+                item.ShouldBeOfType<Team>();
+            }
         }
 
         [Fact]
-        public void GetTeam_WhenTeamsIsNotNull_ShouldSucceed()
+        public async Task GetTeamsAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            var firstSeason = new Season { Id = 1920 };
-            var lastSeason = new Season { Id = 1921 };
-            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
-            fakeDbContext.SaveChanges();
+            // Act
+            var result = await testRepository.GetTeamsAsync();
 
-            var parentLeague = new League { Id = 1, ShortName = "L", LongName = "League 1" };
-            fakeDbContext.Leagues.Add(parentLeague);
-            fakeDbContext.SaveChanges();
+            // Assert
+            result.ShouldBeNull();
+        }
 
-            int id = 1;
-            var team = new Team
-            {
-                Id = id,
-                Name = "Team 1"
-            };
-            fakeDbContext.Teams.Add(team);
-            fakeDbContext.SaveChanges();
+        [Fact]
+        public async Task GetTeamsAsync_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
+        {
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            var testRepository = new TeamRepository(fakeDbContext);
+            // Act
+            var result = await testRepository.GetTeamsAsync();
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.Count().ShouldBe(0);
+        }
+
+        [Fact]
+        public void GetTeam_WhenDbSetIsNeitherNullNorEmptyAndTeamIsFound_ShouldReturnTeam()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var id = 1;
 
             // Act
             var result = testRepository.GetTeam(id);
 
             // Assert
             result.ShouldNotBeNull();
-            result.ShouldBe(team);
+            result.ShouldBeOfType<Team>();
+            result.Id.ShouldBe(id);
         }
 
         [Fact]
-        public void GetTeam_WhenTeamsIsNull_ShouldReturnNull()
+        public void GetTeam_WhenDbSetIsNull_ShouldReturnNull()
         {
-            // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            fakeDbContext.Teams = null!;
-            var testRepository = new TeamRepository(fakeDbContext);
+            var id = 1;
 
             // Act
-            var result = testRepository.GetTeam(1);
+            var result = testRepository.GetTeam(id);
 
             // Assert
             result.ShouldBeNull();
         }
 
         [Fact]
-        public async Task GetTeamAsync_WhenTeamsIsNotNull_ShouldSucceed()
+        public void GetTeam_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            var firstSeason = new Season { Id = 1920 };
-            var lastSeason = new Season { Id = 1921 };
-            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
-            fakeDbContext.SaveChanges();
+            var id = 1;
 
-            var parentLeague = new League { Id = 1, ShortName = "L1", LongName = "League 1" };
-            fakeDbContext.Leagues.Add(parentLeague);
-            fakeDbContext.SaveChanges();
+            // Act
+            var result = testRepository.GetTeam(id);
 
-            int id = 1;
-            var team = new Team
-            {
-                Id = id,
-                Name = "Team 1"
-            };
-            fakeDbContext.Teams.Add(team);
-            fakeDbContext.SaveChanges();
+            // Assert
+            result.ShouldBeNull();
+        }
 
-            var testRepository = new TeamRepository(fakeDbContext);
+        [Fact]
+        public void GetTeam_WhenTeamIsNotFound_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var id = -1;
+
+            // Act
+            var result = testRepository.GetTeam(id);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task GetTeamAsync_WhenDbSetIsNeitherNullNorEmptyAndTeamIsFound_ShouldReturnTeam()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var id = 1;
 
             // Act
             var result = await testRepository.GetTeamAsync(id);
 
             // Assert
             result.ShouldNotBeNull();
-            result.ShouldBe(team);
+            result.ShouldBeOfType<Team>();
+            result.Id.ShouldBe(id);
         }
 
         [Fact]
-        public async Task GetTeamAsync_WhenTeamsIsNull_ShouldReturnNull()
+        public async Task GetTeamAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            fakeDbContext.Teams = null!;
-            var testRepository = new TeamRepository(fakeDbContext);
+            var id = 1;
 
             // Act
-            var result = await testRepository.GetTeamAsync(1);
+            var result = await testRepository.GetTeamAsync(id);
 
             // Assert
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void Add_ShouldSucceed()
+        public async Task GetTeamAsync_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Teams = A.Fake<DbSet<Team>>();
-            var repository = new TeamRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            var id = 1;
 
             // Act
-            var team = new Team
-            {
-                Id = 1,
-                Name = "Team 1"
-            };
-            var result = repository.Add(team);
+            var result = await testRepository.GetTeamAsync(id);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task GetTeamAsync_WhenTeamIsNotFound_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var id = -1;
+
+            // Act
+            var result = await testRepository.GetTeamAsync(id);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public void GetTeamByName_WhenDbSetIsNeitherNullNorEmptyAndTeamIsFound_ShouldReturnTeam()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var name = "Team 1";
+
+            // Act
+            var result = testRepository.GetTeamByName(name);
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.ShouldBeOfType<Team>();
+            result.Name.ShouldBe(name);
+        }
+
+        [Fact]
+        public void GetTeamByName_WhenDbSetIsNull_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithNullDbSet();
+
+            var name = "Team 1";
+
+            // Act
+            var result = testRepository.GetTeamByName(name);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public void GetTeamByName_WhenDbSetIsEmpty_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            var name = "Team 1";
+
+            // Act
+            var result = testRepository.GetTeamByName(name);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public void GetTeamByName_WhenTeamIsNotFound_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var name = "Team 99";
+
+            // Act
+            var result = testRepository.GetTeamByName(name);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task GetTeamByNameAsync_WhenDbSetIsNeitherNullNorEmptyAndTeamIsFound_ShouldReturnTeam()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var name = "Team 1";
+
+            // Act
+            var result = await testRepository.GetTeamByNameAsync(name);
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.ShouldBeOfType<Team>();
+            result.Name.ShouldBe(name);
+        }
+
+        [Fact]
+        public async Task GetTeamByNameAsync_WhenDbSetIsNull_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithNullDbSet();
+
+            var name = "Team 1";
+
+            // Act
+            var result = await testRepository.GetTeamByNameAsync(name);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task GetTeamByNameAsync_WhenDbSetIsEmpty_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            var name = "Team 1";
+
+            // Act
+            var result = await testRepository.GetTeamByNameAsync(name);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task GetTeamByNameAsync_WhenTeamIsNotFound_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var name = "Team 99";
+
+            // Act
+            var result = await testRepository.GetTeamByNameAsync(name);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public void Add_WhenArgIsNotNullAndDbSetIsNotNull_ShouldAddTeam()
+        {
+            // Arrange
+            var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Team>>());
+            var testRepository = new TeamRepository(fakeDbContext);
+
+            var team = new Team { Id = 1 };
+
+            // Act
+            var result = testRepository.Add(team);
 
             // Assert
             A.CallTo(() => fakeDbContext.Add(team)).MustHaveHappenedOnceExactly();
@@ -204,20 +346,46 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public async Task AddAsync_ShouldSucceed()
+        public void Add_WhenArgIsNull_ShouldThrowException()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Teams = A.Fake<DbSet<Team>>();
-            var repository = new TeamRepository(fakeDbContext);
+            var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Team>>());
+            var testRepository = new TeamRepository(fakeDbContext);
+
+            Team? team = null!;
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => testRepository.Add(team));
+        }
+
+        [Fact]
+        public void Add_WhenDbSetIsNull_ShouldReturnTeamWithoutAddingIt()
+        {
+            // Arrange
+            var fakeDbContext = CreateFakeDbContextForAddOperations(null!);
+            var testRepository = new TeamRepository(fakeDbContext);
+
+            var team = new Team { Id = 1 };
 
             // Act
-            var team = new Team
-            {
-                Id = 1,
-                Name = "Team 1"
-            };
-            var result = await repository.AddAsync(team);
+            var result = testRepository.Add(team);
+
+            // Assert
+            A.CallTo(() => fakeDbContext.Add(team)).MustNotHaveHappened();
+            result.ShouldBe(team);
+        }
+
+        [Fact]
+        public async Task AddAsync_WhenArgIsNotNullAndDbSetIsNotNull_ShouldAddTeam()
+        {
+            // Arrange
+            var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Team>>());
+            var testRepository = new TeamRepository(fakeDbContext);
+
+            var team = new Team { Id = 1 };
+
+            // Act
+            var result = await testRepository.AddAsync(team);
 
             // Assert
             A.CallTo(() => fakeDbContext.AddAsync(team)).MustHaveHappenedOnceExactly();
@@ -225,64 +393,112 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public async Task Update_WhenTeamsIsNotNull_ShouldSucceed_WithInMemoryDb()
+        public async Task AddAsync_WhenArgIsNull_ShouldThrowException()
         {
             // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Team>>());
+            var testRepository = new TeamRepository(fakeDbContext);
 
-            var team = new Team
-            {
-                Id = 1,
-                Name = "Team 1"
-            };
+            Team? team = null!;
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await testRepository.AddAsync(team));
+        }
+
+        [Fact]
+        public async Task AddAsync_WhenDbSetIsNull_ShouldReturnTeamWithoutAddingIt()
+        {
+            // Arrange
+            var fakeDbContext = CreateFakeDbContextForAddOperations(null!);
+            var testRepository = new TeamRepository(fakeDbContext);
+
+            var team = new Team { Id = 1 };
+
+            // Act
+            var result = await testRepository.AddAsync(team);
+
+            // Assert
+            A.CallTo(() => fakeDbContext.AddAsync(team)).MustNotHaveHappened();
+            result.ShouldBe(team);
+        }
+
+        [Fact]
+        public void Update_WhenArgIsNotNullAndDbSetIsNotNull_ShouldSucceed_WithInMemoryDb()
+        {
+            using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
+
+            var team = new Team { Id = 1, Name = "Team 1" };
             fakeDbContext.Teams.Add(team);
             fakeDbContext.SaveChanges();
 
             var testRepository = new TeamRepository(fakeDbContext);
 
             // Act
-            team.Name = "Team 2";
             testRepository.Update(team);
             fakeDbContext.SaveChanges();
 
             // Assert
-            var updated = fakeDbContext.Teams.Find(1);
+            var updated = fakeDbContext.Teams.FirstOrDefault(t => t.Id == team.Id);
             updated.ShouldNotBeNull();
         }
 
         [Fact]
-        public void Delete_WhenTeamsIsNotNullAndSelectedTeamIsNotNull_ShouldSucceed()
+        public void Update_WhenArgIsNull_ShouldThrowException()
         {
             // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
 
-            var firstSeason = new Season { Id = 1920 };
-            var lastSeason = new Season { Id = 1921 };
-            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
-            fakeDbContext.SaveChanges();
+            Team? team = null!;
 
-            var parentLeague = new League { Id = 1, ShortName = "L1", LongName = "League 1" };
-            fakeDbContext.Leagues.Add(parentLeague);
-            fakeDbContext.SaveChanges();
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => testRepository.Update(team));
+        }
 
-            int id = 1;
-            var team = new Team
-            {
-                Id = id,
-                Name = "Team 1"
-            };
+        [Fact]
+        public void Update_WhenDbSetIsNull_ShouldReturnTeam()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithNullDbSet();
+
+            Team? team = new Team { };
+
+            // Act
+            var updated = testRepository.Update(team);
+
+            // Assert
+            updated.ShouldNotBeNull();
+            updated.ShouldBe(team);
+        }
+
+        [Fact]
+        public void Update_WhenDbSetIsEmpty_ShouldReturnTeam()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            Team? team = new Team { };
+
+            // Act
+            var updated = testRepository.Update(team);
+
+            // Assert
+            updated.ShouldNotBeNull();
+            updated.ShouldBe(team);
+        }
+
+        [Fact]
+        public void Delete_WhenDbSetIsNotNullAndSelectedTeamIsNotNull_ShouldSucceed()
+        {
+            // Arrange
+            using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
+
+            var team = new Team { Id = 1, Name = "Team 1" };
             fakeDbContext.Teams.Add(team);
             fakeDbContext.SaveChanges();
 
-            var teamCountBeforeDelete = fakeDbContext.Teams.Count();
-
             var testRepository = new TeamRepository(fakeDbContext);
+
+            var teamCountBeforeDelete = fakeDbContext.Teams.Count();
 
             // Act
             var result = testRepository.Delete(team.Id);
@@ -294,23 +510,14 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void Delete_WhenTeamsIsNull_ShouldFailAndReturnNull()
+        public void Delete_WhenDbSetIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
-            fakeDbContext.Teams = null!;
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            var testRepository = new TeamRepository(fakeDbContext);
+            var team = new Team { Id = 1 };
 
             // Act
-            var team = new Team
-            {
-                Id = 1,
-                Name = "Team 1"
-            };
             var result = testRepository.Delete(team.Id);
 
             // Assert
@@ -318,75 +525,60 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void Delete_WhenTeamsIsNotNullAndSelectedTeamIsNull_ShouldFailAndReturnNull()
+        public void Delete_WhenDbSetIsEmpty_ShouldFailAndReturnNull()
         {
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            // Arrange
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            var firstSeason = new Season { Id = 1920 };
-            var lastSeason = new Season { Id = 1921 };
-
-            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
-            fakeDbContext.SaveChanges();
-
-            int id = 1;
-            var team = new Team
-            {
-                Id = id,
-                Name = "Team 1"
-            };
-            fakeDbContext.Teams.Add(team);
-            fakeDbContext.SaveChanges();
-
-            var teamCountBeforeDelete = fakeDbContext.Teams.Count();
-
-            var testRepository = new TeamRepository(fakeDbContext);
+            var team = new Team { Id = 1 };
 
             // Act
-            var result = testRepository.Delete(2);
-            fakeDbContext.SaveChanges();
+            var result = testRepository.Delete(team.Id);
 
             // Assert
-            fakeDbContext.Teams.Count().ShouldBe(teamCountBeforeDelete);
             result.ShouldBeNull();
         }
 
         [Fact]
-        public async Task DeleteAsync_WhenTeamsIsNotNullAndSelectedTeamIsNotNull_ShouldSucceed()
+        public void Delete_WhenSelectedTeamIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
 
-            var firstSeason = new Season { Id = 1920 };
-            var lastSeason = new Season { Id = 1921 };
-            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
-            fakeDbContext.SaveChanges();
-
-            var parentLeague = new League { Id = 1, ShortName = "L1", LongName = "League 1" };
-            fakeDbContext.Leagues.Add(parentLeague);
-            fakeDbContext.SaveChanges();
-
-            int id = 1;
-            var team = new Team
-            {
-                Id = id,
-                Name = "Team 1"
-            };
+            var team = new Team { Id = 1, Name = "Team 1" };
             fakeDbContext.Teams.Add(team);
             fakeDbContext.SaveChanges();
 
-            var teamCountBeforeDelete = fakeDbContext.Teams.Count();
+            var testRepository = new TeamRepository(fakeDbContext);
+
+            var teamTeamCountBeforeDelete = fakeDbContext.Teams.Count();
+
+            // Act
+            var result = testRepository.Delete(-1);
+            fakeDbContext.SaveChanges();
+
+            // Assert
+            fakeDbContext.Teams.Count().ShouldBe(teamTeamCountBeforeDelete);
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task DeleteAsync_WhenDbSetIsNotNullAndSelectedTeamIsNotNull_ShouldSucceed()
+        {
+            // Arrange
+            using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
+
+            var team = new Team { Id = 1, Name = "Team 1" };
+            fakeDbContext.Teams.Add(team);
+            fakeDbContext.SaveChanges();
 
             var testRepository = new TeamRepository(fakeDbContext);
 
+            var teamCountBeforeDelete = fakeDbContext.Teams.Count();
+
             // Act
             var result = await testRepository.DeleteAsync(team.Id);
-            await fakeDbContext.SaveChangesAsync();
+            fakeDbContext.SaveChanges();
 
             // Assert
             fakeDbContext.Teams.Count().ShouldBe(teamCountBeforeDelete - 1);
@@ -394,23 +586,14 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public async Task DeleteAsync_WhenTeamsIsNull_ShouldFailAndReturnNull()
+        public async Task DeleteAsync_WhenDbSetIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
-            fakeDbContext.Teams = null!;
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            var testRepository = new TeamRepository(fakeDbContext);
+            var team = new Team { Id = 1 };
 
             // Act
-            var team = new Team
-            {
-                Id = 1,
-                Name = "Team 1"
-            };
             var result = await testRepository.DeleteAsync(team.Id);
 
             // Assert
@@ -418,135 +601,195 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public async Task DeleteAsync_WhenTeamsIsNotNullAndSelectedTeamIsNull_ShouldFailAndReturnNull()
+        public async Task DeleteAsync_WhenDbSetIsEmpty_ShouldFailAndReturnNull()
         {
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            // Arrange
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            var firstSeason = new Season { Id = 1920 };
-            var lastSeason = new Season { Id = 1921 };
-
-            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
-            fakeDbContext.SaveChanges();
-
-            int id = 1;
-            var team = new Team
-            {
-                Id = id,
-                Name = "Team 1"
-            };
-            fakeDbContext.Teams.Add(team);
-            fakeDbContext.SaveChanges();
-
-            var teamCountBeforeDelete = fakeDbContext.Teams.Count();
-
-            var testRepository = new TeamRepository(fakeDbContext);
+            var team = new Team { Id = 1 };
 
             // Act
-            var result = await testRepository.DeleteAsync(2);
-            await fakeDbContext.SaveChangesAsync();
+            var result = await testRepository.DeleteAsync(team.Id);
 
             // Assert
-            fakeDbContext.Teams.Count().ShouldBe(teamCountBeforeDelete);
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void TeamExists_WhenTeamsIsNotNullAndSelectedTeamExists_ShouldReturnTrue()
+        public async Task DeleteAsync_WhenSelectedTeamIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Teams = A.Fake<DbSet<Team>>();
+            using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
 
-            var team = new Team
-            {
-                Id = 1,
-                Name = "Team 1"
-            };
-            var fakeDbSet = new List<Team> { team }.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Teams).Returns(fakeDbSet);
+            var team = new Team { Id = 1, Name = "Team 1" };
+            fakeDbContext.Teams.Add(team);
+            fakeDbContext.SaveChanges();
 
             var testRepository = new TeamRepository(fakeDbContext);
 
+            var teamTeamCountBeforeDelete = fakeDbContext.Teams.Count();
+
             // Act
-            var result = testRepository.TeamExists(team.Id);
+            var result = await testRepository.DeleteAsync(-1);
+            fakeDbContext.SaveChanges();
+
+            // Assert
+            fakeDbContext.Teams.Count().ShouldBe(teamTeamCountBeforeDelete);
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public void TeamExists_WhenDbSetIsNotNullAndSelectedTeamExists_ShouldReturnTrue()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            // Act
+            var result = testRepository.TeamExists(1);
 
             // Assert
             result.ShouldBeTrue();
         }
 
         [Fact]
-        public void TeamExists_WhenTeamsIsNotNullAndSelectedTeamDoesNotExist_ShouldReturnFalse()
+        public void TeamExists_WhenDbSetIsNull_ShouldReturnFalse()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Teams = A.Fake<DbSet<Team>>();
-
-            var team = new Team
-            {
-                Id = 1,
-                Name = "Team 1"
-            };
-            var fakeDbSet = new List<Team> { team }.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Teams).Returns(fakeDbSet);
-
-            var testRepository = new TeamRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
             // Act
-            var result = testRepository.TeamExists(2);
+            var result = testRepository.TeamExists(1);
 
             // Assert
             result.ShouldBeFalse();
         }
 
         [Fact]
-        public async Task TeamExistsAsync_WhenTeamsIsNotNullAndSelectedTeamExists_ShouldReturnTrue()
+        public void TeamExists_WhenDbSetIsEmpty_ShouldReturnFalse()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Teams = A.Fake<DbSet<Team>>();
-
-            var team = new Team
-            {
-                Id = 1,
-                Name = "Team 1"
-            };
-            var fakeDbSet = new List<Team> { team }.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Teams).Returns(fakeDbSet);
-
-            var testRepository = new TeamRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
             // Act
-            var result = await testRepository.TeamExistsAsync(team.Id);
+            var result = testRepository.TeamExists(1);
+
+            // Assert
+            result.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void TeamExists_WhenSelectedTeamDoesNotExist_ShouldReturnFalse()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            // Act
+            var result = testRepository.TeamExists(-1);
+
+            // Assert
+            result.ShouldBeFalse();
+        }
+
+        [Fact]
+        public async Task TeamExistsAsync_WhenDbSetIsNotNullAndSelectedTeamExists_ShouldReturnTrue()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            // Act
+            var result = await testRepository.TeamExistsAsync(1);
 
             // Assert
             result.ShouldBeTrue();
         }
 
         [Fact]
-        public async Task TeamExistsAsync_WhenTeamsIsNotNullAndSelectedTeamDoesNotExist_ShouldReturnFalse()
+        public async Task TeamExistsAsync_WhenDbSetIsNull_ShouldReturnFalse()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Teams = A.Fake<DbSet<Team>>();
-
-            var team = new Team
-            {
-                Id = 1,
-                Name = "Team 1"
-            };
-            var fakeDbSet = new List<Team> { team }.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Teams).Returns(fakeDbSet);
-
-            var testRepository = new TeamRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
             // Act
-            var result = await testRepository.TeamExistsAsync(2);
+            var result = await testRepository.TeamExistsAsync(1);
 
             // Assert
             result.ShouldBeFalse();
+        }
+
+        [Fact]
+        public async Task TeamExistsAsync_WhenDbSetIsEmpty_ShouldReturnFalse()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            // Act
+            var result = await testRepository.TeamExistsAsync(1);
+
+            // Assert
+            result.ShouldBeFalse();
+        }
+
+        [Fact]
+        public async Task TeamExistsAsync_WhenSelectedTeamDoesNotExist_ShouldReturnFalse()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            // Act
+            var result = await testRepository.TeamExistsAsync(-1);
+
+            // Assert
+            result.ShouldBeFalse();
+        }
+
+        private ProFootballDbContext CreateFakeDbContextForAddOperations(DbSet<Team> teams)
+        {
+            var fakeDbContext = A.Fake<ProFootballDbContext>();
+            fakeDbContext.Teams = teams;
+            return fakeDbContext;
+        }
+
+        private ITeamRepository CreateTestRepositoryWithEmptyDbSet()
+        {
+            var fakeDbContext = A.Fake<ProFootballDbContext>();
+
+            fakeDbContext.Teams = A.Fake<DbSet<Team>>();
+            var teams = new List<Team>();
+            var fakeDbSet = teams.BuildMockDbSet();
+            A.CallTo(() => fakeDbContext.Teams).Returns(fakeDbSet);
+
+            var testRepository = new TeamRepository(fakeDbContext);
+            return testRepository;
+        }
+
+        private ITeamRepository CreateTestRepositoryWithNotEmptyDbSet()
+        {
+            var fakeDbContext = A.Fake<ProFootballDbContext>();
+
+            fakeDbContext.Teams = A.Fake<DbSet<Team>>();
+            var teams = new List<Team>
+            {
+                new Team { Id = 1, Name = "Team 1" },
+                new Team { Id = 2, Name = "Team 2" },
+                new Team { Id = 3, Name = "Team 3" },
+            };
+            var fakeDbSet = teams.BuildMockDbSet();
+            A.CallTo(() => fakeDbContext.Teams).Returns(fakeDbSet);
+
+            var testRepository = new TeamRepository(fakeDbContext);
+            return testRepository;
+        }
+
+        private ITeamRepository CreateTestRepositoryWithNullDbSet()
+        {
+            var fakeDbContext = A.Fake<ProFootballDbContext>();
+
+            fakeDbContext.Teams = A.Fake<DbSet<Team>>();
+            DbSet<Team> fakeDbSet = null!;
+            A.CallTo(() => fakeDbContext.Teams).Returns(fakeDbSet);
+
+            var testRepository = new TeamRepository(fakeDbContext);
+            return testRepository;
         }
     }
 }

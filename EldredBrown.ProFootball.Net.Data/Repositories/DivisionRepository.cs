@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 using EldredBrown.ProFootball.Net.Data.Models;
 
@@ -18,7 +20,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <summary>
         /// Initializes a new instance of the <see cref="DivisionRepository"/> class.
         /// </summary>
-        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the data store.</param>
+        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
         public DivisionRepository(ProFootballDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -28,28 +30,19 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="Division"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Division}"/> of all fetched entities.</returns>
-        public IEnumerable<Division> GetDivisions()
+        public IEnumerable<Division>? GetDivisions()
         {
-            return _dbContext.Divisions
-                .Include(s => s.LeagueIdNavigation)
-                .Include(s => s.ConferenceIdNavigation)
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation)
-                .ToList();
+            return GetDivisionsDbSetWithNavigationProperties()?.ToList();
         }
 
         /// <summary>
-        /// Gets all <see cref="Division"/> entities in the data store.
+        /// Gets all <see cref="Division"/> entities in the data store asynchronously.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Division}"/> of all fetched entities.</returns>
-        public async Task<IEnumerable<Division>> GetDivisionsAsync()
+        public async Task<IEnumerable<Division>?> GetDivisionsAsync()
         {
-            return await _dbContext.Divisions
-                .Include(s => s.LeagueIdNavigation)
-                .Include(s => s.ConferenceIdNavigation)
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation)
-                .ToListAsync();
+            var divisions = GetDivisionsDbSetWithNavigationProperties();
+            return divisions is null ? null : await divisions.ToListAsync();
         }
 
         /// <summary>
@@ -59,37 +52,37 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The fetched <see cref="Division"/> entity.</returns>
         public Division? GetDivision(int id)
         {
-            if (_dbContext.Divisions is null)
-            {
-                return null;
-            }
-
-            return _dbContext.Divisions
-                .Include(s => s.LeagueIdNavigation)
-                .Include(s => s.ConferenceIdNavigation)
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation)
-                .FirstOrDefault(c => c.Id == id);
+            return GetDivisions()?.FirstOrDefault(d => d.Id == id);
         }
 
         /// <summary>
-        /// Gets a single <see cref="Division"/> entity from the data store by Id.
+        /// Gets a single <see cref="Division"/> entity from the data store asynchronously by Id.
         /// </summary>
         /// <param name="id">The Id of the <see cref="Division"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Division"/> entity.</returns>
         public async Task<Division?> GetDivisionAsync(int id)
         {
-            if (_dbContext.Divisions is null)
-            {
-                return null;
-            }
+            return (await GetDivisionsAsync())?.FirstOrDefault(d => d.Id == id);
+        }
 
-            return await _dbContext.Divisions
-                .Include(s => s.LeagueIdNavigation)
-                .Include(s => s.ConferenceIdNavigation)
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation)
-                .FirstOrDefaultAsync(c => c.Id == id);
+        /// <summary>
+        /// Gets a single <see cref="Division"/> entity from the data store by name.
+        /// </summary>
+        /// <param name="name">The Name of the <see cref="Division"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="Division"/> entity.</returns>
+        public Division? GetDivisionByName(string name)
+        {
+            return GetDivisions()?.FirstOrDefault(d => d.Name == name);
+        }
+
+        /// <summary>
+        /// Gets a single <see cref="Division"/> entity from the data store by name.
+        /// </summary>
+        /// <param name="name">The Name of the <see cref="Division"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="Division"/> entity.</returns>
+        public async Task<Division?> GetDivisionByNameAsync(string name)
+        {
+            return (await GetDivisionsAsync())?.FirstOrDefault(d => d.Name == name);
         }
 
         /// <summary>
@@ -99,8 +92,14 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The added <see cref="Division"/> entity.</returns>
         public Division Add(Division division)
         {
-            _dbContext.Add(division);
+            ArgumentNullException.ThrowIfNull(division);
 
+            if (_dbContext.Divisions is null)
+            {
+                return division;
+            }
+
+            _dbContext.Add(division);
             return division;
         }
 
@@ -111,25 +110,32 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The added <see cref="Division"/> entity.</returns>
         public async Task<Division> AddAsync(Division division)
         {
-            await _dbContext.AddAsync(division);
+            ArgumentNullException.ThrowIfNull(division);
 
+            if (_dbContext.Divisions is null)
+            {
+                return division;
+            }
+
+            await _dbContext.AddAsync(division);
             return division;
         }
 
         /// <summary>
         /// Updates a <see cref="Division"/> entity in the data store.
         /// </summary>
-        /// <param name="division">The <see cref="Division"/> to update.</param>
+        /// <param name="division">The <see cref="Division"/> entity to update.</param>
         /// <returns>The updated <see cref="Division"/> entity.</returns>
         public Division Update(Division division)
         {
+            ArgumentNullException.ThrowIfNull(division);
+
             if (_dbContext.Divisions is null)
             {
                 return division;
             }
 
-            _dbContext.Divisions.Update(division);
-
+            _dbContext.Update(division);
             return division;
         }
 
@@ -151,8 +157,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Divisions.Remove(division);
-
+            _dbContext.Remove(division);
             return division;
         }
 
@@ -174,8 +179,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Divisions.Remove(division);
-
+            _dbContext.Remove(division);
             return division;
         }
 
@@ -188,7 +192,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public bool DivisionExists(int id)
         {
-            return _dbContext.Divisions.Any(c => c.Id == id);
+            return GetDivisions()?.Any(d => d.Id == id) ?? false;
         }
 
         /// <summary>
@@ -200,7 +204,16 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public async Task<bool> DivisionExistsAsync(int id)
         {
-            return await _dbContext.Divisions.AnyAsync(c => c.Id == id);
+            return (await GetDivisionsAsync())?.Any(d => d.Id == id) ?? false;
+        }
+
+        private IIncludableQueryable<Division, Season?>? GetDivisionsDbSetWithNavigationProperties()
+        {
+            return _dbContext.Divisions?
+                .Include(ts => ts.LeagueIdNavigation)
+                .Include(ts => ts.ConferenceIdNavigation)
+                .Include(ts => ts.FirstSeasonIdNavigation)
+                .Include(ts => ts.LastSeasonIdNavigation);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -39,7 +40,8 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>An <see cref="IEnumerable{Season}"/> of all fetched entities.</returns>
         public async Task<IEnumerable<Season>?> GetSeasonsAsync()
         {
-            return await _dbContext.Seasons?.ToListAsync();
+            var seasons = _dbContext.Seasons;
+            return seasons is null ? null : await seasons.ToListAsync();
         }
 
         /// <summary>
@@ -69,6 +71,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The added <see cref="Season"/> entity.</returns>
         public Season Add(Season season)
         {
+            ArgumentNullException.ThrowIfNull(season);
+
+            if (_dbContext.Seasons is null)
+            {
+                return season;
+            }
+
             _dbContext.Add(season);
             return season;
         }
@@ -80,6 +89,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The added <see cref="Season"/> entity.</returns>
         public async Task<Season> AddAsync(Season season)
         {
+            ArgumentNullException.ThrowIfNull(season);
+
+            if (_dbContext.Seasons is null)
+            {
+                return season;
+            }
+
             await _dbContext.AddAsync(season);
             return season;
         }
@@ -91,6 +107,8 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The updated <see cref="Season"/> entity.</returns>
         public Season Update(Season season)
         {
+            ArgumentNullException.ThrowIfNull(season);
+
             if (_dbContext.Seasons is null)
             {
                 return season;
@@ -141,7 +159,6 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
             }
 
             _dbContext.Remove(season);
-
             return season;
         }
 

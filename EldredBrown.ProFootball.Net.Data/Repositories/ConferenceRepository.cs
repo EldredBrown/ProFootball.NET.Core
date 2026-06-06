@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 using EldredBrown.ProFootball.Net.Data.Models;
 
@@ -18,7 +20,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <summary>
         /// Initializes a new instance of the <see cref="ConferenceRepository"/> class.
         /// </summary>
-        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the data store.</param>
+        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
         public ConferenceRepository(ProFootballDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -28,26 +30,19 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="Conference"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Conference}"/> of all fetched entities.</returns>
-        public IEnumerable<Conference> GetConferences()
+        public IEnumerable<Conference>? GetConferences()
         {
-            return _dbContext.Conferences
-                .Include(s => s.LeagueIdNavigation)
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation)
-                .ToList();
+            return GetConferencesDbSetWithNavigationProperties()?.ToList();
         }
 
         /// <summary>
-        /// Gets all <see cref="Conference"/> entities in the data store.
+        /// Gets all <see cref="Conference"/> entities in the data store asynchronously.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Conference}"/> of all fetched entities.</returns>
-        public async Task<IEnumerable<Conference>> GetConferencesAsync()
+        public async Task<IEnumerable<Conference>?> GetConferencesAsync()
         {
-            return await _dbContext.Conferences
-                .Include(s => s.LeagueIdNavigation)
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation)
-                .ToListAsync();
+            var conferences = GetConferencesDbSetWithNavigationProperties();
+            return conferences is null ? null : await conferences.ToListAsync();
         }
 
         /// <summary>
@@ -57,71 +52,37 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The fetched <see cref="Conference"/> entity.</returns>
         public Conference? GetConference(int id)
         {
-            if (_dbContext.Conferences is null)
-            {
-                return null;
-            }
-
-            return _dbContext.Conferences
-                .Include(s => s.LeagueIdNavigation)
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation)
-                .FirstOrDefault(c => c.Id == id);
+            return GetConferences()?.FirstOrDefault(c => c.Id == id);
         }
 
         /// <summary>
-        /// Gets a single <see cref="Conference"/> entity from the data store by Id.
+        /// Gets a single <see cref="Conference"/> entity from the data store asynchronously by Id.
         /// </summary>
         /// <param name="id">The Id of the <see cref="Conference"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Conference"/> entity.</returns>
         public async Task<Conference?> GetConferenceAsync(int id)
         {
-            if (_dbContext.Conferences is null)
-            {
-                return null;
-            }
-
-            return await _dbContext.Conferences
-                .Include(s => s.LeagueIdNavigation)
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation)
-                .FirstOrDefaultAsync(c => c.Id == id);
+            return (await GetConferencesAsync())?.FirstOrDefault(c => c.Id == id);
         }
 
         /// <summary>
-        /// Gets a single <see cref="Conference"/> entity from the data store by Id.
+        /// Gets a single <see cref="Conference"/> entity from the data store by shortName.
         /// </summary>
-        /// <param name="id">The Id of the <see cref="Conference"/> entity to fetch.</param>
+        /// <param name="shortName">The ShortName of the <see cref="Conference"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Conference"/> entity.</returns>
         public Conference? GetConferenceByShortName(string shortName)
         {
-            if (_dbContext.Conferences is null)
-            {
-                return null;
-            }
-
-            return _dbContext.Conferences
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation)
-                .FirstOrDefault(c => c.ShortName == shortName);
+            return GetConferences()?.FirstOrDefault(c => c.ShortName == shortName);
         }
 
         /// <summary>
-        /// Gets a single <see cref="Conference"/> entity from the data store by Id.
+        /// Gets a single <see cref="Conference"/> entity from the data store by shortName.
         /// </summary>
-        /// <param name="id">The Id of the <see cref="Conference"/> entity to fetch.</param>
+        /// <param name="shortName">The ShortName of the <see cref="Conference"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Conference"/> entity.</returns>
         public async Task<Conference?> GetConferenceByShortNameAsync(string shortName)
         {
-            if (_dbContext.Conferences is null)
-            {
-                return null;
-            }
-
-            return await _dbContext.Conferences
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation)
-                .FirstOrDefaultAsync(c => c.ShortName == shortName);
+            return (await GetConferencesAsync())?.FirstOrDefault(c => c.ShortName == shortName);
         }
 
         /// <summary>
@@ -131,8 +92,14 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The added <see cref="Conference"/> entity.</returns>
         public Conference Add(Conference conference)
         {
-            _dbContext.Add(conference);
+            ArgumentNullException.ThrowIfNull(conference);
 
+            if (_dbContext.Conferences is null)
+            {
+                return conference;
+            }
+
+            _dbContext.Add(conference);
             return conference;
         }
 
@@ -143,25 +110,32 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The added <see cref="Conference"/> entity.</returns>
         public async Task<Conference> AddAsync(Conference conference)
         {
-            await _dbContext.AddAsync(conference);
+            ArgumentNullException.ThrowIfNull(conference);
 
+            if (_dbContext.Conferences is null)
+            {
+                return conference;
+            }
+
+            await _dbContext.AddAsync(conference);
             return conference;
         }
 
         /// <summary>
         /// Updates a <see cref="Conference"/> entity in the data store.
         /// </summary>
-        /// <param name="conference">The <see cref="Conference"/> to update.</param>
+        /// <param name="conference">The <see cref="Conference"/> entity to update.</param>
         /// <returns>The updated <see cref="Conference"/> entity.</returns>
         public Conference Update(Conference conference)
         {
+            ArgumentNullException.ThrowIfNull(conference);
+
             if (_dbContext.Conferences is null)
             {
                 return conference;
             }
 
-            _dbContext.Conferences.Update(conference);
-
+            _dbContext.Update(conference);
             return conference;
         }
 
@@ -183,8 +157,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Conferences.Remove(conference);
-
+            _dbContext.Remove(conference);
             return conference;
         }
 
@@ -206,8 +179,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Conferences.Remove(conference);
-
+            _dbContext.Remove(conference);
             return conference;
         }
 
@@ -220,7 +192,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public bool ConferenceExists(int id)
         {
-            return _dbContext.Conferences.Any(c => c.Id == id);
+            return GetConferences()?.Any(c => c.Id == id) ?? false;
         }
 
         /// <summary>
@@ -232,7 +204,15 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public async Task<bool> ConferenceExistsAsync(int id)
         {
-            return await _dbContext.Conferences.AnyAsync(c => c.Id == id);
+            return (await GetConferencesAsync())?.Any(c => c.Id == id) ?? false;
+        }
+
+        private IIncludableQueryable<Conference, Season?>? GetConferencesDbSetWithNavigationProperties()
+        {
+            return _dbContext.Conferences?
+                .Include(ts => ts.LeagueIdNavigation)
+                .Include(ts => ts.FirstSeasonIdNavigation)
+                .Include(ts => ts.LastSeasonIdNavigation);
         }
     }
 }

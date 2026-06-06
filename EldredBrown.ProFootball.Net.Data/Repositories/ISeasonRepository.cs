@@ -62,7 +62,23 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="id">The Id of the <see cref="Season"/> entity to delete.</param>
         /// <returns>The deleted <see cref="Season"/> entity.</returns>
+        Season? Delete(int id);
+
+        /// <summary>
+        /// Deletes a <see cref="Season"/> entity from the data store.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Season"/> entity to delete.</param>
+        /// <returns>The deleted <see cref="Season"/> entity.</returns>
         Task<Season?> DeleteAsync(int id);
+
+        /// <summary>
+        /// Checks to verify whether a specific <see cref="Season"/> entity exists in the data store.
+        /// </summary>
+        /// <param name="id">The Id of the <see cref="Season"/> entity to verify.</param>
+        /// <returns>
+        /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
+        /// </returns>
+        bool SeasonExists(int id);
 
         /// <summary>
         /// Checks to verify whether a specific <see cref="Season"/> entity exists in the data store.

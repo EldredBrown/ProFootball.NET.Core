@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,7 +19,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <summary>
         /// Initializes a new instance of the <see cref="TeamRepository"/> class.
         /// </summary>
-        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the data store.</param>
+        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
         public TeamRepository(ProFootballDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -34,12 +35,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         }
 
         /// <summary>
-        /// Gets all <see cref="Team"/> entities in the data store.
+        /// Gets all <see cref="Team"/> entities in the data store asynchronously.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Team}"/> of all fetched entities.</returns>
         public async Task<IEnumerable<Team>?> GetTeamsAsync()
         {
-            return await _dbContext.Teams?.ToListAsync();
+            var teams = _dbContext.Teams;
+            return teams is null ? null : await teams.ToListAsync();
         }
 
         /// <summary>
@@ -53,7 +55,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         }
 
         /// <summary>
-        /// Gets a single <see cref="Team"/> entity from the data store by Id.
+        /// Gets a single <see cref="Team"/> entity from the data store asynchronously by Id.
         /// </summary>
         /// <param name="id">The Id of the <see cref="Team"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Team"/> entity.</returns>
@@ -63,9 +65,9 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         }
 
         /// <summary>
-        /// Gets a single <see cref="Team"/> entity from the data store by Id.
+        /// Gets a single <see cref="Team"/> entity from the data store by name.
         /// </summary>
-        /// <param name="id">The Id of the <see cref="Team"/> entity to fetch.</param>
+        /// <param name="name">The Name of the <see cref="Team"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Team"/> entity.</returns>
         public Team? GetTeamByName(string name)
         {
@@ -73,9 +75,9 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         }
 
         /// <summary>
-        /// Gets a single <see cref="Team"/> entity from the data store by Id.
+        /// Gets a single <see cref="Team"/> entity from the data store by name.
         /// </summary>
-        /// <param name="id">The Id of the <see cref="Team"/> entity to fetch.</param>
+        /// <param name="name">The Name of the <see cref="Team"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Team"/> entity.</returns>
         public async Task<Team?> GetTeamByNameAsync(string name)
         {
@@ -89,8 +91,14 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The added <see cref="Team"/> entity.</returns>
         public Team Add(Team team)
         {
-            _dbContext.Add(team);
+            ArgumentNullException.ThrowIfNull(team);
 
+            if (_dbContext.Teams is null)
+            {
+                return team;
+            }
+
+            _dbContext.Add(team);
             return team;
         }
 
@@ -101,18 +109,31 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The added <see cref="Team"/> entity.</returns>
         public async Task<Team> AddAsync(Team team)
         {
-            await _dbContext.AddAsync(team);
+            ArgumentNullException.ThrowIfNull(team);
 
+            if (_dbContext.Teams is null)
+            {
+                return team;
+            }
+
+            await _dbContext.AddAsync(team);
             return team;
         }
 
         /// <summary>
         /// Updates a <see cref="Team"/> entity in the data store.
         /// </summary>
-        /// <param name="team">The <see cref="Team"/> to update.</param>
+        /// <param name="team">The <see cref="Team"/> entity to update.</param>
         /// <returns>The updated <see cref="Team"/> entity.</returns>
         public Team Update(Team team)
         {
+            ArgumentNullException.ThrowIfNull(team);
+
+            if (_dbContext.Teams is null)
+            {
+                return team;
+            }
+
             _dbContext.Update(team);
             return team;
         }
@@ -136,7 +157,6 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
             }
 
             _dbContext.Remove(team);
-
             return team;
         }
 
@@ -159,7 +179,6 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
             }
 
             _dbContext.Remove(team);
-
             return team;
         }
 
@@ -172,7 +191,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public bool TeamExists(int id)
         {
-            return GetTeams()?.Any(c => c.Id == id) ?? false;
+            return GetTeams()?.Any(t => t.Id == id) ?? false;
         }
 
         /// <summary>
@@ -184,7 +203,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public async Task<bool> TeamExistsAsync(int id)
         {
-            return (await GetTeamsAsync())?.Any(c => c.Id == id) ?? false;
+            return (await GetTeamsAsync())?.Any(t => t.Id == id) ?? false;
         }
     }
 }

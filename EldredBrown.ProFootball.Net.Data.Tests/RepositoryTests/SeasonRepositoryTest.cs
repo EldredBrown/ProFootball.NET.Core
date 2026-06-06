@@ -13,25 +13,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
     public class SeasonRepositoryTest
     {
         [Fact]
-        public void GetSeasons_ShouldSucceed()
+        public void GetSeasons_WhenDbSetIsNeitherNullNorEmpty_ShouldReturnSeasons()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
-
-            var seasons = new List<Season>
-            {
-                new Season { Id = 1920 },
-                new Season { Id = 1921 },
-                new Season { Id = 1922 },
-            };
-
-            var fakeDbSet = seasons.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Seasons).Returns(fakeDbSet);
-            var repository = new SeasonRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
 
             // Act
-            var result = repository.GetSeasons();
+            var result = testRepository.GetSeasons();
 
             // Assert
             result.ShouldNotBeNull();
@@ -43,112 +30,199 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public async Task GetSeasonsAsync_ShouldSucceed()
+        public void GetSeasons_WhenDbSetIsNull_ShouldReturnNull()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
-
-            var seasons = new List<Season>
-            {
-                new Season { Id = 1920 },
-                new Season { Id = 1921 },
-                new Season { Id = 1922 },
-            };
-
-            var fakeDbSet = seasons.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Seasons).Returns(fakeDbSet);
-            var repository = new SeasonRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
             // Act
-            var result = await repository.GetSeasonsAsync();
+            var result = testRepository.GetSeasons();
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public void GetSeasons_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
+        {
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            // Act
+            var result = testRepository.GetSeasons();
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.Count().ShouldBe(0);
+        }
+
+        [Fact]
+        public async Task GetSeasonsAsync_WhenDbSetIsNeitherNullNorEmpty_ShouldReturnSeasons()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            // Act
+            var result = await testRepository.GetSeasonsAsync();
 
             // Assert
             result.ShouldNotBeNull();
             result.Count().ShouldBe(3);
+            foreach (var item in result)
+            {
+                item.ShouldBeOfType<Season>();
+            }
         }
 
         [Fact]
-        public void GetSeason_WhenSeasonsIsNotNull_ShouldSucceed()
+        public async Task GetSeasonsAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
-
-            int id = 1920;
-            var season = new Season { Id = id };
-            A.CallTo(() => fakeDbContext.Seasons.Find(An<int>.Ignored)).Returns(season);
-            var repository = new SeasonRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
             // Act
-            var result = repository.GetSeason(id);
-
-            // Assert
-            result.ShouldNotBeNull();
-            result.ShouldBe(season);
-        }
-
-        [Fact]
-        public void GetSeason_WhenSeasonsIsNull_ShouldReturnNull()
-        {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = null!;
-            var repository = new SeasonRepository(fakeDbContext);
-
-            // Act
-            var result = repository.GetSeason(1920);
+            var result = await testRepository.GetSeasonsAsync();
 
             // Assert
             result.ShouldBeNull();
         }
 
         [Fact]
-        public async Task GetSeasonAsync_WhenSeasonsIsNotNull_ShouldSucceed()
+        public async Task GetSeasonsAsync_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
-
-            int id = 1920;
-            var season = new Season { Id = id };
-            _ = A.CallTo(() => fakeDbContext.Seasons.FindAsync(An<int>.Ignored)).Returns(new ValueTask<Season?>(season));
-            var repository = new SeasonRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
             // Act
-            var result = await repository.GetSeasonAsync(id);
+            var result = await testRepository.GetSeasonsAsync();
 
             // Assert
             result.ShouldNotBeNull();
-            result.ShouldBe(season);
+            result.Count().ShouldBe(0);
         }
 
         [Fact]
-        public async Task GetSeasonAsync_WhenSeasonsIsNull_ShouldReturnNull()
+        public void GetSeason_WhenDbSetIsNeitherNullNorEmptyAndSeasonIsFound_ShouldReturnSeason()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = null!;
-            var repository = new SeasonRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var id = 1920;
 
             // Act
-            var result = await repository.GetSeasonAsync(1920);
+            var result = testRepository.GetSeason(id);
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.ShouldBeOfType<Season>();
+            result.Id.ShouldBe(id);
+        }
+
+        [Fact]
+        public void GetSeason_WhenDbSetIsNull_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithNullDbSet();
+
+            var id = 1920;
+
+            // Act
+            var result = testRepository.GetSeason(id);
 
             // Assert
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void Add_ShouldSucceed()
+        public void GetSeason_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
-            var repository = new SeasonRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            var id = 1920;
 
             // Act
+            var result = testRepository.GetSeason(id);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public void GetSeason_WhenSeasonIsNotFound_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var id = -1;
+
+            // Act
+            var result = testRepository.GetSeason(id);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task GetSeasonAsync_WhenDbSetIsNeitherNullNorEmptyAndSeasonIsFound_ShouldReturnSeason()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var id = 1920;
+
+            // Act
+            var result = await testRepository.GetSeasonAsync(id);
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.ShouldBeOfType<Season>();
+            result.Id.ShouldBe(id);
+        }
+
+        [Fact]
+        public async Task GetSeasonAsync_WhenDbSetIsNull_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithNullDbSet();
+
+            var id = 1920;
+
+            // Act
+            var result = await testRepository.GetSeasonAsync(id);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task GetSeasonAsync_WhenDbSetIsEmpty_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            var id = 1920;
+
+            // Act
+            var result = await testRepository.GetSeasonAsync(id);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task GetSeasonAsync_WhenSeasonIsNotFound_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var id = -1;
+
+            // Act
+            var result = await testRepository.GetSeasonAsync(id);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public void Add_WhenArgIsNotNullAndDbSetIsNotNull_ShouldAddSeason()
+        {
+            // Arrange
+            var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Season>>());
+            var testRepository = new SeasonRepository(fakeDbContext);
+
             var season = new Season { Id = 1920 };
-            var result = repository.Add(season);
+
+            // Act
+            var result = testRepository.Add(season);
 
             // Assert
             A.CallTo(() => fakeDbContext.Add(season)).MustHaveHappenedOnceExactly();
@@ -156,16 +230,46 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public async Task AddAsync_ShouldSucceed()
+        public void Add_WhenArgIsNull_ShouldThrowException()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
-            var repository = new SeasonRepository(fakeDbContext);
+            var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Season>>());
+            var testRepository = new SeasonRepository(fakeDbContext);
+
+            Season? season = null!;
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => testRepository.Add(season));
+        }
+
+        [Fact]
+        public void Add_WhenDbSetIsNull_ShouldReturnSeasonWithoutAddingIt()
+        {
+            // Arrange
+            var fakeDbContext = CreateFakeDbContextForAddOperations(null!);
+            var testRepository = new SeasonRepository(fakeDbContext);
+
+            var season = new Season { Id = 1920 };
 
             // Act
+            var result = testRepository.Add(season);
+
+            // Assert
+            A.CallTo(() => fakeDbContext.Add(season)).MustNotHaveHappened();
+            result.ShouldBe(season);
+        }
+
+        [Fact]
+        public async Task AddAsync_WhenArgIsNotNullAndDbSetIsNotNull_ShouldAddSeason()
+        {
+            // Arrange
+            var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Season>>());
+            var testRepository = new SeasonRepository(fakeDbContext);
+
             var season = new Season { Id = 1920 };
-            var result = await repository.AddAsync(season);
+
+            // Act
+            var result = await testRepository.AddAsync(season);
 
             // Assert
             A.CallTo(() => fakeDbContext.AddAsync(season)).MustHaveHappenedOnceExactly();
@@ -173,212 +277,405 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public async Task Update_WhenSeasonsIsNotNull_ShouldSucceed_WithInMemoryDb()
+        public async Task AddAsync_WhenArgIsNull_ShouldThrowException()
         {
             // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
+            var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Season>>());
+            var testRepository = new SeasonRepository(fakeDbContext);
 
-            using var fakeDbContext = new ProFootballDbContext(options);
+            Season? season = null!;
 
-            int id = 1920;
-            var season = new Season { Id = id, NumOfWeeksCompleted = 0 };
-            fakeDbContext.Seasons.Add(season);
-            await fakeDbContext.SaveChangesAsync();
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await testRepository.AddAsync(season));
+        }
 
-            var repository = new SeasonRepository(fakeDbContext);
+        [Fact]
+        public async Task AddAsync_WhenDbSetIsNull_ShouldReturnSeasonWithoutAddingIt()
+        {
+            // Arrange
+            var fakeDbContext = CreateFakeDbContextForAddOperations(null!);
+            var testRepository = new SeasonRepository(fakeDbContext);
+
+            var season = new Season { Id = 1920 };
 
             // Act
-            season.NumOfWeeksCompleted = 13;
-            repository.Update(season);
-            await fakeDbContext.SaveChangesAsync();
+            var result = await testRepository.AddAsync(season);
 
             // Assert
-            var updated = await fakeDbContext.Seasons.FirstOrDefaultAsync(s => s.Id == id);
+            A.CallTo(() => fakeDbContext.AddAsync(season)).MustNotHaveHappened();
+            result.ShouldBe(season);
+        }
+
+        [Fact]
+        public void Update_WhenArgIsNotNullAndDbSetIsNotNull_ShouldSucceed_WithInMemoryDb()
+        {
+            using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
+
+            var season = new Season { Id = 1920, NumOfWeeksScheduled = 3 };
+            fakeDbContext.Seasons.Add(season);
+            fakeDbContext.SaveChanges();
+
+            var testRepository = new SeasonRepository(fakeDbContext);
+
+            season.NumOfWeeksScheduled = 8;
+
+            // Act
+            testRepository.Update(season);
+            fakeDbContext.SaveChanges();
+
+            // Assert
+            var updated = fakeDbContext.Seasons.FirstOrDefault(s => s.Id == season.Id);
             updated.ShouldNotBeNull();
         }
 
         [Fact]
-        public void Delete_WhenSeasonsIsNotNullAndSelectedSeasonIsNotNull_ShouldSucceed()
+        public void Update_WhenArgIsNull_ShouldThrowException()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
 
-            var season = new Season { Id = 1920 };
-            A.CallTo(() => fakeDbContext.Seasons.Find(An<int>.Ignored)).Returns(season);
-            var repository = new SeasonRepository(fakeDbContext);
+            Season? season = null!;
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => testRepository.Update(season));
+        }
+
+        [Fact]
+        public void Update_WhenDbSetIsNull_ShouldReturnSeason()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithNullDbSet();
+
+            Season? season = new Season { };
 
             // Act
-            var result = repository.Delete(season.Id);
+            var updated = testRepository.Update(season);
 
             // Assert
-            A.CallTo(() => fakeDbContext.Seasons.Remove(season)).MustHaveHappenedOnceExactly();
+            updated.ShouldNotBeNull();
+            updated.ShouldBe(season);
+        }
+
+        [Fact]
+        public void Update_WhenDbSetIsEmpty_ShouldReturnSeason()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            Season? season = new Season { };
+
+            // Act
+            var updated = testRepository.Update(season);
+
+            // Assert
+            updated.ShouldNotBeNull();
+            updated.ShouldBe(season);
+        }
+
+        [Fact]
+        public void Delete_WhenDbSetIsNotNullAndSelectedSeasonIsNotNull_ShouldSucceed()
+        {
+            // Arrange
+            using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
+
+            var season = new Season { Id = 1920 };
+            fakeDbContext.Seasons.Add(season);
+            fakeDbContext.SaveChanges();
+
+            var testRepository = new SeasonRepository(fakeDbContext);
+
+            var seasonCountBeforeDelete = fakeDbContext.Seasons.Count();
+
+            // Act
+            var result = testRepository.Delete(season.Id);
+            fakeDbContext.SaveChanges();
+
+            // Assert
+            fakeDbContext.Seasons.Count().ShouldBe(seasonCountBeforeDelete - 1);
             result.ShouldBe(season);
         }
 
         [Fact]
-        public void Delete_WhenSeasonsIsNull_ShouldFailAndReturnNull()
+        public void Delete_WhenDbSetIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = null!;
-            var repository = new SeasonRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
+
+            var season = new Season { Id = 1920 };
 
             // Act
-            var season = new Season { Id = 1920 };
-            var result = repository.Delete(season.Id);
+            var result = testRepository.Delete(season.Id);
 
             // Assert
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void Delete_WhenSeasonsIsNotNullAndSelectedSeasonIsNull_ShouldFailAndReturnNull()
+        public void Delete_WhenDbSetIsEmpty_ShouldFailAndReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
-            A.CallTo(() => fakeDbContext.Seasons.Find(An<int>.Ignored)).Returns(null);
-            var repository = new SeasonRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            var season = new Season { Id = 1920 };
 
             // Act
-            var season = new Season { Id = 1920 };
-            var result = repository.Delete(season.Id);
+            var result = testRepository.Delete(season.Id);
 
             // Assert
-            A.CallTo(() => fakeDbContext.Seasons.Remove(season)).MustNotHaveHappened();
             result.ShouldBeNull();
         }
 
         [Fact]
-        public async Task DeleteAsync_WhenSeasonsIsNotNullAndSelectedSeasonIsNotNull_ShouldSucceed()
+        public void Delete_WhenSelectedSeasonIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
+            using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
 
             var season = new Season { Id = 1920 };
-            _ = A.CallTo(() => fakeDbContext.Seasons.FindAsync(An<int>.Ignored)).Returns(new ValueTask<Season?>(season));
-            var repository = new SeasonRepository(fakeDbContext);
+            fakeDbContext.Seasons.Add(season);
+            fakeDbContext.SaveChanges();
+
+            var testRepository = new SeasonRepository(fakeDbContext);
+
+            var leagueSeasonCountBeforeDelete = fakeDbContext.Seasons.Count();
 
             // Act
-            var result = await repository.DeleteAsync(season.Id);
+            var result = testRepository.Delete(-1);
+            fakeDbContext.SaveChanges();
 
             // Assert
-            A.CallTo(() => fakeDbContext.Seasons.Remove(season)).MustHaveHappenedOnceExactly();
+            fakeDbContext.Seasons.Count().ShouldBe(leagueSeasonCountBeforeDelete);
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task DeleteAsync_WhenDbSetIsNotNullAndSelectedSeasonIsNotNull_ShouldSucceed()
+        {
+            // Arrange
+            using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
+
+            var season = new Season { Id = 1920 };
+            fakeDbContext.Seasons.Add(season);
+            fakeDbContext.SaveChanges();
+
+            var testRepository = new SeasonRepository(fakeDbContext);
+
+            var seasonCountBeforeDelete = fakeDbContext.Seasons.Count();
+
+            // Act
+            var result = await testRepository.DeleteAsync(season.Id);
+            fakeDbContext.SaveChanges();
+
+            // Assert
+            fakeDbContext.Seasons.Count().ShouldBe(seasonCountBeforeDelete - 1);
             result.ShouldBe(season);
         }
 
         [Fact]
-        public async Task DeleteAsync_WhenSeasonsIsNull_ShouldFailAndReturnNull()
+        public async Task DeleteAsync_WhenDbSetIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = null!;
-            var repository = new SeasonRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
+
+            var season = new Season { Id = 1920 };
 
             // Act
-            var season = new Season { Id = 1920 };
-            var result = await repository.DeleteAsync(season.Id);
+            var result = await testRepository.DeleteAsync(season.Id);
 
             // Assert
             result.ShouldBeNull();
         }
 
         [Fact]
-        public async Task DeleteAsync_WhenSeasonsIsNotNullAndSelectedSeasonIsNull_ShouldFailAndReturnNull()
+        public async Task DeleteAsync_WhenDbSetIsEmpty_ShouldFailAndReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
-            _ = A.CallTo(() => fakeDbContext.Seasons.FindAsync(An<int>.Ignored)).Returns(null);
-            var repository = new SeasonRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            var season = new Season { Id = 1920 };
 
             // Act
-            var season = new Season { Id = 1920 };
-            var result = await repository.DeleteAsync(season.Id);
+            var result = await testRepository.DeleteAsync(season.Id);
 
             // Assert
-            A.CallTo(() => fakeDbContext.Seasons.Remove(season)).MustNotHaveHappened();
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void SeasonExists_WhenSeasonsIsNotNullAndSelectedSeasonExists_ShouldReturnTrue()
+        public async Task DeleteAsync_WhenSelectedSeasonIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
+            using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
 
             var season = new Season { Id = 1920 };
-            var fakeDbSet = new List<Season> { season }.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Seasons).Returns(fakeDbSet);
-            var repository = new SeasonRepository(fakeDbContext);
+            fakeDbContext.Seasons.Add(season);
+            fakeDbContext.SaveChanges();
+
+            var testRepository = new SeasonRepository(fakeDbContext);
+
+            var leagueSeasonCountBeforeDelete = fakeDbContext.Seasons.Count();
 
             // Act
-            var result = repository.SeasonExists(season.Id);
+            var result = await testRepository.DeleteAsync(-1);
+            fakeDbContext.SaveChanges();
+
+            // Assert
+            fakeDbContext.Seasons.Count().ShouldBe(leagueSeasonCountBeforeDelete);
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public void SeasonExists_WhenDbSetIsNotNullAndSelectedSeasonExists_ShouldReturnTrue()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            // Act
+            var result = testRepository.SeasonExists(1920);
 
             // Assert
             result.ShouldBeTrue();
         }
 
         [Fact]
-        public void SeasonExists_WhenSeasonsIsNotNullAndSelectedSeasonDoesNotExist_ShouldReturnFalse()
+        public void SeasonExists_WhenDbSetIsNull_ShouldReturnFalse()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
-
-            var season = new Season { Id = 1920 };
-            var fakeDbSet = new List<Season> { season }.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Seasons).Returns(fakeDbSet);
-            var repository = new SeasonRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
             // Act
-            var result = repository.SeasonExists(1921);
+            var result = testRepository.SeasonExists(1920);
 
             // Assert
             result.ShouldBeFalse();
         }
 
         [Fact]
-        public async Task SeasonExistsAsync_WhenSeasonsIsNotNullAndSelectedSeasonExists_ShouldReturnTrue()
+        public void SeasonExists_WhenDbSetIsEmpty_ShouldReturnFalse()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
-
-            var season = new Season { Id = 1920 };
-            var fakeDbSet = new List<Season> { season }.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Seasons).Returns(fakeDbSet);
-            var repository = new SeasonRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
             // Act
-            var result = await repository.SeasonExistsAsync(season.Id);
+            var result = testRepository.SeasonExists(1920);
+
+            // Assert
+            result.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void SeasonExists_WhenSelectedSeasonDoesNotExist_ShouldReturnFalse()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            // Act
+            var result = testRepository.SeasonExists(-1);
+
+            // Assert
+            result.ShouldBeFalse();
+        }
+
+        [Fact]
+        public async Task SeasonExistsAsync_WhenDbSetIsNotNullAndSelectedSeasonExists_ShouldReturnTrue()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            // Act
+            var result = await testRepository.SeasonExistsAsync(1920);
 
             // Assert
             result.ShouldBeTrue();
         }
 
         [Fact]
-        public async Task SeasonExistsAsync_WhenSeasonsIsNotNullAndSelectedSeasonDoesNotExist_ShouldReturnFalse()
+        public async Task SeasonExistsAsync_WhenDbSetIsNull_ShouldReturnFalse()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
-
-            var season = new Season { Id = 1920 };
-            var fakeDbSet = new List<Season> { season }.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Seasons).Returns(fakeDbSet);
-            var repository = new SeasonRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
             // Act
-            var result =await repository.SeasonExistsAsync(1921);
+            var result = await testRepository.SeasonExistsAsync(1920);
 
             // Assert
             result.ShouldBeFalse();
+        }
+
+        [Fact]
+        public async Task SeasonExistsAsync_WhenDbSetIsEmpty_ShouldReturnFalse()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            // Act
+            var result = await testRepository.SeasonExistsAsync(1920);
+
+            // Assert
+            result.ShouldBeFalse();
+        }
+
+        [Fact]
+        public async Task SeasonExistsAsync_WhenSelectedSeasonDoesNotExist_ShouldReturnFalse()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            // Act
+            var result = await testRepository.SeasonExistsAsync(-1);
+
+            // Assert
+            result.ShouldBeFalse();
+        }
+
+        private ProFootballDbContext CreateFakeDbContextForAddOperations(DbSet<Season> seasons)
+        {
+            var fakeDbContext = A.Fake<ProFootballDbContext>();
+            fakeDbContext.Seasons = seasons;
+            return fakeDbContext;
+        }
+
+        private ISeasonRepository CreateTestRepositoryWithEmptyDbSet()
+        {
+            var fakeDbContext = A.Fake<ProFootballDbContext>();
+
+            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
+            var seasons = new List<Season>();
+            var fakeDbSet = seasons.BuildMockDbSet();
+            A.CallTo(() => fakeDbContext.Seasons).Returns(fakeDbSet);
+
+            var testRepository = new SeasonRepository(fakeDbContext);
+            return testRepository;
+        }
+
+        private ISeasonRepository CreateTestRepositoryWithNotEmptyDbSet()
+        {
+            var fakeDbContext = A.Fake<ProFootballDbContext>();
+
+            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
+            var seasons = new List<Season>
+            {
+                new Season { Id = 1920 },
+                new Season { Id = 1921 },
+                new Season { Id = 1922 },
+            };
+            var fakeDbSet = seasons.BuildMockDbSet();
+            A.CallTo(() => fakeDbContext.Seasons).Returns(fakeDbSet);
+
+            var testRepository = new SeasonRepository(fakeDbContext);
+            return testRepository;
+        }
+
+        private ISeasonRepository CreateTestRepositoryWithNullDbSet()
+        {
+            var fakeDbContext = A.Fake<ProFootballDbContext>();
+
+            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
+            DbSet<Season> fakeDbSet = null!;
+            A.CallTo(() => fakeDbContext.Seasons).Returns(fakeDbSet);
+
+            var testRepository = new SeasonRepository(fakeDbContext);
+            return testRepository;
         }
     }
 }

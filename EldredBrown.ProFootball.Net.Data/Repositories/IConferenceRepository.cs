@@ -14,13 +14,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="Conference"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Conference}"/> of all fetched entities.</returns>
-        IEnumerable<Conference> GetConferences();
+        IEnumerable<Conference>? GetConferences();
 
         /// <summary>
         /// Gets all <see cref="Conference"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Conference}"/> of all fetched entities.</returns>
-        Task<IEnumerable<Conference>> GetConferencesAsync();
+        Task<IEnumerable<Conference>?> GetConferencesAsync();
 
         /// <summary>
         /// Gets a single <see cref="Conference"/> entity from the data store by Id.

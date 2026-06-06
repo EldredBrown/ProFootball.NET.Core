@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,7 +20,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <summary>
         /// Initializes a new instance of the <see cref="LeagueRepository"/> class.
         /// </summary>
-        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the data store.</param>
+        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
         public LeagueRepository(ProFootballDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -35,12 +36,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         }
 
         /// <summary>
-        /// Gets all <see cref="League"/> entities in the data store.
+        /// Gets all <see cref="League"/> entities in the data store asynchronously.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{League}"/> of all fetched entities.</returns>
         public async Task<IEnumerable<League>?> GetLeaguesAsync()
         {
-            return await GetLeaguesDbSetWithNavigationProperties()?.ToListAsync();
+            var leagues = GetLeaguesDbSetWithNavigationProperties();
+            return leagues is null ? null : await leagues.ToListAsync();
         }
 
         /// <summary>
@@ -50,33 +52,33 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The fetched <see cref="League"/> entity.</returns>
         public League? GetLeague(int id)
         {
-            return GetLeagues()?.FirstOrDefault(ts => ts.Id == id);
+            return GetLeagues()?.FirstOrDefault(l => l.Id == id);
         }
 
         /// <summary>
-        /// Gets a single <see cref="League"/> entity from the data store by Id.
+        /// Gets a single <see cref="League"/> entity from the data store asynchronously by Id.
         /// </summary>
         /// <param name="id">The Id of the <see cref="League"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="League"/> entity.</returns>
         public async Task<League?> GetLeagueAsync(int id)
         {
-            return (await GetLeaguesAsync())?.FirstOrDefault(ts => ts.Id == id);
+            return (await GetLeaguesAsync())?.FirstOrDefault(l => l.Id == id);
         }
 
         /// <summary>
-        /// Gets a single <see cref="League"/> entity from the data store by Id.
+        /// Gets a single <see cref="League"/> entity from the data store by shortName.
         /// </summary>
-        /// <param name="id">The Id of the <see cref="League"/> entity to fetch.</param>
+        /// <param name="shortName">The ShortName of the <see cref="League"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="League"/> entity.</returns>
         public League? GetLeagueByShortName(string shortName)
         {
-            return GetLeagues()?.FirstOrDefault(ts => ts.ShortName == shortName);
+            return GetLeagues()?.FirstOrDefault(l => l.ShortName == shortName);
         }
 
         /// <summary>
-        /// Gets a single <see cref="League"/> entity from the data store by Id.
+        /// Gets a single <see cref="League"/> entity from the data store by shortName.
         /// </summary>
-        /// <param name="id">The Id of the <see cref="League"/> entity to fetch.</param>
+        /// <param name="shortName">The ShortName of the <see cref="League"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="League"/> entity.</returns>
         public async Task<League?> GetLeagueByShortNameAsync(string shortName)
         {
@@ -90,6 +92,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The added <see cref="League"/> entity.</returns>
         public League Add(League league)
         {
+            ArgumentNullException.ThrowIfNull(league);
+
+            if (_dbContext.Leagues is null)
+            {
+                return league;
+            }
+
             _dbContext.Add(league);
             return league;
         }
@@ -101,6 +110,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The added <see cref="League"/> entity.</returns>
         public async Task<League> AddAsync(League league)
         {
+            ArgumentNullException.ThrowIfNull(league);
+
+            if (_dbContext.Leagues is null)
+            {
+                return league;
+            }
+
             await _dbContext.AddAsync(league);
             return league;
         }
@@ -108,10 +124,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <summary>
         /// Updates a <see cref="League"/> entity in the data store.
         /// </summary>
-        /// <param name="league">The <see cref="League"/> to update.</param>
+        /// <param name="league">The <see cref="League"/> entity to update.</param>
         /// <returns>The updated <see cref="League"/> entity.</returns>
         public League Update(League league)
         {
+            ArgumentNullException.ThrowIfNull(league);
+
             if (_dbContext.Leagues is null)
             {
                 return league;
@@ -192,8 +210,8 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         private IIncludableQueryable<League, Season?>? GetLeaguesDbSetWithNavigationProperties()
         {
             return _dbContext.Leagues?
-                .Include(s => s.FirstSeasonIdNavigation)
-                .Include(s => s.LastSeasonIdNavigation);
+                .Include(ts => ts.FirstSeasonIdNavigation)
+                .Include(ts => ts.LastSeasonIdNavigation);
         }
     }
 }

@@ -23,6 +23,20 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         Task<IEnumerable<TeamSeason>?> GetTeamSeasonsAsync();
 
         /// <summary>
+        /// Gets all <see cref="TeamSeason"/> entities from the data store for the specified team.
+        /// </summary>
+        /// <param name="teamId">The team ID of the <see cref="TeamSeason"/> entities to fetch.</param>
+        /// <returns>An <see cref="IEnumerable{TeamSeason}"/> of all fetched entities.</returns>
+        IEnumerable<TeamSeason>? GetTeamSeasonsByTeam(int teamId);
+
+        /// <summary>
+        /// Gets all <see cref="TeamSeason"/> entities from the data store for the specified team.
+        /// </summary>
+        /// <param name="teamId">The team ID of the <see cref="TeamSeason"/> entities to fetch.</param>
+        /// <returns>An <see cref="IEnumerable{TeamSeason}"/> of all fetched entities.</returns>
+        Task<IEnumerable<TeamSeason>?> GetTeamSeasonsByTeamAsync(int teamId);
+
+        /// <summary>
         /// Gets all <see cref="TeamSeason"/> entities from the data store for the specified season year.
         /// </summary>
         /// <param name="seasonYear">The season year of the <see cref="TeamSeason"/> entities to fetch.</param>

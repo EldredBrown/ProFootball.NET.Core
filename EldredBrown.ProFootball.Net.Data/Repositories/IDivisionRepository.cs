@@ -14,13 +14,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="Division"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Division}"/> of all fetched entities.</returns>
-        IEnumerable<Division> GetDivisions();
+        IEnumerable<Division>? GetDivisions();
 
         /// <summary>
         /// Gets all <see cref="Division"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Division}"/> of all fetched entities.</returns>
-        Task<IEnumerable<Division>> GetDivisionsAsync();
+        Task<IEnumerable<Division>?> GetDivisionsAsync();
 
         /// <summary>
         /// Gets a single <see cref="Division"/> entity from the data store by Id.
@@ -35,6 +35,20 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <param name="id">The Id of the <see cref="Division"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Division"/> entity.</returns>
         Task<Division?> GetDivisionAsync(int id);
+
+        /// <summary>
+        /// Gets a single <see cref="Division"/> entity from the data store by name.
+        /// </summary>
+        /// <param name="name">The Name of the <see cref="Division"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="Division"/> entity.</returns>
+        Division? GetDivisionByName(string name);
+
+        /// <summary>
+        /// Gets a single <see cref="Division"/> entity from the data store by name.
+        /// </summary>
+        /// <param name="name">The Name of the <see cref="Division"/> entity to fetch.</param>
+        /// <returns>The fetched <see cref="Division"/> entity.</returns>
+        Task<Division?> GetDivisionByNameAsync(string name);
 
         /// <summary>
         /// Adds a <see cref="Division"/> entity to the data store.

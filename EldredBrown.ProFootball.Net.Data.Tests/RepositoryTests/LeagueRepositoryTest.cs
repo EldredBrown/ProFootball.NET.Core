@@ -12,28 +12,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 {
     public class LeagueRepositoryTest
     {
-        public LeagueRepositoryTest() { }
-
         [Fact]
-        public void GetLeagues_ShouldSucceed()
+        public void GetLeagues_WhenDbSetIsNeitherNullNorEmpty_ShouldReturnLeagues()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Leagues = A.Fake<DbSet<League>>();
-
-            var leagues = new List<League>
-            {
-                new League { Id = 1, ShortName = "L1", LongName = "League 1" },
-                new League { Id = 2, ShortName = "L2", LongName = "League 2" },
-                new League { Id = 3, ShortName = "L3", LongName = "League 3" },
-            };
-
-            var fakeDbSet = leagues.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Leagues).Returns(fakeDbSet);
-            var repository = new LeagueRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
 
             // Act
-            var result = repository.GetLeagues();
+            var result = testRepository.GetLeagues();
 
             // Assert
             result.ShouldNotBeNull();
@@ -45,268 +30,315 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void GetLeaguesAsync_ShouldSucceed()
+        public void GetLeagues_WhenDbSetIsNull_ShouldReturnNull()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Leagues = A.Fake<DbSet<League>>();
-
-            var leagues = new List<League>
-            {
-                new League { Id = 1, ShortName = "L1", LongName = "League 1" },
-                new League { Id = 2, ShortName = "L2", LongName = "League 2" },
-                new League { Id = 3, ShortName = "L3", LongName = "League 3" },
-            };
-
-            var fakeDbSet = leagues.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Leagues).Returns(fakeDbSet);
-            var repository = new LeagueRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
             // Act
-            var result = repository.GetLeagues();
+            var result = testRepository.GetLeagues();
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public void GetLeagues_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
+        {
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            // Act
+            var result = testRepository.GetLeagues();
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.Count().ShouldBe(0);
+        }
+
+        [Fact]
+        public async Task GetLeaguesAsync_WhenDbSetIsNeitherNullNorEmpty_ShouldReturnLeagues()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            // Act
+            var result = await testRepository.GetLeaguesAsync();
 
             // Assert
             result.ShouldNotBeNull();
             result.Count().ShouldBe(3);
+            foreach (var item in result)
+            {
+                item.ShouldBeOfType<League>();
+            }
         }
 
         [Fact]
-        public void GetLeague_WhenLeaguesIsNotNull_ShouldSucceed()
+        public async Task GetLeaguesAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            var firstSeason = new Season { Id = 1920 };
-            var lastSeason = new Season { Id = 1921 };
+            // Act
+            var result = await testRepository.GetLeaguesAsync();
 
-            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
-            fakeDbContext.SaveChanges();
+            // Assert
+            result.ShouldBeNull();
+        }
 
-            int id = 1;
-            var league = new League
-            {
-                Id = id,
-                ShortName = "L1",
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
-            fakeDbContext.Leagues.Add(league);
-            fakeDbContext.SaveChanges();
+        [Fact]
+        public async Task GetLeaguesAsync_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
+        {
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            var testRepository = new LeagueRepository(fakeDbContext);
+            // Act
+            var result = await testRepository.GetLeaguesAsync();
+
+            // Assert
+            result.ShouldNotBeNull();
+            result.Count().ShouldBe(0);
+        }
+
+        [Fact]
+        public void GetLeague_WhenDbSetIsNeitherNullNorEmptyAndLeagueIsFound_ShouldReturnLeague()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var id = 1;
 
             // Act
             var result = testRepository.GetLeague(id);
 
             // Assert
             result.ShouldNotBeNull();
-            result.ShouldBe(league);
+            result.ShouldBeOfType<League>();
+            result.Id.ShouldBe(id);
         }
 
         [Fact]
-        public void GetLeague_WhenLeaguesIsNull_ShouldReturnNull()
+        public void GetLeague_WhenDbSetIsNull_ShouldReturnNull()
         {
-            // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            fakeDbContext.Leagues = null!;
-            var testRepository = new LeagueRepository(fakeDbContext);
+            var id = 1;
 
             // Act
-            var result = testRepository.GetLeague(1);
+            var result = testRepository.GetLeague(id);
 
             // Assert
             result.ShouldBeNull();
         }
 
         [Fact]
-        public async Task GetLeagueAsync_WhenLeaguesIsNotNull_ShouldSucceed()
+        public void GetLeague_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            var firstSeason = new Season { Id = 1920 };
-            var lastSeason = new Season { Id = 1921 };
+            var id = 1;
 
-            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
-            fakeDbContext.SaveChanges();
+            // Act
+            var result = testRepository.GetLeague(id);
 
-            int id = 1;
-            var league = new League
-            {
-                Id = id,
-                ShortName = "L1",
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
-            fakeDbContext.Leagues.Add(league);
-            fakeDbContext.SaveChanges();
+            // Assert
+            result.ShouldBeNull();
+        }
 
-            var testRepository = new LeagueRepository(fakeDbContext);
+        [Fact]
+        public void GetLeague_WhenLeagueIsNotFound_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var id = -1;
+
+            // Act
+            var result = testRepository.GetLeague(id);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task GetLeagueAsync_WhenDbSetIsNeitherNullNorEmptyAndLeagueIsFound_ShouldReturnLeague()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var id = 1;
 
             // Act
             var result = await testRepository.GetLeagueAsync(id);
 
             // Assert
             result.ShouldNotBeNull();
-            result.ShouldBe(league);
+            result.ShouldBeOfType<League>();
+            result.Id.ShouldBe(id);
         }
 
         [Fact]
-        public async Task GetLeagueAsync_WhenLeaguesIsNull_ShouldReturnNull()
+        public async Task GetLeagueAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            fakeDbContext.Leagues = null!;
-            var testRepository = new LeagueRepository(fakeDbContext);
+            var id = 1;
 
             // Act
-            var result = await testRepository.GetLeagueAsync(1);
+            var result = await testRepository.GetLeagueAsync(id);
 
             // Assert
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void GetLeagueByShortName_WhenLeaguesIsNotNull_ShouldSucceed()
+        public async Task GetLeagueAsync_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            var firstSeason = new Season { Id = 1920 };
-            var lastSeason = new Season { Id = 1921 };
+            var id = 1;
 
-            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
-            fakeDbContext.SaveChanges();
+            // Act
+            var result = await testRepository.GetLeagueAsync(id);
 
-            string shortName = "L1";
-            var league = new League
-            {
-                Id = 1,
-                ShortName = shortName,
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
-            fakeDbContext.Leagues.Add(league);
-            fakeDbContext.SaveChanges();
+            // Assert
+            result.ShouldBeNull();
+        }
 
-            var testRepository = new LeagueRepository(fakeDbContext);
+        [Fact]
+        public async Task GetLeagueAsync_WhenLeagueIsNotFound_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var id = -1;
+
+            // Act
+            var result = await testRepository.GetLeagueAsync(id);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public void GetLeagueByShortName_WhenDbSetIsNeitherNullNorEmptyAndLeagueIsFound_ShouldReturnLeague()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var shortName = "L1";
 
             // Act
             var result = testRepository.GetLeagueByShortName(shortName);
 
             // Assert
             result.ShouldNotBeNull();
-            result.ShouldBe(league);
+            result.ShouldBeOfType<League>();
+            result.ShortName.ShouldBe(shortName);
         }
 
         [Fact]
-        public void GetLeagueByShortName_WhenLeaguesIsNull_ShouldReturnNull()
+        public void GetLeagueByShortName_WhenDbSetIsNull_ShouldReturnNull()
         {
-            // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            fakeDbContext.Leagues = null!;
-            var testRepository = new LeagueRepository(fakeDbContext);
+            var shortName = "L1";
 
             // Act
-            var result = testRepository.GetLeagueByShortName("L1");
+            var result = testRepository.GetLeagueByShortName(shortName);
 
             // Assert
             result.ShouldBeNull();
         }
 
         [Fact]
-        public async Task GetLeagueByShortNameAsync_WhenLeaguesIsNotNull_ShouldSucceed()
+        public void GetLeagueByShortName_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            var firstSeason = new Season { Id = 1920 };
-            var lastSeason = new Season { Id = 1921 };
+            var shortName = "L1";
 
-            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
-            fakeDbContext.SaveChanges();
+            // Act
+            var result = testRepository.GetLeagueByShortName(shortName);
 
-            string shortName = "L1";
-            var league = new League
-            {
-                Id = 1,
-                ShortName = shortName,
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
-            fakeDbContext.Leagues.Add(league);
-            fakeDbContext.SaveChanges();
+            // Assert
+            result.ShouldBeNull();
+        }
 
-            var testRepository = new LeagueRepository(fakeDbContext);
+        [Fact]
+        public void GetLeagueByShortName_WhenLeagueIsNotFound_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var shortName = "L99";
+
+            // Act
+            var result = testRepository.GetLeagueByShortName(shortName);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task GetLeagueByShortNameAsync_WhenDbSetIsNeitherNullNorEmptyAndLeagueIsFound_ShouldReturnLeague()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var shortName = "L1";
 
             // Act
             var result = await testRepository.GetLeagueByShortNameAsync(shortName);
 
             // Assert
             result.ShouldNotBeNull();
-            result.ShouldBe(league);
+            result.ShouldBeOfType<League>();
+            result.ShortName.ShouldBe(shortName);
         }
 
         [Fact]
-        public async Task GetLeagueByShortNameAsync_WhenLeaguesIsNull_ShouldReturnNull()
+        public async Task GetLeagueByShortNameAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            fakeDbContext.Leagues = null!;
-            var testRepository = new LeagueRepository(fakeDbContext);
+            var shortName = "L1";
 
             // Act
-            var result = await testRepository.GetLeagueByShortNameAsync("L1");
+            var result = await testRepository.GetLeagueByShortNameAsync(shortName);
 
             // Assert
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void Add_ShouldSucceed()
+        public async Task GetLeagueByShortNameAsync_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Leagues = A.Fake<DbSet<League>>();
-            var repository = new LeagueRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            var shortName = "L1";
 
             // Act
-            var league = new League
-            {
-                Id = 1,
-                ShortName = "L1",
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
-            var result = repository.Add(league);
+            var result = await testRepository.GetLeagueByShortNameAsync(shortName);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task GetLeagueByShortNameAsync_WhenLeagueIsNotFound_ShouldReturnNull()
+        {
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            var shortName = "L99";
+
+            // Act
+            var result = await testRepository.GetLeagueByShortNameAsync(shortName);
+
+            // Assert
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public void Add_WhenArgIsNotNullAndDbSetIsNotNull_ShouldAddLeague()
+        {
+            // Arrange
+            var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<League>>());
+            var testRepository = new LeagueRepository(fakeDbContext);
+
+            var league = new League { Id = 1 };
+
+            // Act
+            var result = testRepository.Add(league);
 
             // Assert
             A.CallTo(() => fakeDbContext.Add(league)).MustHaveHappenedOnceExactly();
@@ -314,22 +346,46 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public async Task AddAsync_ShouldSucceed()
+        public void Add_WhenArgIsNull_ShouldThrowException()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Leagues = A.Fake<DbSet<League>>();
-            var repository = new LeagueRepository(fakeDbContext);
+            var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<League>>());
+            var testRepository = new LeagueRepository(fakeDbContext);
+
+            League? league = null!;
+
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => testRepository.Add(league));
+        }
+
+        [Fact]
+        public void Add_WhenDbSetIsNull_ShouldReturnLeagueWithoutAddingIt()
+        {
+            // Arrange
+            var fakeDbContext = CreateFakeDbContextForAddOperations(null!);
+            var testRepository = new LeagueRepository(fakeDbContext);
+
+            var league = new League { Id = 1 };
 
             // Act
-            var league = new League
-            {
-                Id = 1,
-                ShortName = "L1",
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
-            var result = await repository.AddAsync(league);
+            var result = testRepository.Add(league);
+
+            // Assert
+            A.CallTo(() => fakeDbContext.Add(league)).MustNotHaveHappened();
+            result.ShouldBe(league);
+        }
+
+        [Fact]
+        public async Task AddAsync_WhenArgIsNotNullAndDbSetIsNotNull_ShouldAddLeague()
+        {
+            // Arrange
+            var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<League>>());
+            var testRepository = new LeagueRepository(fakeDbContext);
+
+            var league = new League { Id = 1 };
+
+            // Act
+            var result = await testRepository.AddAsync(league);
 
             // Assert
             A.CallTo(() => fakeDbContext.AddAsync(league)).MustHaveHappenedOnceExactly();
@@ -337,64 +393,122 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public async Task Update_WhenLeaguesIsNotNull_ShouldSucceed_WithInMemoryDb()
+        public async Task AddAsync_WhenArgIsNull_ShouldThrowException()
         {
             // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<League>>());
+            var testRepository = new LeagueRepository(fakeDbContext);
 
-            var league = new League
-            {
-                Id = 1,
-                ShortName = "L1",
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
+            League? league = null!;
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(async () => await testRepository.AddAsync(league));
+        }
+
+        [Fact]
+        public async Task AddAsync_WhenDbSetIsNull_ShouldReturnLeagueWithoutAddingIt()
+        {
+            // Arrange
+            var fakeDbContext = CreateFakeDbContextForAddOperations(null!);
+            var testRepository = new LeagueRepository(fakeDbContext);
+
+            var league = new League { Id = 1 };
+
+            // Act
+            var result = await testRepository.AddAsync(league);
+
+            // Assert
+            A.CallTo(() => fakeDbContext.AddAsync(league)).MustNotHaveHappened();
+            result.ShouldBe(league);
+        }
+
+        [Fact]
+        public void Update_WhenArgIsNotNullAndDbSetIsNotNull_ShouldSucceed_WithInMemoryDb()
+        {
+            using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
+
+            var firstSeasonId = 1920;
+            var firstSeason = new Season { Id = firstSeasonId };
+            fakeDbContext.Seasons.Add(firstSeason);
+            fakeDbContext.SaveChanges();
+
+            var league = new League { Id = 1, LongName = "League 1", ShortName = "L1", FirstSeasonId = firstSeasonId };
             fakeDbContext.Leagues.Add(league);
             fakeDbContext.SaveChanges();
 
             var testRepository = new LeagueRepository(fakeDbContext);
 
             // Act
-            league.LastSeasonId = 2026;
             testRepository.Update(league);
             fakeDbContext.SaveChanges();
 
             // Assert
-            var updated = fakeDbContext.Leagues.FirstOrDefault(s => s.Id == 1);
+            var updated = fakeDbContext.Leagues.FirstOrDefault(l => l.Id == league.Id);
             updated.ShouldNotBeNull();
         }
 
         [Fact]
-        public void Delete_WhenLeaguesIsNotNullAndSelectedLeagueIsNotNull_ShouldSucceed()
+        public void Update_WhenArgIsNull_ShouldThrowException()
         {
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            // Arrange
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
 
-            var firstSeason = new Season { Id = 1920 };
-            var lastSeason = new Season { Id = 1921 };
+            League? league = null!;
 
-            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
+            // Act & Assert
+            Assert.Throws<ArgumentNullException>(() => testRepository.Update(league));
+        }
+
+        [Fact]
+        public void Update_WhenDbSetIsNull_ShouldReturnLeague()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithNullDbSet();
+
+            League? league = new League { };
+
+            // Act
+            var updated = testRepository.Update(league);
+
+            // Assert
+            updated.ShouldNotBeNull();
+            updated.ShouldBe(league);
+        }
+
+        [Fact]
+        public void Update_WhenDbSetIsEmpty_ShouldReturnLeague()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            League? league = new League { };
+
+            // Act
+            var updated = testRepository.Update(league);
+
+            // Assert
+            updated.ShouldNotBeNull();
+            updated.ShouldBe(league);
+        }
+
+        [Fact]
+        public void Delete_WhenDbSetIsNotNullAndSelectedLeagueIsNotNull_ShouldSucceed()
+        {
+            // Arrange
+            using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
+
+            var firstSeasonId = 1920;
+            var firstSeason = new Season { Id = firstSeasonId };
+            fakeDbContext.Seasons.Add(firstSeason);
             fakeDbContext.SaveChanges();
 
-            int id = 1;
-            var league = new League
-            {
-                Id = id,
-                ShortName = "L1",
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
+            var league = new League { Id = 1, LongName = "League 1", ShortName = "L1", FirstSeasonId = firstSeasonId };
             fakeDbContext.Leagues.Add(league);
             fakeDbContext.SaveChanges();
 
-            var leagueCountBeforeDelete = fakeDbContext.Leagues.Count();
-
             var testRepository = new LeagueRepository(fakeDbContext);
+
+            var leagueCountBeforeDelete = fakeDbContext.Leagues.Count();
 
             // Act
             var result = testRepository.Delete(league.Id);
@@ -406,25 +520,14 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void Delete_WhenLeaguesIsNull_ShouldFailAndReturnNull()
+        public void Delete_WhenDbSetIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
-            fakeDbContext.Leagues = null!;
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            var testRepository = new LeagueRepository(fakeDbContext);
+            var league = new League { Id = 1 };
 
             // Act
-            var league = new League
-            {
-                Id = 1,
-                ShortName = "L1",
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
             var result = testRepository.Delete(league.Id);
 
             // Assert
@@ -432,75 +535,65 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void Delete_WhenLeaguesIsNotNullAndSelectedLeagueIsNull_ShouldFailAndReturnNull()
+        public void Delete_WhenDbSetIsEmpty_ShouldFailAndReturnNull()
         {
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            // Arrange
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            var firstSeason = new Season { Id = 1920 };
-            var lastSeason = new Season { Id = 1921 };
-
-            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
-            fakeDbContext.SaveChanges();
-
-            int id = 1;
-            var league = new League
-            {
-                Id = id,
-                ShortName = "L1",
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
-            fakeDbContext.Leagues.Add(league);
-            fakeDbContext.SaveChanges();
-
-            var leagueCountBeforeDelete = fakeDbContext.Leagues.Count();
-
-            var testRepository = new LeagueRepository(fakeDbContext);
+            var league = new League { Id = 1 };
 
             // Act
-            var result = testRepository.Delete(2);
-            fakeDbContext.SaveChanges();
+            var result = testRepository.Delete(league.Id);
 
             // Assert
-            fakeDbContext.Leagues.Count().ShouldBe(leagueCountBeforeDelete);
             result.ShouldBeNull();
         }
 
         [Fact]
-        public async Task DeleteAsync_WhenLeaguesIsNotNullAndSelectedLeagueIsNotNull_ShouldSucceed()
+        public void Delete_WhenSelectedLeagueIsNull_ShouldFailAndReturnNull()
         {
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            // Arrange
+            using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
 
-            var firstSeason = new Season { Id = 1920 };
-            var lastSeason = new Season { Id = 1921 };
-
-            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
-            fakeDbContext.SaveChanges();
-
-            int id = 1;
-            var league = new League
-            {
-                Id = id,
-                ShortName = "L1",
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
+            var league = new League { Id = 1, LongName = "League 1", ShortName = "L1", FirstSeasonId = 1920 };
             fakeDbContext.Leagues.Add(league);
             fakeDbContext.SaveChanges();
 
-            var leagueCountBeforeDelete = fakeDbContext.Leagues.Count();
+            var testRepository = new LeagueRepository(fakeDbContext);
+
+            var leagueLeagueCountBeforeDelete = fakeDbContext.Leagues.Count();
+
+            // Act
+            var result = testRepository.Delete(-1);
+            fakeDbContext.SaveChanges();
+
+            // Assert
+            fakeDbContext.Leagues.Count().ShouldBe(leagueLeagueCountBeforeDelete);
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public async Task DeleteAsync_WhenDbSetIsNotNullAndSelectedLeagueIsNotNull_ShouldSucceed()
+        {
+            // Arrange
+            using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
+
+            var firstSeasonId = 1920;
+            var firstSeason = new Season { Id = firstSeasonId };
+            fakeDbContext.Seasons.Add(firstSeason);
+            fakeDbContext.SaveChanges();
+
+            var league = new League { Id = 1, LongName = "League 1", ShortName = "L1", FirstSeasonId = firstSeasonId };
+            fakeDbContext.Leagues.Add(league);
+            fakeDbContext.SaveChanges();
 
             var testRepository = new LeagueRepository(fakeDbContext);
 
+            var leagueCountBeforeDelete = fakeDbContext.Leagues.Count();
+
             // Act
             var result = await testRepository.DeleteAsync(league.Id);
-            await fakeDbContext.SaveChangesAsync();
+            fakeDbContext.SaveChanges();
 
             // Assert
             fakeDbContext.Leagues.Count().ShouldBe(leagueCountBeforeDelete - 1);
@@ -508,25 +601,14 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public async Task DeleteAsync_WhenLeaguesIsNull_ShouldFailAndReturnNull()
+        public async Task DeleteAsync_WhenDbSetIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
-            fakeDbContext.Leagues = null!;
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            var testRepository = new LeagueRepository(fakeDbContext);
+            var league = new League { Id = 1 };
 
             // Act
-            var league = new League
-            {
-                Id = 1,
-                ShortName = "L1",
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
             var result = await testRepository.DeleteAsync(league.Id);
 
             // Assert
@@ -534,145 +616,195 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public async Task DeleteAsync_WhenLeaguesIsNotNullAndSelectedLeagueIsNull_ShouldFailAndReturnNull()
+        public async Task DeleteAsync_WhenDbSetIsEmpty_ShouldFailAndReturnNull()
         {
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
+            // Arrange
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            var firstSeason = new Season { Id = 1920 };
-            var lastSeason = new Season { Id = 1921 };
-
-            fakeDbContext.Seasons.AddRange(firstSeason, lastSeason);
-            fakeDbContext.SaveChanges();
-
-            int id = 1;
-            var league = new League
-            {
-                Id = id,
-                ShortName = "L1",
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
-            fakeDbContext.Leagues.Add(league);
-            fakeDbContext.SaveChanges();
-
-            var leagueCountBeforeDelete = fakeDbContext.Leagues.Count();
-
-            var testRepository = new LeagueRepository(fakeDbContext);
+            var league = new League { Id = 1 };
 
             // Act
-            var result = await testRepository.DeleteAsync(2);
-            await fakeDbContext.SaveChangesAsync();
+            var result = await testRepository.DeleteAsync(league.Id);
 
             // Assert
-            fakeDbContext.Leagues.Count().ShouldBe(leagueCountBeforeDelete);
             result.ShouldBeNull();
         }
 
         [Fact]
-        public void LeagueExists_WhenLeaguesIsNotNullAndSelectedLeagueExists_ShouldReturnTrue()
+        public async Task DeleteAsync_WhenSelectedLeagueIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Leagues = A.Fake<DbSet<League>>();
+            using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
 
-            var league = new League
-            {
-                Id = 1,
-                ShortName = "L1",
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
-            var fakeDbSet = new List<League> { league }.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Leagues).Returns(fakeDbSet);
+            var league = new League { Id = 1, LongName = "League 1", ShortName = "L1", FirstSeasonId = 1920 };
+            fakeDbContext.Leagues.Add(league);
+            fakeDbContext.SaveChanges();
 
             var testRepository = new LeagueRepository(fakeDbContext);
 
+            var leagueLeagueCountBeforeDelete = fakeDbContext.Leagues.Count();
+
             // Act
-            var result = testRepository.LeagueExists(league.Id);
+            var result = await testRepository.DeleteAsync(-1);
+            fakeDbContext.SaveChanges();
+
+            // Assert
+            fakeDbContext.Leagues.Count().ShouldBe(leagueLeagueCountBeforeDelete);
+            result.ShouldBeNull();
+        }
+
+        [Fact]
+        public void LeagueExists_WhenDbSetIsNotNullAndSelectedLeagueExists_ShouldReturnTrue()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            // Act
+            var result = testRepository.LeagueExists(1);
 
             // Assert
             result.ShouldBeTrue();
         }
 
         [Fact]
-        public void LeagueExists_WhenLeaguesIsNotNullAndSelectedLeagueDoesNotExist_ShouldReturnFalse()
+        public void LeagueExists_WhenDbSetIsNull_ShouldReturnFalse()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Leagues = A.Fake<DbSet<League>>();
-
-            var league = new League
-            {
-                Id = 1,
-                ShortName = "L1",
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
-            var fakeDbSet = new List<League> { league }.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Leagues).Returns(fakeDbSet);
-
-            var testRepository = new LeagueRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
             // Act
-            var result = testRepository.LeagueExists(2);
+            var result = testRepository.LeagueExists(1);
 
             // Assert
             result.ShouldBeFalse();
         }
 
         [Fact]
-        public async Task LeagueExistsAsync_WhenLeaguesIsNotNullAndSelectedLeagueExists_ShouldReturnTrue()
+        public void LeagueExists_WhenDbSetIsEmpty_ShouldReturnFalse()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Leagues = A.Fake<DbSet<League>>();
-
-            var league = new League
-            {
-                Id = 1,
-                ShortName = "L1",
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
-            var fakeDbSet = new List<League> { league }.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Leagues).Returns(fakeDbSet);
-
-            var testRepository = new LeagueRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
             // Act
-            var result = await testRepository.LeagueExistsAsync(league.Id);
+            var result = testRepository.LeagueExists(1);
+
+            // Assert
+            result.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void LeagueExists_WhenSelectedLeagueDoesNotExist_ShouldReturnFalse()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            // Act
+            var result = testRepository.LeagueExists(-1);
+
+            // Assert
+            result.ShouldBeFalse();
+        }
+
+        [Fact]
+        public async Task LeagueExistsAsync_WhenDbSetIsNotNullAndSelectedLeagueExists_ShouldReturnTrue()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            // Act
+            var result = await testRepository.LeagueExistsAsync(1);
 
             // Assert
             result.ShouldBeTrue();
         }
 
         [Fact]
-        public async Task LeagueExistsAsync_WhenLeaguesIsNotNullAndSelectedLeagueDoesNotExist_ShouldReturnFalse()
+        public async Task LeagueExistsAsync_WhenDbSetIsNull_ShouldReturnFalse()
         {
             // Arrange
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Leagues = A.Fake<DbSet<League>>();
-
-            var league = new League
-            {
-                Id = 1,
-                ShortName = "L1",
-                LongName = "League 1",
-                FirstSeasonId = 1920
-            };
-            var fakeDbSet = new List<League> { league }.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Leagues).Returns(fakeDbSet);
-
-            var testRepository = new LeagueRepository(fakeDbContext);
+            var testRepository = CreateTestRepositoryWithNullDbSet();
 
             // Act
-            var result = await testRepository.LeagueExistsAsync(2);
+            var result = await testRepository.LeagueExistsAsync(1);
 
             // Assert
             result.ShouldBeFalse();
+        }
+
+        [Fact]
+        public async Task LeagueExistsAsync_WhenDbSetIsEmpty_ShouldReturnFalse()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+
+            // Act
+            var result = await testRepository.LeagueExistsAsync(1);
+
+            // Assert
+            result.ShouldBeFalse();
+        }
+
+        [Fact]
+        public async Task LeagueExistsAsync_WhenSelectedLeagueDoesNotExist_ShouldReturnFalse()
+        {
+            // Arrange
+            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+
+            // Act
+            var result = await testRepository.LeagueExistsAsync(-1);
+
+            // Assert
+            result.ShouldBeFalse();
+        }
+
+        private ProFootballDbContext CreateFakeDbContextForAddOperations(DbSet<League> leagues)
+        {
+            var fakeDbContext = A.Fake<ProFootballDbContext>();
+            fakeDbContext.Leagues = leagues;
+            return fakeDbContext;
+        }
+
+        private ILeagueRepository CreateTestRepositoryWithEmptyDbSet()
+        {
+            var fakeDbContext = A.Fake<ProFootballDbContext>();
+
+            fakeDbContext.Leagues = A.Fake<DbSet<League>>();
+            var leagues = new List<League>();
+            var fakeDbSet = leagues.BuildMockDbSet();
+            A.CallTo(() => fakeDbContext.Leagues).Returns(fakeDbSet);
+
+            var testRepository = new LeagueRepository(fakeDbContext);
+            return testRepository;
+        }
+
+        private ILeagueRepository CreateTestRepositoryWithNotEmptyDbSet()
+        {
+            var fakeDbContext = A.Fake<ProFootballDbContext>();
+
+            fakeDbContext.Leagues = A.Fake<DbSet<League>>();
+            var leagues = new List<League>
+            {
+                new League { Id = 1, LongName = "League 1", ShortName = "L1", FirstSeasonId = 1920 },
+                new League { Id = 2, LongName = "League 2", ShortName = "L2", FirstSeasonId = 1920 },
+                new League { Id = 3, LongName = "League 3", ShortName = "L3", FirstSeasonId = 1920 },
+            };
+            var fakeDbSet = leagues.BuildMockDbSet();
+            A.CallTo(() => fakeDbContext.Leagues).Returns(fakeDbSet);
+
+            var testRepository = new LeagueRepository(fakeDbContext);
+            return testRepository;
+        }
+
+        private ILeagueRepository CreateTestRepositoryWithNullDbSet()
+        {
+            var fakeDbContext = A.Fake<ProFootballDbContext>();
+
+            fakeDbContext.Leagues = A.Fake<DbSet<League>>();
+            DbSet<League> fakeDbSet = null!;
+            A.CallTo(() => fakeDbContext.Leagues).Returns(fakeDbSet);
+
+            var testRepository = new LeagueRepository(fakeDbContext);
+            return testRepository;
         }
     }
 }

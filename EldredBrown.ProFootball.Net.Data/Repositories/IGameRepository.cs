@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-
 using System.Threading.Tasks;
 
 using EldredBrown.ProFootball.Net.Data.Models;
@@ -15,13 +14,43 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets all <see cref="Game"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
-        IEnumerable<Game> GetGames();
+        IEnumerable<Game>? GetGames();
 
         /// <summary>
         /// Gets all <see cref="Game"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
-        Task<IEnumerable<Game>> GetGamesAsync();
+        Task<IEnumerable<Game>?> GetGamesAsync();
+
+        /// <summary>
+        /// Gets all <see cref="Game"/> entities in the data store.
+        /// </summary>
+        /// <param name="seasonId">The Id of the season for which to fetch games.</param>
+        /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
+        IEnumerable<Game>? GetGamesBySeason(int seasonId);
+
+        /// <summary>
+        /// Gets all <see cref="Game"/> entities in the data store.
+        /// </summary>
+        /// <param name="seasonId">The Id of the season for which to fetch games.</param>
+        /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
+        Task<IEnumerable<Game>?> GetGamesBySeasonAsync(int seasonId);
+
+        /// <summary>
+        /// Gets all <see cref="Game"/> entities in the data store.
+        /// </summary>
+        /// <param name="seasonId">The Id of the season for which to fetch games.</param>
+        /// <param name="week">The week for which to fetch games.</param>
+        /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
+        IEnumerable<Game>? GetGamesBySeasonAndWeek(int seasonId, int week);
+
+        /// <summary>
+        /// Gets all <see cref="Game"/> entities in the data store.
+        /// </summary>
+        /// <param name="seasonId">The Id of the season for which to fetch games.</param>
+        /// <param name="week">The week for which to fetch games.</param>
+        /// <returns>An <see cref="IEnumerable{Game}"/> of all fetched entities.</returns>
+        Task<IEnumerable<Game>?> GetGamesBySeasonAndWeekAsync(int seasonId, int week);
 
         /// <summary>
         /// Gets a single <see cref="Game"/> entity from the data store by Id.
@@ -36,6 +65,26 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <param name="id">The Id of the <see cref="Game"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Game"/> entity.</returns>
         Task<Game?> GetGameAsync(int id);
+
+        /// <summary>
+        /// Gets a single <see cref="Game"/> entity from the data store by season, week, guest team, and host team.
+        /// </summary>
+        /// <param name="seasonId">The Id of the season for which to fetch a game.</param>
+        /// <param name="week">The week for which to fetch a game.</param>
+        /// <param name="guestName">The name of the guest team for which to fetch a game.</param>
+        /// <param name="hostName">The name of the host team for which to fetch a game.</param>
+        /// <returns>The fetched <see cref="Game"/> entity.</returns>
+        Game? GetGameBySeasonWeekGuestAndHost(int seasonId, int week, string guestName, string hostName);
+
+        /// <summary>
+        /// Gets a single <see cref="Game"/> entity from the data store by season, week, guest team, and host team.
+        /// </summary>
+        /// <param name="seasonId">The Id of the season for which to fetch a game.</param>
+        /// <param name="week">The week for which to fetch a game.</param>
+        /// <param name="guestName">The name of the guest team for which to fetch a game.</param>
+        /// <param name="hostName">The name of the host team for which to fetch a game.</param>
+        /// <returns>The fetched <see cref="Game"/> entity.</returns>
+        Task<Game?> GetGameBySeasonWeekGuestAndHostAsync(int seasonId, int week, string guestName, string hostName);
 
         /// <summary>
         /// Adds a <see cref="Game"/> entity to the data store.
@@ -89,7 +138,5 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
         /// </returns>
         Task<bool> GameExistsAsync(int id);
-
-        Task<int> GetMaxWeekForSeasonAsync(int seasonId);
     }
 }
