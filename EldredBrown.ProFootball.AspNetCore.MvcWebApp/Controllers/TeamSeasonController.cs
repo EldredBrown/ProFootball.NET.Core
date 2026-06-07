@@ -11,55 +11,37 @@ using EldredBrown.ProFootball.Net.Data;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 {
-    public class TeamSeasonController : Controller
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TeamSeasonController"/> class.
+    /// </summary>
+    /// <param name="teamSeasonIndexViewModel">
+    /// The <see cref="ITeamSeasonIndexViewModel"/> that will provide data to the TeamSeasons index view.
+    /// </param>
+    /// <param name="teamSeasonDetailsViewModel">
+    /// The <see cref="ITeamSeasonDetailsViewModel"/> that will provide data to the TeamSeasons details view.
+    /// </param>
+    /// <param name="seasonRepository">
+    /// The <see cref="ISeasonRepository"/> by which season data will be accessed.
+    /// </param>
+    /// <param name="teamSeasonRepository">
+    /// The <see cref="ITeamSeasonRepository"/> by which team season data will be accessed.
+    /// </param>
+    /// <param name="teamSeasonScheduleRepository">
+    /// The <see cref="ITeamSeasonScheduleRepository"/> by which team season schedule data will be accessed.
+    /// </param>
+    /// <param name="weeklyUpdateService">
+    /// The <see cref="IWeeklyUpdateService"/> that will run weekly updates of the data store.
+    /// </param>
+    public class TeamSeasonController(
+        ITeamSeasonIndexViewModel teamSeasonIndexViewModel,
+        ITeamSeasonDetailsViewModel teamSeasonDetailsViewModel,
+        ITeamSeasonViewModelMapper teamSeasonViewModelMapper,
+        ISeasonRepository seasonRepository,
+        ITeamSeasonRepository teamSeasonRepository,
+        ITeamSeasonScheduleRepository teamSeasonScheduleRepository,
+        IWeeklyUpdateService weeklyUpdateService
+        ) : Controller
     {
-        private readonly ITeamSeasonIndexViewModel _teamSeasonIndexViewModel;
-        private readonly ITeamSeasonDetailsViewModel _teamSeasonDetailsViewModel;
-        private readonly ITeamSeasonViewModelMapper _teamSeasonViewModelMapper;
-        private readonly ISeasonRepository _seasonRepository;
-        private readonly ITeamSeasonRepository _teamSeasonRepository;
-        private readonly ITeamSeasonScheduleRepository _teamSeasonScheduleRepository;
-        private readonly IWeeklyUpdateService _weeklyUpdateService;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TeamSeasonController"/> class.
-        /// </summary>
-        /// <param name="teamSeasonIndexViewModel">
-        /// The <see cref="ITeamSeasonIndexViewModel"/> that will provide data to the TeamSeasons index view.
-        /// </param>
-        /// <param name="teamSeasonDetailsViewModel">
-        /// The <see cref="ITeamSeasonDetailsViewModel"/> that will provide data to the TeamSeasons details view.
-        /// </param>
-        /// <param name="seasonRepository">
-        /// The <see cref="ISeasonRepository"/> by which season data will be accessed.
-        /// </param>
-        /// <param name="teamSeasonRepository">
-        /// The <see cref="ITeamSeasonRepository"/> by which team season data will be accessed.
-        /// </param>
-        /// <param name="teamSeasonScheduleRepository">
-        /// The <see cref="ITeamSeasonScheduleRepository"/> by which team season schedule data will be accessed.
-        /// </param>
-        /// <param name="weeklyUpdateService">
-        /// The <see cref="IWeeklyUpdateService"/> that will run weekly updates of the data store.
-        /// </param>
-        public TeamSeasonController(
-            ITeamSeasonIndexViewModel teamSeasonIndexViewModel,
-            ITeamSeasonDetailsViewModel teamSeasonDetailsViewModel,
-            ITeamSeasonViewModelMapper teamSeasonViewModelMapper,
-            ISeasonRepository seasonRepository,
-            ITeamSeasonRepository teamSeasonRepository,
-            ITeamSeasonScheduleRepository teamSeasonScheduleRepository,
-            IWeeklyUpdateService weeklyUpdateService
-        )
-        {
-            _teamSeasonIndexViewModel = teamSeasonIndexViewModel;
-            _teamSeasonDetailsViewModel = teamSeasonDetailsViewModel;
-            _teamSeasonViewModelMapper = teamSeasonViewModelMapper;
-            _seasonRepository = seasonRepository;
-            _teamSeasonRepository = teamSeasonRepository;
-            _teamSeasonScheduleRepository = teamSeasonScheduleRepository;
-            _weeklyUpdateService = weeklyUpdateService;
-        }
 
         // GET: TeamSeasons
         /// <summary>
@@ -69,7 +51,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var seasons = (await _seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Id);
+            var seasons = (await seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Id);
 
             var selectedSeasonYear = HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
             if (selectedSeasonYear is null)
@@ -77,14 +59,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 SetSelectedSeasonYear(seasons.First().Id);
                 selectedSeasonYear = HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
             }
-            _teamSeasonIndexViewModel.Seasons = new SelectList(seasons, "Id", "Id", selectedSeasonYear);
-            _teamSeasonIndexViewModel.SelectedSeasonYear = selectedSeasonYear;
+            teamSeasonIndexViewModel.Seasons = new SelectList(seasons, "Id", "Id", selectedSeasonYear);
+            teamSeasonIndexViewModel.SelectedSeasonYear = selectedSeasonYear;
 
-            var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(selectedSeasonYear.Value);
-            _teamSeasonIndexViewModel.TeamSeasons = teamSeasons
-                .Select(ts => _teamSeasonViewModelMapper.MapTeamSeasonToViewModel(ts))
+            var teamSeasons = await teamSeasonRepository.GetTeamSeasonsBySeasonAsync(selectedSeasonYear.Value);
+            teamSeasonIndexViewModel.TeamSeasons = teamSeasons
+                .Select(ts => teamSeasonViewModelMapper.MapTeamSeasonToViewModel(ts))
                 .ToList();
-            return View(_teamSeasonIndexViewModel);
+            return View(teamSeasonIndexViewModel);
         }
 
         // GET: TeamSeasons/Details/5
@@ -101,23 +83,23 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var teamSeason = await _teamSeasonRepository.GetTeamSeasonAsync(id.Value);
+            var teamSeason = await teamSeasonRepository.GetTeamSeasonAsync(id.Value);
             if (teamSeason is null)
             {
                 return NotFound();
             }
-            _teamSeasonDetailsViewModel.TeamSeason = _teamSeasonViewModelMapper.MapTeamSeasonToViewModel(teamSeason);
+            teamSeasonDetailsViewModel.TeamSeason = teamSeasonViewModelMapper.MapTeamSeasonToViewModel(teamSeason);
 
             var teamId = teamSeason.TeamId;
             var seasonId = teamSeason.SeasonId;
-            _teamSeasonDetailsViewModel.TeamSeasonScheduleProfile =
-                await _teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonId);
-            _teamSeasonDetailsViewModel.TeamSeasonScheduleTotals =
-                await _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonId);
-            _teamSeasonDetailsViewModel.TeamSeasonScheduleAverages =
-                await _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonId);
+            teamSeasonDetailsViewModel.TeamSeasonScheduleProfile =
+                await teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonId);
+            teamSeasonDetailsViewModel.TeamSeasonScheduleTotals =
+                await teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonId);
+            teamSeasonDetailsViewModel.TeamSeasonScheduleAverages =
+                await teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonId);
 
-            return View(_teamSeasonDetailsViewModel);
+            return View(teamSeasonDetailsViewModel);
         }
 
         // TeamSeasons/RunWeeklyUpdate
@@ -135,7 +117,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             var leagueId = (await leagueRepository.GetLeagueByShortNameAsync(leagueName)).Id;
 
             var selectedSeasonYear = HttpContext.Session.GetObject<int>("SelectedSeasonYear");
-            await _weeklyUpdateService.RunWeeklyUpdate(leagueId, selectedSeasonYear);
+            await weeklyUpdateService.RunWeeklyUpdate(leagueId, selectedSeasonYear);
 
             return RedirectToAction(nameof(Index));
         }

@@ -11,25 +11,19 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
     /// <summary>
     /// Provides read access to the GetSeasonStandings stored procedure.
     /// </summary>
-    public class SeasonStandingsRepository : ISeasonStandingsRepository
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="SeasonStandingsRepository"/> class.
+    /// </remarks>
+    /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
+    public class SeasonStandingsRepository(ProFootballDbContext dbContext) : ISeasonStandingsRepository
     {
-        private readonly ProFootballDbContext _dbContext;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SeasonStandingsRepository"/> class.
-        /// </summary>
-        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
-        public SeasonStandingsRepository(ProFootballDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
 
         /// <summary>
         /// Gets all <see cref="SeasonTeamStanding"/> entities in the data store.
         /// </summary>
         /// <param name="seasonYear">The season year of the <see cref="SeasonTeamStanding"/> entity to fetch.</param>
         /// <returns>An <see cref="IEnumerable{SeasonStanding}"/> of all fetched entities.</returns>
-        public IEnumerable<SeasonTeamStanding> GetSeasonStandings(int seasonYear)
+        public IEnumerable<SeasonTeamStanding>? GetSeasonStandings(int seasonYear)
         {
             return ExecuteGetSeasonStandings(seasonYear);
         }
@@ -39,22 +33,30 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="seasonYear">The season year of the <see cref="SeasonTeamStanding"/> entity to fetch.</param>
         /// <returns>An <see cref="IEnumerable{SeasonStanding}"/> of all fetched entities.</returns>
-        public async Task<IEnumerable<SeasonTeamStanding>> GetSeasonStandingsAsync(int seasonYear)
+        public async Task<IEnumerable<SeasonTeamStanding>?> GetSeasonStandingsAsync(int seasonYear)
         {
             return await ExecuteGetSeasonStandingsAsync(seasonYear);
         }
 
-        protected virtual IEnumerable<SeasonTeamStanding> ExecuteGetSeasonStandings(int seasonYear)
+        protected virtual IEnumerable<SeasonTeamStanding>? ExecuteGetSeasonStandings(int seasonId)
         {
-            return _dbContext.SeasonStandings
-                .FromSqlInterpolated($"EXEC sp_GetSeasonStandings @seasonYear = {seasonYear}")
+            if (dbContext.SeasonStandings is null)
+            {
+                return null;
+            }
+            return dbContext.SeasonStandings
+                .FromSqlInterpolated($"EXEC sp_GetSeasonStandings @season_id = {seasonId}")
                 .ToList();
         }
 
-        protected virtual async Task<IEnumerable<SeasonTeamStanding>> ExecuteGetSeasonStandingsAsync(int seasonYear)
+        protected virtual async Task<IEnumerable<SeasonTeamStanding>?> ExecuteGetSeasonStandingsAsync(int seasonId)
         {
-            return await _dbContext.SeasonStandings
-                .FromSqlInterpolated($"EXEC sp_GetSeasonStandings @seasonYear = {seasonYear}")
+            if (dbContext.SeasonStandings is null)
+            {
+                return null;
+            }
+            return await dbContext.SeasonStandings
+                .FromSqlInterpolated($"EXEC sp_GetSeasonStandings @season_id = {seasonId}")
                 .ToListAsync();
         }
     }

@@ -46,6 +46,12 @@
             <th class="text-right">
                 <label>AvgPA</label>
             </th>
+            <th class="text-right">
+                <label>ExpW</label>
+            </th>
+            <th class="text-right">
+                <label>ExpL</label>
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -78,6 +84,12 @@
             </td>
             <td class="text-right">
                 @Html.DisplayFor(modelItem => item.AvgPointsAgainst)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => item.ExpectedWins)
+            </td>
+            <td class="text-right">
+                @Html.DisplayFor(modelItem => item.ExpectedLosses)
             </td>
         </tr>
 }

@@ -15,13 +15,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="seasonYear">The season year of the <see cref="SeasonTeamStanding"/> entity to fetch.</param>
         /// <returns>An <see cref="IEnumerable{SeasonStanding}"/> of all fetched entities.</returns>
-        IEnumerable<SeasonTeamStanding> GetSeasonStandings(int seasonYear);
+        IEnumerable<SeasonTeamStanding>? GetSeasonStandings(int seasonYear);
 
         /// <summary>
         /// Gets all <see cref="SeasonTeamStanding"/> entities in the data store asynchronously.
         /// </summary>
         /// <param name="seasonYear">The season year of the <see cref="SeasonTeamStanding"/> entity to fetch.</param>
         /// <returns>An <see cref="IEnumerable{SeasonStanding}"/> of all fetched entities.</returns>
-        Task<IEnumerable<SeasonTeamStanding>> GetSeasonStandingsAsync(int seasonYear);
+        Task<IEnumerable<SeasonTeamStanding>?> GetSeasonStandingsAsync(int seasonYear);
     }
 }

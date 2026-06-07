@@ -399,8 +399,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeTeamSeasonViewModelMapper, fakeSeasonRepository, fakeTeamSeasonRepository,
                 fakeTeamSeasonScheduleRepository, fakeWeeklyUpdateService);
 
+            int? seasonId = null;
+
             // Act
-            var result = testController.SetSelectedSeasonYear(null);
+            var result = testController.SetSelectedSeasonYear(seasonId);
 
             // Assert
             result.ShouldBeOfType<BadRequestResult>();

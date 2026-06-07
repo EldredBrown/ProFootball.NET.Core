@@ -15,12 +15,12 @@ namespace EldredBrown.ProFootball.Net.Data.Models
         /// <summary>
         /// Gets or sets the name of the current <see cref="SeasonTeamStanding"/> entity's conference.
         /// </summary>
-        public string? Conference { get; set; }
+        //public string? Conference { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the current <see cref="SeasonTeamStanding"/> entity's division.
         /// </summary>
-        public string? Division { get; set; }
+        //public string? Division { get; set; }
 
         /// <summary>
         /// Gets or sets the number of wins of the current <see cref="SeasonTeamStanding"/> entity.
@@ -64,5 +64,17 @@ namespace EldredBrown.ProFootball.Net.Data.Models
         /// </summary>
         [DisplayFormat(DataFormatString = "{0:N2}")]
         public decimal? AvgPointsAgainst { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of expected wins of the current <see cref="SeasonTeamStanding"/> entity.
+        /// </summary>
+        [DisplayFormat(DataFormatString = "{0:N1}")]
+        public decimal? ExpectedWins { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of expected losses of the current <see cref="SeasonTeamStanding"/> entity.
+        /// </summary>
+        [DisplayFormat(DataFormatString = "{0:N1}")]
+        public decimal? ExpectedLosses { get; set; }
     }
 }

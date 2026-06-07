@@ -265,6 +265,18 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
             return (await GetGamesAsync())?.Any(g => g.Id == id) ?? false;
         }
 
+        public async Task<int> GetMaxWeekForSeasonAsync(int seasonId)
+        {
+            var games = await GetGamesAsync();
+            var gamesForSeason = games?.Where(g => g.SeasonId == seasonId);
+            var weeks = gamesForSeason?.Select(g => g.Week);
+            if (weeks?.Any() == true)
+            {
+                return weeks.Max();
+            }
+            return 0;
+        }
+
         private IIncludableQueryable<Game, Season?>? GetGamesDbSetWithNavigationProperties()
         {
             return _dbContext.Games?

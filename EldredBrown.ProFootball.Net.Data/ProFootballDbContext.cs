@@ -522,7 +522,57 @@ public partial class ProFootballDbContext : DbContext
             entity.HasNoKey();
         });
 
-        modelBuilder.Entity<SeasonTeamStanding>().HasNoKey();
+        modelBuilder.Entity<SeasonTeamStanding>(entity =>
+        {
+            entity.ToTable("SeasonTeamStanding");
+
+            entity.Property(e => e.Team)
+                .HasColumnType("string")
+                .HasColumnName("team");
+
+            entity.Property(e => e.Wins)
+                .HasColumnType("int")
+                .HasColumnName("wins");
+
+            entity.Property(e => e.Losses)
+                .HasColumnType("int")
+                .HasColumnName("losses");
+
+            entity.Property(e => e.Ties)
+                .HasColumnType("int")
+                .HasColumnName("ties");
+
+            entity.Property(e => e.WinningPercentage)
+                .HasColumnType("decimal(18,17)")
+                .HasColumnName("winning_percentage");
+
+            entity.Property(e => e.PointsFor)
+                .HasColumnType("int")
+                .HasColumnName("points_for");
+
+            entity.Property(e => e.PointsAgainst)
+                .HasColumnType("int")
+                .HasColumnName("points_against");
+
+            entity.Property(e => e.AvgPointsFor)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("avg_points_for");
+
+            entity.Property(e => e.AvgPointsAgainst)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("avg_points_against");
+
+            entity.Property(e => e.ExpectedWins)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("expected_wins");
+
+            entity.Property(e => e.ExpectedLosses)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("expected_losses");
+
+            entity.HasNoKey();
+        });
+
         modelBuilder.Entity<RankingsOffensiveTeamSeason>().HasNoKey();
         modelBuilder.Entity<RankingsDefensiveTeamSeason>().HasNoKey();
         modelBuilder.Entity<RankingsTotalTeamSeason>().HasNoKey();

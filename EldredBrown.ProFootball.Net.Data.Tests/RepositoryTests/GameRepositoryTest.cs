@@ -1177,5 +1177,55 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var testRepository = new GameRepository(fakeDbContext);
             return testRepository;
         }
+
+        [Fact]
+        public async Task GetMaxWeekForSeasonAsync_WhenWeeksExistForSeason_ShouldReturnMaxWeek()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            var seasonId = 1920;
+            var season = new Season { Id = seasonId };
+            fakeDbContext.Seasons.Add(season);
+
+            var game1 = new Game { Id = 1, SeasonId = seasonId, Week = 1, GuestName = "Guest", HostName = "Host" };
+            var game2 = new Game { Id = 2, SeasonId = seasonId, Week = 2, GuestName = "Guest", HostName = "Host" };
+            var game3 = new Game { Id = 3, SeasonId = seasonId, Week = 3, GuestName = "Guest", HostName = "Host" };
+            fakeDbContext.Games.AddRange(game1, game2, game3);
+            fakeDbContext.SaveChanges();
+
+            var testRepository = new GameRepository(fakeDbContext);
+
+            // Act
+            var result = await testRepository.GetMaxWeekForSeasonAsync(1920);
+
+            // Assert
+            result.ShouldBe(3);
+        }
+
+        [Fact]
+        public async Task GetMaxWeekForSeasonAsync_WhenWeeksDoNotExistForSeason_ShouldReturnZero()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            using var fakeDbContext = new ProFootballDbContext(options);
+
+            var seasonId = 1920;
+            var season = new Season { Id = seasonId };
+            fakeDbContext.Seasons.Add(season);
+
+            var testRepository = new GameRepository(fakeDbContext);
+
+            // Act
+            var result = await testRepository.GetMaxWeekForSeasonAsync(1920);
+
+            // Assert
+            result.ShouldBe(0);
+        }
     }
 }

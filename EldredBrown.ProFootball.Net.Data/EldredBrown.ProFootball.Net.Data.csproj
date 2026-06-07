@@ -8,9 +8,7 @@
   <ItemGroup>
     <Compile Remove="Decorators\GameDecorator.cs" />
     <Compile Remove="Decorators\IGameDecorator.cs" />
-    <Compile Remove="Repositories\ISeasonStandingsRepository.cs" />
     <Compile Remove="Repositories\MockLeagueSeasonTotalsRepository.cs" />
-    <Compile Remove="Repositories\SeasonStandingsRepository.cs" />
   </ItemGroup>
 
   <ItemGroup>

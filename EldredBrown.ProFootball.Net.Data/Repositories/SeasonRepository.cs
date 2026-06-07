@@ -12,26 +12,19 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
     /// <summary>
     /// Provides CRUD access to an external <see cref="Season"/> data store.
     /// </summary>
-    public class SeasonRepository : ISeasonRepository
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="SeasonRepository"/> class.
+    /// </remarks>
+    /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
+    public class SeasonRepository(ProFootballDbContext dbContext) : ISeasonRepository
     {
-        private readonly ProFootballDbContext _dbContext;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SeasonRepository"/> class.
-        /// </summary>
-        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
-        public SeasonRepository(ProFootballDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         /// <summary>
         /// Gets all <see cref="Season"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Season}"/> of all fetched entities.</returns>
         public IEnumerable<Season>? GetSeasons()
         {
-            return _dbContext.Seasons?.ToList();
+            return dbContext.Seasons?.ToList();
         }
 
         /// <summary>
@@ -40,7 +33,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>An <see cref="IEnumerable{Season}"/> of all fetched entities.</returns>
         public async Task<IEnumerable<Season>?> GetSeasonsAsync()
         {
-            var seasons = _dbContext.Seasons;
+            var seasons = dbContext.Seasons;
             return seasons is null ? null : await seasons.ToListAsync();
         }
 
@@ -73,12 +66,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(season);
 
-            if (_dbContext.Seasons is null)
+            if (dbContext.Seasons is null)
             {
                 return season;
             }
 
-            _dbContext.Add(season);
+            dbContext.Add(season);
             return season;
         }
 
@@ -91,12 +84,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(season);
 
-            if (_dbContext.Seasons is null)
+            if (dbContext.Seasons is null)
             {
                 return season;
             }
 
-            await _dbContext.AddAsync(season);
+            await dbContext.AddAsync(season);
             return season;
         }
 
@@ -109,12 +102,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(season);
 
-            if (_dbContext.Seasons is null)
+            if (dbContext.Seasons is null)
             {
                 return season;
             }
 
-            _dbContext.Update(season);
+            dbContext.Update(season);
             return season;
         }
 
@@ -125,7 +118,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The deleted <see cref="Season"/> entity.</returns>
         public Season? Delete(int id)
         {
-            if (_dbContext.Seasons is null)
+            if (dbContext.Seasons is null)
             {
                 return null;
             }
@@ -136,7 +129,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Remove(season);
+            dbContext.Remove(season);
             return season;
         }
 
@@ -147,7 +140,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The deleted <see cref="Season"/> entity.</returns>
         public async Task<Season?> DeleteAsync(int id)
         {
-            if (_dbContext.Seasons is null)
+            if (dbContext.Seasons is null)
             {
                 return null;
             }
@@ -158,7 +151,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Remove(season);
+            dbContext.Remove(season);
             return season;
         }
 

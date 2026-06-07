@@ -19,7 +19,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.SeasonStanding
         /// <summary>
         /// Gets or sets the year of the selected season for the current view model.
         /// </summary>
-        public int SelectedSeasonYear { get; set; }
+        public int? SelectedSeasonYear { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of season standings for the current view model.

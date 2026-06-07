@@ -16,47 +16,45 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void GetSeasonStandings_ShouldSucceed()
+        public void GetSeasonStandings_WhenDbSetIsNeitherNullNorEmpty_ShouldReturnSeasonStandings()
         {
             // Arrange
-            var seasonYear = 1920;
-
             var expected = new List<SeasonTeamStanding>
             {
-                new SeasonTeamStanding { }
+                new() { }
             };
-
             _testRepository.SeasonStandingsToReturn = expected;
 
+            var seasonId = 1920;
+
             // Act
-            var result = _testRepository.GetSeasonStandings(seasonYear);
+            var result = _testRepository.GetSeasonStandings(seasonId);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
-            _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
+            _testRepository.CapturedSeasonYear.ShouldBe(seasonId);
         }
 
         [Fact]
         public async Task GetSeasonStandingsAsync_ShouldSucceed()
         {
             // Arrange
-            var seasonYear = 1920;
-
             var expected = new List<SeasonTeamStanding>
             {
-                new SeasonTeamStanding { }
+                new() { }
             };
-
             _testRepository.SeasonStandingsToReturn = expected;
 
+            var seasonId = 1920;
+
             // Act
-            var result = _testRepository.GetSeasonStandings(seasonYear);
+            var result = await _testRepository.GetSeasonStandingsAsync(seasonId);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
-            _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
+            _testRepository.CapturedSeasonYear.ShouldBe(seasonId);
         }
 
         /// <summary>
