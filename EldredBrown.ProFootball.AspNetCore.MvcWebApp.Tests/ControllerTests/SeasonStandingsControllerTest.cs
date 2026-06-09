@@ -36,7 +36,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
             var fakeSeasonStandingsRepository = A.Fake<ISeasonStandingsRepository>();
-            var seasonStandings = new List<SeasonTeamStanding>();
+            var seasonStandings = new List<StandingsTeamSeason>();
             A.CallTo(() => fakeSeasonStandingsRepository.GetSeasonStandingsAsync(An<int>.Ignored)).Returns(seasonStandings);
 
             var fakeSession = new MockHttpSession();
@@ -89,7 +89,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
             var fakeSeasonStandingsRepository = A.Fake<ISeasonStandingsRepository>();
-            var seasonStandings = new List<SeasonTeamStanding>();
+            var seasonStandings = new List<StandingsTeamSeason>();
             A.CallTo(() => fakeSeasonStandingsRepository.GetSeasonStandingsAsync(An<int>.Ignored)).Returns(seasonStandings);
 
             var fakeSession = new MockHttpSession();

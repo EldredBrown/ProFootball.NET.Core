@@ -29,7 +29,8 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var league in Model.Leagues) {
+@foreach (var league in Model.Leagues)
+{
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => league.ShortName)

@@ -52,7 +52,7 @@ public partial class ProFootballDbContext : DbContext
     /// <summary>
     /// Gets or sets the SeasonStandings data source.
     /// </summary>
-    public virtual DbSet<SeasonTeamStanding>? SeasonStandings { get; set; }
+    public virtual DbSet<StandingsTeamSeason>? SeasonStandings { get; set; }
 
     /// <summary>
     /// Gets or sets the OffensiveRankings data source.
@@ -522,9 +522,9 @@ public partial class ProFootballDbContext : DbContext
             entity.HasNoKey();
         });
 
-        modelBuilder.Entity<SeasonTeamStanding>(entity =>
+        modelBuilder.Entity<StandingsTeamSeason>(entity =>
         {
-            entity.ToTable("SeasonTeamStanding");
+            entity.ToTable("SeasonStandings");
 
             entity.Property(e => e.Team)
                 .HasColumnType("string")
@@ -573,9 +573,158 @@ public partial class ProFootballDbContext : DbContext
             entity.HasNoKey();
         });
 
-        modelBuilder.Entity<RankingsOffensiveTeamSeason>().HasNoKey();
-        modelBuilder.Entity<RankingsDefensiveTeamSeason>().HasNoKey();
-        modelBuilder.Entity<RankingsTotalTeamSeason>().HasNoKey();
+        modelBuilder.Entity<RankingsOffensiveTeamSeason>(entity =>
+        {
+            entity.ToTable("OffensiveRankings");
+
+            entity.Property(e => e.TeamName)
+                .HasColumnType("string")
+                .HasColumnName("team_name");
+
+            entity.Property(e => e.Wins)
+                .HasColumnType("int")
+                .HasColumnName("wins");
+
+            entity.Property(e => e.Losses)
+                .HasColumnType("int")
+                .HasColumnName("losses");
+
+            entity.Property(e => e.Ties)
+                .HasColumnType("int")
+                .HasColumnName("ties");
+
+            entity.Property(e => e.OffensiveAverage)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("offensive_average");
+
+            entity.Property(e => e.OffensiveFactor)
+                .HasColumnType("decimal(18,15)")
+                .HasColumnName("offensive_factor");
+
+            entity.Property(e => e.OffensiveIndex)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("offensive_index");
+
+            entity.Property(e => e.DefensiveAverage)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("defensive_average");
+
+            entity.Property(e => e.DefensiveFactor)
+                .HasColumnType("decimal(18,15)")
+                .HasColumnName("defensive_factor");
+
+            entity.Property(e => e.DefensiveIndex)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("defensive_index");
+
+            entity.Property(e => e.FinalExpectedWinningPercentage)
+                .HasColumnType("decimal(18,17)")
+                .HasColumnName("final_expected_winning_percentage");
+
+            entity.HasNoKey();
+        });
+
+        modelBuilder.Entity<RankingsDefensiveTeamSeason>(entity =>
+        {
+            entity.ToTable("DefensiveRankings");
+
+            entity.Property(e => e.TeamName)
+                .HasColumnType("string")
+                .HasColumnName("team_name");
+
+            entity.Property(e => e.Wins)
+                .HasColumnType("int")
+                .HasColumnName("wins");
+
+            entity.Property(e => e.Losses)
+                .HasColumnType("int")
+                .HasColumnName("losses");
+
+            entity.Property(e => e.Ties)
+                .HasColumnType("int")
+                .HasColumnName("ties");
+
+            entity.Property(e => e.OffensiveAverage)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("offensive_average");
+
+            entity.Property(e => e.OffensiveFactor)
+                .HasColumnType("decimal(18,15)")
+                .HasColumnName("offensive_factor");
+
+            entity.Property(e => e.OffensiveIndex)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("offensive_index");
+
+            entity.Property(e => e.DefensiveAverage)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("defensive_average");
+
+            entity.Property(e => e.DefensiveFactor)
+                .HasColumnType("decimal(18,15)")
+                .HasColumnName("defensive_factor");
+
+            entity.Property(e => e.DefensiveIndex)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("defensive_index");
+
+            entity.Property(e => e.FinalExpectedWinningPercentage)
+                .HasColumnType("decimal(18,17)")
+                .HasColumnName("final_expected_winning_percentage");
+
+            entity.HasNoKey();
+        });
+
+        modelBuilder.Entity<RankingsTotalTeamSeason>(entity =>
+        {
+            entity.ToTable("TotalRankings");
+
+            entity.Property(e => e.TeamName)
+                .HasColumnType("string")
+                .HasColumnName("team_name");
+
+            entity.Property(e => e.Wins)
+                .HasColumnType("int")
+                .HasColumnName("wins");
+
+            entity.Property(e => e.Losses)
+                .HasColumnType("int")
+                .HasColumnName("losses");
+
+            entity.Property(e => e.Ties)
+                .HasColumnType("int")
+                .HasColumnName("ties");
+
+            entity.Property(e => e.OffensiveAverage)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("offensive_average");
+
+            entity.Property(e => e.OffensiveFactor)
+                .HasColumnType("decimal(18,15)")
+                .HasColumnName("offensive_factor");
+
+            entity.Property(e => e.OffensiveIndex)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("offensive_index");
+
+            entity.Property(e => e.DefensiveAverage)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("defensive_average");
+
+            entity.Property(e => e.DefensiveFactor)
+                .HasColumnType("decimal(18,15)")
+                .HasColumnName("defensive_factor");
+
+            entity.Property(e => e.DefensiveIndex)
+                .HasColumnType("decimal(18,16)")
+                .HasColumnName("defensive_index");
+
+            entity.Property(e => e.FinalExpectedWinningPercentage)
+                .HasColumnType("decimal(18,17)")
+                .HasColumnName("final_expected_winning_percentage");
+
+            entity.HasNoKey();
+        });
 
         OnModelCreatingPartial(modelBuilder);
     }

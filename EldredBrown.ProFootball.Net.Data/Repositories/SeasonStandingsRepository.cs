@@ -19,26 +19,26 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
     {
 
         /// <summary>
-        /// Gets all <see cref="SeasonTeamStanding"/> entities in the data store.
+        /// Gets all <see cref="StandingsTeamSeason"/> entities in the data store.
         /// </summary>
-        /// <param name="seasonYear">The season year of the <see cref="SeasonTeamStanding"/> entity to fetch.</param>
+        /// <param name="seasonYear">The season year of the <see cref="StandingsTeamSeason"/> entity to fetch.</param>
         /// <returns>An <see cref="IEnumerable{SeasonStanding}"/> of all fetched entities.</returns>
-        public IEnumerable<SeasonTeamStanding>? GetSeasonStandings(int seasonYear)
+        public IEnumerable<StandingsTeamSeason>? GetSeasonStandings(int seasonYear)
         {
             return ExecuteGetSeasonStandings(seasonYear);
         }
 
         /// <summary>
-        /// Gets all <see cref="SeasonTeamStanding"/> entities in the data store asynchronously.
+        /// Gets all <see cref="StandingsTeamSeason"/> entities in the data store asynchronously.
         /// </summary>
-        /// <param name="seasonYear">The season year of the <see cref="SeasonTeamStanding"/> entity to fetch.</param>
+        /// <param name="seasonYear">The season year of the <see cref="StandingsTeamSeason"/> entity to fetch.</param>
         /// <returns>An <see cref="IEnumerable{SeasonStanding}"/> of all fetched entities.</returns>
-        public async Task<IEnumerable<SeasonTeamStanding>?> GetSeasonStandingsAsync(int seasonYear)
+        public async Task<IEnumerable<StandingsTeamSeason>?> GetSeasonStandingsAsync(int seasonYear)
         {
             return await ExecuteGetSeasonStandingsAsync(seasonYear);
         }
 
-        protected virtual IEnumerable<SeasonTeamStanding>? ExecuteGetSeasonStandings(int seasonId)
+        protected virtual IEnumerable<StandingsTeamSeason>? ExecuteGetSeasonStandings(int seasonId)
         {
             if (dbContext.SeasonStandings is null)
             {
@@ -49,7 +49,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 .ToList();
         }
 
-        protected virtual async Task<IEnumerable<SeasonTeamStanding>?> ExecuteGetSeasonStandingsAsync(int seasonId)
+        protected virtual async Task<IEnumerable<StandingsTeamSeason>?> ExecuteGetSeasonStandingsAsync(int seasonId)
         {
             if (dbContext.SeasonStandings is null)
             {

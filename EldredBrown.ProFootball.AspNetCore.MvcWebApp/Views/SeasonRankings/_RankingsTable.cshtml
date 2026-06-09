@@ -1,0 +1,93 @@
+﻿@using EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
+@using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.SeasonRankings
+
+@model SeasonRankingsIndexViewModel
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>
+                <label>Team</label>
+            </th>
+            <th class="text-right">
+                <label>W</label>
+            </th>
+            <th class="text-right">
+                <label>L</label>
+            </th>
+            <th class="text-right">
+                <label>T</label>
+            </th>
+            @if (Model.SelectedRankingType != SeasonRankingType.Defensive)
+            {
+                <th class="text-right">
+                    <label>Off Avg</label>
+                </th>
+                <th class="text-right">
+                    <label>Off Factor</label>
+                </th>
+                <th class="text-right">
+                    <label>Off Index</label>
+                </th>
+            }
+            @if (Model.SelectedRankingType != SeasonRankingType.Offensive)
+            {
+                <th class="text-right">
+                    <label>Def Avg</label>
+                </th>
+                <th class="text-right">
+                    <label>Def Factor</label>
+                </th>
+                <th class="text-right">
+                    <label>Def Index</label>
+                </th>
+            }
+            @if (Model.SelectedRankingType == SeasonRankingType.Total)
+            {
+                <th class="text-right">
+                    <label>Fin Exp W%</label>
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.SeasonRankings)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TeamName)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => item.Wins)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => item.Losses)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => item.Ties)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => item.OffensiveAverage)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => item.OffensiveFactor)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => item.OffensiveIndex)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => item.DefensiveAverage)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => item.DefensiveFactor)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => item.DefensiveIndex)
+                </td>
+                <td class="text-right">
+                    @Html.DisplayFor(modelItem => item.FinalExpectedWinningPercentage)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

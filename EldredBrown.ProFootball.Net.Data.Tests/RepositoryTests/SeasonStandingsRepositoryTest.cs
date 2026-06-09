@@ -19,7 +19,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GetSeasonStandings_WhenDbSetIsNeitherNullNorEmpty_ShouldReturnSeasonStandings()
         {
             // Arrange
-            var expected = new List<SeasonTeamStanding>
+            var expected = new List<StandingsTeamSeason>
             {
                 new() { }
             };
@@ -40,7 +40,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task GetSeasonStandingsAsync_ShouldSucceed()
         {
             // Arrange
-            var expected = new List<SeasonTeamStanding>
+            var expected = new List<StandingsTeamSeason>
             {
                 new() { }
             };
@@ -68,17 +68,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             public int CapturedSeasonYear { get; private set; }
 
-            public IEnumerable<SeasonTeamStanding> SeasonStandingsToReturn { get; set; }
-                = new List<SeasonTeamStanding>();
+            public IEnumerable<StandingsTeamSeason> SeasonStandingsToReturn { get; set; }
+                = new List<StandingsTeamSeason>();
 
-            protected override IEnumerable<SeasonTeamStanding>
+            protected override IEnumerable<StandingsTeamSeason>
                 ExecuteGetSeasonStandings(int seasonYear)
             {
                 CapturedSeasonYear = seasonYear;
                 return SeasonStandingsToReturn;
             }
 
-            protected override async Task<IEnumerable<SeasonTeamStanding>>
+            protected override async Task<IEnumerable<StandingsTeamSeason>>
                 ExecuteGetSeasonStandingsAsync(int seasonYear)
             {
                 CapturedSeasonYear = seasonYear;
