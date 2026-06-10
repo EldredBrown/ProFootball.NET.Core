@@ -1140,15 +1140,15 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             fakeDbContext.TeamSeasons = A.Fake<DbSet<TeamSeason>>();
             var teamSeasons = new List<TeamSeason>
             {
-                new TeamSeason { Id = 1, TeamId = 1, SeasonId = 1920, LeagueId = 1 },
-                new TeamSeason { Id = 1, TeamId = 1, SeasonId = 1921, LeagueId = 1 },
-                new TeamSeason { Id = 1, TeamId = 1, SeasonId = 1922, LeagueId = 1 },
-                new TeamSeason { Id = 1, TeamId = 2, SeasonId = 1920, LeagueId = 1 },
-                new TeamSeason { Id = 1, TeamId = 2, SeasonId = 1921, LeagueId = 1 },
-                new TeamSeason { Id = 1, TeamId = 2, SeasonId = 1922, LeagueId = 1 },
-                new TeamSeason { Id = 1, TeamId = 3, SeasonId = 1920, LeagueId = 1 },
-                new TeamSeason { Id = 1, TeamId = 3, SeasonId = 1921, LeagueId = 1 },
-                new TeamSeason { Id = 1, TeamId = 3, SeasonId = 1922, LeagueId = 1 },
+                new() { Id = 1, TeamId = 1, SeasonId = 1920, LeagueId = 1 },
+                new() { Id = 2, TeamId = 1, SeasonId = 1921, LeagueId = 1 },
+                new() { Id = 3, TeamId = 1, SeasonId = 1922, LeagueId = 1 },
+                new() { Id = 4, TeamId = 2, SeasonId = 1920, LeagueId = 1 },
+                new() { Id = 5, TeamId = 2, SeasonId = 1921, LeagueId = 1 },
+                new() { Id = 6, TeamId = 2, SeasonId = 1922, LeagueId = 1 },
+                new() { Id = 7, TeamId = 3, SeasonId = 1920, LeagueId = 1 },
+                new() { Id = 8, TeamId = 3, SeasonId = 1921, LeagueId = 1 },
+                new() { Id = 9, TeamId = 3, SeasonId = 1922, LeagueId = 1 },
             };
             var fakeDbSet = teamSeasons.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.TeamSeasons).Returns(fakeDbSet);

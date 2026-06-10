@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,42 +12,35 @@ using EldredBrown.ProFootball.Net.Data.Repositories;
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 {
     /// <summary>
-    /// Provides control of the flow of execution for views of league season data.
+    /// Provides control of the flow of execution for views of leagueSeason data.
     /// </summary>
-    [Authorize(Roles = "Admin")]
-    public class LeagueSeasonController : Controller
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="LeagueSeasonController"/> class.
+    /// </remarks>
+    /// <param name="leagueSeasonIndexViewModel">
+    /// The <see cref="ILeagueSeasonIndexViewModel"/> that will provide ViewModel data to the Index view.
+    /// </param>
+    /// <param name="leagueSeasonDetailsViewModel">
+    /// The <see cref="ILeagueSeasonsDetailsViewModel"/> that will provide ViewModel data to the Details view.
+    /// </param>
+    /// <param name="leagueSeasonViewModelMapper">
+    /// The <see cref="ILeagueSeasonViewModelMapper"/> by which leagueSeason data will be mapped to view models.
+    /// </param>
+    /// <param name="leagueSeasonRepository">
+    /// The <see cref="ILeagueSeasonRepository"/> by which leagueSeason data will be accessed.
+    /// </param>
+    /// <param name="sharedRepository">
+    /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
+    /// </param>
+    //[Authorize(Roles = "Admin")]
+    public class LeagueSeasonController(
+        ILeagueSeasonIndexViewModel leagueSeasonIndexViewModel,
+        ILeagueSeasonDetailsViewModel leagueSeasonDetailsViewModel,
+        ILeagueSeasonViewModelMapper leagueSeasonViewModelMapper,
+        ILeagueSeasonRepository leagueSeasonRepository,
+        ISharedRepository sharedRepository
+        ) : Controller
     {
-        private readonly ILeagueSeasonIndexViewModel _leagueSeasonIndexViewModel;
-        private readonly ILeagueSeasonDetailsViewModel _leagueSeasonDetailsViewModel;
-        private readonly ILeagueSeasonRepository _leagueSeasonRepository;
-        private readonly ISharedRepository _sharedRepository;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LeagueSeasonController"/> class.
-        /// </summary>
-        /// <param name="leagueSeasonIndexViewModel">
-        /// The <see cref="ILeagueSeasonIndexViewModel"/> that will provide ViewModel data to the Index view.
-        /// </param>
-        /// <param name="leagueSeasonDetailsViewModel">
-        /// The <see cref="ILeagueSeasonDetailsViewModel"/> that will provide ViewModel data to the Details view.
-        /// </param>
-        /// <param name="leagueSeasonRepository">
-        /// The <see cref="ILeagueSeasonRepository"/> by which leagueSeason data will be accessed.
-        /// </param>
-        /// <param name="sharedRepository">
-        /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
-        /// </param>
-        public LeagueSeasonController(
-            ILeagueSeasonIndexViewModel leagueSeasonIndexViewModel,
-            ILeagueSeasonDetailsViewModel leagueSeasonDetailsViewModel,
-            ILeagueSeasonRepository leagueSeasonRepository,
-            ISharedRepository sharedRepository)
-        {
-            _leagueSeasonIndexViewModel = leagueSeasonIndexViewModel;
-            _leagueSeasonDetailsViewModel = leagueSeasonDetailsViewModel;
-            _leagueSeasonRepository = leagueSeasonRepository;
-            _sharedRepository = sharedRepository;
-        }
 
         // GET: LeagueSeasons
         /// <summary>
@@ -56,17 +50,20 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            _leagueSeasonIndexViewModel.LeagueSeasons = await _leagueSeasonRepository.GetLeagueSeasonsAsync();
+            var leagueSeasons = await leagueSeasonRepository.GetLeagueSeasonsAsync();
+            leagueSeasonIndexViewModel.LeagueSeasons = leagueSeasons
+                .Select(ls => leagueSeasonViewModelMapper.MapLeagueSeasonToViewModel(ls))
+                .ToList();
 
-            return View(_leagueSeasonIndexViewModel);
+            return View(leagueSeasonIndexViewModel);
         }
 
         // GET: LeagueSeasons/Details/5
         /// <summary>
-        /// Renders a view of the details of a selected league season.
+        /// Renders a view of the details of a selected leagueSeason.
         /// </summary>
-        /// <param name="id">The Id of the selected league season.</param>
-        /// <returns>The rendered view of the selected league season.</returns>
+        /// <param name="id">The Id of the selected leagueSeason.</param>
+        /// <returns>The rendered view of the selected leagueSeason.</returns>
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
         {
@@ -75,22 +72,23 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var leagueSeason = await _leagueSeasonRepository.GetLeagueSeasonAsync(id.Value);
+            var leagueSeason = await leagueSeasonRepository.GetLeagueSeasonAsync(id.Value);
             if (leagueSeason is null)
             {
                 return NotFound();
             }
 
-            _leagueSeasonDetailsViewModel.LeagueSeason = leagueSeason;
+            leagueSeasonDetailsViewModel.LeagueSeason = leagueSeasonViewModelMapper.MapLeagueSeasonToViewModel(
+                leagueSeason);
 
-            return View(_leagueSeasonDetailsViewModel);
+            return View(leagueSeasonDetailsViewModel);
         }
 
         // GET: LeagueSeasons/Create
         /// <summary>
-        /// Renders a view of the league season create form.
+        /// Renders a view of the leagueSeason create form.
         /// </summary>
-        /// <returns>The rendered view of the league season create form.</returns>
+        /// <returns>The rendered view of the leagueSeason create form.</returns>
         [HttpGet]
         public IActionResult Create()
         {
@@ -101,30 +99,40 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         /// <summary>
-        /// Processes the data posted back from the league season create form.
+        /// Processes the data posted back from the leagueSeason create form.
         /// </summary>
-        /// <param name="leagueSeason">A <see cref="LeagueSeason"/> object with the data provided for the new league season.</param>
+        /// <param name="leagueSeasonViewModel">A <see cref="LeagueSeason"/> object with the data provided for the new leagueSeason.</param>
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("LeagueName,SeasonYear,TotalGames,TotalPoints,AveragePoints")] LeagueSeason leagueSeason)
+        public async Task<IActionResult> Create([Bind("LeagueName,SeasonYear")] LeagueSeasonViewModel leagueSeasonViewModel)
         {
             if (ModelState.IsValid)
             {
-                await _leagueSeasonRepository.AddAsync(leagueSeason);
-                await _sharedRepository.SaveChangesAsync();
+                var leagueSeason = await leagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel);
+                await leagueSeasonRepository.AddAsync(leagueSeason);
+
+                try
+                {
+                    await sharedRepository.SaveChangesAsync();
+                }
+                catch (DbUpdateException ex)
+                {
+                    await HandleDbUpdateExceptionOnCreate(ex, leagueSeason);
+                    return View(leagueSeasonViewModel);
+                }
 
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(leagueSeason);
+            return View(leagueSeasonViewModel);
         }
 
         // GET: LeagueSeasons/Edit/5
         /// <summary>
-        /// Renders a view of the league season edit form.
+        /// Renders a view of the leagueSeason edit form.
         /// </summary>
-        /// <returns>The rendered view of the league season edit form.</returns>
+        /// <returns>The rendered view of the leagueSeason edit form.</returns>
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -133,42 +141,45 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var leagueSeason = await _leagueSeasonRepository.GetLeagueSeasonAsync(id.Value);
+            var leagueSeason = await leagueSeasonRepository.GetLeagueSeasonAsync(id.Value);
             if (leagueSeason is null)
             {
                 return NotFound();
             }
 
-            return View(leagueSeason);
+            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
+            return View(leagueSeasonViewModel);
         }
 
         // POST: LeagueSeasons/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         /// <summary>
-        /// Processes the data posted back from the league season edit form.
+        /// Processes the data posted back from the leagueSeason edit form.
         /// </summary>
-        /// <param name="leagueSeason">A <see cref="LeagueSeason"/> object with the data provided for the league season game.</param>
+        /// <param name="leagueSeasonViewModel">A <see cref="LeagueSeason"/> object with the data provided for the leagueSeason game.</param>
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,LeagueName,SeasonYear,TotalGames,TotalPoints,AveragePoints")] LeagueSeason leagueSeason)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,LeagueName,SeasonYear")] LeagueSeasonViewModel leagueSeasonViewModel)
         {
-            if (id != leagueSeason.Id)
+            if (id != leagueSeasonViewModel.Id)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
+                var leagueSeason = await leagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel);
+                leagueSeasonRepository.Update(leagueSeason);
+
                 try
                 {
-                    _leagueSeasonRepository.Update(leagueSeason);
-                    await _sharedRepository.SaveChangesAsync();
+                    await sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await _leagueSeasonRepository.LeagueSeasonExistsAsync(leagueSeason.Id))
+                    if (!(await leagueSeasonRepository.LeagueSeasonExistsAsync(leagueSeason.Id)))
                     {
                         return NotFound();
                     }
@@ -177,18 +188,23 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                         throw;
                     }
                 }
+                catch (DbUpdateException ex)
+                {
+                    await HandleDbUpdateExceptionOnEdit(ex, leagueSeason);
+                    return View(leagueSeasonViewModel);
+                }
 
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(leagueSeason);
+            return View(leagueSeasonViewModel);
         }
 
         // GET: LeagueSeasons/Delete/5
         /// <summary>
-        /// Renders a view of the league season delete form.
+        /// Renders a view of the leagueSeason delete form.
         /// </summary>
-        /// <returns>The rendered view of the league season delete form.</returns>
+        /// <returns>The rendered view of the leagueSeason delete form.</returns>
         [HttpGet]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -197,29 +213,89 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var leagueSeason = await _leagueSeasonRepository.GetLeagueSeasonAsync(id.Value);
+            var leagueSeason = await leagueSeasonRepository.GetLeagueSeasonAsync(id.Value);
             if (leagueSeason is null)
             {
                 return NotFound();
             }
 
-            return View(leagueSeason);
+            var leagueSeasonViewModel = leagueSeasonViewModelMapper.MapLeagueSeasonToViewModel(leagueSeason);
+            return View(leagueSeasonViewModel);
         }
 
         // POST: LeagueSeasons/Delete/5
         /// <summary>
-        /// Processes the confirmation of intent to delete a league season.
+        /// Processes the confirmation of intent to delete a leagueSeason.
         /// </summary>
-        /// <param name="id">The Id of the league season to delete.</param>
+        /// <param name="id">The Id of the leagueSeason to delete.</param>
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _leagueSeasonRepository.DeleteAsync(id);
-            await _sharedRepository.SaveChangesAsync();
+            await leagueSeasonRepository.DeleteAsync(id);
+            await sharedRepository.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task HandleDbUpdateExceptionOnCreate(DbUpdateException ex, LeagueSeason leagueSeason)
+        {
+            var leagueSeasons = await leagueSeasonRepository.GetLeagueSeasonsAsync();
+            var errMsgIntro = "Unable to save changes.";
+
+            if (PrimaryKeyViolationExists(leagueSeasons, leagueSeason))
+            {
+                ModelState.AddModelError("Id", $"{errMsgIntro} A LeagueSeason with the same Id already exists.");
+            }
+            else if (UniqueKeyViolationExistsOnCreate(leagueSeasons, leagueSeason))
+            {
+                ModelState.AddModelError(string.Empty, $"{errMsgIntro} A LeagueSeason with the same league name and season year already exists.");
+            }
+            else if (ForeignKeyUtils.ForeignKeyConstraintConflictExistsOnCreate(ex.InnerException.Message))
+            {
+                ForeignKeyUtils.AddModelErrorForForeignKeyConstraintConflict(errMsgIntro, ex.InnerException.Message,
+                    ModelState);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, $"{errMsgIntro} An unexpected error occurred.");
+            }
+        }
+
+        private bool PrimaryKeyViolationExists(IEnumerable<LeagueSeason> leagueSeasons, LeagueSeason leagueSeason)
+        {
+            return leagueSeasons.Any(ts => ts.Id == leagueSeason.Id);
+        }
+
+        private bool UniqueKeyViolationExistsOnCreate(IEnumerable<LeagueSeason> leagueSeasons, LeagueSeason leagueSeason)
+        {
+            return leagueSeasons.Any(ts => ts.LeagueId == leagueSeason.LeagueId && ts.SeasonId == leagueSeason.SeasonId);
+        }
+
+        private async Task HandleDbUpdateExceptionOnEdit(DbUpdateException ex, LeagueSeason leagueSeason)
+        {
+            var leagueSeasons = await leagueSeasonRepository.GetLeagueSeasonsAsync();
+            var errMsgIntro = "Unable to save changes.";
+
+            if (UniqueKeyViolationExistsOnEdit(leagueSeasons, leagueSeason))
+            {
+                ModelState.AddModelError(string.Empty, $"{errMsgIntro} A LeagueSeason with the same league name and season year already exists.");
+            }
+            else if (ForeignKeyUtils.ForeignKeyConstraintConflictExistsOnEdit(ex.InnerException.Message))
+            {
+                ForeignKeyUtils.AddModelErrorForForeignKeyConstraintConflict(errMsgIntro, ex.InnerException.Message,
+                    ModelState);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, $"{errMsgIntro} An unexpected error occurred.");
+            }
+        }
+
+        private bool UniqueKeyViolationExistsOnEdit(IEnumerable<LeagueSeason> leagueSeasons, LeagueSeason leagueSeason)
+        {
+            return leagueSeasons.Count(ts => ts.LeagueId == leagueSeason.LeagueId && ts.SeasonId == leagueSeason.SeasonId) > 1;
         }
     }
 }

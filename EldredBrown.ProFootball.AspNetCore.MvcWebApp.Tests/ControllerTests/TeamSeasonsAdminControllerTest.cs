@@ -16,7 +16,7 @@ using EldredBrown.ProFootball.Net.Data.Repositories;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 {
-    public class TeamSeasonAdminControllerAdminTest
+    public class TeamSeasonAdminControllerTest
     {
         [Fact]
         public async Task Index_ShouldReturnTeamSeasonIndexView()

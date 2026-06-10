@@ -171,7 +171,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="teamSeason">The <see cref="TeamSeason"/> entity to update.</param>
         /// <returns>The updated <see cref="TeamSeason"/> entity.</returns>
-        public TeamSeason Update(TeamSeason teamSeason)
+        public TeamSeason? Update(TeamSeason? teamSeason)
         {
             ArgumentNullException.ThrowIfNull(teamSeason);
 

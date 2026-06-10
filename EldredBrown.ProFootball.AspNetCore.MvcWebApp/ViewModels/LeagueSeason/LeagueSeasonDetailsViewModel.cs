@@ -1,13 +1,13 @@
 ﻿namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.LeagueSeason
 {
     /// <summary>
-    /// Represents the model for a league details view.
+    /// Represents the model for a team season details view.
     /// </summary>
     public class LeagueSeasonDetailsViewModel : ILeagueSeasonDetailsViewModel
     {
         /// <summary>
-        /// Gets or sets the league of the current <see cref="LeagueSeasonDetailsViewModel"/> object.
+        /// Gets or sets the team season of the current view model.
         /// </summary>
-        public EldredBrown.ProFootball.Net.Data.Models.ILeagueSeason LeagueSeason { get; set; }
+        public LeagueSeasonViewModel LeagueSeason { get; set; }
     }
 }

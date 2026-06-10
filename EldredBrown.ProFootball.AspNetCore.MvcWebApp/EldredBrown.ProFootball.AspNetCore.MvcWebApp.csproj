@@ -5,27 +5,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ViewModels\LeagueSeason\**" />
     <Compile Remove="Views\GamePredictor\**" />
-    <Compile Remove="Views\LeagueSeason\**" />
     <Compile Remove="Views\TeamSeasonsAdmin\**" />
-    <Content Remove="ViewModels\LeagueSeason\**" />
     <Content Remove="Views\GamePredictor\**" />
-    <Content Remove="Views\LeagueSeason\**" />
     <Content Remove="Views\TeamSeasonsAdmin\**" />
-    <EmbeddedResource Remove="ViewModels\LeagueSeason\**" />
     <EmbeddedResource Remove="Views\GamePredictor\**" />
-    <EmbeddedResource Remove="Views\LeagueSeason\**" />
     <EmbeddedResource Remove="Views\TeamSeasonsAdmin\**" />
-    <None Remove="ViewModels\LeagueSeason\**" />
     <None Remove="Views\GamePredictor\**" />
-    <None Remove="Views\LeagueSeason\**" />
     <None Remove="Views\TeamSeasonsAdmin\**" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="Controllers\GamePredictorController.cs" />
-    <Compile Remove="Controllers\LeagueSeasonController.cs" />
     <Compile Remove="ViewModels\ILeagueDetailsViewModel.cs" />
     <Compile Remove="ViewModels\ILeagueIndexViewModel.cs" />
     <Compile Remove="ViewModels\LeagueDetailsViewModel.cs" />

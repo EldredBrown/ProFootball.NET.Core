@@ -1,4 +1,5 @@
-﻿@model EldredBrown.ProFootball.Net.Data.Models.LeagueSeason
+﻿@using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.LeagueSeason
+@model LeagueSeasonViewModel
 
 @{
     ViewData["Title"] = "Edit League Season";
@@ -24,31 +25,22 @@
                 <span class="text-danger" asp-validation-for="SeasonYear"></span>
             </div>
             <div class="form-group">
-                <label class="control-label" asp-for="TotalGames"></label>
-                <input class="form-control" asp-for="TotalGames" />
-                <span class="text-danger" asp-validation-for="TotalGames"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label" asp-for="TotalPoints"></label>
-                <input class="form-control" asp-for="TotalPoints" />
-                <span class="text-danger" asp-validation-for="TotalPoints"></span>
-            </div>
-            <div class="form-group">
-                <label class="control-label" asp-for="AveragePoints"></label>
-                <input class="form-control" asp-for="AveragePoints" />
-                <span class="text-danger" asp-validation-for="AveragePoints"></span>
-            </div>
-            <div class="form-group">
-                <button class="btn btn-primary" type="submit">Save</button>
+                <p>
+                    <button class="btn btn-primary" type="submit">Save</button>
+                </p>
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <p>
+        <a asp-action="Index">Back to List</a>
+    </p>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,47 +14,33 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     /// <summary>
     /// Provides control of the flow of execution for views of teamSeason data.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="TeamSeasonController"/> class.
+    /// </remarks>
+    /// <param name="teamSeasonIndexViewModel">
+    /// The <see cref="ITeamSeasonIndexViewModel"/> that will provide ViewModel data to the Index view.
+    /// </param>
+    /// <param name="teamSeasonDetailsViewModel">
+    /// The <see cref="ITeamSeasonsDetailsViewModel"/> that will provide ViewModel data to the Details view.
+    /// </param>
+    /// <param name="teamSeasonViewModelMapper">
+    /// The <see cref="ITeamSeasonViewModelMapper"/> by which teamSeason data will be mapped to view models.
+    /// </param>
+    /// <param name="teamSeasonRepository">
+    /// The <see cref="ITeamSeasonRepository"/> by which teamSeason data will be accessed.
+    /// </param>
+    /// <param name="sharedRepository">
+    /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
+    /// </param>
     //[Authorize(Roles = "Admin")]
-    public class TeamSeasonAdminController : Controller
+    public class TeamSeasonAdminController(
+        ITeamSeasonIndexViewModel teamSeasonIndexViewModel,
+        ITeamSeasonDetailsViewModel teamSeasonDetailsViewModel,
+        ITeamSeasonViewModelMapper teamSeasonViewModelMapper,
+        ITeamSeasonRepository teamSeasonRepository,
+        ISharedRepository sharedRepository
+        ) : Controller
     {
-        private readonly ITeamSeasonIndexViewModel _teamSeasonIndexViewModel;
-        private readonly ITeamSeasonDetailsViewModel _teamSeasonDetailsViewModel;
-        private readonly ITeamSeasonViewModelMapper _teamSeasonViewModelMapper;
-        private readonly ITeamSeasonRepository _teamSeasonRepository;
-        private readonly ISharedRepository _sharedRepository;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TeamSeasonController"/> class.
-        /// </summary>
-        /// <param name="teamSeasonIndexViewModel">
-        /// The <see cref="ITeamSeasonIndexViewModel"/> that will provide ViewModel data to the Index view.
-        /// </param>
-        /// <param name="teamSeasonDetailsViewModel">
-        /// The <see cref="ITeamSeasonsDetailsViewModel"/> that will provide ViewModel data to the Details view.
-        /// </param>
-        /// <param name="teamSeasonViewModelMapper">
-        /// The <see cref="ITeamSeasonViewModelMapper"/> by which teamSeason data will be mapped to view models.
-        /// </param>
-        /// <param name="teamSeasonRepository">
-        /// The <see cref="ITeamSeasonRepository"/> by which teamSeason data will be accessed.
-        /// </param>
-        /// <param name="sharedRepository">
-        /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
-        /// </param>
-        public TeamSeasonAdminController(
-            ITeamSeasonIndexViewModel teamSeasonIndexViewModel,
-            ITeamSeasonDetailsViewModel teamSeasonDetailsViewModel,
-            ITeamSeasonViewModelMapper teamSeasonViewModelMapper,
-            ITeamSeasonRepository teamSeasonRepository,
-            ISharedRepository sharedRepository
-        )
-        {
-            _teamSeasonIndexViewModel = teamSeasonIndexViewModel;
-            _teamSeasonDetailsViewModel = teamSeasonDetailsViewModel;
-            _teamSeasonViewModelMapper = teamSeasonViewModelMapper;
-            _teamSeasonRepository = teamSeasonRepository;
-            _sharedRepository = sharedRepository;
-        }
 
         // GET: TeamSeasons
         /// <summary>
@@ -65,12 +50,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsAsync();
-            _teamSeasonIndexViewModel.TeamSeasons = teamSeasons
-                .Select(ts => _teamSeasonViewModelMapper.MapTeamSeasonToViewModel(ts))
+            var teamSeasons = await teamSeasonRepository.GetTeamSeasonsAsync();
+            teamSeasonIndexViewModel.TeamSeasons = teamSeasons
+                .Select(ts => teamSeasonViewModelMapper.MapTeamSeasonToViewModel(ts))
                 .ToList();
 
-            return View(_teamSeasonIndexViewModel);
+            return View(teamSeasonIndexViewModel);
         }
 
         // GET: TeamSeasons/Details/5
@@ -87,15 +72,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var teamSeason = await _teamSeasonRepository.GetTeamSeasonAsync(id.Value);
+            var teamSeason = await teamSeasonRepository.GetTeamSeasonAsync(id.Value);
             if (teamSeason is null)
             {
                 return NotFound();
             }
 
-            _teamSeasonDetailsViewModel.TeamSeason = _teamSeasonViewModelMapper.MapTeamSeasonToViewModel(teamSeason);
+            teamSeasonDetailsViewModel.TeamSeason = teamSeasonViewModelMapper.MapTeamSeasonToViewModel(teamSeason);
 
-            return View(_teamSeasonDetailsViewModel);
+            return View(teamSeasonDetailsViewModel);
         }
 
         // GET: TeamSeasons/Create
@@ -123,12 +108,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var teamSeason = await _teamSeasonViewModelMapper.MapViewModelToTeamSeason(teamSeasonViewModel);
-                await _teamSeasonRepository.AddAsync(teamSeason);
+                var teamSeason = await teamSeasonViewModelMapper.MapViewModelToTeamSeason(teamSeasonViewModel);
+                await teamSeasonRepository.AddAsync(teamSeason);
 
                 try
                 {
-                    await _sharedRepository.SaveChangesAsync();
+                    await sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateException ex)
                 {
@@ -155,7 +140,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var teamSeason = await _teamSeasonRepository.GetTeamSeasonAsync(id.Value);
+            var teamSeason = await teamSeasonRepository.GetTeamSeasonAsync(id.Value);
             if (teamSeason is null)
             {
                 return NotFound();
@@ -184,16 +169,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
             if (ModelState.IsValid)
             {
-                var teamSeason = await _teamSeasonViewModelMapper.MapViewModelToTeamSeason(teamSeasonViewModel);
-                _teamSeasonRepository.Update(teamSeason);
+                var teamSeason = await teamSeasonViewModelMapper.MapViewModelToTeamSeason(teamSeasonViewModel);
+                teamSeasonRepository.Update(teamSeason);
 
                 try
                 {
-                    await _sharedRepository.SaveChangesAsync();
+                    await sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!(await _teamSeasonRepository.TeamSeasonExistsAsync(teamSeason.Id)))
+                    if (!(await teamSeasonRepository.TeamSeasonExistsAsync(teamSeason.Id)))
                     {
                         return NotFound();
                     }
@@ -227,13 +212,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var teamSeason = await _teamSeasonRepository.GetTeamSeasonAsync(id.Value);
+            var teamSeason = await teamSeasonRepository.GetTeamSeasonAsync(id.Value);
             if (teamSeason is null)
             {
                 return NotFound();
             }
 
-            var teamSeasonViewModel = _teamSeasonViewModelMapper.MapTeamSeasonToViewModel(teamSeason);
+            var teamSeasonViewModel = teamSeasonViewModelMapper.MapTeamSeasonToViewModel(teamSeason);
             return View(teamSeasonViewModel);
         }
 
@@ -247,15 +232,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _teamSeasonRepository.DeleteAsync(id);
-            await _sharedRepository.SaveChangesAsync();
+            await teamSeasonRepository.DeleteAsync(id);
+            await sharedRepository.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
 
         private async Task HandleDbUpdateExceptionOnCreate(DbUpdateException ex, TeamSeason teamSeason)
         {
-            var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsAsync();
+            var teamSeasons = await teamSeasonRepository.GetTeamSeasonsAsync();
             var errMsgIntro = "Unable to save changes.";
 
             if (PrimaryKeyViolationExists(teamSeasons, teamSeason))
@@ -289,7 +274,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task HandleDbUpdateExceptionOnEdit(DbUpdateException ex, TeamSeason teamSeason)
         {
-            var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsAsync();
+            var teamSeasons = await teamSeasonRepository.GetTeamSeasonsAsync();
             var errMsgIntro = "Unable to save changes.";
 
             if (UniqueKeyViolationExistsOnEdit(teamSeasons, teamSeason))

@@ -1,3 +1,14 @@
+using System;
+using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conference;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Division;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game;
@@ -7,21 +18,12 @@ using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.SeasonRankings;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.SeasonStandings;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Team;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason;
-//using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.LeagueSeason;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.LeagueSeason;
 using EldredBrown.ProFootball.Net.Data;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 using EldredBrown.ProFootball.Net.Services;
 using EldredBrown.ProFootball.Net.Services.GameServiceNS;
 using EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Threading.Tasks;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
 {
@@ -98,13 +100,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
             services.AddScoped<IGameIndexViewModel, GameIndexViewModel>();
             services.AddScoped<IGameDetailsViewModel, GameDetailsViewModel>();
             services.AddScoped<IGameViewModelMapper, GameViewModelMapper>();
+            services.AddScoped<ILeagueSeasonIndexViewModel, LeagueSeasonIndexViewModel>();
+            services.AddScoped<ILeagueSeasonDetailsViewModel, LeagueSeasonDetailsViewModel>();
+            services.AddScoped<ILeagueSeasonViewModelMapper, LeagueSeasonViewModelMapper>();
             services.AddScoped<ITeamSeasonIndexViewModel, TeamSeasonIndexViewModel>();
             services.AddScoped<ITeamSeasonDetailsViewModel, TeamSeasonDetailsViewModel>();
             services.AddScoped<ITeamSeasonViewModelMapper, TeamSeasonViewModelMapper>();
             services.AddScoped<ISeasonStandingsIndexViewModel, SeasonStandingsIndexViewModel>();
             services.AddScoped<ISeasonRankingsIndexViewModel, SeasonRankingsIndexViewModel>();
-            //services.AddScoped<ILeagueSeasonIndexViewModel, LeagueSeasonIndexViewModel>();
-            //services.AddScoped<ILeagueSeasonDetailsViewModel, LeagueSeasonDetailsViewModel>();
 
             services.AddServiceLibrary();
 
