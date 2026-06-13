@@ -13,19 +13,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
     /// <summary>
     /// Provides CRUD access to an external <see cref="TeamSeason"/> data store.
     /// </summary>
-    public class TeamSeasonRepository : ITeamSeasonRepository
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="TeamSeasonRepository"/> class.
+    /// </remarks>
+    /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
+    public class TeamSeasonRepository(ProFootballDbContext dbContext) : ITeamSeasonRepository
     {
-        private readonly ProFootballDbContext _dbContext;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TeamSeasonRepository"/> class.
-        /// </summary>
-        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
-        public TeamSeasonRepository(ProFootballDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         /// <summary>
         /// Gets all <see cref="TeamSeason"/> entities in the data store.
         /// </summary>
@@ -139,12 +132,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(teamSeason);
 
-            if (_dbContext.TeamSeasons is null)
+            if (dbContext.TeamSeasons is null)
             {
                 return teamSeason;
             }
 
-            _dbContext.Add(teamSeason);
+            dbContext.Add(teamSeason);
             return teamSeason;
         }
 
@@ -157,12 +150,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(teamSeason);
 
-            if (_dbContext.TeamSeasons is null)
+            if (dbContext.TeamSeasons is null)
             {
                 return teamSeason;
             }
 
-            await _dbContext.AddAsync(teamSeason);
+            await dbContext.AddAsync(teamSeason);
             return teamSeason;
         }
 
@@ -175,12 +168,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(teamSeason);
 
-            if (_dbContext.TeamSeasons is null)
+            if (dbContext.TeamSeasons is null)
             {
                 return teamSeason;
             }
 
-            _dbContext.Update(teamSeason);
+            dbContext.Update(teamSeason);
             return teamSeason;
         }
 
@@ -191,7 +184,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The deleted <see cref="TeamSeason"/> entity.</returns>
         public TeamSeason? Delete(int id)
         {
-            if (_dbContext.TeamSeasons is null)
+            if (dbContext.TeamSeasons is null)
             {
                 return null;
             }
@@ -202,7 +195,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Remove(teamSeason);
+            dbContext.Remove(teamSeason);
             return teamSeason;
         }
 
@@ -213,7 +206,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The deleted <see cref="TeamSeason"/> entity.</returns>
         public async Task<TeamSeason?> DeleteAsync(int id)
         {
-            if (_dbContext.TeamSeasons is null)
+            if (dbContext.TeamSeasons is null)
             {
                 return null;
             }
@@ -224,7 +217,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Remove(teamSeason);
+            dbContext.Remove(teamSeason);
             return teamSeason;
         }
 
@@ -254,7 +247,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
 
         private IIncludableQueryable<TeamSeason, Division?>? GetTeamSeasonsDbSetWithNavigationProperties()
         {
-            return _dbContext.TeamSeasons?
+            return dbContext.TeamSeasons?
                 .Include(ts => ts.TeamIdNavigation)
                 .Include(ts => ts.SeasonIdNavigation)
                 .Include(ts => ts.LeagueIdNavigation)

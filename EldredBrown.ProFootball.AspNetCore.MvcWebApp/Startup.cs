@@ -1,6 +1,19 @@
-using System;
-using System.Threading.Tasks;
-
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conference;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Division;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.League;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.LeagueSeason;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Season;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.SeasonRankings;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.SeasonStandings;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Team;
+using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason;
+using EldredBrown.ProFootball.Net.Data;
+using EldredBrown.ProFootball.Net.Data.Models;
+using EldredBrown.ProFootball.Net.Data.Repositories;
+using EldredBrown.ProFootball.Net.Services;
+using EldredBrown.ProFootball.Net.Services.GameServiceNS;
+using EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -8,33 +21,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conference;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Division;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.League;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Season;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.SeasonRankings;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.SeasonStandings;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Team;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason;
-using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.LeagueSeason;
-using EldredBrown.ProFootball.Net.Data;
-using EldredBrown.ProFootball.Net.Data.Repositories;
-using EldredBrown.ProFootball.Net.Services;
-using EldredBrown.ProFootball.Net.Services.GameServiceNS;
-using EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy;
+using System;
+using System.Threading.Tasks;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
 {
-    public class Startup
+    public class Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; } = configuration;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -82,7 +76,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
             services.AddScoped<IGameService, GameService>();
             services.AddScoped<IProcessGameStrategyFactory, ProcessGameStrategyFactory>();
             services.AddScoped<IWeeklyUpdateService, WeeklyUpdateService>();
-            //services.AddScoped<IGamePredictorService, GamePredictorService>();
+            services.AddScoped<IGamePredictorService, GamePredictorService>();
 
             services.AddScoped<ISeasonIndexViewModel, SeasonIndexViewModel>();
             services.AddScoped<ISeasonDetailsViewModel, SeasonDetailsViewModel>();
@@ -108,6 +102,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
             services.AddScoped<ITeamSeasonViewModelMapper, TeamSeasonViewModelMapper>();
             services.AddScoped<ISeasonStandingsIndexViewModel, SeasonStandingsIndexViewModel>();
             services.AddScoped<ISeasonRankingsIndexViewModel, SeasonRankingsIndexViewModel>();
+            services.AddScoped<IGamePrediction, GamePrediction>();
 
             services.AddServiceLibrary();
 
@@ -149,7 +144,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
             CreateUserRole(services).Wait();
         }
 
-        private async Task CreateUserRole(IServiceProvider serviceProvider)
+        private static async Task CreateUserRole(IServiceProvider serviceProvider)
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();

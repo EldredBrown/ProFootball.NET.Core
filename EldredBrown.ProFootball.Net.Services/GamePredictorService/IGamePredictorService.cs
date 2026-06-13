@@ -4,6 +4,6 @@ namespace EldredBrown.ProFootball.Net.Services
 {
     public interface IGamePredictorService
     {
-        GameScorePrediction PredictGameScore(ITeamSeason guestSeason, ITeamSeason hostSeason);
+        GameScorePrediction PredictGameScore(TeamSeason guestSeason, TeamSeason hostSeason);
     }
 }

@@ -13,15 +13,16 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
-                <label class="col-form-label" asp-for="GuestSeasonYear"></label>
-                <select onchange="document.location.href=`/GamePredictor/ApplyFilter?GuestSeasonYear=${this.options[this.selectedIndex].value}`;"
-                        class="form-control" asp-for="GuestSeasonYear" asp-items="ViewBag.GuestSeasons">
+                <label class="col-form-label" asp-for="GuestSeasonId"></label>
+                <select onchange="document.location.href=`/GamePredictor/ApplyFilter?GuestSeasonId=${this.options[this.selectedIndex].value}`;"
+                        class="form-control" asp-for="GuestSeasonId" asp-items="ViewBag.GuestSeasons">
                 </select>
-                <span class="text-danger field-validation-error" asp-validation-for="GuestSeasonYear"></span>
+                <span class="text-danger field-validation-error" asp-validation-for="GuestSeasonId"></span>
             </div>
             <div class="form-group">
                 <label class="col-form-label" asp-for="GuestName"></label>
-                <select class="form-control" asp-for="GuestName" asp-items="ViewBag.Guests"></select>
+                <select onchange="document.location.href=`/GamePredictor/ApplyFilter?GuestName=${this.options[this.selectedIndex].value}`;"
+                        class="form-control" asp-for="GuestName" asp-items="ViewBag.Guests"></select>
                 <span class="text-danger field-validation-error" asp-validation-for="GuestName"></span>
             </div>
             <div class="form-group">
@@ -30,24 +31,26 @@
             </div>
 
             <div class="form-group">
-                <label class="col-form-label" asp-for="HostSeasonYear"></label>
-                <select onchange="document.location.href=`/GamePredictor/ApplyFilter?HostSeasonYear=${this.options[this.selectedIndex].value}`;"
-                        class="form-control" asp-for="HostSeasonYear" asp-items="ViewBag.HostSeasons">
+                <label class="col-form-label" asp-for="HostSeasonId"></label>
+                <select onchange="document.location.href=`/GamePredictor/ApplyFilter?HostSeasonId=${this.options[this.selectedIndex].value}`;"
+                        class="form-control" asp-for="HostSeasonId" asp-items="ViewBag.HostSeasons">
                 </select>
-                <span class="text-danger field-validation-error" asp-validation-for="HostSeasonYear"></span>
+                <span class="text-danger field-validation-error" asp-validation-for="HostSeasonId"></span>
             </div>
             <div class="form-group">
                 <label class="col-form-label" asp-for="HostName"></label>
-                <select class="form-control" asp-for="HostName" asp-items="ViewBag.Hosts"></select>
+                <select onchange="document.location.href=`/GamePredictor/ApplyFilter?HostName=${this.options[this.selectedIndex].value}`;"
+                        class="form-control" asp-for="HostName" asp-items="ViewBag.Hosts"></select>
                 <span class="text-danger field-validation-error" asp-validation-for="HostName"></span>
             </div>
             <div class="form-group">
                 <label class="col-form-label" asp-for="HostScore"></label>
                 <b>@Html.DisplayFor(model => model.HostScore)</b>
             </div>
-
             <div class="form-group">
-                <button class="btn btn-primary btn-lg" type="submit">Calculate Prediction</button>
+                <p>
+                    <button class="btn btn-primary btn-lg" type="submit">Calculate Prediction</button>
+                </p>
             </div>
         </form>
     </div>

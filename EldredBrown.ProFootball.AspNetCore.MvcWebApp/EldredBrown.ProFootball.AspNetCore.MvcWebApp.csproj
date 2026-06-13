@@ -5,18 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Views\GamePredictor\**" />
     <Compile Remove="Views\TeamSeasonsAdmin\**" />
-    <Content Remove="Views\GamePredictor\**" />
     <Content Remove="Views\TeamSeasonsAdmin\**" />
-    <EmbeddedResource Remove="Views\GamePredictor\**" />
     <EmbeddedResource Remove="Views\TeamSeasonsAdmin\**" />
-    <None Remove="Views\GamePredictor\**" />
     <None Remove="Views\TeamSeasonsAdmin\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Controllers\GamePredictorController.cs" />
     <Compile Remove="ViewModels\ILeagueDetailsViewModel.cs" />
     <Compile Remove="ViewModels\ILeagueIndexViewModel.cs" />
     <Compile Remove="ViewModels\LeagueDetailsViewModel.cs" />

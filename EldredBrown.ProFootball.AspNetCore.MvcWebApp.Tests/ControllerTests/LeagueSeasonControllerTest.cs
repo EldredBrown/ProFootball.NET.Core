@@ -46,7 +46,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -83,7 +83,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -112,7 +112,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -139,7 +139,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -162,7 +162,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -188,7 +188,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -230,7 +230,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -278,7 +278,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -326,7 +326,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             );
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -371,7 +371,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             );
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -404,7 +404,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -439,7 +439,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -466,7 +466,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -493,7 +493,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -523,7 +523,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -550,7 +550,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -584,7 +584,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateConcurrencyException>();
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -620,7 +620,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateConcurrencyException>();
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -658,7 +658,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -706,7 +706,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             );
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -751,7 +751,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             );
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -783,7 +783,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -823,7 +823,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -852,7 +852,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -879,7 +879,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
 
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
@@ -902,7 +902,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeagueSeasonAdminController(fakeLeagueSeasonIndexViewModel,
+            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 

@@ -1,46 +1,38 @@
-﻿using System.ComponentModel;
-
-namespace EldredBrown.ProFootball.Net.Data.Models
+﻿namespace EldredBrown.ProFootball.Net.Data.Models
 {
     /// <summary>
     /// Represents a game prediction.
     /// </summary>
-    public class GamePrediction : IGamePrediction
+    public interface IGamePrediction
     {
         /// <summary>
         /// Gets or sets the guest season year of the current <see cref="GamePrediction"/> entity.
         /// </summary>
-        [DisplayName("Guest Season")]
-        public int GuestSeasonId { get; set; }
+        int GuestSeasonId { get; set; }
 
         /// <summary>
         /// Gets or sets the guest name of the current <see cref="GamePrediction"/> entity.
         /// </summary>
-        [DisplayName("Guest Name")]
-        public string GuestName { get; set; } = string.Empty;
+        string GuestName { get; set; }
 
         /// <summary>
         /// Gets or sets the guest score of the current <see cref="GamePrediction"/> entity.
         /// </summary>
-        [DisplayName("Guest Score")]
-        public int? GuestScore { get; set; }
+        int? GuestScore { get; set; }
 
         /// <summary>
         /// Gets or sets the host season year of the current <see cref="GamePrediction"/> entity.
         /// </summary>
-        [DisplayName("Host Season")]
-        public int HostSeasonId { get; set; }
+        int HostSeasonId { get; set; }
 
         /// <summary>
         /// Gets or sets the host name of the current <see cref="GamePrediction"/> entity.
         /// </summary>
-        [DisplayName("Host Name")]
-        public string HostName { get; set; } = string.Empty;
+        string HostName { get; set; }
 
         /// <summary>
         /// Gets or sets the host score of the current <see cref="GamePrediction"/> entity.
         /// </summary>
-        [DisplayName("Host Score")]
-        public int? HostScore { get; set; }
+        int? HostScore { get; set; }
     }
 }

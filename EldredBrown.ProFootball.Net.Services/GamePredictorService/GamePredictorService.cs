@@ -18,7 +18,7 @@ namespace EldredBrown.ProFootball.Net.Services
         /// <param name="guestSeason">A <see cref="ITeamSeason"/> object representing the guest's season data.</param>
         /// <param name="hostSeason">A <see cref="ITeamSeason"/> object representing the host's season data.</param>
         /// <returns></returns>
-        public GameScorePrediction PredictGameScore(ITeamSeason guestSeason, ITeamSeason hostSeason)
+        public GameScorePrediction PredictGameScore(TeamSeason guestSeason, TeamSeason hostSeason)
         {
             var guestScore = PredictScore(guestSeason, hostSeason);
             var hostScore = PredictScore(hostSeason, guestSeason);
@@ -29,7 +29,7 @@ namespace EldredBrown.ProFootball.Net.Services
             };
         }
 
-        private int? PredictScore(ITeamSeason offensiveTeam, ITeamSeason defensiveTeam)
+        private int? PredictScore(TeamSeason offensiveTeam, TeamSeason defensiveTeam)
         {
             return (int?)Math.Round((offensiveTeam.OffensiveFactor.Value * defensiveTeam.DefensiveAverage.Value +
                 defensiveTeam.DefensiveFactor.Value * offensiveTeam.OffensiveAverage.Value) / 2m, 0);

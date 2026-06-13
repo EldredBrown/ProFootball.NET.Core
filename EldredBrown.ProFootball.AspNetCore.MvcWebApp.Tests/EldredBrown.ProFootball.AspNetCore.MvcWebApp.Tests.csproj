@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ControllerTests\GamePredictorControllerTest.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FakeItEasy" Version="9.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
     <PackageReference Include="Microsoft.NETCore.Platforms" Version="7.0.4" />
@@ -34,6 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EldredBrown.ProFootball.AspNetCore.MvcWebApp\EldredBrown.ProFootball.AspNetCore.MvcWebApp.csproj" />
+    <ProjectReference Include="..\EldredBrown.ProFootball.Net.Data.Tests\EldredBrown.ProFootball.Net.Data.Tests.csproj" />
   </ItemGroup>
 
 </Project>
