@@ -7,6 +7,8 @@ namespace EldredBrown.ProFootball.Net.Data
     public class SqlConnectionFactory : IDbConnectionFactory
     {
         public IDbConnection CreateConnection(string connectionString)
-            => new SqlConnection(connectionString);
+        {
+            return new SqlConnection(connectionString);
+        }
     }
 }

@@ -25,11 +25,11 @@ public partial class League
     [ValidateNever]
     public virtual Season? LastSeasonIdNavigation { get; set; }
 
-    public virtual ICollection<Conference> Conferences { get; set; } = new List<Conference>();
+    public virtual ICollection<Conference> Conferences { get; set; } = [];
 
-    public virtual ICollection<Division> Divisions { get; set; } = new List<Division>();
+    public virtual ICollection<Division> Divisions { get; set; } = [];
 
-    public virtual ICollection<LeagueSeason> LeagueSeasons { get; set; } = new List<LeagueSeason>();
+    public virtual ICollection<LeagueSeason> LeagueSeasons { get; set; } = [];
 
-    public virtual ICollection<TeamSeason> TeamSeasons { get; set; } = new List<TeamSeason>();
+    public virtual ICollection<TeamSeason> TeamSeasons { get; set; } = [];
 }

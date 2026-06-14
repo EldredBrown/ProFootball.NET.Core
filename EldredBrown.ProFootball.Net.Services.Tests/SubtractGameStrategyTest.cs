@@ -9,7 +9,7 @@ using Xunit;
 using EldredBrown.ProFootball.Net.Data.Exceptions;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
-using EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy;
+using EldredBrown.ProFootball.Net.Services.ProcessGameStrategy;
 
 namespace EldredBrown.ProFootball.Net.Services.Tests
 {
@@ -27,17 +27,15 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
         }
 
         [Theory]
-        [InlineData(1, 1, 0, 0, 1, 0, 2, 1, true, 0, 0, 0, 0, 0)]
-        [InlineData(1, 0, 1, 1, 0, 0, 1, 2, true, 0, 0, 0, 0, 0)]
-        [InlineData(1, 0, 0, 0, 0, 1, 1, 1, true, 0, 0, 0, 0, 0)]
-        //[InlineData(3, 1, 1, 1, 1, 1, 2, 1, false, 0, 1, 1, 0, 1)]
-        //[InlineData(3, 1, 1, 1, 1, 1, 1, 2, false, 1, 0, 0, 1, 1)]
-        [InlineData(3, 1, 1, 1, 1, 1, 1, 1, true, 1, 1, 1, 1, 0)]
-        public void ProcessGame_WhenGuestAndHostSeasonsFound_ShouldUpdateTeamSeasonsWithCorrectData(
-            int games, int guestWins, int guestLosses, int hostWins, int hostLosses, int ties, int guestScore,
-            int hostScore, bool isTie, int expGuestWins, int expGuestLosses, int expHostWins, int expHostLosses,
-            int expTies
-        )
+        [InlineData(1, 1, 0, 0, 1, 0, 2, 1, 0, 0, 0, 0, 0)]
+        [InlineData(1, 0, 1, 1, 0, 0, 1, 2, 0, 0, 0, 0, 0)]
+        [InlineData(1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0)]
+        //[InlineData(3, 1, 1, 1, 1, 1, 2, 1, 0, 1, 1, 0, 1)]
+        //[InlineData(3, 1, 1, 1, 1, 1, 1, 2, 1, 0, 0, 1, 1)]
+        [InlineData(3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)]
+        public void ProcessGame_WhenGuestAndHostSeasonsFound_ShouldUpdateTeamSeasonsWithCorrectData(int games, 
+            int guestWins, int guestLosses, int hostWins, int hostLosses, int ties, int guestScore, int hostScore,
+            int expGuestWins, int expGuestLosses, int expHostWins, int expHostLosses, int expTies)
         {
             // Arrange
             var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
@@ -64,7 +62,7 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
                 PointsAgainst = points
             };
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(An<int>.Ignored))
-                .Returns(new List<TeamSeason> { guestSeason, hostSeason });
+                .Returns([guestSeason, hostSeason]);
 
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var guestName = "Guest";
@@ -134,7 +132,7 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             var guestSeason = new TeamSeason { TeamId = 1 };
             var hostSeason = new TeamSeason { TeamId = 2 };
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(An<int>.Ignored))
-                .Returns(new List<TeamSeason> { guestSeason, hostSeason });
+                .Returns([guestSeason, hostSeason]);
 
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             A.CallTo(() => fakeTeamRepository.GetTeam(An<int>.Ignored)).Returns(null);
@@ -169,7 +167,7 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             var guestSeason = new TeamSeason { TeamId = 1 };
             var hostSeason = new TeamSeason { TeamId = 2 };
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(An<int>.Ignored))
-                .Returns(new List<TeamSeason> { guestSeason, hostSeason });
+                .Returns([guestSeason, hostSeason]);
 
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var guestName = "Guest";
@@ -209,7 +207,7 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             int games, int guestWins, int guestLosses, int hostWins, int hostLosses, int ties, int guestScore,
             int hostScore, bool isTie, int expGuestWins, int expGuestLosses, int expHostWins, int expHostLosses,
             int expTies
-        )
+            )
         {
             // Arrange
             var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
@@ -307,7 +305,7 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             var guestSeason = new TeamSeason { TeamId = 1 };
             var hostSeason = new TeamSeason { TeamId = 2 };
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
-                .Returns(new List<TeamSeason> { guestSeason, hostSeason });
+                .Returns([guestSeason, hostSeason]);
 
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).Returns<Team>(null!);
@@ -342,7 +340,7 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             var guestSeason = new TeamSeason { TeamId = 1 };
             var hostSeason = new TeamSeason { TeamId = 2 };
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
-                .Returns(new List<TeamSeason> { guestSeason, hostSeason });
+                .Returns([guestSeason, hostSeason]);
 
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var guestName = "Guest";

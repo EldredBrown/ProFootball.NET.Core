@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+
 using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Data.Repositories

@@ -1,5 +1,4 @@
 ﻿using System;
-
 using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Services

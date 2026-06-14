@@ -2,28 +2,21 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-using EldredBrown.ProFootball.Net.Data.Exceptions;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 using EldredBrown.ProFootball.Net.Services.Utilities;
 
-namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
+namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
 {
-    public class ProcessGameStrategyBase
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProcessGameStrategyBase"/> class.
+    /// </summary>
+    /// <param name="teamRepository">The repository by which team data will be accessed.</param>
+    /// <param name="teamSeasonRepository">The repository by which team season data will be accessed.</param>
+    public class ProcessGameStrategyBase(ITeamRepository teamRepository, ITeamSeasonRepository teamSeasonRepository)
     {
-        protected readonly ITeamRepository _teamRepository;
-        protected readonly ITeamSeasonRepository _teamSeasonRepository;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ProcessGameStrategyBase"/> class.
-        /// </summary>
-        /// <param name="teamRepository">The repository by which team data will be accessed.</param>
-        /// <param name="teamSeasonRepository">The repository by which team season data will be accessed.</param>
-        public ProcessGameStrategyBase(ITeamRepository teamRepository, ITeamSeasonRepository teamSeasonRepository)
-        {
-            _teamRepository = teamRepository;
-            _teamSeasonRepository = teamSeasonRepository;
-        }
+        protected readonly ITeamRepository _teamRepository = teamRepository;
+        protected readonly ITeamSeasonRepository _teamSeasonRepository = teamSeasonRepository;
 
         /// <summary>
         /// Processes a <see cref="Game"/> entity into the Teams data store.

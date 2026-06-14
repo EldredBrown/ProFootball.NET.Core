@@ -8,7 +8,7 @@ using Xunit;
 
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
-using EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy;
+using EldredBrown.ProFootball.Net.Services.ProcessGameStrategy;
 
 namespace EldredBrown.ProFootball.Net.Services.Tests
 {
@@ -39,8 +39,8 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
-                new Team { Id = 1, Name = "Guest" },
-                new Team { Id = 2, Name = "Host" },
+                new() { Id = 1, Name = "Guest" },
+                new() { Id = 2, Name = "Host" },
             };
             A.CallTo(() => fakeTeamRepository.GetTeam(An<int>.Ignored)).ReturnsNextFromSequence(teams.ToArray());
 
@@ -64,13 +64,6 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeTeamRepository.GetTeam(1)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeTeamRepository.GetTeam(2)).MustHaveHappenedOnceExactly();
-
-            //UpdateGamesForTeamSeasons(guestSeason, hostSeason);
-            //UpdateWinsLossesAndTiesForTeamSeasons(guestSeason, hostSeason, game);
-            //EditScoringData(guestSeason, hostSeason, game.GuestScore, game.HostScore);
-
-            //_teamSeasonRepository.Update(guestSeason);
-            //_teamSeasonRepository.Update(hostSeason);
         }
 
         [Fact]
@@ -90,8 +83,8 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
-                new Team { Id = 1, Name = "Guest" },
-                new Team { Id = 2, Name = "Host" },
+                new() { Id = 1, Name = "Guest" },
+                new() { Id = 2, Name = "Host" },
             };
             A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).ReturnsNextFromSequence(teams.ToArray());
 
@@ -110,13 +103,6 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeTeamRepository.GetTeam(1)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeTeamRepository.GetTeam(2)).MustHaveHappenedOnceExactly();
-
-            //UpdateGamesForTeamSeasons(guestSeason, hostSeason);
-            //UpdateWinsLossesAndTiesForTeamSeasons(guestSeason, hostSeason, game);
-            //EditScoringData(guestSeason, hostSeason, game.GuestScore, game.HostScore);
-
-            //_teamSeasonRepository.Update(guestSeason);
-            //_teamSeasonRepository.Update(hostSeason);
         }
     }
 }

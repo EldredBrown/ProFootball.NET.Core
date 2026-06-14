@@ -1,4 +1,4 @@
-﻿namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
+﻿namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
 {
     public interface IProcessGameStrategyFactory
     {

@@ -21,7 +21,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             var expected = new List<StandingsTeamSeason>
             {
-                new() { }
+                new()
             };
             _testRepository.SeasonStandingsToReturn = expected;
 
@@ -42,7 +42,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             var expected = new List<StandingsTeamSeason>
             {
-                new() { }
+                new()
             };
             _testRepository.SeasonStandingsToReturn = expected;
 

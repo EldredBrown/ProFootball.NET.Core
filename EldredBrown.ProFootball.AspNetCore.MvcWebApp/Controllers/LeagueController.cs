@@ -14,48 +14,33 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     /// <summary>
     /// Provides control of the flow of execution for views of league data.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="LeagueController"/> class.
+    /// </remarks>
+    /// <param name="leagueIndexViewModel">
+    /// The <see cref="ILeagueIndexViewModel"/> that will provide ViewModel data to the Index view.
+    /// </param>
+    /// <param name="leagueDetailsViewModel">
+    /// The <see cref="ILeaguesDetailsViewModel"/> that will provide ViewModel data to the Details view.
+    /// </param>
+    /// <param name="leagueViewModelMapper">
+    /// The <see cref="ILeagueViewModelMapper"/> by which league data will be mapped to view models.
+    /// </param>
+    /// <param name="leagueRepository">
+    /// The <see cref="ILeagueRepository"/> by which league data will be accessed.
+    /// </param>
+    /// <param name="sharedRepository">
+    /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
+    /// </param>
     //[Authorize(Roles = "Admin")]
-    public class LeagueController : Controller
+    public class LeagueController(
+        ILeagueIndexViewModel leagueIndexViewModel,
+        ILeagueDetailsViewModel leagueDetailsViewModel,
+        ILeagueViewModelMapper leagueViewModelMapper,
+        ILeagueRepository leagueRepository,
+        ISharedRepository sharedRepository
+        ) : Controller
     {
-        private readonly ILeagueIndexViewModel _leagueIndexViewModel;
-        private readonly ILeagueDetailsViewModel _leagueDetailsViewModel;
-        private readonly ILeagueViewModelMapper _leagueViewModelMapper;
-        private readonly ILeagueRepository _leagueRepository;
-        private readonly ISharedRepository _sharedRepository;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LeagueController"/> class.
-        /// </summary>
-        /// <param name="leagueIndexViewModel">
-        /// The <see cref="ILeagueIndexViewModel"/> that will provide ViewModel data to the Index view.
-        /// </param>
-        /// <param name="leagueDetailsViewModel">
-        /// The <see cref="ILeaguesDetailsViewModel"/> that will provide ViewModel data to the Details view.
-        /// </param>
-        /// <param name="leagueViewModelMapper">
-        /// The <see cref="ILeagueViewModelMapper"/> by which league data will be mapped to view models.
-        /// </param>
-        /// <param name="leagueRepository">
-        /// The <see cref="ILeagueRepository"/> by which league data will be accessed.
-        /// </param>
-        /// <param name="sharedRepository">
-        /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
-        /// </param>
-        public LeagueController(
-            ILeagueIndexViewModel leagueIndexViewModel,
-            ILeagueDetailsViewModel leagueDetailsViewModel,
-            ILeagueViewModelMapper leagueViewModelMapper,
-            ILeagueRepository leagueRepository,
-            ISharedRepository sharedRepository
-        )
-        {
-            _leagueIndexViewModel = leagueIndexViewModel;
-            _leagueDetailsViewModel = leagueDetailsViewModel;
-            _leagueViewModelMapper = leagueViewModelMapper;
-            _leagueRepository = leagueRepository;
-            _sharedRepository = sharedRepository;
-        }
-
         // GET: Leagues
         /// <summary>
         /// Renders a view of the Leagues list.
@@ -64,13 +49,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var leagues = await _leagueRepository.GetLeaguesAsync();
-            _leagueIndexViewModel.Leagues = leagues
-                .Select(l => _leagueViewModelMapper.MapLeagueToViewModel(l))
+            var leagues = await leagueRepository.GetLeaguesAsync();
+            leagueIndexViewModel.Leagues = leagues
+                .Select(l => leagueViewModelMapper.MapLeagueToViewModel(l))
                 .OrderBy(l => l.ShortName)
                 .ToList();
 
-            return View(_leagueIndexViewModel);
+            return View(leagueIndexViewModel);
         }
 
         // GET: Leagues/Details/5
@@ -87,15 +72,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var league = await _leagueRepository.GetLeagueAsync(id.Value);
+            var league = await leagueRepository.GetLeagueAsync(id.Value);
             if (league is null)
             {
                 return NotFound();
             }
 
-            _leagueDetailsViewModel.League = _leagueViewModelMapper.MapLeagueToViewModel(league);
+            leagueDetailsViewModel.League = leagueViewModelMapper.MapLeagueToViewModel(league);
 
-            return View(_leagueDetailsViewModel);
+            return View(leagueDetailsViewModel);
         }
 
         // GET: Leagues/Create
@@ -123,12 +108,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var league = await _leagueViewModelMapper.MapViewModelToLeague(leagueViewModel);
-                await _leagueRepository.AddAsync(league);
+                var league = await leagueViewModelMapper.MapViewModelToLeague(leagueViewModel);
+                await leagueRepository.AddAsync(league);
 
                 try
                 {
-                    await _sharedRepository.SaveChangesAsync();
+                    await sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateException ex)
                 {
@@ -155,7 +140,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var league = await _leagueRepository.GetLeagueAsync(id.Value);
+            var league = await leagueRepository.GetLeagueAsync(id.Value);
             if (league is null)
             {
                 return NotFound();
@@ -184,16 +169,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
             if (ModelState.IsValid)
             {
-                var league = await _leagueViewModelMapper.MapViewModelToLeague(leagueViewModel);
-                _leagueRepository.Update(league);
+                var league = await leagueViewModelMapper.MapViewModelToLeague(leagueViewModel);
+                leagueRepository.Update(league);
 
                 try
                 {
-                    await _sharedRepository.SaveChangesAsync();
+                    await sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!(await _leagueRepository.LeagueExistsAsync(league.Id)))
+                    if (!(await leagueRepository.LeagueExistsAsync(league.Id)))
                     {
                         return NotFound();
                     }
@@ -227,13 +212,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var league = await _leagueRepository.GetLeagueAsync(id.Value);
+            var league = await leagueRepository.GetLeagueAsync(id.Value);
             if (league is null)
             {
                 return NotFound();
             }
 
-            var leagueViewModel = _leagueViewModelMapper.MapLeagueToViewModel(league);
+            var leagueViewModel = leagueViewModelMapper.MapLeagueToViewModel(league);
             return View(leagueViewModel);
         }
 
@@ -247,15 +232,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _leagueRepository.DeleteAsync(id);
-            await _sharedRepository.SaveChangesAsync();
+            await leagueRepository.DeleteAsync(id);
+            await sharedRepository.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
 
         private async Task HandleDbUpdateExceptionOnCreate(DbUpdateException ex, League league)
         {
-            var leagues = await _leagueRepository.GetLeaguesAsync();
+            var leagues = await leagueRepository.GetLeaguesAsync();
             var errMsgIntro = "Unable to save changes.";
 
             if (PrimaryKeyViolationExists(leagues, league))
@@ -298,7 +283,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task HandleDbUpdateExceptionOnEdit(DbUpdateException ex, League league)
         {
-            var leagues = await _leagueRepository.GetLeaguesAsync();
+            var leagues = await leagueRepository.GetLeaguesAsync();
             var errMsgIntro = "Unable to save changes.";
 
             if (UniqueKeyShortNameViolationExistsOnEdit(leagues, league))

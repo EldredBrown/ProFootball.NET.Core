@@ -28,9 +28,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamSeasonViewModelMapper = A.Fake<ITeamSeasonViewModelMapper>();
             var teamSeasonViewModels = new List<TeamSeasonViewModel>
             {
-                new TeamSeasonViewModel { Id = 1 },
-                new TeamSeasonViewModel { Id = 2 },
-                new TeamSeasonViewModel { Id = 3 },
+                new() { Id = 1 },
+                new() { Id = 2 },
+                new() { Id = 3 },
             };
             A.CallTo(() => fakeTeamSeasonViewModelMapper.MapTeamSeasonToViewModel(A<TeamSeason>.Ignored))
                 .ReturnsNextFromSequence(teamSeasonViewModels.ToArray());
@@ -38,9 +38,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var teamSeasons = new List<TeamSeason>
             {
-                new TeamSeason { Id = 1 },
-                new TeamSeason { Id = 2 },
-                new TeamSeason { Id = 3 },
+                new() { Id = 1 },
+                new() { Id = 2 },
+                new() { Id = 3 },
             };
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsAsync()).Returns(teamSeasons);
 
@@ -221,9 +221,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var teamSeasons = new List<TeamSeason>
             {
-                new TeamSeason { Id = 1 },
-                new TeamSeason { Id = 2 },
-                new TeamSeason { Id = 3 },
+                new() { Id = 1 },
+                new() { Id = 2 },
+                new() { Id = 3 },
             };
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsAsync()).Returns(teamSeasons);
 
@@ -269,9 +269,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var teamSeasons = new List<TeamSeason>
             {
-                new TeamSeason { Id = 1, TeamId = 1, SeasonId = 1920 },
-                new TeamSeason { Id = 2, TeamId = 2, SeasonId = 1920 },
-                new TeamSeason { Id = 3, TeamId = 3, SeasonId = 1920 },
+                new() { Id = 1, TeamId = 1, SeasonId = 1920 },
+                new() { Id = 2, TeamId = 2, SeasonId = 1920 },
+                new() { Id = 3, TeamId = 3, SeasonId = 1920 },
             };
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsAsync()).Returns(teamSeasons);
 
@@ -436,7 +436,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamSeasonViewModelMapper = A.Fake<ITeamSeasonViewModelMapper>();
 
             var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            TeamSeason? teamSeason = new TeamSeason { };
+            TeamSeason? teamSeason = new();
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonAsync(An<int>.Ignored)).Returns(teamSeason);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
@@ -651,9 +651,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var teamSeasons = new List<TeamSeason>
             {
-                new TeamSeason { Id = 1, TeamId = 1, SeasonId = 1920 },
-                new TeamSeason { Id = 2, TeamId = 3, SeasonId = 1921 },
-                new TeamSeason { Id = 3, TeamId = 3, SeasonId = 1921 },
+                new() { Id = 1, TeamId = 1, SeasonId = 1920 },
+                new() { Id = 2, TeamId = 3, SeasonId = 1921 },
+                new() { Id = 3, TeamId = 3, SeasonId = 1921 },
             };
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsAsync()).Returns(teamSeasons);
 
@@ -822,7 +822,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 .Returns(teamSeasonViewModel);
 
             var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            TeamSeason? teamSeason = new TeamSeason { };
+            TeamSeason? teamSeason = new();
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonAsync(An<int>.Ignored)).Returns(teamSeason);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();

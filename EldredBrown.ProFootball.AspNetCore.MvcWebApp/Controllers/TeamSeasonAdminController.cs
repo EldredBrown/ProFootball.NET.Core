@@ -41,7 +41,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         ISharedRepository sharedRepository
         ) : Controller
     {
-
         // GET: TeamSeasons
         /// <summary>
         /// Renders a view of the TeamSeasons list.

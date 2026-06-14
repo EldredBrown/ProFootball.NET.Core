@@ -51,7 +51,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
 
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = new Season();
+            Season? season = new();
             A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
@@ -164,9 +164,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>
             {
-                new Season { Id = 1920 },
-                new Season { Id = 1921 },
-                new Season { Id = 1922 },
+                new() { Id = 1920 },
+                new() { Id = 1921 },
+                new() { Id = 1922 },
             };
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
@@ -203,9 +203,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>
             {
-                new Season { Id = 1920 },
-                new Season { Id = 1921 },
-                new Season { Id = 1922 },
+                new() { Id = 1920 },
+                new() { Id = 1921 },
+                new() { Id = 1922 },
             };
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 

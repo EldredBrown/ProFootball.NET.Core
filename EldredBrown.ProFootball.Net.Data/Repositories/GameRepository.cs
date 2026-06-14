@@ -13,19 +13,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
     /// <summary>
     /// Provides CRUD access to an external <see cref="Game"/> data store.
     /// </summary>
-    public class GameRepository : IGameRepository
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="GameRepository"/> class.
+    /// </remarks>
+    /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
+    public class GameRepository(ProFootballDbContext dbContext) : IGameRepository
     {
-        private readonly ProFootballDbContext _dbContext;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GameRepository"/> class.
-        /// </summary>
-        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
-        public GameRepository(ProFootballDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         /// <summary>
         /// Gets all <see cref="Game"/> entities in the data store.
         /// </summary>
@@ -152,12 +145,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(game);
 
-            if (_dbContext.Games is null)
+            if (dbContext.Games is null)
             {
                 return game;
             }
 
-            _dbContext.Add(game);
+            dbContext.Add(game);
             return game;
         }
 
@@ -170,12 +163,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(game);
 
-            if (_dbContext.Games is null)
+            if (dbContext.Games is null)
             {
                 return game;
             }
 
-            await _dbContext.AddAsync(game);
+            await dbContext.AddAsync(game);
             return game;
         }
 
@@ -188,12 +181,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(game);
 
-            if (_dbContext.Games is null)
+            if (dbContext.Games is null)
             {
                 return game;
             }
 
-            _dbContext.Update(game);
+            dbContext.Update(game);
             return game;
         }
 
@@ -204,7 +197,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The deleted <see cref="Game"/> entity.</returns>
         public Game? Delete(int id)
         {
-            if (_dbContext.Games is null)
+            if (dbContext.Games is null)
             {
                 return null;
             }
@@ -215,7 +208,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Remove(game);
+            dbContext.Remove(game);
             return game;
         }
 
@@ -226,7 +219,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The deleted <see cref="Game"/> entity.</returns>
         public async Task<Game?> DeleteAsync(int id)
         {
-            if (_dbContext.Games is null)
+            if (dbContext.Games is null)
             {
                 return null;
             }
@@ -237,7 +230,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Remove(game);
+            dbContext.Remove(game);
             return game;
         }
 
@@ -279,7 +272,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
 
         private IIncludableQueryable<Game, Season?>? GetGamesDbSetWithNavigationProperties()
         {
-            return _dbContext.Games?
+            return dbContext.Games?
                 .Include(ts => ts.SeasonIdNavigation);
         }
     }

@@ -7,19 +7,12 @@ using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Data.Repositories
 {
-    public class LeagueSeasonTotalsRepository : ILeagueSeasonTotalsRepository
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LeagueSeasonTotalsRepository"/> class.
+    /// </summary>
+    /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
+    public class LeagueSeasonTotalsRepository(ProFootballDbContext dbContext) : ILeagueSeasonTotalsRepository
     {
-        private readonly ProFootballDbContext _dbContext;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LeagueSeasonTotalsRepository"/> class.
-        /// </summary>
-        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
-        public LeagueSeasonTotalsRepository(ProFootballDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         /// <summary>
         /// Gets a single <see cref="LeagueSeasonTotals"/> entity from the data store by league name and season
         /// year.
@@ -54,7 +47,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
 
         protected virtual LeagueSeasonTotals? ExecuteGetLeagueSeasonTotals(int leagueId, int seasonId)
         {
-            return _dbContext.LeagueSeasonTotals
+            return dbContext.LeagueSeasonTotals
                 .FromSqlInterpolated(
                     $"EXEC sp_GetLeagueSeasonTotals @leagueId = {leagueId}, @seasonId = {seasonId}")
                 .ToList()
@@ -63,7 +56,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
 
         protected virtual async Task<LeagueSeasonTotals?> ExecuteGetLeagueSeasonTotalsAsync(int leagueId, int seasonId)
         {
-            return (await _dbContext.LeagueSeasonTotals
+            return (await dbContext.LeagueSeasonTotals
                 .FromSqlInterpolated(
                     $"EXEC sp_GetLeagueSeasonTotals @league_id = {leagueId}, @season_id = {seasonId}")
                 .ToListAsync())

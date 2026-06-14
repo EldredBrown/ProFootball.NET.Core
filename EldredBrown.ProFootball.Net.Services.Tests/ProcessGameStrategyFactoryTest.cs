@@ -3,7 +3,7 @@ using Shouldly;
 using Xunit;
 
 using EldredBrown.ProFootball.Net.Data.Repositories;
-using EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy;
+using EldredBrown.ProFootball.Net.Services.ProcessGameStrategy;
 
 namespace EldredBrown.ProFootball.Net.Services.Tests
 {

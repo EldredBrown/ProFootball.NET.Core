@@ -8,8 +8,7 @@ using Xunit;
 using EldredBrown.ProFootball.Net.Data.Exceptions;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
-using EldredBrown.ProFootball.Net.Services.GameServiceNS;
-using EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy;
+using EldredBrown.ProFootball.Net.Services.ProcessGameStrategy;
 
 namespace EldredBrown.ProFootball.Net.Services.Tests
 {

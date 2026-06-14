@@ -1,8 +1,7 @@
 ﻿using System.Threading.Tasks;
-
 using EldredBrown.ProFootball.Net.Data.Models;
 
-namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
+namespace EldredBrown.ProFootball.Net.Services
 {
     /// <summary>
     /// Interface for services that will add, edit, and delete game data in the data store.

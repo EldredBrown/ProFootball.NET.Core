@@ -500,7 +500,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(selectedRankingType.Value);
 
             // Verify GetSeasonRankingsAsync().
-            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBeEquivalentTo(new List<IRankingsTeamSeason>());
+            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBe([]);
 
             // Verify result.
             result.ShouldBeOfType<ViewResult>();
@@ -619,7 +619,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(selectedRankingType.Value);
 
             // Verify GetSeasonRankingsAsync().
-            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBeEquivalentTo(new List<IRankingsTeamSeason>());
+            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBe([]);
 
             // Verify result.
             result.ShouldBeOfType<ViewResult>();
@@ -630,8 +630,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         [InlineData("")]
         [InlineData(null!)]
         public async Task Index_WhenSelectedSelectedLeagueNameIsNullOrEmpty_ShouldSetSelectedValuesAndReturnSeasonRankingsIndexView(
-            string selectedLeagueName
-        )
+            string selectedLeagueName)
         {
             // Arrange
             // Set up SeasonRankingsIndexViewModel.
@@ -743,7 +742,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(selectedRankingType.Value);
 
             // Verify GetSeasonRankingsAsync().
-            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBeEquivalentTo(new List<IRankingsTeamSeason>());
+            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBe([]);
 
             // Verify result.
             result.ShouldBeOfType<ViewResult>();
@@ -868,10 +867,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             fakeSeasonRankingsIndexViewModel.RankingTypes.DataTextField.ShouldBe<string>("Text");
             fakeSeasonRankingsIndexViewModel.RankingTypes.SelectedValue.ShouldBe(defaultRankingType);
             fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(defaultRankingType);
-            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBeEquivalentTo(new List<IRankingsTeamSeason>());
+            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBe([]);
 
             // Verify GetSeasonRankingsAsync().
-            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBeEquivalentTo(new List<IRankingsTeamSeason>());
+            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBe([]);
 
             // Verify result.
             result.ShouldBeOfType<ViewResult>();

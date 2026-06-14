@@ -346,7 +346,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            Season? season = new Season { };
+            Season? season = new();
 
             // Act
             var updated = testRepository.Update(season);
@@ -362,7 +362,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            Season? season = new Season { };
+            Season? season = new();
 
             // Act
             var updated = testRepository.Update(season);
@@ -655,9 +655,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
             var seasons = new List<Season>
             {
-                new Season { Id = 1920 },
-                new Season { Id = 1921 },
-                new Season { Id = 1922 },
+                new() { Id = 1920 },
+                new() { Id = 1921 },
+                new() { Id = 1922 },
             };
             var fakeDbSet = seasons.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.Seasons).Returns(fakeDbSet);

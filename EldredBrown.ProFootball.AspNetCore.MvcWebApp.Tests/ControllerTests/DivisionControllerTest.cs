@@ -28,9 +28,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
             var divisionViewModels = new List<DivisionViewModel>
             {
-                new DivisionViewModel { Id = 1 },
-                new DivisionViewModel { Id = 2 },
-                new DivisionViewModel { Id = 3 },
+                new() { Id = 1 },
+                new() { Id = 2 },
+                new() { Id = 3 },
             };
             A.CallTo(() => fakeDivisionViewModelMapper.MapDivisionToViewModel(A<Division>.Ignored))
                 .ReturnsNextFromSequence(divisionViewModels.ToArray());
@@ -38,9 +38,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
-                new Division { Id = 1 },
-                new Division { Id = 2 },
-                new Division { Id = 3 },
+                new() { Id = 1 },
+                new() { Id = 2 },
+                new() { Id = 3 },
             };
             A.CallTo(() => fakeDivisionRepository.GetDivisionsAsync()).Returns(divisions);
 
@@ -215,19 +215,19 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
-                new Division
+                new()
                 {
                     Id = 1,
                     Name = "Division 1",
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 2,
                     Name = "Division 2",
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 3,
                     Name = "Division 3",
@@ -283,7 +283,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
-                new Division
+                new()
                 {
                     Id = 1,
                     Name = "Division 1",
@@ -291,7 +291,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 2,
                     Name = "Division 2",
@@ -299,7 +299,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 3,
                     Name = "Division 3",
@@ -350,7 +350,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
-                new Division
+                new()
                 {
                     Id = 1,
                     Name = "Division 1",
@@ -358,7 +358,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 2,
                     Name = "Division 2",
@@ -366,7 +366,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 3,
                     Name = "Division 3",
@@ -421,7 +421,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
-                new Division
+                new()
                 {
                     Id = 1,
                     Name = "Division 1",
@@ -429,7 +429,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 2,
                     Name = "Division 2",
@@ -437,7 +437,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 3,
                     Name = "Division 3",
@@ -492,7 +492,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
-                new Division
+                new()
                 {
                     Id = 1,
                     Name = "Division 1",
@@ -500,7 +500,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 2,
                     Name = "Division 2",
@@ -508,7 +508,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 3,
                     Name = "Division 3",
@@ -563,7 +563,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
-                new Division
+                new()
                 {
                     Id = 1,
                     Name = "Division 1",
@@ -571,7 +571,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 2,
                     Name = "Division 2",
@@ -579,7 +579,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 3,
                     Name = "Division 3",
@@ -634,19 +634,19 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
-                new Division
+                new()
                 {
                     Id = 1,
                     Name = "Division 1",
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 2,
                     Name = "Division 2",
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 3,
                     Name = "Division 3",
@@ -721,7 +721,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionViewModelMapper = A.Fake<IDivisionViewModelMapper>();
 
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
-            Division? division = new Division { };
+            Division? division = new();
             A.CallTo(() => fakeDivisionRepository.GetDivisionAsync(An<int>.Ignored)).Returns(division);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
@@ -937,7 +937,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
-                new Division
+                new()
                 {
                     Id = 1,
                     Name = "Division 1",
@@ -945,7 +945,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 2,
                     Name = "Division 3",
@@ -953,7 +953,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 3,
                     Name = "Division 3",
@@ -1004,7 +1004,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
-                new Division
+                new()
                 {
                     Id = 1,
                     Name = "Division 1",
@@ -1012,7 +1012,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 2,
                     Name = "Division 3",
@@ -1020,7 +1020,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 3,
                     Name = "Division 3",
@@ -1075,7 +1075,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
-                new Division
+                new()
                 {
                     Id = 1,
                     Name = "Division 1",
@@ -1083,7 +1083,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 2,
                     Name = "Division 3",
@@ -1091,7 +1091,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 3,
                     Name = "Division 3",
@@ -1146,7 +1146,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
-                new Division
+                new()
                 {
                     Id = 1,
                     Name = "Division 1",
@@ -1154,7 +1154,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 2,
                     Name = "Division 3",
@@ -1162,7 +1162,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 3,
                     Name = "Division 3",
@@ -1217,7 +1217,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
-                new Division
+                new()
                 {
                     Id = 1,
                     Name = "Division 1",
@@ -1225,7 +1225,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 2,
                     Name = "Division 3",
@@ -1233,7 +1233,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 3,
                     Name = "Division 3",
@@ -1288,7 +1288,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
             var divisions = new List<Division>
             {
-                new Division
+                new()
                 {
                     Id = 1,
                     Name = "Division 1",
@@ -1296,7 +1296,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 2,
                     Name = "Division 2",
@@ -1304,7 +1304,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     ConferenceId = 1,
                     FirstSeasonId = 1920
                 },
-                new Division
+                new()
                 {
                     Id = 3,
                     Name = "Division 3",
@@ -1388,7 +1388,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 .Returns(divisionViewModel);
 
             var fakeDivisionRepository = A.Fake<IDivisionRepository>();
-            Division? division = new Division { };
+            Division? division = new();
             A.CallTo(() => fakeDivisionRepository.GetDivisionAsync(An<int>.Ignored)).Returns(division);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();

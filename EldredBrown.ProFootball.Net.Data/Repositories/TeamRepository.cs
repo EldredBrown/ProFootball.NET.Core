@@ -12,26 +12,19 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
     /// <summary>
     /// Provides CRUD access to an external <see cref="Team"/> data store.
     /// </summary>
-    public class TeamRepository : ITeamRepository
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="TeamRepository"/> class.
+    /// </remarks>
+    /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
+    public class TeamRepository(ProFootballDbContext dbContext) : ITeamRepository
     {
-        private readonly ProFootballDbContext _dbContext;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TeamRepository"/> class.
-        /// </summary>
-        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
-        public TeamRepository(ProFootballDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         /// <summary>
         /// Gets all <see cref="Team"/> entities in the data store.
         /// </summary>
         /// <returns>An <see cref="IEnumerable{Team}"/> of all fetched entities.</returns>
         public IEnumerable<Team>? GetTeams()
         {
-            return _dbContext.Teams?.ToList();
+            return dbContext.Teams?.ToList();
         }
 
         /// <summary>
@@ -40,7 +33,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>An <see cref="IEnumerable{Team}"/> of all fetched entities.</returns>
         public async Task<IEnumerable<Team>?> GetTeamsAsync()
         {
-            var teams = _dbContext.Teams;
+            var teams = dbContext.Teams;
             return teams is null ? null : await teams.ToListAsync();
         }
 
@@ -93,12 +86,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(team);
 
-            if (_dbContext.Teams is null)
+            if (dbContext.Teams is null)
             {
                 return team;
             }
 
-            _dbContext.Add(team);
+            dbContext.Add(team);
             return team;
         }
 
@@ -111,12 +104,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(team);
 
-            if (_dbContext.Teams is null)
+            if (dbContext.Teams is null)
             {
                 return team;
             }
 
-            await _dbContext.AddAsync(team);
+            await dbContext.AddAsync(team);
             return team;
         }
 
@@ -129,12 +122,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(team);
 
-            if (_dbContext.Teams is null)
+            if (dbContext.Teams is null)
             {
                 return team;
             }
 
-            _dbContext.Update(team);
+            dbContext.Update(team);
             return team;
         }
 
@@ -145,7 +138,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The deleted <see cref="Team"/> entity.</returns>
         public Team? Delete(int id)
         {
-            if (_dbContext.Teams is null)
+            if (dbContext.Teams is null)
             {
                 return null;
             }
@@ -156,7 +149,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Remove(team);
+            dbContext.Remove(team);
             return team;
         }
 
@@ -167,7 +160,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The deleted <see cref="Team"/> entity.</returns>
         public async Task<Team?> DeleteAsync(int id)
         {
-            if (_dbContext.Teams is null)
+            if (dbContext.Teams is null)
             {
                 return null;
             }
@@ -178,7 +171,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Remove(team);
+            dbContext.Remove(team);
             return team;
         }
 

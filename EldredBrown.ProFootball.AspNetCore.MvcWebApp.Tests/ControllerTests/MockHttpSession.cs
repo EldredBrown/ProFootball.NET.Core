@@ -9,7 +9,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 {
     public class MockHttpSession : ISession
     {
-        private readonly Dictionary<string, byte[]> _store = new Dictionary<string, byte[]>();
+        private readonly Dictionary<string, byte[]> _store = [];
 
         public string Id => Guid.NewGuid().ToString();
         public bool IsAvailable => true;

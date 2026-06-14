@@ -1,22 +1,18 @@
 ﻿using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 
-namespace EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy
+namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
 {
-    public class SubtractGameStrategy : ProcessGameStrategyBase
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SubtractGameStrategy"/> class.
+    /// </summary>
+    /// <param name="teamRepository">The repository by which team data will be accessed.</param>
+    /// <param name="teamSeasonRepository">The repository by which team season data will be accessed.</param>
+    public class SubtractGameStrategy(
+        ITeamRepository teamRepository,
+        ITeamSeasonRepository teamSeasonRepository
+        ) : ProcessGameStrategyBase(teamRepository, teamSeasonRepository)
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SubtractGameStrategy"/> class.
-        /// </summary>
-        /// <param name="teamRepository">The repository by which team data will be accessed.</param>
-        /// <param name="teamSeasonRepository">The repository by which team season data will be accessed.</param>
-        public SubtractGameStrategy(
-            ITeamRepository teamRepository,
-            ITeamSeasonRepository teamSeasonRepository
-        )
-            : base(teamRepository, teamSeasonRepository)
-        { }
-
         protected override void UpdateGamesForTeamSeasons(TeamSeason? guestSeason, TeamSeason? hostSeason)
         {
             if (guestSeason is not null)

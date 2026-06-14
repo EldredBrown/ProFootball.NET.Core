@@ -17,7 +17,7 @@ using EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
-using EldredBrown.ProFootball.Net.Services.GameServiceNS;
+using EldredBrown.ProFootball.Net.Services;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 {
@@ -33,7 +33,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeGameViewModelMapper = A.Fake<IGameViewModelMapper>();
             var gameViewModels = new List<GameViewModel>
             {
-                new GameViewModel
+                new()
                 {
                     Id = 7,
                     SeasonYear = 1922,
@@ -45,7 +45,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new GameViewModel
+                new()
                 {
                     Id = 8,
                     SeasonYear = 1922,
@@ -57,7 +57,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new GameViewModel
+                new()
                 {
                     Id = 9,
                     SeasonYear = 1922,
@@ -78,7 +78,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeGameRepository = A.Fake<IGameRepository>();
             var games = new List<Game>
             {
-                new Game
+                new()
                 {
                     Id = 1,
                     SeasonId = 1920,
@@ -90,7 +90,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 2,
                     SeasonId = 1920,
@@ -102,7 +102,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 3,
                     SeasonId = 1920,
@@ -114,7 +114,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 4,
                     SeasonId = 1921,
@@ -126,7 +126,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 5,
                     SeasonId = 1921,
@@ -138,7 +138,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 6,
                     SeasonId = 1921,
@@ -150,7 +150,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 7,
                     SeasonId = 1922,
@@ -162,7 +162,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 8,
                     SeasonId = 1922,
@@ -174,7 +174,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 9,
                     SeasonId = 1922,
@@ -194,9 +194,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>
             {
-                new Season { Id = 1920, NumOfWeeksScheduled = 3 },
-                new Season { Id = 1921, NumOfWeeksScheduled = 3 },
-                new Season { Id = 1922, NumOfWeeksScheduled = 3 },
+                new() { Id = 1920, NumOfWeeksScheduled = 3 },
+                new() { Id = 1921, NumOfWeeksScheduled = 3 },
+                new() { Id = 1922, NumOfWeeksScheduled = 3 },
             };
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
@@ -265,7 +265,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var selectedSeasonYear = 1920;
             var gameViewModels = new List<GameViewModel>
             {
-                new GameViewModel
+                new()
                 {
                     Id = 1,
                     SeasonYear = selectedSeasonYear,
@@ -277,7 +277,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new GameViewModel
+                new()
                 {
                     Id = 2,
                     SeasonYear = selectedSeasonYear,
@@ -289,7 +289,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new GameViewModel
+                new()
                 {
                     Id = 3,
                     SeasonYear = selectedSeasonYear,
@@ -310,7 +310,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeGameRepository = A.Fake<IGameRepository>();
             var games = new List<Game>
             {
-                new Game
+                new()
                 {
                     Id = 1,
                     SeasonId = 1920,
@@ -322,7 +322,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 2,
                     SeasonId = 1920,
@@ -334,7 +334,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 3,
                     SeasonId = 1920,
@@ -346,7 +346,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 4,
                     SeasonId = 1921,
@@ -358,7 +358,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 5,
                     SeasonId = 1921,
@@ -370,7 +370,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 6,
                     SeasonId = 1921,
@@ -382,7 +382,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 7,
                     SeasonId = 1922,
@@ -394,7 +394,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 8,
                     SeasonId = 1922,
@@ -406,7 +406,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 9,
                     SeasonId = 1922,
@@ -426,9 +426,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>
             {
-                new Season { Id = 1920, NumOfWeeksScheduled = 3 },
-                new Season { Id = 1921, NumOfWeeksScheduled = 3 },
-                new Season { Id = 1922, NumOfWeeksScheduled = 3 },
+                new() { Id = 1920, NumOfWeeksScheduled = 3 },
+                new() { Id = 1921, NumOfWeeksScheduled = 3 },
+                new() { Id = 1922, NumOfWeeksScheduled = 3 },
             };
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
@@ -496,7 +496,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var selectedSeasonYear = 1920;
             var gameViewModels = new List<GameViewModel>
             {
-                new GameViewModel
+                new()
                 {
                     Id = 2,
                     SeasonYear = selectedSeasonYear,
@@ -517,7 +517,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeGameRepository = A.Fake<IGameRepository>();
             var games = new List<Game>
             {
-                new Game
+                new()
                 {
                     Id = 1,
                     SeasonId = 1920,
@@ -529,7 +529,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 2,
                     SeasonId = 1920,
@@ -541,7 +541,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 3,
                     SeasonId = 1920,
@@ -553,7 +553,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 4,
                     SeasonId = 1921,
@@ -565,7 +565,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 5,
                     SeasonId = 1921,
@@ -577,7 +577,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 6,
                     SeasonId = 1921,
@@ -589,7 +589,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 7,
                     SeasonId = 1922,
@@ -601,7 +601,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 8,
                     SeasonId = 1922,
@@ -613,7 +613,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 9,
                     SeasonId = 1922,
@@ -633,9 +633,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>
             {
-                new Season { Id = 1920, NumOfWeeksScheduled = 3 },
-                new Season { Id = 1921, NumOfWeeksScheduled = 3 },
-                new Season { Id = 1922, NumOfWeeksScheduled = 3 },
+                new() { Id = 1920, NumOfWeeksScheduled = 3 },
+                new() { Id = 1921, NumOfWeeksScheduled = 3 },
+                new() { Id = 1922, NumOfWeeksScheduled = 3 },
             };
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
@@ -801,7 +801,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var selectedSeasonYear = 1920;
             var seasons = new List<Season>
             {
-                new Season { Id = selectedSeasonYear, NumOfWeeksScheduled = 3 }
+                new() { Id = selectedSeasonYear, NumOfWeeksScheduled = 3 }
             };
             var selectedSeason = seasons.FirstOrDefault(s => s.Id == selectedSeasonYear);
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
@@ -864,7 +864,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var selectedSeasonYear = 1920;
             var seasons = new List<Season>
             {
-                new Season { Id = selectedSeasonYear, NumOfWeeksScheduled = 3 }
+                new() { Id = selectedSeasonYear, NumOfWeeksScheduled = 3 }
             };
             var selectedSeason = seasons.FirstOrDefault(s => s.Id == selectedSeasonYear);
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
@@ -984,7 +984,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeGameRepository = A.Fake<IGameRepository>();
             var games = new List<Game>
             {
-                new Game
+                new()
                 {
                     Id = 1,
                     SeasonId = 1920,
@@ -996,7 +996,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 2,
                     SeasonId = 1920,
@@ -1008,7 +1008,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 3,
                     SeasonId = 1920,
@@ -1079,7 +1079,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeGameRepository = A.Fake<IGameRepository>();
             var games = new List<Game>
             {
-                new Game
+                new()
                 {
                     Id = 1,
                     SeasonId = 1920,
@@ -1091,7 +1091,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 2,
                     SeasonId = 1920,
@@ -1103,7 +1103,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 3,
                     SeasonId = 1920,
@@ -1163,7 +1163,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeGameRepository = A.Fake<IGameRepository>();
             var games = new List<Game>
             {
-                new Game
+                new()
                 {
                     Id = 1,
                     SeasonId = 1920,
@@ -1175,7 +1175,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 2,
                     SeasonId = 1920,
@@ -1187,7 +1187,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 3,
                     SeasonId = 1920,
@@ -1251,7 +1251,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeGameRepository = A.Fake<IGameRepository>();
             var games = new List<Game>
             {
-                new Game
+                new()
                 {
                     Id = 1,
                     SeasonId = 1920,
@@ -1263,7 +1263,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 2,
                     SeasonId = 1920,
@@ -1275,7 +1275,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 3,
                     SeasonId = 1920,
@@ -1337,7 +1337,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var selectedSeasonYear = 1920;
             var seasons = new List<Season>
             {
-                new Season { Id = selectedSeasonYear, NumOfWeeksScheduled = 3 }
+                new() { Id = selectedSeasonYear, NumOfWeeksScheduled = 3 }
             };
             var selectedSeason = seasons.FirstOrDefault(s => s.Id == selectedSeasonYear);
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
@@ -1407,7 +1407,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeGameService = A.Fake<IGameService>();
 
             var fakeGameRepository = A.Fake<IGameRepository>();
-            Game? game = new Game { };
+            Game? game = new();
             A.CallTo(() => fakeGameRepository.GetGameAsync(An<int>.Ignored)).Returns(game);
 
             var fakeTeamRepository = A.Fake<ITeamRepository>();
@@ -1415,9 +1415,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>
             {
-                new Season { Id = 1920, NumOfWeeksScheduled = 3 },
-                new Season { Id = 1921, NumOfWeeksScheduled = 3 },
-                new Season { Id = 1922, NumOfWeeksScheduled = 3 },
+                new() { Id = 1920, NumOfWeeksScheduled = 3 },
+                new() { Id = 1921, NumOfWeeksScheduled = 3 },
+                new() { Id = 1922, NumOfWeeksScheduled = 3 },
             };
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
@@ -1736,7 +1736,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeGameRepository = A.Fake<IGameRepository>();
             var games = new List<Game>
             {
-                new Game
+                new()
                 {
                     Id = 1,
                     SeasonId = 1920,
@@ -1748,7 +1748,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 2,
                     SeasonId = 1920,
@@ -1760,7 +1760,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 3,
                     SeasonId = 1920,
@@ -1832,7 +1832,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeGameRepository = A.Fake<IGameRepository>();
             var games = new List<Game>
             {
-                new Game
+                new()
                 {
                     Id = 1,
                     SeasonId = 1920,
@@ -1844,7 +1844,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 2,
                     SeasonId = 1920,
@@ -1856,7 +1856,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 3,
                     SeasonId = 1920,
@@ -1932,7 +1932,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeGameRepository = A.Fake<IGameRepository>();
             var games = new List<Game>
             {
-                new Game
+                new()
                 {
                     Id = 1,
                     SeasonId = 1920,
@@ -1944,7 +1944,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 2,
                     SeasonId = 1920,
@@ -1956,7 +1956,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     IsPlayoff = false,
                     Notes = "Notes"
                 },
-                new Game
+                new()
                 {
                     Id = 3,
                     SeasonId = 1920,
@@ -2065,7 +2065,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeGameService = A.Fake<IGameService>();
 
             var fakeGameRepository = A.Fake<IGameRepository>();
-            Game? game = new Game { };
+            Game? game = new();
             A.CallTo(() => fakeGameRepository.GetGameAsync(An<int>.Ignored)).Returns(game);
 
             var fakeTeamRepository = A.Fake<ITeamRepository>();

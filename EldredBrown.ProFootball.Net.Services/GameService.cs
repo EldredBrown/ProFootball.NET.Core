@@ -3,37 +3,22 @@
 using EldredBrown.ProFootball.Net.Data.Exceptions;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
-using EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy;
+using EldredBrown.ProFootball.Net.Services.ProcessGameStrategy;
 using EldredBrown.ProFootball.Net.Services.Utilities;
 
-namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
+namespace EldredBrown.ProFootball.Net.Services
 {
     /// <summary>
     /// Service to handle the more complicated actions of adding, editing, or deleting games in the data store.
     /// </summary>
-    public class GameService : IGameService
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="GameService"/> class.
+    /// </remarks>
+    /// <param name="gameRepository">The repository by which game data will be accessed.</param>
+    /// <param name="processGameStrategyFactory">The factory that will initialize the needed <see cref="ProcessGameStrategyBase"/> subclass.</param>
+    public class GameService(IGameRepository gameRepository, IProcessGameStrategyFactory processGameStrategyFactory)
+        : IGameService
     {
-        private readonly IGameRepository _gameRepository;
-        //private readonly ITeamSeasonRepository _teamSeasonRepository;
-        private readonly IProcessGameStrategyFactory _processGameStrategyFactory;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GameService"/> class.
-        /// </summary>
-        /// <param name="gameRepository">The repository by which game data will be accessed.</param>
-        /// <param name="teamSeasonRepository">The repository by which team season data will be accessed.</param>
-        /// <param name="processGameStrategyFactory">The factory that will initialize the needed <see cref="ProcessGameStrategyBase"/> subclass.</param>
-        public GameService(
-            IGameRepository gameRepository,
-            //ITeamSeasonRepository teamSeasonRepository,
-            IProcessGameStrategyFactory processGameStrategyFactory
-        )
-        {
-            _gameRepository = gameRepository;
-            //_teamSeasonRepository = teamSeasonRepository;
-            _processGameStrategyFactory = processGameStrategyFactory;
-        }
-
         /// <summary>
         /// Adds a <see cref="Game"/> entity to the data store.
         /// </summary>
@@ -44,7 +29,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
 
             //await ValidateTeamsInNewGameAsync(newGame);
 
-            _gameRepository.Add(newGame);
+            gameRepository.Add(newGame);
 
             EditTeamSeasons(Direction.Up, newGame);
         }
@@ -59,7 +44,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
 
             //await ValidateTeamsInNewGameAsync(newGame);
 
-            await _gameRepository.AddAsync(newGame);
+            await gameRepository.AddAsync(newGame);
             await EditTeamSeasonsAsync(Direction.Up, newGame);
         }
 
@@ -75,7 +60,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
 
             //await ValidateTeamsInNewGameAsync(newGame);
 
-            var selectedGame = _gameRepository.GetGame(newGame.Id);
+            var selectedGame = gameRepository.GetGame(newGame.Id);
             if (selectedGame is null)
             {
                 throw new EntityNotFoundException(
@@ -84,7 +69,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
 
             selectedGame.Edit(newGame);
 
-            _gameRepository.Update(selectedGame);
+            gameRepository.Update(selectedGame);
 
             EditTeamSeasons(Direction.Down, oldGame);
             EditTeamSeasons(Direction.Up, newGame);
@@ -102,7 +87,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
 
             //await ValidateTeamsInNewGameAsync(newGame);
 
-            var selectedGame = await _gameRepository.GetGameAsync(newGame.Id);
+            var selectedGame = await gameRepository.GetGameAsync(newGame.Id);
             if (selectedGame is null)
             {
                 throw new EntityNotFoundException(
@@ -111,7 +96,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
 
             selectedGame.Edit(newGame);
 
-            _gameRepository.Update(selectedGame);
+            gameRepository.Update(selectedGame);
 
             await EditTeamSeasonsAsync(Direction.Down, oldGame);
             await EditTeamSeasonsAsync(Direction.Up, newGame);
@@ -123,7 +108,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
         /// <param name="id">The Id of the <see cref="Game"/> entity to delete.</param>
         public void DeleteGame(int id)
         {
-            var oldGame = _gameRepository.GetGame(id);
+            var oldGame = gameRepository.GetGame(id);
             if (oldGame is null)
             {
                 throw new EntityNotFoundException(
@@ -132,7 +117,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
 
             EditTeamSeasons(Direction.Down, oldGame);
 
-            _gameRepository.Delete(id);
+            gameRepository.Delete(id);
         }
 
         /// <summary>
@@ -141,7 +126,7 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
         /// <param name="id">The Id of the <see cref="Game"/> entity to delete.</param>
         public async Task DeleteGameAsync(int id)
         {
-            var oldGame = await _gameRepository.GetGameAsync(id);
+            var oldGame = await gameRepository.GetGameAsync(id);
             if (oldGame is null)
             {
                 throw new EntityNotFoundException(
@@ -149,18 +134,18 @@ namespace EldredBrown.ProFootball.Net.Services.GameServiceNS
             }
 
             await EditTeamSeasonsAsync(Direction.Down, oldGame);
-            await _gameRepository.DeleteAsync(id);
+            await gameRepository.DeleteAsync(id);
         }
 
         private void EditTeamSeasons(Direction direction, Game game)
         {
-            var processGameStrategy = _processGameStrategyFactory.CreateStrategy(direction);
+            var processGameStrategy = processGameStrategyFactory.CreateStrategy(direction);
             processGameStrategy.ProcessGame(game);
         }
 
         private async Task EditTeamSeasonsAsync(Direction direction, Game game)
         {
-            var processGameStrategy = _processGameStrategyFactory.CreateStrategy(direction);
+            var processGameStrategy = processGameStrategyFactory.CreateStrategy(direction);
             await processGameStrategy.ProcessGameAsync(game);
         }
 

@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason;
 using EldredBrown.ProFootball.Net.Data.Repositories;
-using EldredBrown.ProFootball.Net.Services;
 using EldredBrown.ProFootball.Net.Data;
+using EldredBrown.ProFootball.Net.Services;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 {
@@ -42,7 +42,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         IWeeklyUpdateService weeklyUpdateService
         ) : Controller
     {
-
         // GET: TeamSeasons
         /// <summary>
         /// Renders a view of the team seasons index.

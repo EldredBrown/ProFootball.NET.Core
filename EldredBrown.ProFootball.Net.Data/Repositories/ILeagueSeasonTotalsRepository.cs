@@ -1,5 +1,6 @@
-﻿using EldredBrown.ProFootball.Net.Data.Models;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+
+using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Data.Repositories
 {

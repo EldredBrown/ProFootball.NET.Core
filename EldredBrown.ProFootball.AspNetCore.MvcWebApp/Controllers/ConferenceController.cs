@@ -14,48 +14,33 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     /// <summary>
     /// Provides control of the flow of execution for views of conference data.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="ConferenceController"/> class.
+    /// </remarks>
+    /// <param name="conferenceIndexViewModel">
+    /// The <see cref="IConferenceIndexViewModel"/> that will provide ViewModel data to the Index view.
+    /// </param>
+    /// <param name="conferenceDetailsViewModel">
+    /// The <see cref="IConferencesDetailsViewModel"/> that will provide ViewModel data to the Details view.
+    /// </param>
+    /// <param name="conferenceViewModelMapper">
+    /// The <see cref="IConferenceViewModelMapper"/> by which conference data will be mapped to view models.
+    /// </param>
+    /// <param name="conferenceRepository">
+    /// The <see cref="IConferenceRepository"/> by which conference data will be accessed.
+    /// </param>
+    /// <param name="sharedRepository">
+    /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
+    /// </param>
     //[Authorize(Roles = "Admin")]
-    public class ConferenceController : Controller
+    public class ConferenceController(
+        IConferenceIndexViewModel conferenceIndexViewModel,
+        IConferenceDetailsViewModel conferenceDetailsViewModel,
+        IConferenceViewModelMapper conferenceViewModelMapper,
+        IConferenceRepository conferenceRepository,
+        ISharedRepository sharedRepository
+        ) : Controller
     {
-        private readonly IConferenceIndexViewModel _conferenceIndexViewModel;
-        private readonly IConferenceDetailsViewModel _conferenceDetailsViewModel;
-        private readonly IConferenceViewModelMapper _conferenceViewModelMapper;
-        private readonly IConferenceRepository _conferenceRepository;
-        private readonly ISharedRepository _sharedRepository;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConferenceController"/> class.
-        /// </summary>
-        /// <param name="conferenceIndexViewModel">
-        /// The <see cref="IConferenceIndexViewModel"/> that will provide ViewModel data to the Index view.
-        /// </param>
-        /// <param name="conferenceDetailsViewModel">
-        /// The <see cref="IConferencesDetailsViewModel"/> that will provide ViewModel data to the Details view.
-        /// </param>
-        /// <param name="conferenceViewModelMapper">
-        /// The <see cref="IConferenceViewModelMapper"/> by which conference data will be mapped to view models.
-        /// </param>
-        /// <param name="conferenceRepository">
-        /// The <see cref="IConferenceRepository"/> by which conference data will be accessed.
-        /// </param>
-        /// <param name="sharedRepository">
-        /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
-        /// </param>
-        public ConferenceController(
-            IConferenceIndexViewModel conferenceIndexViewModel,
-            IConferenceDetailsViewModel conferenceDetailsViewModel,
-            IConferenceViewModelMapper conferenceViewModelMapper,
-            IConferenceRepository conferenceRepository,
-            ISharedRepository sharedRepository
-        )
-        {
-            _conferenceIndexViewModel = conferenceIndexViewModel;
-            _conferenceDetailsViewModel = conferenceDetailsViewModel;
-            _conferenceViewModelMapper = conferenceViewModelMapper;
-            _conferenceRepository = conferenceRepository;
-            _sharedRepository = sharedRepository;
-        }
-
         // GET: Conferences
         /// <summary>
         /// Renders a view of the Conferences list.
@@ -64,13 +49,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var conferences = await _conferenceRepository.GetConferencesAsync();
-            _conferenceIndexViewModel.Conferences = conferences
-                .Select(c => _conferenceViewModelMapper.MapConferenceToViewModel(c))
+            var conferences = await conferenceRepository.GetConferencesAsync();
+            conferenceIndexViewModel.Conferences = conferences
+                .Select(c => conferenceViewModelMapper.MapConferenceToViewModel(c))
                 .OrderBy(c => c.ShortName)
                 .ToList();
 
-            return View(_conferenceIndexViewModel);
+            return View(conferenceIndexViewModel);
         }
 
         // GET: Conferences/Details/5
@@ -87,15 +72,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var conference = await _conferenceRepository.GetConferenceAsync(id.Value);
+            var conference = await conferenceRepository.GetConferenceAsync(id.Value);
             if (conference is null)
             {
                 return NotFound();
             }
 
-            _conferenceDetailsViewModel.Conference = _conferenceViewModelMapper.MapConferenceToViewModel(conference);
+            conferenceDetailsViewModel.Conference = conferenceViewModelMapper.MapConferenceToViewModel(conference);
 
-            return View(_conferenceDetailsViewModel);
+            return View(conferenceDetailsViewModel);
         }
 
         // GET: Conferences/Create
@@ -123,12 +108,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var conference = await _conferenceViewModelMapper.MapViewModelToConference(conferenceViewModel);
-                await _conferenceRepository.AddAsync(conference);
+                var conference = await conferenceViewModelMapper.MapViewModelToConference(conferenceViewModel);
+                await conferenceRepository.AddAsync(conference);
 
                 try
                 {
-                    await _sharedRepository.SaveChangesAsync();
+                    await sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateException ex)
                 {
@@ -155,7 +140,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var conference = await _conferenceRepository.GetConferenceAsync(id.Value);
+            var conference = await conferenceRepository.GetConferenceAsync(id.Value);
             if (conference is null)
             {
                 return NotFound();
@@ -184,16 +169,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
             if (ModelState.IsValid)
             {
-                var conference = await _conferenceViewModelMapper.MapViewModelToConference(conferenceViewModel);
-                _conferenceRepository.Update(conference);
+                var conference = await conferenceViewModelMapper.MapViewModelToConference(conferenceViewModel);
+                conferenceRepository.Update(conference);
 
                 try
                 {
-                    await _sharedRepository.SaveChangesAsync();
+                    await sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!(await _conferenceRepository.ConferenceExistsAsync(conference.Id)))
+                    if (!(await conferenceRepository.ConferenceExistsAsync(conference.Id)))
                     {
                         return NotFound();
                     }
@@ -227,13 +212,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var conference = await _conferenceRepository.GetConferenceAsync(id.Value);
+            var conference = await conferenceRepository.GetConferenceAsync(id.Value);
             if (conference is null)
             {
                 return NotFound();
             }
 
-            var conferenceViewModel = _conferenceViewModelMapper.MapConferenceToViewModel(conference);
+            var conferenceViewModel = conferenceViewModelMapper.MapConferenceToViewModel(conference);
             return View(conferenceViewModel);
         }
 
@@ -247,15 +232,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _conferenceRepository.DeleteAsync(id);
-            await _sharedRepository.SaveChangesAsync();
+            await conferenceRepository.DeleteAsync(id);
+            await sharedRepository.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
 
         private async Task HandleDbUpdateExceptionOnCreate(DbUpdateException ex, Conference conference)
         {
-            var conferences = await _conferenceRepository.GetConferencesAsync();
+            var conferences = await conferenceRepository.GetConferencesAsync();
             var errMsgIntro = "Unable to save changes.";
 
             if (PrimaryKeyViolationExists(conferences, conference))
@@ -298,7 +283,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task HandleDbUpdateExceptionOnEdit(DbUpdateException ex, Conference conference)
         {
-            var conferences = await _conferenceRepository.GetConferencesAsync();
+            var conferences = await conferenceRepository.GetConferencesAsync();
             var errMsgIntro = "Unable to save changes.";
 
             if (UniqueKeyShortNameViolationExistsOnEdit(conferences, conference))

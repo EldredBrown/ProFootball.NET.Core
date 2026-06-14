@@ -434,7 +434,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
 
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            LeagueSeason? leagueSeason = new() { };
+            LeagueSeason? leagueSeason = new();
             A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonAsync(An<int>.Ignored)).Returns(leagueSeason);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
@@ -649,9 +649,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var leagueSeasons = new List<LeagueSeason>
             {
-                new LeagueSeason { Id = 1, LeagueId = 1, SeasonId = 1920 },
-                new LeagueSeason { Id = 2, LeagueId = 3, SeasonId = 1921 },
-                new LeagueSeason { Id = 3, LeagueId = 3, SeasonId = 1921 },
+                new() { Id = 1, LeagueId = 1, SeasonId = 1920 },
+                new() { Id = 2, LeagueId = 3, SeasonId = 1921 },
+                new() { Id = 3, LeagueId = 3, SeasonId = 1921 },
             };
             A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonsAsync()).Returns(leagueSeasons);
 
@@ -818,7 +818,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 .Returns(leagueSeasonViewModel);
 
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            LeagueSeason? leagueSeason = new LeagueSeason { };
+            LeagueSeason? leagueSeason = new();
             A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonAsync(An<int>.Ignored)).Returns(leagueSeason);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();

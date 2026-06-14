@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,73 +10,51 @@ using Microsoft.EntityFrameworkCore;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
-using EldredBrown.ProFootball.Net.Services.GameServiceNS;
-using Microsoft.AspNetCore.Http;
+using EldredBrown.ProFootball.Net.Services;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 {
     /// <summary>
     /// Provides control of the flow of execution for views of game data.
     /// </summary>
-    public class GameController : Controller
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="GamesController"/> class.
+    /// </remarks>
+    /// <param name="gameIndexViewModel">
+    /// The <see cref="IGameIndexViewModel"/> that will provide ViewModel data to the Index view.
+    /// </param>
+    /// <param name="gameDetailsViewModel">
+    /// The <see cref="IGameDetailsViewModel"/> that will provide ViewModel data to the Details view.
+    /// </param>
+    /// <param name="gameViewModelMapper">
+    /// The <see cref="ITeamSeasonViewModelMapper"/> by which game data will be mapped to view models.
+    /// </param>
+    /// <param name="gameService">
+    /// The <see cref="IGameService"/> for processing Game data.
+    /// </param>
+    /// <param name="gameRepository">
+    /// The <see cref="IGameRepository"/> by which game data will be accessed.
+    /// </param>
+    /// <param name="teamRepository">
+    /// The <see cref="ITeamRepository"/> by which team data will be accessed.
+    /// </param>
+    /// <param name="seasonRepository">
+    /// The <see cref="ISeasonRepository"/> by which season data will be accessed.
+    /// </param>
+    /// <param name="sharedRepository">
+    /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
+    /// </param>
+    public class GameController(
+        IGameIndexViewModel gamesIndexViewModel,
+        IGameDetailsViewModel gamesDetailsViewModel,
+        IGameViewModelMapper gameViewModelMapper,
+        IGameService gameService,
+        IGameRepository gameRepository,
+        ITeamRepository teamRepository,
+        ISeasonRepository seasonRepository,
+        ISharedRepository sharedRepository
+        ) : Controller
     {
-        private readonly IGameIndexViewModel _gameIndexViewModel;
-        private readonly IGameDetailsViewModel _gameDetailsViewModel;
-        private readonly IGameViewModelMapper _gameViewModelMapper;
-        private readonly IGameService _gameService;
-        private readonly IGameRepository _gameRepository;
-        private readonly ITeamRepository _teamRepository;
-        private readonly ISeasonRepository _seasonRepository;
-        private readonly ISharedRepository _sharedRepository;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GamesController"/> class.
-        /// </summary>
-        /// <param name="gameIndexViewModel">
-        /// The <see cref="IGameIndexViewModel"/> that will provide ViewModel data to the Index view.
-        /// </param>
-        /// <param name="gameDetailsViewModel">
-        /// The <see cref="IGameDetailsViewModel"/> that will provide ViewModel data to the Details view.
-        /// </param>
-        /// <param name="gameViewModelMapper">
-        /// The <see cref="ITeamSeasonViewModelMapper"/> by which game data will be mapped to view models.
-        /// </param>
-        /// <param name="gameService">
-        /// The <see cref="IGameService"/> for processing Game data.
-        /// </param>
-        /// <param name="gameRepository">
-        /// The <see cref="IGameRepository"/> by which game data will be accessed.
-        /// </param>
-        /// <param name="teamRepository">
-        /// The <see cref="ITeamRepository"/> by which team data will be accessed.
-        /// </param>
-        /// <param name="seasonRepository">
-        /// The <see cref="ISeasonRepository"/> by which season data will be accessed.
-        /// </param>
-        /// <param name="sharedRepository">
-        /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
-        /// </param>
-        public GameController(
-            IGameIndexViewModel gamesIndexViewModel,
-            IGameDetailsViewModel gamesDetailsViewModel,
-            IGameViewModelMapper gameViewModelMapper,
-            IGameService gameService,
-            IGameRepository gameRepository,
-            ITeamRepository teamRepository,
-            ISeasonRepository seasonRepository,
-            ISharedRepository sharedRepository
-        )
-        {
-            _gameIndexViewModel = gamesIndexViewModel;
-            _gameDetailsViewModel = gamesDetailsViewModel;
-            _gameViewModelMapper = gameViewModelMapper;
-            _gameService = gameService;
-            _gameRepository = gameRepository;
-            _teamRepository = teamRepository;
-            _seasonRepository = seasonRepository;
-            _sharedRepository = sharedRepository;
-        }
-
         // GET: Games
         /// <summary>
         /// Renders a view of the Games list.
@@ -91,18 +70,18 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 SetSelectedSeasonYear(seasons.First().Id);
                 selectedSeasonYear = HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
             }
-            _gameIndexViewModel.Seasons = new SelectList(seasons, "Id", "Id", selectedSeasonYear);
-            _gameIndexViewModel.SelectedSeasonYear = selectedSeasonYear;
+            gamesIndexViewModel.Seasons = new SelectList(seasons, "Id", "Id", selectedSeasonYear);
+            gamesIndexViewModel.SelectedSeasonYear = selectedSeasonYear;
 
             var weeks = GetWeeks(seasons, selectedSeasonYear, firstIndex : 0);
             var selectedWeek = HttpContext.Session.GetObject<int?>("SelectedWeek");
-            _gameIndexViewModel.Weeks = new SelectList(weeks, selectedWeek);
-            _gameIndexViewModel.SelectedWeek = selectedWeek;
+            gamesIndexViewModel.Weeks = new SelectList(weeks, selectedWeek);
+            gamesIndexViewModel.SelectedWeek = selectedWeek;
 
             var games = await GetGames(selectedSeasonYear, selectedWeek);
-            _gameIndexViewModel.Games = games.Select(g => _gameViewModelMapper.MapGameToViewModel(g)).ToList();
+            gamesIndexViewModel.Games = games.Select(g => gameViewModelMapper.MapGameToViewModel(g)).ToList();
 
-            return View(_gameIndexViewModel);
+            return View(gamesIndexViewModel);
         }
 
         // GET: Games/Details/5
@@ -119,15 +98,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var game = await _gameRepository.GetGameAsync(id.Value);
+            var game = await gameRepository.GetGameAsync(id.Value);
             if (game is null)
             {
                 return NotFound();
             }
 
-            _gameDetailsViewModel.Game = _gameViewModelMapper.MapGameToViewModel(game);
+            gamesDetailsViewModel.Game = gameViewModelMapper.MapGameToViewModel(game);
 
-            return View(_gameDetailsViewModel);
+            return View(gamesDetailsViewModel);
         }
 
         // GET: Games/Create
@@ -168,12 +147,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var game = await _gameViewModelMapper.MapViewModelToGame(gameViewModel);
-                await _gameService.AddGameAsync(game);
+                var game = await gameViewModelMapper.MapViewModelToGame(gameViewModel);
+                await gameService.AddGameAsync(game);
 
                 try
                 {
-                    await _sharedRepository.SaveChangesAsync();
+                    await sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateException ex)
                 {
@@ -209,13 +188,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var game = await _gameRepository.GetGameAsync(id.Value);
+            var game = await gameRepository.GetGameAsync(id.Value);
             if (game is null)
             {
                 return NotFound();
             }
 
-            var gameViewModel = _gameViewModelMapper.MapGameToViewModel(game);
+            var gameViewModel = gameViewModelMapper.MapGameToViewModel(game);
             var selectedSeasonYear = gameViewModel.SeasonYear;
 
             var seasons = await GetOrderedSeasons();
@@ -254,18 +233,18 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
             if (ModelState.IsValid)
             {
-                var game = await _gameViewModelMapper.MapViewModelToGame(gameViewModel);
-                _gameRepository.Update(game);
+                var game = await gameViewModelMapper.MapViewModelToGame(gameViewModel);
+                gameRepository.Update(game);
 
                 try
                 {
                     var oldGame = HttpContext.Session.GetObject<Game>("OldGame");
-                    await _gameService.EditGameAsync(game, oldGame!);
-                    await _sharedRepository.SaveChangesAsync();
+                    await gameService.EditGameAsync(game, oldGame!);
+                    await sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!(await _gameRepository.GameExistsAsync(game.Id)))
+                    if (!(await gameRepository.GameExistsAsync(game.Id)))
                     {
                         return NotFound();
                     }
@@ -299,13 +278,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var game = await _gameRepository.GetGameAsync(id.Value);
+            var game = await gameRepository.GetGameAsync(id.Value);
             if (game is null)
             {
                 return NotFound();
             }
 
-            var gameViewModel = _gameViewModelMapper.MapGameToViewModel(game);
+            var gameViewModel = gameViewModelMapper.MapGameToViewModel(game);
             return View(gameViewModel);
         }
 
@@ -319,8 +298,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _gameService.DeleteGameAsync(id);
-            await _sharedRepository.SaveChangesAsync();
+            await gameService.DeleteGameAsync(id);
+            await sharedRepository.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
@@ -357,7 +336,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task<IEnumerable<Game>> GetGames(int? selectedSeasonYear, int? selectedWeek)
         {
-            var games = (await _gameRepository.GetGamesAsync()).Where(g => g.SeasonId == selectedSeasonYear);
+            var games = (await gameRepository.GetGamesAsync()).Where(g => g.SeasonId == selectedSeasonYear);
             if (selectedWeek.HasValue)
             {
                 games = games.Where(g => g.Week == selectedWeek);
@@ -367,7 +346,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task<IEnumerable<Season>> GetOrderedSeasons()
         {
-            return (await _seasonRepository.GetSeasonsAsync())
+            return (await seasonRepository.GetSeasonsAsync())
                 .OrderByDescending(s => s.Id)
                 .ToList();
         }
@@ -390,7 +369,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task HandleDbUpdateExceptionOnCreate(DbUpdateException ex, Game game)
         {
-            var games = await _gameRepository.GetGamesAsync();
+            var games = await gameRepository.GetGamesAsync();
             var errMsgIntro = "Unable to save changes.";
 
             if (PrimaryKeyViolationExists(games, game))
@@ -429,7 +408,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task HandleDbUpdateExceptionOnEdit(DbUpdateException ex, Game game)
         {
-            var games = await _gameRepository.GetGamesAsync();
+            var games = await gameRepository.GetGamesAsync();
             var errMsgIntro = "Unable to save changes.";
 
             if (UniqueKeyViolationExistsOnEdit(games, game))

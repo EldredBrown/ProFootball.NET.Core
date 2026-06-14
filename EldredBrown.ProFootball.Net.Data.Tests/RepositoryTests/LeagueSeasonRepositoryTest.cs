@@ -742,7 +742,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            LeagueSeason? leagueSeason = new LeagueSeason { };
+            LeagueSeason? leagueSeason = new() { };
 
             // Act
             var updated = testRepository.Update(leagueSeason);
@@ -758,7 +758,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            LeagueSeason? leagueSeason = new LeagueSeason { };
+            LeagueSeason? leagueSeason = new() { };
 
             // Act
             var updated = testRepository.Update(leagueSeason);

@@ -42,7 +42,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         ISeasonRepository seasonRepository,
         ILeagueRepository leagueRepository,
         ISeasonRankingsRepository seasonRankingsRepository
-    ) : Controller
+        ) : Controller
     {
         private const string _defaultLeagueName = "NFL";
 
@@ -119,7 +119,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                         await seasonRankingsRepository.GetTotalRankingsForSeasonAsync(selectedSeasonYear.Value);
                     break;
                 case SeasonRankingType.None:
-                    seasonRankingsIndexViewModel.SeasonRankings = new List<IRankingsTeamSeason>();
+                    seasonRankingsIndexViewModel.SeasonRankings = [];
                     break;
             }
         }

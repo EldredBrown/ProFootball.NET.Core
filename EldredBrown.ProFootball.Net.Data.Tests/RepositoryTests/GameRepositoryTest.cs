@@ -774,7 +774,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            Game? game = new Game { };
+            Game? game = new() { };
 
             // Act
             var updated = testRepository.Update(game);
@@ -790,7 +790,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            Game? game = new Game { };
+            Game? game = new() { };
 
             // Act
             var updated = testRepository.Update(game);
@@ -1131,33 +1131,33 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             fakeDbContext.Games = A.Fake<DbSet<Game>>();
             var games = new List<Game>
             {
-                new Game { Id = 1, SeasonId = 1920, Week = 1, GuestName = "Guest 1", HostName = "Host 1" },
-                new Game { Id = 2, SeasonId = 1920, Week = 1, GuestName = "Guest 2", HostName = "Host 2" },
-                new Game { Id = 3, SeasonId = 1920, Week = 1, GuestName = "Guest 3", HostName = "Host 3" },
-                new Game { Id = 4, SeasonId = 1920, Week = 2, GuestName = "Guest 1", HostName = "Host 1" },
-                new Game { Id = 5, SeasonId = 1920, Week = 2, GuestName = "Guest 2", HostName = "Host 2" },
-                new Game { Id = 6, SeasonId = 1920, Week = 2, GuestName = "Guest 3", HostName = "Host 3" },
-                new Game { Id = 7, SeasonId = 1920, Week = 3, GuestName = "Guest 1", HostName = "Host 1" },
-                new Game { Id = 8, SeasonId = 1920, Week = 3, GuestName = "Guest 2", HostName = "Host 2" },
-                new Game { Id = 9, SeasonId = 1920, Week = 3, GuestName = "Guest 3", HostName = "Host 3" },
-                new Game { Id = 10, SeasonId = 1921, Week = 1, GuestName = "Guest 1", HostName = "Host 1" },
-                new Game { Id = 11, SeasonId = 1921, Week = 1, GuestName = "Guest 2", HostName = "Host 2" },
-                new Game { Id = 12, SeasonId = 1921, Week = 1, GuestName = "Guest 3", HostName = "Host 3" },
-                new Game { Id = 13, SeasonId = 1921, Week = 2, GuestName = "Guest 1", HostName = "Host 1" },
-                new Game { Id = 14, SeasonId = 1921, Week = 2, GuestName = "Guest 2", HostName = "Host 2" },
-                new Game { Id = 15, SeasonId = 1921, Week = 2, GuestName = "Guest 3", HostName = "Host 3" },
-                new Game { Id = 16, SeasonId = 1921, Week = 3, GuestName = "Guest 1", HostName = "Host 1" },
-                new Game { Id = 17, SeasonId = 1921, Week = 3, GuestName = "Guest 2", HostName = "Host 2" },
-                new Game { Id = 18, SeasonId = 1921, Week = 3, GuestName = "Guest 3", HostName = "Host 3" },
-                new Game { Id = 19, SeasonId = 1922, Week = 1, GuestName = "Guest 1", HostName = "Host 1" },
-                new Game { Id = 20, SeasonId = 1922, Week = 1, GuestName = "Guest 2", HostName = "Host 2" },
-                new Game { Id = 21, SeasonId = 1922, Week = 1, GuestName = "Guest 3", HostName = "Host 3" },
-                new Game { Id = 22, SeasonId = 1922, Week = 2, GuestName = "Guest 1", HostName = "Host 1" },
-                new Game { Id = 23, SeasonId = 1922, Week = 2, GuestName = "Guest_2", HostName = "Host_2" },
-                new Game { Id = 24, SeasonId = 1922, Week = 2, GuestName = "Guest_3", HostName = "Host_3" },
-                new Game { Id = 25, SeasonId = 1922, Week = 3, GuestName = "Guest 1", HostName = "Host 1" },
-                new Game { Id = 26, SeasonId = 1922, Week = 3, GuestName = "Guest 2", HostName = "Host 2" },
-                new Game { Id = 27, SeasonId = 1922, Week = 3, GuestName = "Guest 3", HostName = "Host 3" },
+                new() { Id = 1, SeasonId = 1920, Week = 1, GuestName = "Guest 1", HostName = "Host 1" },
+                new() { Id = 2, SeasonId = 1920, Week = 1, GuestName = "Guest 2", HostName = "Host 2" },
+                new() { Id = 3, SeasonId = 1920, Week = 1, GuestName = "Guest 3", HostName = "Host 3" },
+                new() { Id = 4, SeasonId = 1920, Week = 2, GuestName = "Guest 1", HostName = "Host 1" },
+                new() { Id = 5, SeasonId = 1920, Week = 2, GuestName = "Guest 2", HostName = "Host 2" },
+                new() { Id = 6, SeasonId = 1920, Week = 2, GuestName = "Guest 3", HostName = "Host 3" },
+                new() { Id = 7, SeasonId = 1920, Week = 3, GuestName = "Guest 1", HostName = "Host 1" },
+                new() { Id = 8, SeasonId = 1920, Week = 3, GuestName = "Guest 2", HostName = "Host 2" },
+                new() { Id = 9, SeasonId = 1920, Week = 3, GuestName = "Guest 3", HostName = "Host 3" },
+                new() { Id = 10, SeasonId = 1921, Week = 1, GuestName = "Guest 1", HostName = "Host 1" },
+                new() { Id = 11, SeasonId = 1921, Week = 1, GuestName = "Guest 2", HostName = "Host 2" },
+                new() { Id = 12, SeasonId = 1921, Week = 1, GuestName = "Guest 3", HostName = "Host 3" },
+                new() { Id = 13, SeasonId = 1921, Week = 2, GuestName = "Guest 1", HostName = "Host 1" },
+                new() { Id = 14, SeasonId = 1921, Week = 2, GuestName = "Guest 2", HostName = "Host 2" },
+                new() { Id = 15, SeasonId = 1921, Week = 2, GuestName = "Guest 3", HostName = "Host 3" },
+                new() { Id = 16, SeasonId = 1921, Week = 3, GuestName = "Guest 1", HostName = "Host 1" },
+                new() { Id = 17, SeasonId = 1921, Week = 3, GuestName = "Guest 2", HostName = "Host 2" },
+                new() { Id = 18, SeasonId = 1921, Week = 3, GuestName = "Guest 3", HostName = "Host 3" },
+                new() { Id = 19, SeasonId = 1922, Week = 1, GuestName = "Guest 1", HostName = "Host 1" },
+                new() { Id = 20, SeasonId = 1922, Week = 1, GuestName = "Guest 2", HostName = "Host 2" },
+                new() { Id = 21, SeasonId = 1922, Week = 1, GuestName = "Guest 3", HostName = "Host 3" },
+                new() { Id = 22, SeasonId = 1922, Week = 2, GuestName = "Guest 1", HostName = "Host 1" },
+                new() { Id = 23, SeasonId = 1922, Week = 2, GuestName = "Guest_2", HostName = "Host_2" },
+                new() { Id = 24, SeasonId = 1922, Week = 2, GuestName = "Guest_3", HostName = "Host_3" },
+                new() { Id = 25, SeasonId = 1922, Week = 3, GuestName = "Guest 1", HostName = "Host 1" },
+                new() { Id = 26, SeasonId = 1922, Week = 3, GuestName = "Guest 2", HostName = "Host 2" },
+                new() { Id = 27, SeasonId = 1922, Week = 3, GuestName = "Guest 3", HostName = "Host 3" },
             };
             var fakeDbSet = games.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.Games).Returns(fakeDbSet);

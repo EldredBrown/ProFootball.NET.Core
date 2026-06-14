@@ -7,15 +7,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game
     /// <summary>
     /// A class that maps game data to game view models.
     /// </summary>
-    public class GameViewModelMapper : IGameViewModelMapper
+    public class GameViewModelMapper(ISeasonRepository seasonRepository) : IGameViewModelMapper
     {
-        private readonly ISeasonRepository _seasonRepository;
-
-        public GameViewModelMapper(ISeasonRepository seasonRepository)
-        {
-            _seasonRepository = seasonRepository;
-        }
-
         public GameViewModel MapGameToViewModel(EldredBrown.ProFootball.Net.Data.Models.Game game)
         {
             return new GameViewModel { Game = game };
@@ -25,7 +18,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game
         {
             var game = gameViewModel.Game;
 
-            var season = await _seasonRepository.GetSeasonAsync(gameViewModel.SeasonYear);
+            var season = await seasonRepository.GetSeasonAsync(gameViewModel.SeasonYear);
             game.SeasonId = season is not null ? season.Id : -1;
 
             return game;

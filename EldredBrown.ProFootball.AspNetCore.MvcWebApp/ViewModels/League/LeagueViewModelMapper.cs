@@ -7,15 +7,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.League
     /// <summary>
     /// A class that maps league data to league view models.
     /// </summary>
-    public class LeagueViewModelMapper : ILeagueViewModelMapper
+    public class LeagueViewModelMapper(ISeasonRepository seasonRepository) : ILeagueViewModelMapper
     {
-        private readonly ISeasonRepository _seasonRepository;
-
-        public LeagueViewModelMapper(ISeasonRepository seasonRepository)
-        {
-            _seasonRepository = seasonRepository;
-        }
-
         public LeagueViewModel MapLeagueToViewModel(
             EldredBrown.ProFootball.Net.Data.Models.League league
         )
@@ -29,12 +22,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.League
         {
             var league = leagueViewModel.League;
 
-            var firstSeason = await _seasonRepository.GetSeasonAsync(leagueViewModel.FirstSeasonYear);
+            var firstSeason = await seasonRepository.GetSeasonAsync(leagueViewModel.FirstSeasonYear);
             league.FirstSeasonId = firstSeason is not null ? firstSeason.Id : -1;
 
             if (leagueViewModel.LastSeasonYear is not null)
             {
-                var lastSeason = await _seasonRepository.GetSeasonAsync(leagueViewModel.LastSeasonYear.Value);
+                var lastSeason = await seasonRepository.GetSeasonAsync(leagueViewModel.LastSeasonYear.Value);
                 league.LastSeasonId = lastSeason is not null ? lastSeason.Id : -1;
             }
 

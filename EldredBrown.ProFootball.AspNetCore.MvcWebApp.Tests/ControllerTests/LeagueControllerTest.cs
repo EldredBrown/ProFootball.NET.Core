@@ -28,9 +28,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueViewModelMapper = A.Fake<ILeagueViewModelMapper>();
             var leagueViewModels = new List<LeagueViewModel>
             {
-                new LeagueViewModel { Id = 1 },
-                new LeagueViewModel { Id = 2 },
-                new LeagueViewModel { Id = 3 },
+                new() { Id = 1 },
+                new() { Id = 2 },
+                new() { Id = 3 },
             };
             A.CallTo(() => fakeLeagueViewModelMapper.MapLeagueToViewModel(A<League>.Ignored))
                 .ReturnsNextFromSequence(leagueViewModels.ToArray());
@@ -38,9 +38,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
             var leagues = new List<League>
             {
-                new League { Id = 1 },
-                new League { Id = 2 },
-                new League { Id = 3 },
+                new() { Id = 1 },
+                new() { Id = 2 },
+                new() { Id = 3 },
             };
             A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).Returns(leagues);
 
@@ -216,21 +216,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
             var leagues = new List<League>
             {
-                new League
+                new()
                 {
                     Id = 1,
                     ShortName = "L1",
                     LongName = "League 1",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 2,
                     ShortName = "L2",
                     LongName = "League 2",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 3,
                     ShortName = "L3",
@@ -286,21 +286,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
             var leagues = new List<League>
             {
-                new League
+                new()
                 {
                     Id = 1,
                     ShortName = "L1",
                     LongName = "League 1",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 2,
                     ShortName = "L2",
                     LongName = "League 2",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 3,
                     ShortName = "L3",
@@ -356,21 +356,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
             var leagues = new List<League>
             {
-                new League
+                new()
                 {
                     Id = 1,
                     ShortName = "L1",
                     LongName = "League 1",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 2,
                     ShortName = "L2",
                     LongName = "League 2",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 3,
                     ShortName = "L3",
@@ -420,21 +420,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
             var leagues = new List<League>
             {
-                new League
+                new()
                 {
                     Id = 1,
                     ShortName = "L1",
                     LongName = "League 1",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 2,
                     ShortName = "L2",
                     LongName = "League 2",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 3,
                     ShortName = "L3",
@@ -488,21 +488,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
             var leagues = new List<League>
             {
-                new League
+                new()
                 {
                     Id = 1,
                     ShortName = "L1",
                     LongName = "League 1",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 2,
                     ShortName = "L2",
                     LongName = "League 2",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 3,
                     ShortName = "L3",
@@ -556,21 +556,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
             var leagues = new List<League>
             {
-                new League
+                new()
                 {
                     Id = 1,
                     ShortName = "L1",
                     LongName = "League 1",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 2,
                     ShortName = "L2",
                     LongName = "League 2",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 3,
                     ShortName = "L3",
@@ -646,7 +646,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueViewModelMapper = A.Fake<ILeagueViewModelMapper>();
 
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            League? league = new League { };
+            League? league = new();
             A.CallTo(() => fakeLeagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
@@ -861,21 +861,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
             var leagues = new List<League>
             {
-                new League
+                new()
                 {
                     Id = 1,
                     ShortName = "L1",
                     LongName = "League 1",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 2,
                     ShortName = "L3",
                     LongName = "League 2",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 3,
                     ShortName = "L3",
@@ -931,21 +931,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
             var leagues = new List<League>
             {
-                new League
+                new()
                 {
                     Id = 1,
                     ShortName = "L1",
                     LongName = "League 1",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 2,
                     ShortName = "L2",
                     LongName = "League 3",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 3,
                     ShortName = "L3",
@@ -995,21 +995,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
             var leagues = new List<League>
             {
-                new League
+                new()
                 {
                     Id = 1,
                     ShortName = "L1",
                     LongName = "League 1",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 2,
                     ShortName = "L2",
                     LongName = "League 2",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 3,
                     ShortName = "L3",
@@ -1063,21 +1063,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
             var leagues = new List<League>
             {
-                new League
+                new()
                 {
                     Id = 1,
                     ShortName = "L1",
                     LongName = "League 1",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 2,
                     ShortName = "L2",
                     LongName = "League 2",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 3,
                     ShortName = "L3",
@@ -1131,21 +1131,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
             var leagues = new List<League>
             {
-                new League
+                new()
                 {
                     Id = 1,
                     ShortName = "L1",
                     LongName = "League 1",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 2,
                     ShortName = "L2",
                     LongName = "League 2",
                     FirstSeasonId = 1920
                 },
-                new League
+                new()
                 {
                     Id = 3,
                     ShortName = "L3",
@@ -1228,7 +1228,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 .Returns(leagueViewModel);
 
             var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            League? league = new League { };
+            League? league = new();
             A.CallTo(() => fakeLeagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();

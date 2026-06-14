@@ -167,17 +167,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
-                new Team
+                new()
                 {
                     Id = 1,
                     Name = "Team 1"
                 },
-                new Team
+                new()
                 {
                     Id = 2,
                     Name = "Team 2"
                 },
-                new Team
+                new()
                 {
                     Id = 3,
                     Name = "Team 3"
@@ -222,17 +222,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
-                new Team
+                new()
                 {
                     Id = 1,
                     Name = "Team 1"
                 },
-                new Team
+                new()
                 {
                     Id = 2,
                     Name = "Team 2"
                 },
-                new Team
+                new()
                 {
                     Id = 3,
                     Name = "Team 3"
@@ -277,17 +277,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
-                new Team
+                new()
                 {
                     Id = 1,
                     Name = "Team 1"
                 },
-                new Team
+                new()
                 {
                     Id = 2,
                     Name = "Team 2"
                 },
-                new Team
+                new()
                 {
                     Id = 3,
                     Name = "Team 3"
@@ -354,7 +354,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
 
             var fakeTeamRepository = A.Fake<ITeamRepository>();
-            Team? team = new Team { };
+            Team? team = new();
             A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
@@ -534,17 +534,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
-                new Team
+                new()
                 {
                     Id = 1,
                     Name = "Team 1"
                 },
-                new Team
+                new()
                 {
                     Id = 2,
                     Name = "Team 3"
                 },
-                new Team
+                new()
                 {
                     Id = 3,
                     Name = "Team 3"
@@ -589,17 +589,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
-                new Team
+                new()
                 {
                     Id = 1,
                     Name = "Team 1"
                 },
-                new Team
+                new()
                 {
                     Id = 2,
                     Name = "Team 2"
                 },
-                new Team
+                new()
                 {
                     Id = 3,
                     Name = "Team 3"
@@ -670,7 +670,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
 
             var fakeTeamRepository = A.Fake<ITeamRepository>();
-            Team? team = new Team { };
+            Team? team = new();
             A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();

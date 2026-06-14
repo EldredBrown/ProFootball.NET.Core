@@ -460,7 +460,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            Team? team = new Team { };
+            Team? team = new();
 
             // Act
             var updated = testRepository.Update(team);
@@ -476,7 +476,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            Team? team = new Team { };
+            Team? team = new();
 
             // Act
             var updated = testRepository.Update(team);
@@ -769,9 +769,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             fakeDbContext.Teams = A.Fake<DbSet<Team>>();
             var teams = new List<Team>
             {
-                new Team { Id = 1, Name = "Team 1" },
-                new Team { Id = 2, Name = "Team 2" },
-                new Team { Id = 3, Name = "Team 3" },
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
             };
             var fakeDbSet = teams.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.Teams).Returns(fakeDbSet);

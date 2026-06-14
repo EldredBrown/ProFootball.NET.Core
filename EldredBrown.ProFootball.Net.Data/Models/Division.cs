@@ -30,5 +30,5 @@ public partial class Division
     [ValidateNever]
     public virtual Season? LastSeasonIdNavigation { get; set; }
 
-    public virtual ICollection<TeamSeason> TeamSeasons { get; set; } = new List<TeamSeason>();
+    public virtual ICollection<TeamSeason> TeamSeasons { get; set; } = [];
 }

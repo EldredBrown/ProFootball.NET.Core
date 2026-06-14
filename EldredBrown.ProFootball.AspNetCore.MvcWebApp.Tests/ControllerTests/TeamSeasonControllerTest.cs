@@ -109,9 +109,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamSeasonViewModelMapper = A.Fake<ITeamSeasonViewModelMapper>();
             var teamSeasonViewModels = new List<TeamSeasonViewModel>
             {
-                new TeamSeasonViewModel { Id = 1 },
-                new TeamSeasonViewModel { Id = 2 },
-                new TeamSeasonViewModel { Id = 3 },
+                new() { Id = 1 },
+                new() { Id = 2 },
+                new() { Id = 3 },
             };
             A.CallTo(() => fakeTeamSeasonViewModelMapper.MapTeamSeasonToViewModel(A<TeamSeason>.Ignored))
                 .ReturnsNextFromSequence(teamSeasonViewModels.ToArray());
@@ -194,7 +194,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             int teamId = 1;
             int seasonId = 1920;
-            TeamSeason? teamSeason = new TeamSeason
+            TeamSeason? teamSeason = new()
             {
                 TeamId = teamId,
                 SeasonId = seasonId

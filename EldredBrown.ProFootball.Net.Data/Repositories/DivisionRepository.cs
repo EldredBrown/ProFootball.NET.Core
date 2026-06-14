@@ -13,19 +13,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
     /// <summary>
     /// Provides CRUD access to an external <see cref="Division"/> data store.
     /// </summary>
-    public class DivisionRepository : IDivisionRepository
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="DivisionRepository"/> class.
+    /// </remarks>
+    /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
+    public class DivisionRepository(ProFootballDbContext dbContext) : IDivisionRepository
     {
-        private readonly ProFootballDbContext _dbContext;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DivisionRepository"/> class.
-        /// </summary>
-        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
-        public DivisionRepository(ProFootballDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         /// <summary>
         /// Gets all <see cref="Division"/> entities in the data store.
         /// </summary>
@@ -94,12 +87,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(division);
 
-            if (_dbContext.Divisions is null)
+            if (dbContext.Divisions is null)
             {
                 return division;
             }
 
-            _dbContext.Add(division);
+            dbContext.Add(division);
             return division;
         }
 
@@ -112,12 +105,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(division);
 
-            if (_dbContext.Divisions is null)
+            if (dbContext.Divisions is null)
             {
                 return division;
             }
 
-            await _dbContext.AddAsync(division);
+            await dbContext.AddAsync(division);
             return division;
         }
 
@@ -130,12 +123,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(division);
 
-            if (_dbContext.Divisions is null)
+            if (dbContext.Divisions is null)
             {
                 return division;
             }
 
-            _dbContext.Update(division);
+            dbContext.Update(division);
             return division;
         }
 
@@ -146,7 +139,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The deleted <see cref="Division"/> entity.</returns>
         public Division? Delete(int id)
         {
-            if (_dbContext.Divisions is null)
+            if (dbContext.Divisions is null)
             {
                 return null;
             }
@@ -157,7 +150,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Remove(division);
+            dbContext.Remove(division);
             return division;
         }
 
@@ -168,7 +161,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The deleted <see cref="Division"/> entity.</returns>
         public async Task<Division?> DeleteAsync(int id)
         {
-            if (_dbContext.Divisions is null)
+            if (dbContext.Divisions is null)
             {
                 return null;
             }
@@ -179,7 +172,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Remove(division);
+            dbContext.Remove(division);
             return division;
         }
 
@@ -209,7 +202,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
 
         private IIncludableQueryable<Division, Season?>? GetDivisionsDbSetWithNavigationProperties()
         {
-            return _dbContext.Divisions?
+            return dbContext.Divisions?
                 .Include(ts => ts.LeagueIdNavigation)
                 .Include(ts => ts.ConferenceIdNavigation)
                 .Include(ts => ts.FirstSeasonIdNavigation)

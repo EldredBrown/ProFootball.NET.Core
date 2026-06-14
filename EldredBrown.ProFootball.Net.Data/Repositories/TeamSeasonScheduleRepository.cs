@@ -8,19 +8,12 @@ using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Data.Repositories
 {
-    public class TeamSeasonScheduleRepository : ITeamSeasonScheduleRepository
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TeamSeasonScheduleProfileRepository"/> class.
+    /// </summary>
+    /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
+    public class TeamSeasonScheduleRepository(ProFootballDbContext dbContext) : ITeamSeasonScheduleRepository
     {
-        private readonly ProFootballDbContext _dbContext;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TeamSeasonScheduleProfileRepository"/> class.
-        /// </summary>
-        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
-        public TeamSeasonScheduleRepository(ProFootballDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         /// <summary>
         /// Gets a single team season schedule profile (<see cref="IEnumerable{OpponentProfile}"/>) from the data store
         /// by team name and season year.
@@ -123,7 +116,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
             int teamId, int seasonId
         )
         {
-            return _dbContext.TeamSeasonScheduleProfile
+            return dbContext.TeamSeasonScheduleProfile
                 .FromSqlInterpolated(
                     $"EXEC sp_GetTeamSeasonScheduleProfile @team_id = {teamId}, @season_id = {seasonId}")
                 .ToList();
@@ -133,7 +126,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
             int teamId, int seasonId
         )
         {
-            return await _dbContext.TeamSeasonScheduleProfile
+            return await dbContext.TeamSeasonScheduleProfile
                 .FromSqlInterpolated(
                     $"EXEC sp_GetTeamSeasonScheduleProfile @team_id = {teamId}, @season_id = {seasonId}")
                 .ToListAsync();
@@ -141,7 +134,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
 
         protected virtual TeamSeasonScheduleTotals ExecuteGetTeamSeasonScheduleTotals(int teamId, int seasonId)
         {
-            return _dbContext.TeamSeasonScheduleTotals
+            return dbContext.TeamSeasonScheduleTotals
                 .FromSqlInterpolated(
                     $"EXEC sp_GetTeamSeasonScheduleTotals @team_id = {teamId}, @season_id = {seasonId}")
                 .ToList()
@@ -152,7 +145,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
             int teamId, int seasonId
         )
         {
-            return (await _dbContext.TeamSeasonScheduleTotals
+            return (await dbContext.TeamSeasonScheduleTotals
                 .FromSqlInterpolated(
                     $"sp_GetTeamSeasonScheduleTotals @team_id = {teamId}, @season_id = {seasonId}")
                 .ToListAsync())
@@ -161,7 +154,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
 
         protected virtual TeamSeasonScheduleAverages ExecuteGetTeamSeasonScheduleAverages(int teamId, int seasonId)
         {
-            return _dbContext.TeamSeasonScheduleAverages
+            return dbContext.TeamSeasonScheduleAverages
                 .FromSqlInterpolated(
                     $"EXEC sp_GetTeamSeasonScheduleAverages @team_id = {teamId}, @season_id = {seasonId}")
                 .ToList()
@@ -172,7 +165,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
             int teamId, int seasonId
         )
         {
-            return (await _dbContext.TeamSeasonScheduleAverages
+            return (await dbContext.TeamSeasonScheduleAverages
                 .FromSqlInterpolated(
                     $"sp_GetTeamSeasonScheduleAverages @team_id = {teamId}, @season_id = {seasonId}")
                 .ToListAsync())

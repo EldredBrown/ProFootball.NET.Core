@@ -1,7 +1,9 @@
-﻿using EldredBrown.ProFootball.Net.Services.Utilities;
+﻿using System;
+
 using Shouldly;
-using System;
 using Xunit;
+
+using EldredBrown.ProFootball.Net.Services.Utilities;
 
 namespace EldredBrown.ProFootball.Net.Services.Tests.UtilitiesTests
 {

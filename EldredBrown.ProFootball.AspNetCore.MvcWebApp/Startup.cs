@@ -1,3 +1,14 @@
+using System;
+using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Conference;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Division;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game;
@@ -12,17 +23,7 @@ using EldredBrown.ProFootball.Net.Data;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 using EldredBrown.ProFootball.Net.Services;
-using EldredBrown.ProFootball.Net.Services.GameServiceNS;
-using EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Threading.Tasks;
+using EldredBrown.ProFootball.Net.Services.ProcessGameStrategy;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
 {

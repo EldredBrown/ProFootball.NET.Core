@@ -4,10 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EldredBrown.ProFootball.Net.Data;
 
-public class ApplicationDbContext : IdentityDbContext<IdentityUser>
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+    : IdentityDbContext<IdentityUser>(options)
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
-    {
-    }
 }

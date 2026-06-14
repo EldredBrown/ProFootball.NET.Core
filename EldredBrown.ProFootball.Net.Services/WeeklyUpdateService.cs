@@ -13,48 +13,28 @@ namespace EldredBrown.ProFootball.Net.Services
     /// <summary>
     /// A service to run a weekly update of the pro football data store.
     /// </summary>
-    public class WeeklyUpdateService : IWeeklyUpdateService
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="WeeklyUpdateService"/> class.
+    /// </remarks>
+    /// <param name="seasonRepository">The repository by which <see cref="Season"/> data will be accessed.</param>
+    /// <param name="gameRepository">The repository by which <see cref="Game"/> data will be accessed.</param>
+    /// <param name="leagueSeasonRepository">The repository by which <see cref="LeagueSeason"/> data will be accessed.</param>
+    /// <param name="teamSeasonRepository">The repository by which <see cref="TeamSeason"/> data will be accessed.</param>
+    /// <param name="leagueSeasonTotalsRepository">The repository by which <see cref="LeagueSeasonTotals"/> data will be accessed.</param>
+    /// <param name="sharedRepository">The repository by which shared data resources will be accessed.</param>
+    public class WeeklyUpdateService(
+        ISeasonRepository seasonRepository,
+        IGameRepository gameRepository,
+        ILeagueSeasonRepository leagueSeasonRepository,
+        ITeamSeasonRepository teamSeasonRepository,
+        ILeagueSeasonTotalsRepository leagueSeasonTotalsRepository,
+        ISeasonRankingsRepository seasonRankingsRepository,
+        ISharedRepository sharedRepository
+        ) : IWeeklyUpdateService
     {
         private const int _firstYear = 1920;
         private const int _minWeekCountForRankingsUpdate = 3;
-
-        private readonly ISeasonRepository _seasonRepository;
-        private readonly IGameRepository _gameRepository;
-        private readonly ILeagueSeasonRepository _leagueSeasonRepository;
-        private readonly ITeamSeasonRepository _teamSeasonRepository;
-        private readonly ILeagueSeasonTotalsRepository _leagueSeasonTotalsRepository;
-        private readonly ISeasonRankingsRepository _seasonRankingsRepository;
-        private readonly ISharedRepository _sharedRepository;
-
-        private readonly object _dbLock = new object();
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WeeklyUpdateService"/> class.
-        /// </summary>
-        /// <param name="seasonRepository">The repository by which <see cref="Season"/> data will be accessed.</param>
-        /// <param name="gameRepository">The repository by which <see cref="Game"/> data will be accessed.</param>
-        /// <param name="leagueSeasonRepository">The repository by which <see cref="LeagueSeason"/> data will be accessed.</param>
-        /// <param name="teamSeasonRepository">The repository by which <see cref="TeamSeason"/> data will be accessed.</param>
-        /// <param name="leagueSeasonTotalsRepository">The repository by which <see cref="LeagueSeasonTotals"/> data will be accessed.</param>
-        /// <param name="sharedRepository">The repository by which shared data resources will be accessed.</param>
-        public WeeklyUpdateService(
-            ISeasonRepository seasonRepository,
-            IGameRepository gameRepository,
-            ILeagueSeasonRepository leagueSeasonRepository,
-            ITeamSeasonRepository teamSeasonRepository,
-            ILeagueSeasonTotalsRepository leagueSeasonTotalsRepository,
-            ISeasonRankingsRepository seasonRankingsRepository,
-            ISharedRepository sharedRepository
-        )
-        {
-            _seasonRepository = seasonRepository;
-            _gameRepository = gameRepository;
-            _leagueSeasonRepository = leagueSeasonRepository;
-            _teamSeasonRepository = teamSeasonRepository;
-            _leagueSeasonTotalsRepository = leagueSeasonTotalsRepository;
-            _seasonRankingsRepository = seasonRankingsRepository;
-            _sharedRepository = sharedRepository;
-        }
+        private readonly object _dbLock = new();
 
         /// <summary>
         /// Runs a weekly update of the data store.
@@ -69,7 +49,7 @@ namespace EldredBrown.ProFootball.Net.Services
 
             await UpdateLeagueSeason(leagueId, seasonId);
             var srcWeekCount = await UpdateWeekCount(seasonId);
-            await _sharedRepository.SaveChangesAsync();
+            await sharedRepository.SaveChangesAsync();
 
             if (srcWeekCount < _minWeekCountForRankingsUpdate)
             {
@@ -91,18 +71,18 @@ namespace EldredBrown.ProFootball.Net.Services
             var leagueSeasonTotals = data.LeagueSeasonTotals;
             UpdateLeagueSeasonGamesAndPoints(leagueSeason, leagueSeasonTotals.TotalGames.Value,
                 leagueSeasonTotals.TotalPoints.Value);
-            _leagueSeasonRepository.Update(leagueSeason);
+            leagueSeasonRepository.Update(leagueSeason);
         }
 
         private async Task<LeagueSeasonData?> GetLeagueSeasonData(int leagueId, int seasonId)
         {
-            var leagueSeason = await _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueId, seasonId);
+            var leagueSeason = await leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueId, seasonId);
             if (leagueSeason is null)
             {
                 return null;
             }
 
-            var leagueSeasonTotals = await _leagueSeasonTotalsRepository.GetLeagueSeasonTotalsAsync(leagueId, seasonId);
+            var leagueSeasonTotals = await leagueSeasonTotalsRepository.GetLeagueSeasonTotalsAsync(leagueId, seasonId);
             if (
                 leagueSeasonTotals is null
                 || leagueSeasonTotals.TotalGames is null
@@ -126,20 +106,20 @@ namespace EldredBrown.ProFootball.Net.Services
 
         private async Task<int> UpdateWeekCount(int seasonId)
         {
-            var srcWeekCount = await _gameRepository.GetMaxWeekForSeasonAsync(seasonId);
+            var srcWeekCount = await gameRepository.GetMaxWeekForSeasonAsync(seasonId);
 
-            var destSeason = await _seasonRepository.GetSeasonAsync(seasonId);
+            var destSeason = await seasonRepository.GetSeasonAsync(seasonId);
             if (destSeason is not null)
             {
                 destSeason.NumOfWeeksCompleted = srcWeekCount;
-                _seasonRepository.Update(destSeason);
+                seasonRepository.Update(destSeason);
             }
             return srcWeekCount;
         }
 
         private async Task UpdateRankings(int seasonId)
         {
-            var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonId);
+            var teamSeasons = await teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonId);
             if (teamSeasons.IsNullOrEmpty())
             {
                 return;
@@ -150,7 +130,7 @@ namespace EldredBrown.ProFootball.Net.Services
                 await UpdateRankingsForTeamSeason(teamSeason);
             }
 
-            await _sharedRepository.SaveChangesAsync();
+            await sharedRepository.SaveChangesAsync();
         }
 
         private async Task UpdateRankingsForTeamSeason(TeamSeason teamSeason)
@@ -178,12 +158,12 @@ namespace EldredBrown.ProFootball.Net.Services
                 CalculateFinalExpectedWinningPercentage(teamSeason);
             }
 
-            _teamSeasonRepository.Update(teamSeason);
+            teamSeasonRepository.Update(teamSeason);
         }
 
         private async Task<RankingsData?> GetRankingsData(TeamSeason teamSeason)
         {
-            var results = _seasonRankingsRepository.GetDataForRankingsUpdate(teamSeason);
+            var results = seasonRankingsRepository.GetDataForRankingsUpdate(teamSeason);
 
             var totals = results["TeamSeasonScheduleTotals"];
             if (totals.IsNullOrEmpty() || totals["schedule_games"] is null)

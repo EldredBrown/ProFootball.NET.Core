@@ -13,19 +13,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
     /// <summary>
     /// Provides CRUD access to an external <see cref="Conference"/> data store.
     /// </summary>
-    public class ConferenceRepository : IConferenceRepository
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="ConferenceRepository"/> class.
+    /// </remarks>
+    /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
+    public class ConferenceRepository(ProFootballDbContext dbContext) : IConferenceRepository
     {
-        private readonly ProFootballDbContext _dbContext;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConferenceRepository"/> class.
-        /// </summary>
-        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
-        public ConferenceRepository(ProFootballDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         /// <summary>
         /// Gets all <see cref="Conference"/> entities in the data store.
         /// </summary>
@@ -94,12 +87,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(conference);
 
-            if (_dbContext.Conferences is null)
+            if (dbContext.Conferences is null)
             {
                 return conference;
             }
 
-            _dbContext.Add(conference);
+            dbContext.Add(conference);
             return conference;
         }
 
@@ -112,12 +105,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(conference);
 
-            if (_dbContext.Conferences is null)
+            if (dbContext.Conferences is null)
             {
                 return conference;
             }
 
-            await _dbContext.AddAsync(conference);
+            await dbContext.AddAsync(conference);
             return conference;
         }
 
@@ -130,12 +123,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(conference);
 
-            if (_dbContext.Conferences is null)
+            if (dbContext.Conferences is null)
             {
                 return conference;
             }
 
-            _dbContext.Update(conference);
+            dbContext.Update(conference);
             return conference;
         }
 
@@ -146,7 +139,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The deleted <see cref="Conference"/> entity.</returns>
         public Conference? Delete(int id)
         {
-            if (_dbContext.Conferences is null)
+            if (dbContext.Conferences is null)
             {
                 return null;
             }
@@ -157,7 +150,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Remove(conference);
+            dbContext.Remove(conference);
             return conference;
         }
 
@@ -168,7 +161,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The deleted <see cref="Conference"/> entity.</returns>
         public async Task<Conference?> DeleteAsync(int id)
         {
-            if (_dbContext.Conferences is null)
+            if (dbContext.Conferences is null)
             {
                 return null;
             }
@@ -179,7 +172,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Remove(conference);
+            dbContext.Remove(conference);
             return conference;
         }
 
@@ -209,7 +202,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
 
         private IIncludableQueryable<Conference, Season?>? GetConferencesDbSetWithNavigationProperties()
         {
-            return _dbContext.Conferences?
+            return dbContext.Conferences?
                 .Include(ts => ts.LeagueIdNavigation)
                 .Include(ts => ts.FirstSeasonIdNavigation)
                 .Include(ts => ts.LastSeasonIdNavigation);

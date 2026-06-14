@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using FakeItEasy;
@@ -8,8 +9,7 @@ using Xunit;
 using EldredBrown.ProFootball.Net.Data.Exceptions;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
-using EldredBrown.ProFootball.Net.Services.GameServiceNS.ProcessGameStrategy;
-using System.Collections.Generic;
+using EldredBrown.ProFootball.Net.Services.ProcessGameStrategy;
 
 namespace EldredBrown.ProFootball.Net.Services.Tests
 {
@@ -18,11 +18,11 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
         private const double _exponent = 2.37;
 
         [Theory]
-        [InlineData(1, 1, true, 0, 0, 0, 0, 1)]
-        [InlineData(2, 1, false, 1, 0, 0, 1, 0)]
-        [InlineData(1, 2, false, 0, 1, 1, 0, 0)]
-        public void ProcessGame_WhenGuestAndHostSeasonsFound_ShouldUpdateTeamSeasonsWithCorrectData(
-            int guestScore, int hostScore, bool isTie, int expGuestWins, int expGuestLosses, int expHostWins, int expHostLosses, int expTies)
+        [InlineData(1, 1, 0, 0, 0, 0, 1)]
+        [InlineData(2, 1, 1, 0, 0, 1, 0)]
+        [InlineData(1, 2, 0, 1, 1, 0, 0)]
+        public void ProcessGame_WhenGuestAndHostSeasonsFound_ShouldUpdateTeamSeasonsWithCorrectData(int guestScore,
+            int hostScore, int expGuestWins, int expGuestLosses, int expHostWins, int expHostLosses, int expTies)
         {
             // Arrange
             var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
@@ -188,11 +188,11 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
         }
 
         [Theory]
-        [InlineData(1, 1, true, 0, 0, 0, 0, 1)]
-        [InlineData(2, 1, false, 1, 0, 0, 1, 0)]
-        [InlineData(1, 2, false, 0, 1, 1, 0, 0)]
+        [InlineData(1, 1, 0, 0, 0, 0, 1)]
+        [InlineData(2, 1, 1, 0, 0, 1, 0)]
+        [InlineData(1, 2, 0, 1, 1, 0, 0)]
         public async Task ProcessGameAsync_WhenGuestAndHostSeasonsFound_ShouldUpdateTeamSeasonsWithCorrectData(
-            int guestScore, int hostScore, bool isTie, int expGuestWins, int expGuestLosses, int expHostWins, int expHostLosses, int expTies)
+            int guestScore, int hostScore, int expGuestWins, int expGuestLosses, int expHostWins, int expHostLosses, int expTies)
         {
             // Arrange
             var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
@@ -217,7 +217,7 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
                 PointsAgainst = 0
             };
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
-                .Returns(new List<TeamSeason> { guestSeason, hostSeason });
+                .Returns([guestSeason, hostSeason]);
 
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var guestName = "Guest";
@@ -294,10 +294,10 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             var guestSeason = new TeamSeason { TeamId = 1 };
             var hostSeason = new TeamSeason { TeamId = 2 };
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
-                .Returns(new List<TeamSeason> { guestSeason, hostSeason });
+                .Returns([guestSeason, hostSeason]);
 
             var fakeTeamRepository = A.Fake<ITeamRepository>();
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).Returns<Team>(null!);
+            A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).Returns<Team?>(null);
 
             var testStrategy = new AddGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
 
@@ -329,13 +329,13 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             var guestSeason = new TeamSeason { TeamId = 1 };
             var hostSeason = new TeamSeason { TeamId = 2 };
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
-                .Returns(Task.FromResult<IEnumerable<TeamSeason>>(new List<TeamSeason> { guestSeason, hostSeason }));
+                .Returns(Task.FromResult<IEnumerable<TeamSeason>?>([guestSeason, hostSeason]));
 
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var guestName = "Guest";
             var guest = new Team { Name = guestName };
             A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored))
-                .ReturnsNextFromSequence([Task.FromResult<Team>(guest), Task.FromResult<Team>(null!)]);
+                .ReturnsNextFromSequence([Task.FromResult(guest), Task.FromResult<Team>(null!)]);
 
             var testStrategy = new AddGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
 

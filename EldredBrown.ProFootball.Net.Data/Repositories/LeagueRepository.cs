@@ -13,19 +13,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
     /// <summary>
     /// Provides CRUD access to an external <see cref="League"/> data store.
     /// </summary>
-    public class LeagueRepository : ILeagueRepository
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="LeagueRepository"/> class.
+    /// </remarks>
+    /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
+    public class LeagueRepository(ProFootballDbContext dbContext) : ILeagueRepository
     {
-        private readonly ProFootballDbContext _dbContext;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LeagueRepository"/> class.
-        /// </summary>
-        /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
-        public LeagueRepository(ProFootballDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         /// <summary>
         /// Gets all <see cref="League"/> entities in the data store.
         /// </summary>
@@ -94,12 +87,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(league);
 
-            if (_dbContext.Leagues is null)
+            if (dbContext.Leagues is null)
             {
                 return league;
             }
 
-            _dbContext.Add(league);
+            dbContext.Add(league);
             return league;
         }
 
@@ -112,12 +105,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(league);
 
-            if (_dbContext.Leagues is null)
+            if (dbContext.Leagues is null)
             {
                 return league;
             }
 
-            await _dbContext.AddAsync(league);
+            await dbContext.AddAsync(league);
             return league;
         }
 
@@ -130,12 +123,12 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         {
             ArgumentNullException.ThrowIfNull(league);
 
-            if (_dbContext.Leagues is null)
+            if (dbContext.Leagues is null)
             {
                 return league;
             }
 
-            _dbContext.Update(league);
+            dbContext.Update(league);
             return league;
         }
 
@@ -146,7 +139,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The deleted <see cref="League"/> entity.</returns>
         public League? Delete(int id)
         {
-            if (_dbContext.Leagues is null)
+            if (dbContext.Leagues is null)
             {
                 return null;
             }
@@ -157,7 +150,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Remove(league);
+            dbContext.Remove(league);
             return league;
         }
 
@@ -168,7 +161,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The deleted <see cref="League"/> entity.</returns>
         public async Task<League?> DeleteAsync(int id)
         {
-            if (_dbContext.Leagues is null)
+            if (dbContext.Leagues is null)
             {
                 return null;
             }
@@ -179,7 +172,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
                 return null;
             }
 
-            _dbContext.Remove(league);
+            dbContext.Remove(league);
             return league;
         }
 
@@ -209,7 +202,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
 
         private IIncludableQueryable<League, Season?>? GetLeaguesDbSetWithNavigationProperties()
         {
-            return _dbContext.Leagues?
+            return dbContext.Leagues?
                 .Include(ts => ts.FirstSeasonIdNavigation)
                 .Include(ts => ts.LastSeasonIdNavigation);
         }

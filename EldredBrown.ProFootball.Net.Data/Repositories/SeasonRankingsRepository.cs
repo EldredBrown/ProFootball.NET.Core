@@ -18,9 +18,8 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         ProFootballDbContext dbContext,
         IConnectionStringProvider connectionStringProvider,
         IDbConnectionFactory connectionFactory
-    ) : ISeasonRankingsRepository
+        ) : ISeasonRankingsRepository
     {
-
         /// <summary>
         /// Gets an enumerable collection (<see cref="IEnumerable{RankingsOffensiveTeamSeason}"/>) from the data store
         /// by season year.

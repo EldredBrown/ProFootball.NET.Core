@@ -28,7 +28,6 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
             var sharedRepository = A.Fake<ISharedRepository>();
-
             var testService = new WeeklyUpdateService(fakeSeasonRepository, fakeGameRepository,
                 fakeLeagueSeasonRepository, fakeTeamSeasonRepository, fakeLeagueSeasonTotalsRepository,
                 fakeSeasonRankingsRepository, sharedRepository);
@@ -344,8 +343,7 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
         [InlineData(1)]
         [InlineData(0)]
         public async Task RunWeeklyUpdate_WhenDestSeasonIsNotNullAndWeekCountIsLessThanThree_ShouldUpdateLeagueSeasonAndWeekCount(
-            int maxWeek
-        )
+            int maxWeek)
         {
             // Arrange
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
@@ -1433,144 +1431,129 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             }
         }
 
-        public static IEnumerable<object[]> TestCases => new[]
-        {
-            new object[]
-            {
+        public static IEnumerable<object[]> TestCases =>
+        [
+            [
                 new TeamSeasonData(1, 0, 0),
                 new TeamSeasonScheduleData(0d, 0d),
                 0d,
                 new ExpectedOffensiveValues(0d, null, null),
                 new ExpectedDefensiveValues(0d, null, null),
                 null
-            },
-            new object[]
-            {
+            ],
+            [
                 new TeamSeasonData(1, 0, 0),
                 new TeamSeasonScheduleData(1d, 1d),
                 1d,
                 new ExpectedOffensiveValues(0d, 0d, 0d),
                 new ExpectedDefensiveValues(0d, 0d, 0d),
                 null
-            },
-            new object[]
-            {
+            ],
+            [
                 new TeamSeasonData(1, 1, 1),
                 new TeamSeasonScheduleData(1d, 1d),
                 1d,
                 new ExpectedOffensiveValues(1d, 1d, 1d),
                 new ExpectedDefensiveValues(1d, 1d, 1d),
                 0.5d
-            },
-            new object[]
-            {
+            ],
+            [
                 new TeamSeasonData(1, 1, 0),
                 new TeamSeasonScheduleData(1d, 1d),
                 1d,
                 new ExpectedOffensiveValues(1d, 1d, 1d),
                 new ExpectedDefensiveValues(0d, 0d, 0d),
                 1d
-            },
-            new object[]
-            {
+            ],
+            [
                 new TeamSeasonData(1, 0, 1),
                 new TeamSeasonScheduleData(1d, 1d),
                 1d,
                 new ExpectedOffensiveValues(0d, 0d, 0d),
                 new ExpectedDefensiveValues(1d, 1d, 1d),
                 0d
-            },
-            new object[]
-            {
+            ],
+            [
                 new TeamSeasonData(1, 2, 1),
                 new TeamSeasonScheduleData(1d, 1d),
                 1d,
                 new ExpectedOffensiveValues(2d, 2d, 2d),
                 new ExpectedDefensiveValues(1d, 1d, 1d),
                 0.8379d
-            },
-            new object[]
-            {
+            ],
+            [
                 new TeamSeasonData(1, 1, 2),
                 new TeamSeasonScheduleData(1d, 1d),
                 1d,
                 new ExpectedOffensiveValues(1d, 1d, 1d),
                 new ExpectedDefensiveValues(2d, 2d, 2d),
                 0.1621d
-            },
-            new object[]
-            {
+            ],
+            [
                 new TeamSeasonData(2, 3, 1),
                 new TeamSeasonScheduleData(1d, 1d),
                 1d,
                 new ExpectedOffensiveValues(1.5d, 1.5d, 1.5d),
                 new ExpectedDefensiveValues(0.5d, 0.5d, 0.5d),
                 0.9311d
-            },
-            new object[]
-            {
+            ],
+            [
                 new TeamSeasonData(2, 1, 3),
                 new TeamSeasonScheduleData(1d, 1d),
                 1d,
                 new ExpectedOffensiveValues(0.5d, 0.5d, 0.5d),
                 new ExpectedDefensiveValues(1.5d, 1.5d, 1.5d),
                 0.0689d
-            },
-            new object[]
-            {
+            ],
+            [
                 new TeamSeasonData(2, 3, 1),
                 new TeamSeasonScheduleData(1.5d, 0.5d),
                 1d,
                 new ExpectedOffensiveValues(1.5d, 3.0d, 2.25d),
                 new ExpectedDefensiveValues(0.5d, 0.3333d, 0.4167d),
                 0.9820d
-            },
-            new object[]
-            {
+            ],
+            [
                 new TeamSeasonData(2, 1, 3),
                 new TeamSeasonScheduleData(0.5d, 1.5d),
                 1d,
                 new ExpectedOffensiveValues(0.5d, 0.3333d, 0.4167d),
                 new ExpectedDefensiveValues(1.5d, 3.0d, 2.25d),
                 0.0180d
-            },
-            new object[]
-            {
+            ],
+            [
                 new TeamSeasonData(2, 3, 1),
                 new TeamSeasonScheduleData(1.5d, 0.5d),
                 0.5d,
                 new ExpectedOffensiveValues(1.5d, 3.0d, 1.5d),
                 new ExpectedDefensiveValues(0.5d, 0.3333d, 0.3333d),
                 0.9725d
-            },
-            new object[]
-            {
+            ],
+            [
                 new TeamSeasonData(2, 1, 3),
                 new TeamSeasonScheduleData(0.5d, 1.5d),
                 0.5d,
                 new ExpectedOffensiveValues(0.5d, 0.3333d, 0.3333d),
                 new ExpectedDefensiveValues(1.5d, 3.0d, 1.5d),
                 0.0275d
-            },
-            new object[]
-            {
+            ],
+            [
                 new TeamSeasonData(2, 35, 21),
                 new TeamSeasonScheduleData(14d, 14d),
                 14d,
                 new ExpectedOffensiveValues(17.5d, 1.25d, 17.5d),
                 new ExpectedDefensiveValues(10.5d, 0.75d, 10.5d),
                 0.7704d
-            },
-            new object[]
-            {
+            ],
+            [
                 new TeamSeasonData(2, 21, 35),
                 new TeamSeasonScheduleData(14d, 14d),
                 14d,
                 new ExpectedOffensiveValues(10.5d, 0.75d, 10.5d),
                 new ExpectedDefensiveValues(17.5d, 1.25d, 17.5d),
                 0.2296d
-            },
-        };
+            ],
+        ];
 
         [Theory]
         [MemberData(nameof(TestCases))]

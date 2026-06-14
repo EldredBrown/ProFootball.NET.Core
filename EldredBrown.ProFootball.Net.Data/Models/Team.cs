@@ -8,5 +8,5 @@ public partial class Team
 
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<TeamSeason> TeamSeasons { get; set; } = new List<TeamSeason>();
+    public virtual ICollection<TeamSeason> TeamSeasons { get; set; } = [];
 }

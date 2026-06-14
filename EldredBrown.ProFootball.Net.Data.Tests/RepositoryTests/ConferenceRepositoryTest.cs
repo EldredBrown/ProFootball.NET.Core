@@ -483,7 +483,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            Conference? conference = new Conference { };
+            Conference? conference = new() { };
 
             // Act
             var updated = testRepository.Update(conference);
@@ -499,7 +499,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            Conference? conference = new Conference { };
+            Conference? conference = new();
 
             // Act
             var updated = testRepository.Update(conference);
@@ -884,9 +884,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             fakeDbContext.Conferences = A.Fake<DbSet<Conference>>();
             var conferences = new List<Conference>
             {
-                new Conference { Id = 1, LongName = "Conference 1", ShortName = "C1", LeagueId = 1, FirstSeasonId = 1920 },
-                new Conference { Id = 2, LongName = "Conference 2", ShortName = "C2", LeagueId = 1, FirstSeasonId = 1920 },
-                new Conference { Id = 3, LongName = "Conference 3", ShortName = "C3", LeagueId = 1, FirstSeasonId = 1920 },
+                new() { Id = 1, LongName = "Conference 1", ShortName = "C1", LeagueId = 1, FirstSeasonId = 1920 },
+                new() { Id = 2, LongName = "Conference 2", ShortName = "C2", LeagueId = 1, FirstSeasonId = 1920 },
+                new() { Id = 3, LongName = "Conference 3", ShortName = "C3", LeagueId = 1, FirstSeasonId = 1920 },
             };
             var fakeDbSet = conferences.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.Conferences).Returns(fakeDbSet);

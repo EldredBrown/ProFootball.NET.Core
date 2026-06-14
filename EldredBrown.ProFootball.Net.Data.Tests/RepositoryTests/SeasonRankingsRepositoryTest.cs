@@ -1,11 +1,12 @@
-﻿using EldredBrown.ProFootball.Net.Data.Models;
-using EldredBrown.ProFootball.Net.Data.Repositories;
-using FakeItEasy;
-using Microsoft.EntityFrameworkCore;
-using Shouldly;
-using System.Data;
+﻿using System.Data;
 using System.Data.Common;
+
+using FakeItEasy;
+using Shouldly;
 using Xunit;
+
+using EldredBrown.ProFootball.Net.Data.Models;
+using EldredBrown.ProFootball.Net.Data.Repositories;
 
 namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 {
@@ -26,7 +27,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var expected = new List<RankingsOffensiveTeamSeason>
             {
-                new() { }
+                new()
             };
 
             _testRepository.OffensiveRankingsToReturn = expected;
@@ -48,7 +49,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var expected = new List<RankingsOffensiveTeamSeason>
             {
-                new RankingsOffensiveTeamSeason { }
+                new()
             };
 
             _testRepository.OffensiveRankingsToReturn = expected;
@@ -70,7 +71,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var expected = new List<RankingsDefensiveTeamSeason>
             {
-                new RankingsDefensiveTeamSeason { }
+                new()
             };
 
             _testRepository.DefensiveRankingsToReturn = expected;
@@ -92,7 +93,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var expected = new List<RankingsDefensiveTeamSeason>
             {
-                new RankingsDefensiveTeamSeason { }
+                new()
             };
 
             _testRepository.DefensiveRankingsToReturn = expected;
@@ -114,7 +115,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var expected = new List<RankingsTotalTeamSeason>
             {
-                new RankingsTotalTeamSeason { }
+                new()
             };
 
             _testRepository.TotalRankingsToReturn = expected;
@@ -136,7 +137,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var expected = new List<RankingsTotalTeamSeason>
             {
-                new RankingsTotalTeamSeason { }
+                new()
             };
 
             _testRepository.TotalRankingsToReturn = expected;

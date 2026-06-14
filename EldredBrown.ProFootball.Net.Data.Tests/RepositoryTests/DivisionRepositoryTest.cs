@@ -482,7 +482,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            Division? division = new Division { };
+            Division? division = new();
 
             // Act
             var updated = testRepository.Update(division);
@@ -498,7 +498,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            Division? division = new Division { };
+            Division? division = new();
 
             // Act
             var updated = testRepository.Update(division);
@@ -879,9 +879,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             fakeDbContext.Divisions = A.Fake<DbSet<Division>>();
             var divisions = new List<Division>
             {
-                new Division { Id = 1, Name = "Division 1", LeagueId = 1, FirstSeasonId = 1920 },
-                new Division { Id = 2, Name = "Division 2", LeagueId = 1, FirstSeasonId = 1920 },
-                new Division { Id = 3, Name = "Division 3", LeagueId = 1, FirstSeasonId = 1920 },
+                new() { Id = 1, Name = "Division 1", LeagueId = 1, FirstSeasonId = 1920 },
+                new() { Id = 2, Name = "Division 2", LeagueId = 1, FirstSeasonId = 1920 },
+                new() { Id = 3, Name = "Division 3", LeagueId = 1, FirstSeasonId = 1920 },
             };
             var fakeDbSet = divisions.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.Divisions).Returns(fakeDbSet);

@@ -24,7 +24,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var expected = new List<TeamSeasonOpponentProfile>
             {
-                new TeamSeasonOpponentProfile { }
+                new()
             };
 
             _testRepository.ProfileToReturn = expected;
@@ -48,7 +48,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var expected = new List<TeamSeasonOpponentProfile>
             {
-                new TeamSeasonOpponentProfile { }
+                new()
             };
 
             _testRepository.ProfileToReturn = expected;

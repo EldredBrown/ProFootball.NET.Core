@@ -28,9 +28,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
             var conferenceViewModels = new List<ConferenceViewModel>
             {
-                new ConferenceViewModel { Id = 1 },
-                new ConferenceViewModel { Id = 2 },
-                new ConferenceViewModel { Id = 3 },
+                new() { Id = 1 },
+                new() { Id = 2 },
+                new() { Id = 3 },
             };
             A.CallTo(() => fakeConferenceViewModelMapper.MapConferenceToViewModel(A<Conference>.Ignored))
                 .ReturnsNextFromSequence(conferenceViewModels.ToArray());
@@ -38,9 +38,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
             {
-                new Conference { Id = 1 },
-                new Conference { Id = 2 },
-                new Conference { Id = 3 },
+                new() { Id = 1 },
+                new() { Id = 2 },
+                new() { Id = 3 },
             };
             A.CallTo(() => fakeConferenceRepository.GetConferencesAsync()).Returns(conferences);
 
@@ -216,21 +216,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
             {
-                new Conference
+                new()
                 {
                     Id = 1,
                     ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 2,
                     ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 3,
                     ShortName = "C3",
@@ -286,21 +286,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
             {
-                new Conference
+                new()
                 {
                     Id = 1,
                     ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 2,
                     ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 3,
                     ShortName = "C3",
@@ -356,21 +356,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
             {
-                new Conference
+                new()
                 {
                     Id = 1,
                     ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 2,
                     ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 3,
                     ShortName = "C3",
@@ -420,21 +420,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
             {
-                new Conference
+                new()
                 {
                     Id = 1,
                     ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 2,
                     ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 3,
                     ShortName = "C3",
@@ -488,21 +488,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
             {
-                new Conference
+                new()
                 {
                     Id = 1,
                     ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 2,
                     ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 3,
                     ShortName = "C3",
@@ -556,21 +556,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
             {
-                new Conference
+                new()
                 {
                     Id = 1,
                     ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 2,
                     ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 3,
                     ShortName = "C3",
@@ -624,21 +624,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
             {
-                new Conference
+                new()
                 {
                     Id = 1,
                     ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 2,
                     ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 3,
                     ShortName = "C3",
@@ -714,7 +714,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceViewModelMapper = A.Fake<IConferenceViewModelMapper>();
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
-            Conference? conference = new Conference { };
+            Conference? conference = new();
             A.CallTo(() => fakeConferenceRepository.GetConferenceAsync(An<int>.Ignored)).Returns(conference);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
@@ -929,21 +929,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
             {
-                new Conference
+                new()
                 {
                     Id = 1,
                     ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 2,
                     ShortName = "C3",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 3,
                     ShortName = "C3",
@@ -999,21 +999,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
             {
-                new Conference
+                new()
                 {
                     Id = 1,
                     ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 2,
                     ShortName = "C2",
                     LongName = "Conference 3",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 3,
                     ShortName = "C3",
@@ -1063,21 +1063,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
             {
-                new Conference
+                new()
                 {
                     Id = 1,
                     ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 2,
                     ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 3,
                     ShortName = "C3",
@@ -1131,21 +1131,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
             {
-                new Conference
+                new()
                 {
                     Id = 1,
                     ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 2,
                     ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 3,
                     ShortName = "C3",
@@ -1199,21 +1199,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
             {
-                new Conference
+                new()
                 {
                     Id = 1,
                     ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 2,
                     ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 3,
                     ShortName = "C3",
@@ -1267,21 +1267,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
             var conferences = new List<Conference>
             {
-                new Conference
+                new()
                 {
                     Id = 1,
                     ShortName = "C1",
                     LongName = "Conference 1",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 2,
                     ShortName = "C2",
                     LongName = "Conference 2",
                     FirstSeasonId = 1920
                 },
-                new Conference
+                new()
                 {
                     Id = 3,
                     ShortName = "C3",
@@ -1364,7 +1364,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 .Returns(conferenceViewModel);
 
             var fakeConferenceRepository = A.Fake<IConferenceRepository>();
-            Conference? conference = new Conference { };
+            Conference? conference = new();
             A.CallTo(() => fakeConferenceRepository.GetConferenceAsync(An<int>.Ignored)).Returns(conference);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();

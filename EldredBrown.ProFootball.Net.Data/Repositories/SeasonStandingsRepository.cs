@@ -17,7 +17,6 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
     /// <param name="dbContext">The <see cref="ProFootballDbContext"/> representing the database.</param>
     public class SeasonStandingsRepository(ProFootballDbContext dbContext) : ISeasonStandingsRepository
     {
-
         /// <summary>
         /// Gets all <see cref="StandingsTeamSeason"/> entities in the data store.
         /// </summary>

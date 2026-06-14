@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="DecoratorTests\GameDecoratorTest.cs" />
     <Compile Remove="ModelTests\GameTest.cs" />
     <Compile Remove="ModelTests\LeagueSeasonTest.cs" />
   </ItemGroup>
@@ -35,10 +34,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EldredBrown.ProFootball.Net.Data\EldredBrown.ProFootball.Net.Data.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DecoratorTests\" />
   </ItemGroup>
 
 </Project>
