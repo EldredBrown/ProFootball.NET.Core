@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EldredBrown.ProFootball.Net
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EldredBrown.ProFootball.Net.Services.Tests", "EldredBrown.ProFootball.Net.Services.Tests\EldredBrown.ProFootball.Net.Services.Tests.csproj", "{2AB64489-1A31-3D0D-04E2-C0846038B6EC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EldredBrown.ProFootball.AspNetCore.WebApiApp", "EldredBrown.ProFootball.AspNetCore.WebApiApp\EldredBrown.ProFootball.AspNetCore.WebApiApp.csproj", "{0641D69C-BC36-DBE0-9962-CEFC32D7C8EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests", "EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests\EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests.csproj", "{6CBE3BF6-0C8C-EC77-5ECB-23579D86AFED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +55,14 @@ Global
 		{2AB64489-1A31-3D0D-04E2-C0846038B6EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2AB64489-1A31-3D0D-04E2-C0846038B6EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2AB64489-1A31-3D0D-04E2-C0846038B6EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0641D69C-BC36-DBE0-9962-CEFC32D7C8EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0641D69C-BC36-DBE0-9962-CEFC32D7C8EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0641D69C-BC36-DBE0-9962-CEFC32D7C8EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0641D69C-BC36-DBE0-9962-CEFC32D7C8EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CBE3BF6-0C8C-EC77-5ECB-23579D86AFED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CBE3BF6-0C8C-EC77-5ECB-23579D86AFED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CBE3BF6-0C8C-EC77-5ECB-23579D86AFED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CBE3BF6-0C8C-EC77-5ECB-23579D86AFED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

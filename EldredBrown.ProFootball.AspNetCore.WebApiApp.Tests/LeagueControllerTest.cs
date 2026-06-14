@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AutoMapper;
-using FakeItEasy;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+
+using AutoMapper;
+using FakeItEasy;
 using Shouldly;
 using Xunit;
+
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Models;
 using EldredBrown.ProFootball.Net.Data.Models;
@@ -15,7 +18,7 @@ using EldredBrown.ProFootball.Net.Data.Repositories;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 {
-    public class LeaguesControllerTest
+    public class LeagueControllerTest
     {
         [Fact]
         public async Task GetLeagues_WhenExceptionIsCaught_ShouldReturnInternalServerError()
@@ -28,7 +31,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeaguesController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
 
             // Act
             var result = await testController.GetLeagues();
@@ -51,7 +54,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeaguesController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
 
             // Act
             var result = await testController.GetLeagues();
@@ -79,7 +82,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeaguesController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
@@ -104,7 +107,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeaguesController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
@@ -132,7 +135,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeaguesController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
@@ -156,7 +159,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeaguesController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
             var model = new LeagueModel();
@@ -182,7 +185,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeaguesController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
             var model = new LeagueModel();
@@ -213,7 +216,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeaguesController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
             var model = new LeagueModel();
@@ -246,7 +249,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeaguesController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
             var model = new LeagueModel();
@@ -273,7 +276,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeaguesController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
@@ -298,7 +301,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeaguesController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
@@ -325,7 +328,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeaguesController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
@@ -352,7 +355,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeaguesController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 

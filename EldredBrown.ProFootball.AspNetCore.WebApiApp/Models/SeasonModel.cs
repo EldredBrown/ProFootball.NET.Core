@@ -11,11 +11,6 @@
         public int Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the year of the current <see cref="SeasonModel"/> object.
-        /// </summary>
-        public int Year { get; set; }
-
-        /// <summary>
         /// Gets or sets the number of weeks in the current <see cref="SeasonModel"/> object.
         /// </summary>
         public int NumOfWeeksScheduled { get; set; }

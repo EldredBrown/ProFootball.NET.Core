@@ -10,7 +10,7 @@ namespace EldredBrown.ProFootball.Net.Data.Models
         /// <summary>
         /// Gets or sets the name of the opponent.
         /// </summary>
-        public string Opponent { get; set; } = "";
+        public string Opponent { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the team's points scored against the opponent.

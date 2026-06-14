@@ -43,7 +43,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var seasonStandingsRepository = A.Fake<ISeasonStandingsRepository>();
-            var seasonStandings = new List<SeasonTeamStanding>();
+            var seasonStandings = new List<StandingsTeamSeason>();
             A.CallTo(() => seasonStandingsRepository.GetSeasonStandingsAsync(An<int>.Ignored)).Returns(seasonStandings);
 
             var mapper = A.Fake<IMapper>();
@@ -58,9 +58,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Assert
             A.CallTo(() => seasonStandingsRepository.GetSeasonStandingsAsync(seasonYear))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => mapper.Map<SeasonTeamStandingModel[]>(seasonStandings)).MustHaveHappenedOnceExactly();
-            result.ShouldBeOfType<ActionResult<SeasonTeamStandingModel[]>>();
-            result.Value.ShouldBe(mapper.Map<SeasonTeamStandingModel[]>(seasonStandings));
+            A.CallTo(() => mapper.Map<StandingsTeamSeasonModel[]>(seasonStandings)).MustHaveHappenedOnceExactly();
+            result.ShouldBeOfType<ActionResult<StandingsTeamSeasonModel[]>>();
+            result.Value.ShouldBe(mapper.Map<StandingsTeamSeasonModel[]>(seasonStandings));
         }
     }
 }

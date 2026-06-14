@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
-using AutoMapper;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+
+using AutoMapper;
+
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Models;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Properties;
 using EldredBrown.ProFootball.Net.Data.Models;
@@ -14,31 +17,20 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
     /// <summary>
     /// Provides control of access to season data.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="SeasonController"/> class.
+    /// </remarks>
+    /// <param name="seasonRepository">The repository by which season data will be accessed.</param>
+    /// <param name="sharedRepository">The repository by which shared data resources will be accessed.</param>
+    /// <param name="mapper">The AutoMapper object used for object-object mapping.</param>
+    /// <param name="linkGenerator">The <see cref="LinkGenerator"/> object used to generate URLs.</param>
     [Route("api/[controller]")]
     [ApiController]
-    public class SeasonsController : ControllerBase
+    public class SeasonController(
+        ISeasonRepository seasonRepository, ISharedRepository sharedRepository, IMapper mapper,
+        LinkGenerator linkGenerator
+        ) : ControllerBase
     {
-        private readonly ISeasonRepository _seasonRepository;
-        private readonly ISharedRepository _sharedRepository;
-        private readonly IMapper _mapper;
-        private readonly LinkGenerator _linkGenerator;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SeasonsController"/> class.
-        /// </summary>
-        /// <param name="seasonRepository">The repository by which season data will be accessed.</param>
-        /// <param name="sharedRepository">The repository by which shared data resources will be accessed.</param>
-        /// <param name="mapper">The AutoMapper object used for object-object mapping.</param>
-        /// <param name="linkGenerator">The <see cref="LinkGenerator"/> object used to generate URLs.</param>
-        public SeasonsController(ISeasonRepository seasonRepository, ISharedRepository sharedRepository,
-            IMapper mapper, LinkGenerator linkGenerator)
-        {
-            _seasonRepository = seasonRepository;
-            _sharedRepository = sharedRepository;
-            _mapper = mapper;
-            _linkGenerator = linkGenerator;
-        }
-
         // GET: api/Seasons
         /// <summary>
         /// Gets a collection of all seasons from the data store.
@@ -49,9 +41,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var seasons = await _seasonRepository.GetSeasonsAsync();
+                var seasons = await seasonRepository.GetSeasonsAsync();
 
-                return _mapper.Map<SeasonModel[]>(seasons);
+                return mapper.Map<SeasonModel[]>(seasons);
             }
             catch (Exception)
             {
@@ -70,13 +62,13 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var season = await _seasonRepository.GetSeasonAsync(id);
+                var season = await seasonRepository.GetSeasonAsync(id);
                 if (season is null)
                 {
                     return NotFound();
                 }
 
-                return _mapper.Map<SeasonModel>(season);
+                return mapper.Map<SeasonModel>(season);
             }
             catch (Exception)
             {
@@ -97,19 +89,19 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var location = _linkGenerator.GetPathByAction("GetSeason", "Seasons", new { id = -1 });
+                var location = linkGenerator.GetPathByAction("GetSeason", "Seasons", new { id = -1 });
                 if (string.IsNullOrWhiteSpace(location))
                 {
                     return BadRequest("Could not use Id");
                 }
 
-                var season = _mapper.Map<Season>(model);
+                var season = mapper.Map<Season>(model);
 
-                await _seasonRepository.AddAsync(season);
+                await seasonRepository.AddAsync(season);
 
-                if (await _sharedRepository.SaveChangesAsync() > 0)
+                if (await sharedRepository.SaveChangesAsync() > 0)
                 {
-                    return Created(location, _mapper.Map<SeasonModel>(season));
+                    return Created(location, mapper.Map<SeasonModel>(season));
                 }
             }
             catch (Exception)
@@ -134,17 +126,17 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var season = await _seasonRepository.GetSeasonAsync(id);
+                var season = await seasonRepository.GetSeasonAsync(id);
                 if (season is null)
                 {
                     return NotFound($"Could not find season with Id of {id}");
                 }
 
-                _mapper.Map(model, season);
+                mapper.Map(model, season);
 
-                if (await _sharedRepository.SaveChangesAsync() > 0)
+                if (await sharedRepository.SaveChangesAsync() > 0)
                 {
-                    return _mapper.Map<SeasonModel>(season);
+                    return mapper.Map<SeasonModel>(season);
                 }
             }
             catch (Exception)
@@ -166,15 +158,15 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var season = await _seasonRepository.GetSeasonAsync(id);
+                var season = await seasonRepository.GetSeasonAsync(id);
                 if (season is null)
                 {
                     return NotFound($"Could not find season with Id of {id}");
                 }
 
-                await _seasonRepository.DeleteAsync(id);
+                await seasonRepository.DeleteAsync(id);
 
-                if (await _sharedRepository.SaveChangesAsync() > 0)
+                if (await sharedRepository.SaveChangesAsync() > 0)
                 {
                     return Ok();
                 }

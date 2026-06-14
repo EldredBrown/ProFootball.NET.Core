@@ -1,6 +1,6 @@
 ﻿namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Models
 {
-    public class SeasonTeamStandingModel
+    public class StandingsTeamSeasonModel
     {
         /// <summary>
         /// Gets or sets the name the current <see cref="SeasonTeamStanding"/> entity's team.
@@ -56,5 +56,15 @@
         /// Gets or sets the average points against of the current <see cref="SeasonTeamStanding"/> entity.
         /// </summary>
         public double? AvgPointsAgainst { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of expected wins of the current <see cref="StandingsTeamSeason"/> entity.
+        /// </summary>
+        public decimal? ExpectedWins { get; set; }
+
+        /// <summary>
+        /// Gets or sets the number of expected losses of the current <see cref="StandingsTeamSeason"/> entity.
+        /// </summary>
+        public decimal? ExpectedLosses { get; set; }
     }
 }

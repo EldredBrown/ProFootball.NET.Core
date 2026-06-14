@@ -1,59 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AutoMapper;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+
+using AutoMapper;
+
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Models;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Properties;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
-using EldredBrown.ProFootball.Net.Services.GameServiceNS;
+using EldredBrown.ProFootball.Net.Services;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
 {
     /// <summary>
     /// Provides control of access to game data.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="GameController"/> class.
+    /// </remarks>
+    /// <param name="gameRepository">
+    /// The <see cref="IGameRepository"/> by which game data will be accessed.
+    /// </param>
+    /// <param name="sharedRepository">
+    /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
+    /// </param>
+    /// <param name="mapper">
+    /// The <see cref="IMapper"/> object used for object-object mapping.
+    /// </param>
+    /// <param name="linkGenerator">
+    /// The <see cref="LinkGenerator"/> object used to generate URLs.
+    /// </param>
+    /// <param name="gameService">
+    /// The <see cref="IGameService"/> object used to process game data.
+    /// </param>
     [Route("api/[controller]")]
     [ApiController]
-    public class GamesController : ControllerBase
+    public class GameController(
+        IGameRepository gameRepository, ISharedRepository sharedRepository, IMapper mapper,
+        LinkGenerator linkGenerator, IGameService gameService
+        ) : ControllerBase
     {
-        private readonly IGameRepository _gameRepository;
-        private readonly ISharedRepository _sharedRepository;
-        private readonly IMapper _mapper;
-        private readonly LinkGenerator _linkGenerator;
-        private readonly IGameService _gameService;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GamesController"/> class.
-        /// </summary>
-        /// <param name="gameRepository">
-        /// The <see cref="IGameRepository"/> by which game data will be accessed.
-        /// </param>
-        /// <param name="sharedRepository">
-        /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
-        /// </param>
-        /// <param name="mapper">
-        /// The <see cref="IMapper"/> object used for object-object mapping.
-        /// </param>
-        /// <param name="linkGenerator">
-        /// The <see cref="LinkGenerator"/> object used to generate URLs.
-        /// </param>
-        /// <param name="gameService">
-        /// The <see cref="IGameService"/> object used to process game data.
-        /// </param>
-        public GamesController(IGameRepository gameRepository, ISharedRepository sharedRepository,
-            IMapper mapper, LinkGenerator linkGenerator, IGameService gameService)
-        {
-            _gameRepository = gameRepository;
-            _sharedRepository = sharedRepository;
-            _mapper = mapper;
-            _linkGenerator = linkGenerator;
-            _gameService = gameService;
-        }
-
         // GET: api/Games
         /// <summary>
         /// Gets a collection of all games from the data store.
@@ -64,9 +54,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var games = await _gameRepository.GetGamesAsync();
+                var games = await gameRepository.GetGamesAsync();
 
-                return _mapper.Map<GameModel[]>(games);
+                return mapper.Map<GameModel[]>(games);
             }
             catch (Exception)
             {
@@ -85,13 +75,13 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var game = await _gameRepository.GetGameAsync(id);
+                var game = await gameRepository.GetGameAsync(id);
                 if (game is null)
                 {
                     return NotFound();
                 }
 
-                return _mapper.Map<GameModel>(game);
+                return mapper.Map<GameModel>(game);
             }
             catch (Exception)
             {
@@ -112,19 +102,19 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var location = _linkGenerator.GetPathByAction("GetGame", "Games", new { id = -1 });
+                var location = linkGenerator.GetPathByAction("GetGame", "Games", new { id = -1 });
                 if (string.IsNullOrWhiteSpace(location))
                 {
                     return BadRequest("Could not use Id");
                 }
 
-                var game = _mapper.Map<Game>(model);
+                var game = mapper.Map<Game>(model);
 
-                await _gameService.AddGameAsync(game);
+                await gameService.AddGameAsync(game);
 
-                if (await _sharedRepository.SaveChangesAsync() > 0)
+                if (await sharedRepository.SaveChangesAsync() > 0)
                 {
-                    return Created(location, _mapper.Map<GameModel>(game));
+                    return Created(location, mapper.Map<GameModel>(game));
                 }
 
                 return BadRequest();
@@ -149,21 +139,21 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var oldGame = _mapper.Map<Game>(models["oldGame"]);
+                var oldGame = mapper.Map<Game>(models["oldGame"]);
 
-                var currentGame = await _gameRepository.GetGameAsync(id);
+                var currentGame = await gameRepository.GetGameAsync(id);
                 if (currentGame is null)
                 {
                     return NotFound($"Could not find game with Id of {id}");
                 }
 
-                _mapper.Map(models["newGame"], currentGame);
+                mapper.Map(models["newGame"], currentGame);
 
-                await _gameService.EditGameAsync(currentGame, oldGame);
+                await gameService.EditGameAsync(currentGame, oldGame);
 
-                if (await _sharedRepository.SaveChangesAsync() > 0)
+                if (await sharedRepository.SaveChangesAsync() > 0)
                 {
-                    return _mapper.Map<GameModel>(currentGame);
+                    return mapper.Map<GameModel>(currentGame);
                 }
 
                 return BadRequest();
@@ -185,15 +175,15 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var game = await _gameRepository.GetGameAsync(id);
+                var game = await gameRepository.GetGameAsync(id);
                 if (game is null)
                 {
                     return NotFound($"Could not find game with Id of {id}");
                 }
 
-                await _gameService.DeleteGameAsync(id);
+                await gameService.DeleteGameAsync(id);
 
-                if (await _sharedRepository.SaveChangesAsync() > 0)
+                if (await sharedRepository.SaveChangesAsync() > 0)
                 {
                     return Ok();
                 }

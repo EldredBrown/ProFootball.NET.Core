@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AutoMapper;
-using FakeItEasy;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
+using AutoMapper;
+using FakeItEasy;
 using Shouldly;
 using Xunit;
+
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Models;
 using EldredBrown.ProFootball.Net.Data.Models;
@@ -22,17 +25,17 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamSeasonScheduleRepository = A.Fake<ITeamSeasonScheduleRepository>();
             A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(
-                A<string>.Ignored, An<int>.Ignored)).Throws<Exception>();
+                An<int>.Ignored, An<int>.Ignored)).Throws<Exception>();
 
             var mapper = A.Fake<IMapper>();
 
             var testController = new TeamSeasonScheduleController(teamSeasonScheduleRepository, mapper);
 
-            string teamName = "Team";
-            int seasonYear = 1920;
+            var teamId = 1;
+            int seasonId = 1920;
 
             // Act
-            var result = await testController.GetTeamSeasonScheduleProfile(teamName, seasonYear);
+            var result = await testController.GetTeamSeasonScheduleProfile(teamId, seasonId);
 
             // Assert
             result.Result.ShouldBeOfType<ObjectResult>();
@@ -47,20 +50,20 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var teamSeasonScheduleRepository = A.Fake<ITeamSeasonScheduleRepository>();
             var teamSeasonScheduleProfile = new List<TeamSeasonOpponentProfile>();
             A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(
-                A<string>.Ignored, An<int>.Ignored)).Returns(teamSeasonScheduleProfile);
+                An<int>.Ignored, An<int>.Ignored)).Returns(teamSeasonScheduleProfile);
 
             var mapper = A.Fake<IMapper>();
 
             var testController = new TeamSeasonScheduleController(teamSeasonScheduleRepository, mapper);
 
-            string teamName = "Team";
-            int seasonYear = 1920;
+            var teamId = 1;
+            int seasonId = 1920;
 
             // Act
-            var result = await testController.GetTeamSeasonScheduleProfile(teamName, seasonYear);
+            var result = await testController.GetTeamSeasonScheduleProfile(teamId, seasonId);
 
             // Assert
-            A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamName, seasonYear))
+            A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonId))
                 .MustHaveHappenedOnceExactly();
             result.Result.ShouldBeOfType<NotFoundResult>();
         }
@@ -75,7 +78,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
                 new TeamSeasonOpponentProfile()
             };
             A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(
-                A<string>.Ignored, An<int>.Ignored)).Returns(teamSeasonScheduleProfile);
+                An<int>.Ignored, An<int>.Ignored)).Returns(teamSeasonScheduleProfile);
 
             var mapper = A.Fake<IMapper>();
             TeamSeasonOpponentProfileModel[] teamSeasonScheduleProfileModels = {
@@ -86,14 +89,14 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 
             var testController = new TeamSeasonScheduleController(teamSeasonScheduleRepository, mapper);
 
-            string teamName = "Team";
-            int seasonYear = 1920;
+            var teamId = 1;
+            int seasonId = 1920;
 
             // Act
-            var result = await testController.GetTeamSeasonScheduleProfile(teamName, seasonYear);
+            var result = await testController.GetTeamSeasonScheduleProfile(teamId, seasonId);
 
             // Assert
-            A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamName, seasonYear))
+            A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonId))
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => mapper.Map<TeamSeasonOpponentProfileModel[]>(teamSeasonScheduleProfile))
                 .MustHaveHappenedOnceExactly();
@@ -106,17 +109,17 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamSeasonScheduleRepository = A.Fake<ITeamSeasonScheduleRepository>();
             A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(
-                A<string>.Ignored, An<int>.Ignored)).Throws<Exception>();
+                An<int>.Ignored, An<int>.Ignored)).Throws<Exception>();
 
             var mapper = A.Fake<IMapper>();
 
             var testController = new TeamSeasonScheduleController(teamSeasonScheduleRepository, mapper);
 
-            string teamName = "Team";
-            int seasonYear = 1920;
+            var teamId = 1;
+            int seasonId = 1920;
 
             // Act
-            var result = await testController.GetTeamSeasonScheduleTotals(teamName, seasonYear);
+            var result = await testController.GetTeamSeasonScheduleTotals(teamId, seasonId);
 
             // Assert
             result.Result.ShouldBeOfType<ObjectResult>();
@@ -131,7 +134,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var teamSeasonScheduleRepository = A.Fake<ITeamSeasonScheduleRepository>();
             TeamSeasonScheduleTotals? teamSeasonScheduleTotals = new TeamSeasonScheduleTotals();
             A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(
-                A<string>.Ignored, An<int>.Ignored)).Returns(teamSeasonScheduleTotals);
+                An<int>.Ignored, An<int>.Ignored)).Returns(teamSeasonScheduleTotals);
 
             var mapper = A.Fake<IMapper>();
             var teamSeasonScheduleTotalsModel = new TeamSeasonScheduleTotalsModel();
@@ -140,14 +143,14 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 
             var testController = new TeamSeasonScheduleController(teamSeasonScheduleRepository, mapper);
 
-            string teamName = "Team";
-            int seasonYear = 1920;
+            var teamId = 1;
+            int seasonId = 1920;
 
             // Act
-            var result = await testController.GetTeamSeasonScheduleTotals(teamName, seasonYear);
+            var result = await testController.GetTeamSeasonScheduleTotals(teamId, seasonId);
 
             // Assert
-            A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamName, seasonYear))
+            A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonId))
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => mapper.Map<TeamSeasonScheduleTotalsModel>(teamSeasonScheduleTotals))
                 .MustHaveHappenedOnceExactly();
@@ -160,17 +163,17 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var teamSeasonScheduleAveragesRepository = A.Fake<ITeamSeasonScheduleRepository>();
             A.CallTo(() => teamSeasonScheduleAveragesRepository.GetTeamSeasonScheduleAveragesAsync(
-                A<string>.Ignored, An<int>.Ignored)).Throws<Exception>();
+                An<int>.Ignored, An<int>.Ignored)).Throws<Exception>();
 
             var mapper = A.Fake<IMapper>();
 
             var testController = new TeamSeasonScheduleController(teamSeasonScheduleAveragesRepository, mapper);
 
-            string teamName = "Team";
-            int seasonYear = 1920;
+            var teamId = 1;
+            int seasonId = 1920;
 
             // Act
-            var result = await testController.GetTeamSeasonScheduleAverages(teamName, seasonYear);
+            var result = await testController.GetTeamSeasonScheduleAverages(teamId, seasonId);
 
             // Assert
             result.Result.ShouldBeOfType<ObjectResult>();
@@ -185,7 +188,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var teamSeasonScheduleAveragesRepository = A.Fake<ITeamSeasonScheduleRepository>();
             TeamSeasonScheduleAverages? teamSeasonScheduleAverages = new TeamSeasonScheduleAverages();
             A.CallTo(() => teamSeasonScheduleAveragesRepository.GetTeamSeasonScheduleAveragesAsync(
-                A<string>.Ignored, An<int>.Ignored)).Returns(teamSeasonScheduleAverages);
+                An<int>.Ignored, An<int>.Ignored)).Returns(teamSeasonScheduleAverages);
 
             var mapper = A.Fake<IMapper>();
             var teamSeasonScheduleAveragesModel = new TeamSeasonScheduleAveragesModel();
@@ -194,14 +197,14 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 
             var testController = new TeamSeasonScheduleController(teamSeasonScheduleAveragesRepository, mapper);
 
-            string teamName = "Team";
-            int seasonYear = 1920;
+            var teamId = 1;
+            int seasonId = 1920;
 
             // Act
-            var result = await testController.GetTeamSeasonScheduleAverages(teamName, seasonYear);
+            var result = await testController.GetTeamSeasonScheduleAverages(teamId, seasonId);
 
             // Assert
-            A.CallTo(() => teamSeasonScheduleAveragesRepository.GetTeamSeasonScheduleAveragesAsync(teamName, seasonYear))
+            A.CallTo(() => teamSeasonScheduleAveragesRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonId))
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => mapper.Map<TeamSeasonScheduleAveragesModel>(teamSeasonScheduleAverages))
                 .MustHaveHappenedOnceExactly();

@@ -1,22 +1,25 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AutoMapper;
-using FakeItEasy;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+
+using AutoMapper;
+using FakeItEasy;
 using Shouldly;
 using Xunit;
+
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Models;
 using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
-using EldredBrown.ProFootball.Net.Services.GameServiceNS;
+using EldredBrown.ProFootball.Net.Services;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 {
-    public class GamesControllerTest
+    public class GameControllerTest
     {
         [Fact]
         public async Task GetGames_WhenExceptionIsCaught_ShouldReturnInternalServerError()
@@ -31,7 +34,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var gameService = A.Fake<IGameService>();
 
             var testController =
-                new GamesController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
+                new GameController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
 
             // Act
             var result = await testController.GetGames();
@@ -56,7 +59,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var gameService = A.Fake<IGameService>();
 
             var testController =
-                new GamesController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
+                new GameController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
 
             // Act
             var result = await testController.GetGames();
@@ -86,7 +89,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var gameService = A.Fake<IGameService>();
 
             var testController =
-                new GamesController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
+                new GameController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
 
             int id = 1;
 
@@ -113,7 +116,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var gameService = A.Fake<IGameService>();
 
             var testController =
-                new GamesController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
+                new GameController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
 
             int id = 1;
 
@@ -143,7 +146,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var gameService = A.Fake<IGameService>();
 
             var testController =
-                new GamesController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
+                new GameController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
 
             int id = 1;
 
@@ -169,7 +172,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var gameService = A.Fake<IGameService>();
 
             var testController =
-                new GamesController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
+                new GameController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
 
             int id = 1;
             var models = new Dictionary<string, GameModel>();
@@ -201,7 +204,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var gameService = A.Fake<IGameService>();
 
             var testController =
-                new GamesController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
+                new GameController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
 
             int id = 1;
             var models = new Dictionary<string, GameModel>
@@ -246,7 +249,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var gameService = A.Fake<IGameService>();
 
             var testController =
-                new GamesController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
+                new GameController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
 
             int id = 1;
 
@@ -290,7 +293,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var gameService = A.Fake<IGameService>();
 
             var testController =
-                new GamesController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
+                new GameController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
 
             int id = 1;
 
@@ -320,7 +323,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var gameService = A.Fake<IGameService>();
 
             var testController =
-                new GamesController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
+                new GameController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
 
             int id = 1;
 
@@ -347,7 +350,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var gameService = A.Fake<IGameService>();
 
             var testController =
-                new GamesController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
+                new GameController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
 
             int id = 1;
 
@@ -376,7 +379,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var gameService = A.Fake<IGameService>();
 
             var testController =
-                new GamesController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
+                new GameController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
 
             int id = 1;
 
@@ -406,7 +409,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var gameService = A.Fake<IGameService>();
 
             var testController =
-                new GamesController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
+                new GameController(gameRepository, sharedRepository, mapper, linkGenerator, gameService);
 
             int id = 1;
 

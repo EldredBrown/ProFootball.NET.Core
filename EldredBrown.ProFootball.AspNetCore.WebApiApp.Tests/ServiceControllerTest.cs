@@ -1,30 +1,34 @@
 using System;
 using System.Threading.Tasks;
-using FakeItEasy;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
+using FakeItEasy;
 using Shouldly;
 using Xunit;
+
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers;
 using EldredBrown.ProFootball.Net.Services;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 {
-    public class ServicesControllerTest
+    public class ServiceControllerTest
     {
         [Fact]
         public async Task RunWeeklyUpdate_WhenExceptionIsCaught_ShouldReturnInternalServerError()
         {
             // Arrange
             var weeklyUpdateService = A.Fake<IWeeklyUpdateService>();
-            A.CallTo(() => weeklyUpdateService.RunWeeklyUpdate(An<int>.Ignored)).Throws<Exception>();
+            A.CallTo(() => weeklyUpdateService.RunWeeklyUpdate(An<int>.Ignored, An<int>.Ignored)).Throws<Exception>();
 
-            var testController = new ServicesController(weeklyUpdateService);
+            var testController = new ServiceController(weeklyUpdateService);
 
-            int year = 1920;
+            var leagueId = 1;
+            var seasonId = 1920;
 
             // Act
-            var result = await testController.RunWeeklyUpdate(year);
+            var result = await testController.RunWeeklyUpdate(leagueId, seasonId);
 
             // Assert
             result.ShouldBeOfType<ObjectResult>();
@@ -38,15 +42,16 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             // Arrange
             var weeklyUpdateService = A.Fake<IWeeklyUpdateService>();
 
-            var testController = new ServicesController(weeklyUpdateService);
+            var testController = new ServiceController(weeklyUpdateService);
 
-            int year = 1920;
+            var leagueId = 1;
+            var seasonId = 1920;
 
             // Act
-            var result = await testController.RunWeeklyUpdate(year);
+            var result = await testController.RunWeeklyUpdate(leagueId, seasonId);
 
             // Assert
-            A.CallTo(() => weeklyUpdateService.RunWeeklyUpdate(year)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => weeklyUpdateService.RunWeeklyUpdate(leagueId, seasonId)).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<OkResult>();
         }
     }

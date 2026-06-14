@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
-using AutoMapper;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+
+using AutoMapper;
+
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Models;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Properties;
 using EldredBrown.ProFootball.Net.Data.Models;
@@ -14,31 +17,20 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
     /// <summary>
     /// Provides control of access to league data.
     /// </summary>
+    /// <remarks>
+    /// Initializes a new instance of the <see cref="LeagueController"/> class.
+    /// </remarks>
+    /// <param name="leagueRepository">The repository by which league data will be accessed.</param>
+    /// <param name="sharedRepository">The repository by which shared data resources will be accessed.</param>
+    /// <param name="mapper">The AutoMapper object used for object-object mapping.</param>
+    /// <param name="linkGenerator">The <see cref="LinkGenerator"/> object used to generate URLs.</param>
     [Route("api/[controller]")]
     [ApiController]
-    public class LeaguesController : ControllerBase
+    public class LeagueController(
+        ILeagueRepository leagueRepository, ISharedRepository sharedRepository, IMapper mapper,
+        LinkGenerator linkGenerator
+        ) : ControllerBase
     {
-        private readonly ILeagueRepository _leagueRepository;
-        private readonly ISharedRepository _sharedRepository;
-        private readonly IMapper _mapper;
-        private readonly LinkGenerator _linkGenerator;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LeaguesController"/> class.
-        /// </summary>
-        /// <param name="leagueRepository">The repository by which league data will be accessed.</param>
-        /// <param name="sharedRepository">The repository by which shared data resources will be accessed.</param>
-        /// <param name="mapper">The AutoMapper object used for object-object mapping.</param>
-        /// <param name="linkGenerator">The <see cref="LinkGenerator"/> object used to generate URLs.</param>
-        public LeaguesController(ILeagueRepository leagueRepository, ISharedRepository sharedRepository,
-            IMapper mapper, LinkGenerator linkGenerator)
-        {
-            _leagueRepository = leagueRepository;
-            _sharedRepository = sharedRepository;
-            _mapper = mapper;
-            _linkGenerator = linkGenerator;
-        }
-
         // GET: api/Leagues
         /// <summary>
         /// Gets a collection of all leagues from the data store.
@@ -49,9 +41,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var leagues = await _leagueRepository.GetLeaguesAsync();
+                var leagues = await leagueRepository.GetLeaguesAsync();
 
-                return _mapper.Map<LeagueModel[]>(leagues);
+                return mapper.Map<LeagueModel[]>(leagues);
             }
             catch (Exception)
             {
@@ -70,13 +62,13 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var league = await _leagueRepository.GetLeagueAsync(id);
+                var league = await leagueRepository.GetLeagueAsync(id);
                 if (league is null)
                 {
                     return NotFound();
                 }
 
-                return _mapper.Map<LeagueModel>(league);
+                return mapper.Map<LeagueModel>(league);
             }
             catch (Exception)
             {
@@ -97,19 +89,19 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var location = _linkGenerator.GetPathByAction("GetLeague", "Leagues", new { id = -1 });
+                var location = linkGenerator.GetPathByAction("GetLeague", "Leagues", new { id = -1 });
                 if (string.IsNullOrWhiteSpace(location))
                 {
                     return BadRequest("Could not use Id");
                 }
 
-                var league = _mapper.Map<League>(model);
+                var league = mapper.Map<League>(model);
 
-                await _leagueRepository.AddAsync(league);
+                await leagueRepository.AddAsync(league);
 
-                if (await _sharedRepository.SaveChangesAsync() > 0)
+                if (await sharedRepository.SaveChangesAsync() > 0)
                 {
-                    return Created(location, _mapper.Map<LeagueModel>(league));
+                    return Created(location, mapper.Map<LeagueModel>(league));
                 }
 
                 return BadRequest();
@@ -134,17 +126,17 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var league = await _leagueRepository.GetLeagueAsync(id);
+                var league = await leagueRepository.GetLeagueAsync(id);
                 if (league is null)
                 {
                     return NotFound($"Could not find league with Id of {id}");
                 }
 
-                _mapper.Map(model, league);
+                mapper.Map(model, league);
 
-                if (await _sharedRepository.SaveChangesAsync() > 0)
+                if (await sharedRepository.SaveChangesAsync() > 0)
                 {
-                    return _mapper.Map<LeagueModel>(league);
+                    return mapper.Map<LeagueModel>(league);
                 }
 
                 return BadRequest();
@@ -166,15 +158,15 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var league = await _leagueRepository.GetLeagueAsync(id);
+                var league = await leagueRepository.GetLeagueAsync(id);
                 if (league is null)
                 {
                     return NotFound($"Could not find league with Id of {id}");
                 }
 
-                await _leagueRepository.DeleteAsync(id);
+                await leagueRepository.DeleteAsync(id);
 
-                if (await _sharedRepository.SaveChangesAsync() > 0)
+                if (await sharedRepository.SaveChangesAsync() > 0)
                 {
                     return Ok();
                 }

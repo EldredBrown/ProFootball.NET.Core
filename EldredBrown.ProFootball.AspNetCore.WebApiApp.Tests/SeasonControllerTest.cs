@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AutoMapper;
-using FakeItEasy;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+
+using AutoMapper;
+using FakeItEasy;
 using Shouldly;
 using Xunit;
+
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Models;
 using EldredBrown.ProFootball.Net.Data.Models;
@@ -15,7 +18,7 @@ using EldredBrown.ProFootball.Net.Data.Repositories;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 {
-    public class SeasonsControllerTest
+    public class SeasonControllerTest
     {
         [Fact]
         public async Task GetSeasons_WhenExceptionIsCaught_ShouldReturnInternalServerError()
@@ -28,7 +31,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new SeasonsController(seasonRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new SeasonController(seasonRepository, sharedRepository, mapper, linkGenerator);
 
             // Act
             var result = await testController.GetSeasons();
@@ -51,7 +54,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new SeasonsController(seasonRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new SeasonController(seasonRepository, sharedRepository, mapper, linkGenerator);
 
             // Act
             var result = await testController.GetSeasons();
@@ -68,18 +71,18 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var seasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = new Season();
+            Season? season = new();
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
 
             var mapper = A.Fake<IMapper>();
-            SeasonModel? seasonModel = new SeasonModel();
+            SeasonModel? seasonModel = new();
             A.CallTo(() => mapper.Map<SeasonModel>(A<Season>.Ignored)).Returns(seasonModel);
 
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new SeasonsController(seasonRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new SeasonController(seasonRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
@@ -104,7 +107,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new SeasonsController(seasonRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new SeasonController(seasonRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
@@ -121,7 +124,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var seasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = new Season();
+            Season? season = new();
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
 
             var sharedRepository = A.Fake<ISharedRepository>();
@@ -132,7 +135,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new SeasonsController(seasonRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new SeasonController(seasonRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
@@ -156,7 +159,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new SeasonsController(seasonRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new SeasonController(seasonRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
             var model = new SeasonModel();
@@ -182,7 +185,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new SeasonsController(seasonRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new SeasonController(seasonRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
             var model = new SeasonModel();
@@ -201,7 +204,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var seasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = new Season();
+            Season? season = new();
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
 
             var sharedRepository = A.Fake<ISharedRepository>();
@@ -213,7 +216,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new SeasonsController(seasonRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new SeasonController(seasonRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
             var model = new SeasonModel();
@@ -234,7 +237,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var seasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = new Season();
+            Season? season = new();
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
 
             var sharedRepository = A.Fake<ISharedRepository>();
@@ -246,7 +249,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
 
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new SeasonsController(seasonRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new SeasonController(seasonRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
             var model = new SeasonModel();
@@ -273,7 +276,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new SeasonsController(seasonRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new SeasonController(seasonRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
@@ -298,7 +301,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new SeasonsController(seasonRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new SeasonController(seasonRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
@@ -316,7 +319,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var seasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = new Season();
+            Season? season = new();
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
 
             var sharedRepository = A.Fake<ISharedRepository>();
@@ -325,7 +328,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new SeasonsController(seasonRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new SeasonController(seasonRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
@@ -343,7 +346,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         {
             // Arrange
             var seasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = new Season();
+            Season? season = new();
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
 
             var sharedRepository = A.Fake<ISharedRepository>();
@@ -352,7 +355,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new SeasonsController(seasonRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new SeasonController(seasonRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
