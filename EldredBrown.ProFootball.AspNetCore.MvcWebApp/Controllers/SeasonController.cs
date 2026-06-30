@@ -46,7 +46,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         public async Task<IActionResult> Index()
         {
             seasonIndexViewModel.Seasons = await seasonRepository.GetSeasonsAsync();
-
             return View(seasonIndexViewModel);
         }
 
@@ -242,7 +241,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             }
         }
 
-        private bool PrimaryKeyViolationExists(IEnumerable<Season> seasons, Season season)
+        private static bool PrimaryKeyViolationExists(IEnumerable<Season> seasons, Season season)
         {
             return seasons.Any(s => s.Id == season.Id);
         }
