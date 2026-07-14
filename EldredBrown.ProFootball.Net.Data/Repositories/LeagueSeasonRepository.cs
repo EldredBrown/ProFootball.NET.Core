@@ -45,7 +45,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>An <see cref="IEnumerable{LeagueSeason}"/> of all fetched entities.</returns>
         public IEnumerable<LeagueSeason>? GetLeagueSeasonsByLeague(int leagueId)
         {
-            return GetLeagueSeasons()?.Where(g => g.LeagueId == leagueId).ToList();
+            return GetLeagueSeasons()?.Where(ls => ls.LeagueId == leagueId).ToList();
         }
 
         /// <summary>
@@ -56,28 +56,28 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         public async Task<IEnumerable<LeagueSeason>?> GetLeagueSeasonsByLeagueAsync(int leagueId)
         {
             var leagueSeasons = await GetLeagueSeasonsAsync();
-            return leagueSeasons is null ? null : leagueSeasons.Where(g => g.LeagueId == leagueId).ToList();
+            return leagueSeasons is null ? null : leagueSeasons.Where(ls => ls.LeagueId == leagueId).ToList();
         }
 
         /// <summary>
         /// Gets all <see cref="LeagueSeason"/> entities in the data store.
         /// </summary>
-        /// <param name="seasonId">The Id of the season for which to fetch leagueSeasons.</param>
+        /// <param name="seasonYear">The Id of the season for which to fetch leagueSeasons.</param>
         /// <returns>An <see cref="IEnumerable{LeagueSeason}"/> of all fetched entities.</returns>
-        public IEnumerable<LeagueSeason>? GetLeagueSeasonsBySeason(int seasonId)
+        public IEnumerable<LeagueSeason>? GetLeagueSeasonsBySeason(int seasonYear)
         {
-            return GetLeagueSeasons()?.Where(g => g.SeasonId == seasonId).ToList();
+            return GetLeagueSeasons()?.Where(ls => ls.SeasonYear == seasonYear).ToList();
         }
 
         /// <summary>
         /// Gets all <see cref="LeagueSeason"/> entities in the data store.
         /// </summary>
-        /// <param name="seasonId">The Id of the season for which to fetch leagueSeasons.</param>
+        /// <param name="seasonYear">The Id of the season for which to fetch leagueSeasons.</param>
         /// <returns>An <see cref="IEnumerable{LeagueSeason}"/> of all fetched entities.</returns>
-        public async Task<IEnumerable<LeagueSeason>?> GetLeagueSeasonsBySeasonAsync(int seasonId)
+        public async Task<IEnumerable<LeagueSeason>?> GetLeagueSeasonsBySeasonAsync(int seasonYear)
         {
             var leagueSeasons = await GetLeagueSeasonsAsync();
-            return leagueSeasons is null ? null : leagueSeasons.Where(g => g.SeasonId == seasonId).ToList();
+            return leagueSeasons is null ? null : leagueSeasons.Where(ls => ls.SeasonYear == seasonYear).ToList();
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The fetched <see cref="LeagueSeason"/> entity.</returns>
         public LeagueSeason? GetLeagueSeason(int id)
         {
-            return GetLeagueSeasons()?.FirstOrDefault(g => g.Id == id);
+            return GetLeagueSeasons()?.FirstOrDefault(ls => ls.Id == id);
         }
 
         /// <summary>
@@ -97,18 +97,18 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The fetched <see cref="LeagueSeason"/> entity.</returns>
         public async Task<LeagueSeason?> GetLeagueSeasonAsync(int id)
         {
-            return (await GetLeagueSeasonsAsync())?.FirstOrDefault(g => g.Id == id);
+            return (await GetLeagueSeasonsAsync())?.FirstOrDefault(ls => ls.Id == id);
         }
 
         /// <summary>
         /// Gets a single <see cref="LeagueSeason"/> entity from the data store by league ID and season year.
         /// </summary>
         /// <param name="leagueId">The league ID of the <see cref="LeagueSeason"/> entity to fetch.</param>
-        /// <param name="seasonId">The season year of the <see cref="LeagueSeason"/> entity to fetch.</param>
+        /// <param name="seasonYear">The season year of the <see cref="LeagueSeason"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="LeagueSeason"/> entity.</returns>
-        public LeagueSeason? GetLeagueSeasonByLeagueAndSeason(int leagueId, int seasonId)
+        public LeagueSeason? GetLeagueSeasonByLeagueAndSeason(int leagueId, int seasonYear)
         {
-            return GetLeagueSeasons()?.FirstOrDefault(g => g.LeagueId == leagueId && g.SeasonId == seasonId);
+            return GetLeagueSeasons()?.FirstOrDefault(ls => ls.LeagueId == leagueId && ls.SeasonYear == seasonYear);
         }
 
         /// <summary>
@@ -116,11 +116,11 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// year.
         /// </summary>
         /// <param name="leagueId">The league ID of the <see cref="LeagueSeason"/> entity to fetch.</param>
-        /// <param name="seasonId">The season year of the <see cref="LeagueSeason"/> entity to fetch.</param>
+        /// <param name="seasonYear">The season year of the <see cref="LeagueSeason"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="LeagueSeason"/> entity.</returns>
-        public async Task<LeagueSeason?> GetLeagueSeasonByLeagueAndSeasonAsync(int leagueId, int seasonId)
+        public async Task<LeagueSeason?> GetLeagueSeasonByLeagueAndSeasonAsync(int leagueId, int seasonYear)
         {
-            return (await GetLeagueSeasonsAsync())?.FirstOrDefault(g => g.LeagueId == leagueId && g.SeasonId == seasonId);
+            return (await GetLeagueSeasonsAsync())?.FirstOrDefault(ls => ls.LeagueId == leagueId && ls.SeasonYear == seasonYear);
         }
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public bool LeagueSeasonExists(int id)
         {
-            return GetLeagueSeasons()?.Any(g => g.Id == id) ?? false;
+            return GetLeagueSeasons()?.Any(ls => ls.Id == id) ?? false;
         }
 
         /// <summary>
@@ -242,14 +242,14 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </returns>
         public async Task<bool> LeagueSeasonExistsAsync(int id)
         {
-            return (await GetLeagueSeasonsAsync())?.Any(g => g.Id == id) ?? false;
+            return (await GetLeagueSeasonsAsync())?.Any(ls => ls.Id == id) ?? false;
         }
 
         private IIncludableQueryable<LeagueSeason, Season?>? GetLeagueSeasonsDbSetWithNavigationProperties()
         {
             return dbContext.LeagueSeasons?
-                .Include(ts => ts.LeagueIdNavigation)
-                .Include(ts => ts.SeasonIdNavigation);
+                .Include(ls => ls.LeagueIdNavigation)
+                .Include(ls => ls.SeasonYearNavigation);
         }
     }
 }

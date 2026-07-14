@@ -14,13 +14,7 @@
     <thead>
         <tr>
             <th class="text-right">
-                <label asp-for="Seasons.SingleOrDefault().Id"></label>
-            </th>
-            <th class="text-right">
-                <label asp-for="Seasons.SingleOrDefault().NumOfWeeksScheduled"></label>
-            </th>
-            <th class="text-right">
-                <label asp-for="Seasons.SingleOrDefault().NumOfWeeksCompleted"></label>
+                <label asp-for="Seasons.SingleOrDefault().Year"></label>
             </th>
             <th></th>
         </tr>
@@ -29,18 +23,11 @@
 @foreach (var season in Model.Seasons) {
         <tr>
             <td class="text-right">
-                @Html.DisplayFor(modelItem => season.Id)
-            </td>
-            <td class="text-right">
-                @Html.DisplayFor(modelItem => season.NumOfWeeksScheduled)
-            </td>
-            <td class="text-right">
-                @Html.DisplayFor(modelItem => season.NumOfWeeksCompleted)
+                @Html.DisplayFor(modelItem => season.Year)
             </td>
             <td>
-                <a class="btn btn-primary btn-sm" asp-action="Details" asp-route-id="@season.Id">Details</a>
-                <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@season.Id">Edit</a>
-                <a class="btn btn-primary btn-sm" asp-action="Delete" asp-route-id="@season.Id">Delete</a>
+                <a class="btn btn-primary btn-sm" asp-action="Details" asp-route-year="@season.Year">Details</a>
+                <a class="btn btn-primary btn-sm" asp-action="Delete" asp-route-year="@season.Year">Delete</a>
             </td>
         </tr>
 }

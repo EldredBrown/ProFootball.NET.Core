@@ -8,7 +8,7 @@ public partial class TeamSeason
 
     public int TeamId { get; set; }
 
-    public int SeasonId { get; set; }
+    public int SeasonYear { get; set; }
 
     public int LeagueId { get; set; }
 
@@ -50,14 +50,14 @@ public partial class TeamSeason
     public virtual Team TeamIdNavigation { get; set; } = null!;
 
     [ValidateNever]
-    public virtual Season SeasonIdNavigation { get; set; } = null!;
+    public virtual Season SeasonYearNavigation { get; set; } = null!;
 
     [ValidateNever]
-    public virtual League LeagueIdNavigation { get; set; } = null!;
+    public virtual Association LeagueIdNavigation { get; set; } = null!;
 
     [ValidateNever]
-    public virtual Conference? ConferenceIdNavigation { get; set; }
+    public virtual Association ConferenceIdNavigation { get; set; } = null!;
 
     [ValidateNever]
-    public virtual Division? DivisionIdNavigation { get; set; }
+    public virtual Association DivisionIdNavigation { get; set; } = null!;
 }

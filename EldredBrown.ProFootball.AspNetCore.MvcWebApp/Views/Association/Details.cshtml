@@ -1,0 +1,55 @@
+﻿@using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Association
+@model AssociationDetailsViewModel
+
+@{
+    ViewData["Title"] = "Association";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h4>Details</h4>
+<hr />
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            <label asp-for="Association.LongName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Association.LongName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Association.ShortName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Association.ShortName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Association.ParentName"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Association.ParentName)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Association.FirstSeasonYear"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Association.FirstSeasonYear)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="Association.LastSeasonYear"></label>
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Association.LastSeasonYear)
+        </dd>
+    </dl>
+</div>
+
+<div>
+    <p>
+        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Association.Id">Edit</a>
+        <a class="btn btn-danger" asp-action="Delete" asp-route-id="@Model.Association.Id">Delete</a>
+    </p>
+    <p>
+        <a asp-action="Index">Back to List</a>
+    </p>
+</div>

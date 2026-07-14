@@ -18,84 +18,88 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         ProFootballDbContext dbContext,
         IConnectionStringProvider connectionStringProvider,
         IDbConnectionFactory connectionFactory
-        ) : ISeasonRankingsRepository
+    ) : ISeasonRankingsRepository
     {
         /// <summary>
         /// Gets an enumerable collection (<see cref="IEnumerable{RankingsOffensiveTeamSeason}"/>) from the data store
         /// by season year.
         /// </summary>
-        /// <param name="seasonId">
+        /// <param name="seasonYear">
         /// The season year of the <see cref="RankingsOffensiveTeamSeason"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="IEnumerable{RankingsOffensiveTeamSeason}"/> collection.</returns>
-        public IEnumerable<RankingsOffensiveTeamSeason> GetOffensiveRankingsForSeason(int seasonId)
+        public IEnumerable<RankingsOffensiveTeamSeason> GetOffensiveRankings(int seasonYear, int leagueId)
         {
-            return ExecuteGetOffensiveRankingsForSeason(seasonId);
+            return ExecuteGetOffensiveRankings(seasonYear, leagueId);
         }
 
         /// <summary>
         /// Gets an enumerable collection (<see cref="IEnumerable{RankingsOffensiveTeamSeason}"/>) from the data store
         /// by season year.
         /// </summary>
-        /// <param name="seasonId">
+        /// <param name="seasonYear">
         /// The season year of the <see cref="RankingsOffensiveTeamSeason"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="IEnumerable{RankingsOffensiveTeamSeason}"/> collection.</returns>
-        public async Task<IEnumerable<RankingsOffensiveTeamSeason>> GetOffensiveRankingsForSeasonAsync(int seasonId)
+        public async Task<IEnumerable<RankingsOffensiveTeamSeason>> GetOffensiveRankingsAsync(
+            int seasonYear, int leagueId
+        )
         {
-            return await ExecuteGetOffensiveRankingsForSeasonAsync(seasonId);
+            return await ExecuteGetOffensiveRankingsAsync(seasonYear, leagueId);
         }
 
         /// <summary>
         /// Gets an enumerable collection (<see cref="IEnumerable{RankingsDefensiveTeamSeason}"/>) from the data store
         /// by season year.
         /// </summary>
-        /// <param name="seasonId">
+        /// <param name="seasonYear">
         /// The season year of the <see cref="RankingsDefensiveTeamSeason"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="IEnumerable{RankingsDefensiveTeamSeason}"/> collection.</returns>
-        public IEnumerable<RankingsDefensiveTeamSeason> GetDefensiveRankingsForSeason(int seasonId)
+        public IEnumerable<RankingsDefensiveTeamSeason> GetDefensiveRankings(int seasonYear, int leagueId)
         {
-            return ExecuteGetDefensiveRankingsForSeason(seasonId);
+            return ExecuteGetDefensiveRankings(seasonYear, leagueId);
         }
 
         /// <summary>
         /// Gets an enumerable collection (<see cref="IEnumerable{RankingsDefensiveTeamSeason}"/>) from the data store
         /// by season year.
         /// </summary>
-        /// <param name="seasonId">
+        /// <param name="seasonYear">
         /// The season year of the <see cref="RankingsDefensiveTeamSeason"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="IEnumerable{RankingsDefensiveTeamSeason}"/> collection.</returns>
-        public async Task<IEnumerable<RankingsDefensiveTeamSeason>> GetDefensiveRankingsForSeasonAsync(int seasonId)
+        public async Task<IEnumerable<RankingsDefensiveTeamSeason>> GetDefensiveRankingsAsync(
+            int seasonYear, int leagueId
+        )
         {
-            return await ExecuteGetDefensiveRankingsForSeasonAsync(seasonId);
+            return await ExecuteGetDefensiveRankingsAsync(seasonYear, leagueId);
         }
 
         /// <summary>
         /// Gets an enumerable collection (<see cref="IEnumerable{RankingsTotalTeamSeason}"/>) from the data store
         /// by season year.
         /// </summary>
-        /// <param name="seasonId">
+        /// <param name="seasonYear">
         /// The season year of the <see cref="RankingsTotalTeamSeason"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="IEnumerable{RankingsTotalTeamSeason}"/> collection.</returns>
-        public IEnumerable<RankingsTotalTeamSeason> GetTotalRankingsForSeason(int seasonId)
+        public IEnumerable<RankingsTotalTeamSeason> GetTotalRankings(int seasonYear, int leagueId)
         {
-            return ExecuteGetTotalRankingsForSeason(seasonId);
+            return ExecuteGetTotalRankings(seasonYear, leagueId);
         }
 
         /// <summary>
         /// Gets an enumerable collection (<see cref="IEnumerable{RankingsTotalTeamSeason}"/>) from the data store
         /// by season year.
         /// </summary>
-        /// <param name="seasonId">
+        /// <param name="seasonYear">
         /// The season year of the <see cref="RankingsTotalTeamSeason"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="IEnumerable{RankingsTotalTeamSeason}"/> collection.</returns>
-        public async Task<IEnumerable<RankingsTotalTeamSeason>> GetTotalRankingsForSeasonAsync(int seasonId)
+        public async Task<IEnumerable<RankingsTotalTeamSeason>> GetTotalRankingsAsync(int seasonYear, int leagueId)
         {
-            return await ExecuteGetTotalRankingsForSeasonAsync(seasonId);
+            return await ExecuteGetTotalRankingsAsync(seasonYear, leagueId);
         }
 
         /// <summary>
@@ -120,7 +124,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
             command.CommandType = CommandType.StoredProcedure;
             command.Parameters.Add(new SqlParameter("@team_id", teamSeason.TeamId));
             command.Parameters.Add(new SqlParameter("@league_id", teamSeason.LeagueId));
-            command.Parameters.Add(new SqlParameter("@season_id", teamSeason.SeasonId));
+            command.Parameters.Add(new SqlParameter("@season_year", teamSeason.SeasonYear));
 
             connection.Open();
 
@@ -148,50 +152,50 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         }
 
         protected virtual IEnumerable<RankingsOffensiveTeamSeason> 
-            ExecuteGetOffensiveRankingsForSeason(int seasonId)
+            ExecuteGetOffensiveRankings(int seasonYear, int leagueId)
         {
             return dbContext.OffensiveRankings
-                .FromSqlInterpolated($"EXEC sp_GetRankingsOffensive @season_id = {seasonId}")
+                .FromSqlInterpolated($"EXEC sp_GetRankingsOffensive @season_year = {seasonYear}")
                 .ToList();
         }
 
         protected virtual async Task<IEnumerable<RankingsOffensiveTeamSeason>>
-            ExecuteGetOffensiveRankingsForSeasonAsync(int seasonId)
+            ExecuteGetOffensiveRankingsAsync(int seasonYear, int leagueId)
         {
             return await dbContext.OffensiveRankings
-                .FromSqlInterpolated($"EXEC sp_GetRankingsOffensive @season_id = {seasonId}")
+                .FromSqlInterpolated($"EXEC sp_GetRankingsOffensive @season_year = {seasonYear}")
                 .ToListAsync();
         }
 
         protected virtual IEnumerable<RankingsDefensiveTeamSeason>
-            ExecuteGetDefensiveRankingsForSeason(int seasonId)
+            ExecuteGetDefensiveRankings(int seasonYear, int leagueId)
         {
             return dbContext.DefensiveRankings
-                .FromSqlInterpolated($"EXEC sp_GetRankingsDefensive @season_id = {seasonId}")
+                .FromSqlInterpolated($"EXEC sp_GetRankingsDefensive @season_year = {seasonYear}")
                 .ToList();
         }
 
         protected virtual async Task<IEnumerable<RankingsDefensiveTeamSeason>>
-            ExecuteGetDefensiveRankingsForSeasonAsync(int seasonId)
+            ExecuteGetDefensiveRankingsAsync(int seasonYear, int leagueId)
         {
             return await dbContext.DefensiveRankings
-                .FromSqlInterpolated($"EXEC sp_GetRankingsDefensive @season_id = {seasonId}")
+                .FromSqlInterpolated($"EXEC sp_GetRankingsDefensive @season_year = {seasonYear}, @league_id = {leagueId}")
                 .ToListAsync();
         }
 
         protected virtual IEnumerable<RankingsTotalTeamSeason>
-            ExecuteGetTotalRankingsForSeason(int seasonId)
+            ExecuteGetTotalRankings(int seasonYear, int leagueId)
         {
             return dbContext.TotalRankings
-                .FromSqlInterpolated($"EXEC sp_GetRankingsTotal @season_id = {seasonId}")
+                .FromSqlInterpolated($"EXEC sp_GetRankingsTotal @season_year = {seasonYear}, @league_id = {leagueId}")
                 .ToList();
         }
 
         protected virtual async Task<IEnumerable<RankingsTotalTeamSeason>>
-            ExecuteGetTotalRankingsForSeasonAsync(int seasonId)
+            ExecuteGetTotalRankingsAsync(int seasonYear, int leagueId)
         {
             return await dbContext.TotalRankings
-                .FromSqlInterpolated($"EXEC sp_GetRankingsTotal @season_id = {seasonId}")
+                .FromSqlInterpolated($"EXEC sp_GetRankingsTotal @season_year = {seasonYear}, @league_id = {leagueId}")
                 .ToListAsync();
         }
     }

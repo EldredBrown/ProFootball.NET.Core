@@ -21,8 +21,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 {
     public class SeasonRankingsControllerTest
     {
-        [Fact]
-        public async Task Index_WhenSelectedSeasonYearIsNotNullAndSelectedLeagueNameIsNotNullAndSelectedRankingTypeIsOffensive_ShouldSetSelectedValuesAndReturnSeasonRankingsIndexView()
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public async Task Index_WhenSelectedSeasonYearIsNullAndSelectedLeagueNameIsNullOrEmptyAndSelectedRankingTypeIsNull_ShouldSetSelectedValuesAndReturnSeasonRankingsIndexView(
+            string? selectedLeagueName
+        )
         {
             // Arrange
             // Set up SeasonRankingsIndexViewModel.
@@ -32,51 +36,96 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>
             {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
             };
+            seasons = [.. seasons.OrderByDescending(s => s.Year)];
+            var defaultSeason = seasons.First(s => s.Year == 1922);
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
-            // Set up leagues.
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            var leagues = new List<League>
+            // Set up associations.
+            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
+            var associations = new List<Association>
             {
-                new() { Id = 1, ShortName = "APFA", LongName = "American Professional Football Association", FirstSeasonId = 1920 },
-                new() { Id = 2, ShortName = "NFL", LongName = "National Football League", FirstSeasonId = 1922 },
-                new() { Id = 3, ShortName = "AFL", LongName = "American Football League", FirstSeasonId = 1960 },
+                new()
+                {
+                    Id = 1,
+                    ParentId = null,
+                    LongName = "American Professional Football Association",
+                    ShortName = "APFA",
+                    FirstSeasonYear = 1920,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1920),
+                    LastSeasonYear = 1922,
+                    LastSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 2,
+                    ParentId = null,
+                    LongName = "National Football League",
+                    ShortName = "NFL",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 3,
+                    ParentId = null,
+                    LongName = "American Football League",
+                    ShortName = "AFL",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 4,
+                    ParentId = null,
+                    LongName = "American Football Conference",
+                    ShortName = "AFC",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 5,
+                    ParentId = null,
+                    LongName = "National Football Conference",
+                    ShortName = "NFC",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
             };
-            A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).Returns(leagues);
+            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
+            var leagues = associations
+                .Where(a => a.ParentId is null)
+                .Where(
+                    l => l.FirstSeasonYearNavigation.Year <= defaultSeason.Year
+                    && (l.LastSeasonYearNavigation is null || defaultSeason.Year <= l.LastSeasonYearNavigation.Year)
+                )
+                .OrderByDescending(a => a.ShortName)
+                .ToList();
+            Association defaultLeague = leagues.First();
+            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(A<string>.Ignored))
+                .Returns(defaultLeague);
 
             // Set up season rankings.
             var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
-            var seasonRankings = new List<RankingsOffensiveTeamSeason>
-            {
-                new() { TeamName = "Team A" },
-                new() { TeamName = "Team B" },
-                new() { TeamName = "Team C" },
-            };
-            A.CallTo(() => fakeSeasonRankingsRepository.GetOffensiveRankingsForSeasonAsync(An<int>.Ignored))
-                .Returns(seasonRankings);
+            var defaultRankingType = SeasonRankingType.None;
 
             // Set up HTTP session.
             var fakeSession = new MockHttpSession();
 
-            int? selectedSeasonYear = 1920;
-            fakeSession.SetObject("SelectedSeasonYear", selectedSeasonYear);
-
-            string selectedLeagueName = "APFA";
+            fakeSession.SetObject<int?>("SelectedSeasonYear", null);
             fakeSession.SetObject("SelectedLeagueName", selectedLeagueName);
-
-            SeasonRankingType? selectedRankingType = SeasonRankingType.Offensive;
-            fakeSession.SetObject("SelectedRankingType", selectedRankingType);
+            fakeSession.SetObject<SeasonRankingType?>("SelectedRankingType", null);
 
             var httpContext = new Mock<HttpContext>();
             httpContext.Setup(c => c.Session).Returns(fakeSession);
 
             // Set up test controller.
             var testController = new SeasonRankingsController(fakeSeasonRankingsIndexViewModel, fakeSeasonRepository,
-                fakeLeagueRepository, fakeSeasonRankingsRepository)
+                fakeAssociationRepository, fakeSeasonRankingsRepository)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -88,41 +137,30 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Index();
 
             // Assert
-            // Verify SelectSeason().
+            // Verify seasons.
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
-
-            var orderedSeasons = seasons.OrderByDescending(s => s.Id).ToList();
-
-            var seasonsFromSession = testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons");
-            seasonsFromSession.ShouldBeEquivalentTo(orderedSeasons);
-
             fakeSeasonRankingsIndexViewModel.Seasons.ShouldBeOfType<SelectList>();
-            fakeSeasonRankingsIndexViewModel.Seasons.Items.ShouldBe(orderedSeasons);
-            fakeSeasonRankingsIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Id");
-            fakeSeasonRankingsIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Id");
-            fakeSeasonRankingsIndexViewModel.Seasons.SelectedValue.ShouldBe(selectedSeasonYear);
-            fakeSeasonRankingsIndexViewModel.SelectedSeasonYear.ShouldBe(selectedSeasonYear);
+            fakeSeasonRankingsIndexViewModel.Seasons.Items.ShouldBe(seasons);
+            fakeSeasonRankingsIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Year");
+            fakeSeasonRankingsIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Year");
+            fakeSeasonRankingsIndexViewModel.Seasons.SelectedValue.ShouldBe(defaultSeason.Year);
+            fakeSeasonRankingsIndexViewModel.SelectedSeasonYear.ShouldBe(defaultSeason.Year);
 
-            // Verify SelectLeague().
-            A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).MustHaveHappenedOnceExactly();
-
-            var orderedLeagues = leagues.OrderBy(l => l.Id).ToList();
-
-            var leaguesFromSession = testController.HttpContext.Session.GetObject<IEnumerable<League>>("Leagues");
-            leaguesFromSession.ShouldBeEquivalentTo(orderedLeagues);
-
+            // Verify leagues.
+            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
             fakeSeasonRankingsIndexViewModel.Leagues.ShouldBeOfType<SelectList>();
-            fakeSeasonRankingsIndexViewModel.Leagues.Items.ShouldBe(orderedLeagues);
+            fakeSeasonRankingsIndexViewModel.Leagues.Items.ShouldBe(leagues);
             fakeSeasonRankingsIndexViewModel.Leagues.DataValueField.ShouldBe<string>("ShortName");
             fakeSeasonRankingsIndexViewModel.Leagues.DataTextField.ShouldBe<string>("ShortName");
-            fakeSeasonRankingsIndexViewModel.Leagues.SelectedValue.ShouldBe(selectedLeagueName);
-            fakeSeasonRankingsIndexViewModel.SelectedLeague.ShouldBe(selectedLeagueName);
-
-            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(selectedLeagueName))
+            fakeSeasonRankingsIndexViewModel.Leagues.SelectedValue.ShouldBe(defaultLeague.ShortName);
+            fakeSeasonRankingsIndexViewModel.SelectedLeagueName.ShouldBe(defaultLeague.ShortName);
+            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(defaultLeague.ShortName))
                 .MustHaveHappenedOnceExactly();
 
-            // Verify SelectRankingType().
+            // Verify ranking types.
             fakeSeasonRankingsIndexViewModel.RankingTypes.ShouldBeOfType<SelectList>();
+            testController.HttpContext.Session.GetObject<SeasonRankingType?>("SelectedRankingType")
+                .ShouldBe(defaultRankingType);
             var expectedRankingTypesSelectListItems = Enum.GetValues<SeasonRankingType>()
                 .Select(e => new { Value = (int)e, Text = e.ToString() });
             for (int i = 0; i < expectedRankingTypesSelectListItems.Count(); i++)
@@ -132,11 +170,647 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             }
             fakeSeasonRankingsIndexViewModel.RankingTypes.DataValueField.ShouldBe<string>("Value");
             fakeSeasonRankingsIndexViewModel.RankingTypes.DataTextField.ShouldBe<string>("Text");
-            fakeSeasonRankingsIndexViewModel.RankingTypes.SelectedValue.ShouldBe(selectedRankingType.Value);
-            fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(selectedRankingType.Value);
+            fakeSeasonRankingsIndexViewModel.RankingTypes.SelectedValue.ShouldBe(defaultRankingType);
+            fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(defaultRankingType);
 
             // Verify GetSeasonRankingsAsync().
-            A.CallTo(() => fakeSeasonRankingsRepository.GetOffensiveRankingsForSeasonAsync(selectedSeasonYear.Value))
+            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBe([]);
+
+            // Verify result.
+            result.ShouldBeOfType<ViewResult>();
+            ((ViewResult)result).Model.ShouldBe(fakeSeasonRankingsIndexViewModel);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public async Task Index_WhenSelectedSeasonYearIsNotNull_ShouldSetSelectedValuesAndReturnSeasonRankingsIndexView(
+            string? selectedLeagueName
+        )
+        {
+            // Arrange
+            // Set up SeasonRankingsIndexViewModel.
+            var fakeSeasonRankingsIndexViewModel = A.Fake<ISeasonRankingsIndexViewModel>();
+
+            // Set up seasons.
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var seasons = new List<Season>
+            {
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
+            };
+            seasons = [.. seasons.OrderByDescending(s => s.Year)];
+            var selectedSeason = seasons.First(s => s.Year == 1920);
+            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
+
+            // Set up associations.
+            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
+            var associations = new List<Association>
+            {
+                new()
+                {
+                    Id = 1,
+                    ParentId = null,
+                    LongName = "American Professional Football Association",
+                    ShortName = "APFA",
+                    FirstSeasonYear = 1920,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1920),
+                    LastSeasonYear = 1922,
+                    LastSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 2,
+                    ParentId = null,
+                    LongName = "National Football League",
+                    ShortName = "NFL",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 3,
+                    ParentId = null,
+                    LongName = "American Football League",
+                    ShortName = "AFL",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 4,
+                    ParentId = null,
+                    LongName = "American Football Conference",
+                    ShortName = "AFC",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 5,
+                    ParentId = null,
+                    LongName = "National Football Conference",
+                    ShortName = "NFC",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+            };
+            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
+            var leagues = associations
+                .Where(a => a.ParentId is null)
+                .Where(
+                    l => l.FirstSeasonYearNavigation.Year <= selectedSeason.Year
+                    && (l.LastSeasonYearNavigation is null || selectedSeason.Year <= l.LastSeasonYearNavigation.Year)
+                )
+                .OrderByDescending(a => a.ShortName)
+                .ToList();
+            Association defaultLeague = leagues.First();
+            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(A<string>.Ignored))
+                .Returns(defaultLeague);
+
+            // Set up season rankings.
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var defaultRankingType = SeasonRankingType.None;
+
+            // Set up HTTP session.
+            var fakeSession = new MockHttpSession();
+
+            fakeSession.SetObject<int?>("SelectedSeasonYear", selectedSeason.Year);
+            fakeSession.SetObject("SelectedLeagueName", selectedLeagueName);
+            fakeSession.SetObject<SeasonRankingType?>("SelectedRankingType", null);
+
+            var httpContext = new Mock<HttpContext>();
+            httpContext.Setup(c => c.Session).Returns(fakeSession);
+
+            // Set up test controller.
+            var testController = new SeasonRankingsController(fakeSeasonRankingsIndexViewModel, fakeSeasonRepository,
+                fakeAssociationRepository, fakeSeasonRankingsRepository)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = httpContext.Object
+                }
+            };
+
+            // Act
+            var result = await testController.Index();
+
+            // Assert
+            // Verify seasons.
+            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
+            fakeSeasonRankingsIndexViewModel.Seasons.ShouldBeOfType<SelectList>();
+            fakeSeasonRankingsIndexViewModel.Seasons.Items.ShouldBe(seasons);
+            fakeSeasonRankingsIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Year");
+            fakeSeasonRankingsIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Year");
+            fakeSeasonRankingsIndexViewModel.Seasons.SelectedValue.ShouldBe(selectedSeason.Year);
+            fakeSeasonRankingsIndexViewModel.SelectedSeasonYear.ShouldBe(selectedSeason.Year);
+
+            // Verify leagues.
+            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
+            fakeSeasonRankingsIndexViewModel.Leagues.ShouldBeOfType<SelectList>();
+            fakeSeasonRankingsIndexViewModel.Leagues.Items.ShouldBe(leagues);
+            fakeSeasonRankingsIndexViewModel.Leagues.DataValueField.ShouldBe<string>("ShortName");
+            fakeSeasonRankingsIndexViewModel.Leagues.DataTextField.ShouldBe<string>("ShortName");
+            fakeSeasonRankingsIndexViewModel.Leagues.SelectedValue.ShouldBe(defaultLeague.ShortName);
+            fakeSeasonRankingsIndexViewModel.SelectedLeagueName.ShouldBe(defaultLeague.ShortName);
+            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(defaultLeague.ShortName))
+                .MustHaveHappenedOnceExactly();
+
+            // Verify ranking types.
+            fakeSeasonRankingsIndexViewModel.RankingTypes.ShouldBeOfType<SelectList>();
+            testController.HttpContext.Session.GetObject<SeasonRankingType?>("SelectedRankingType")
+                .ShouldBe(defaultRankingType);
+            var expectedRankingTypesSelectListItems = Enum.GetValues<SeasonRankingType>()
+                .Select(e => new { Value = (int)e, Text = e.ToString() });
+            for (int i = 0; i < expectedRankingTypesSelectListItems.Count(); i++)
+            {
+                var actualItem = fakeSeasonRankingsIndexViewModel.RankingTypes.ElementAt(i).Value;
+                var expectedItem = expectedRankingTypesSelectListItems.ElementAt(i);
+            }
+            fakeSeasonRankingsIndexViewModel.RankingTypes.DataValueField.ShouldBe<string>("Value");
+            fakeSeasonRankingsIndexViewModel.RankingTypes.DataTextField.ShouldBe<string>("Text");
+            fakeSeasonRankingsIndexViewModel.RankingTypes.SelectedValue.ShouldBe(defaultRankingType);
+            fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(defaultRankingType);
+
+            // Verify GetSeasonRankingsAsync().
+            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBe([]);
+
+            // Verify result.
+            result.ShouldBeOfType<ViewResult>();
+            ((ViewResult)result).Model.ShouldBe(fakeSeasonRankingsIndexViewModel);
+        }
+
+        [Fact]
+        public async Task Index_WhenSelectedLeagueNameIsNeitherNullNorEmpty_ShouldSetSelectedValuesAndReturnSeasonRankingsIndexView()
+        {
+            // Arrange
+            // Set up SeasonRankingsIndexViewModel.
+            var fakeSeasonRankingsIndexViewModel = A.Fake<ISeasonRankingsIndexViewModel>();
+
+            // Set up seasons.
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var seasons = new List<Season>
+            {
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
+            };
+            seasons = [.. seasons.OrderByDescending(s => s.Year)];
+            var selectedSeason = seasons.First(s => s.Year == 1920);
+            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
+
+            // Set up associations.
+            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
+            var associations = new List<Association>
+            {
+                new()
+                {
+                    Id = 1,
+                    ParentId = null,
+                    LongName = "American Professional Football Association",
+                    ShortName = "APFA",
+                    FirstSeasonYear = 1920,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1920),
+                    LastSeasonYear = 1922,
+                    LastSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 2,
+                    ParentId = null,
+                    LongName = "National Football League",
+                    ShortName = "NFL",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 3,
+                    ParentId = null,
+                    LongName = "American Football League",
+                    ShortName = "AFL",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 4,
+                    ParentId = null,
+                    LongName = "American Football Conference",
+                    ShortName = "AFC",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 5,
+                    ParentId = null,
+                    LongName = "National Football Conference",
+                    ShortName = "NFC",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+            };
+            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
+            var leagues = associations
+                .Where(a => a.ParentId is null)
+                .Where(
+                    l => l.FirstSeasonYearNavigation.Year <= selectedSeason.Year
+                    && (l.LastSeasonYearNavigation is null || selectedSeason.Year <= l.LastSeasonYearNavigation.Year)
+                )
+                .OrderByDescending(a => a.ShortName)
+                .ToList();
+            Association selectedLeague = leagues.First();
+            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(A<string>.Ignored))
+                .Returns(selectedLeague);
+
+            // Set up season rankings.
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var defaultRankingType = SeasonRankingType.None;
+
+            // Set up HTTP session.
+            var fakeSession = new MockHttpSession();
+
+            fakeSession.SetObject<int?>("SelectedSeasonYear", selectedSeason.Year);
+            fakeSession.SetObject("SelectedLeagueName", selectedLeague.ShortName);
+            fakeSession.SetObject<SeasonRankingType?>("SelectedRankingType", null);
+
+            var httpContext = new Mock<HttpContext>();
+            httpContext.Setup(c => c.Session).Returns(fakeSession);
+
+            // Set up test controller.
+            var testController = new SeasonRankingsController(fakeSeasonRankingsIndexViewModel, fakeSeasonRepository,
+                fakeAssociationRepository, fakeSeasonRankingsRepository)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = httpContext.Object
+                }
+            };
+
+            // Act
+            var result = await testController.Index();
+
+            // Assert
+            // Verify seasons.
+            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
+            fakeSeasonRankingsIndexViewModel.Seasons.ShouldBeOfType<SelectList>();
+            fakeSeasonRankingsIndexViewModel.Seasons.Items.ShouldBe(seasons);
+            fakeSeasonRankingsIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Year");
+            fakeSeasonRankingsIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Year");
+            fakeSeasonRankingsIndexViewModel.Seasons.SelectedValue.ShouldBe(selectedSeason.Year);
+            fakeSeasonRankingsIndexViewModel.SelectedSeasonYear.ShouldBe(selectedSeason.Year);
+
+            // Verify leagues.
+            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
+            fakeSeasonRankingsIndexViewModel.Leagues.ShouldBeOfType<SelectList>();
+            fakeSeasonRankingsIndexViewModel.Leagues.Items.ShouldBe(leagues);
+            fakeSeasonRankingsIndexViewModel.Leagues.DataValueField.ShouldBe<string>("ShortName");
+            fakeSeasonRankingsIndexViewModel.Leagues.DataTextField.ShouldBe<string>("ShortName");
+            fakeSeasonRankingsIndexViewModel.Leagues.SelectedValue.ShouldBe(selectedLeague.ShortName);
+            fakeSeasonRankingsIndexViewModel.SelectedLeagueName.ShouldBe(selectedLeague.ShortName);
+            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(selectedLeague.ShortName))
+                .MustHaveHappenedOnceExactly();
+
+            // Verify ranking types.
+            fakeSeasonRankingsIndexViewModel.RankingTypes.ShouldBeOfType<SelectList>();
+            testController.HttpContext.Session.GetObject<SeasonRankingType?>("SelectedRankingType")
+                .ShouldBe(defaultRankingType);
+            var expectedRankingTypesSelectListItems = Enum.GetValues<SeasonRankingType>()
+                .Select(e => new { Value = (int)e, Text = e.ToString() });
+            for (int i = 0; i < expectedRankingTypesSelectListItems.Count(); i++)
+            {
+                var actualItem = fakeSeasonRankingsIndexViewModel.RankingTypes.ElementAt(i).Value;
+                var expectedItem = expectedRankingTypesSelectListItems.ElementAt(i);
+            }
+            fakeSeasonRankingsIndexViewModel.RankingTypes.DataValueField.ShouldBe<string>("Value");
+            fakeSeasonRankingsIndexViewModel.RankingTypes.DataTextField.ShouldBe<string>("Text");
+            fakeSeasonRankingsIndexViewModel.RankingTypes.SelectedValue.ShouldBe(defaultRankingType);
+            fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(defaultRankingType);
+
+            // Verify GetSeasonRankingsAsync().
+            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBe([]);
+
+            // Verify result.
+            result.ShouldBeOfType<ViewResult>();
+            ((ViewResult)result).Model.ShouldBe(fakeSeasonRankingsIndexViewModel);
+        }
+
+        [Fact]
+        public async Task Index_WhenSelectedRankingTypeIsNone_ShouldSetSelectedValuesAndReturnSeasonRankingsIndexView()
+        {
+            // Arrange
+            // Set up SeasonRankingsIndexViewModel.
+            var fakeSeasonRankingsIndexViewModel = A.Fake<ISeasonRankingsIndexViewModel>();
+
+            // Set up seasons.
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var seasons = new List<Season>
+            {
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
+            };
+            seasons = [.. seasons.OrderByDescending(s => s.Year)];
+            var selectedSeason = seasons.First(s => s.Year == 1920);
+            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
+
+            // Set up associations.
+            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
+            var associations = new List<Association>
+            {
+                new()
+                {
+                    Id = 1,
+                    ParentId = null,
+                    LongName = "American Professional Football Association",
+                    ShortName = "APFA",
+                    FirstSeasonYear = 1920,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1920),
+                    LastSeasonYear = 1922,
+                    LastSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 2,
+                    ParentId = null,
+                    LongName = "National Football League",
+                    ShortName = "NFL",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 3,
+                    ParentId = null,
+                    LongName = "American Football League",
+                    ShortName = "AFL",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 4,
+                    ParentId = null,
+                    LongName = "American Football Conference",
+                    ShortName = "AFC",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 5,
+                    ParentId = null,
+                    LongName = "National Football Conference",
+                    ShortName = "NFC",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+            };
+            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
+            var leagues = associations
+                .Where(a => a.ParentId is null)
+                .Where(
+                    l => l.FirstSeasonYearNavigation.Year <= selectedSeason.Year
+                    && (l.LastSeasonYearNavigation is null || selectedSeason.Year <= l.LastSeasonYearNavigation.Year)
+                )
+                .OrderByDescending(a => a.ShortName)
+                .ToList();
+            Association selectedLeague = leagues.First();
+            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(A<string>.Ignored))
+                .Returns(selectedLeague);
+
+            // Set up season rankings.
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var selectedRankingType = SeasonRankingType.None;
+
+            // Set up HTTP session.
+            var fakeSession = new MockHttpSession();
+
+            fakeSession.SetObject<int?>("SelectedSeasonYear", selectedSeason.Year);
+            fakeSession.SetObject("SelectedLeagueName", selectedLeague.ShortName);
+            fakeSession.SetObject<SeasonRankingType?>("SelectedRankingType", selectedRankingType);
+
+            var httpContext = new Mock<HttpContext>();
+            httpContext.Setup(c => c.Session).Returns(fakeSession);
+
+            // Set up test controller.
+            var testController = new SeasonRankingsController(fakeSeasonRankingsIndexViewModel, fakeSeasonRepository,
+                fakeAssociationRepository, fakeSeasonRankingsRepository)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = httpContext.Object
+                }
+            };
+
+            // Act
+            var result = await testController.Index();
+
+            // Assert
+            // Verify seasons.
+            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
+            fakeSeasonRankingsIndexViewModel.Seasons.ShouldBeOfType<SelectList>();
+            fakeSeasonRankingsIndexViewModel.Seasons.Items.ShouldBe(seasons);
+            fakeSeasonRankingsIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Year");
+            fakeSeasonRankingsIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Year");
+            fakeSeasonRankingsIndexViewModel.Seasons.SelectedValue.ShouldBe(selectedSeason.Year);
+            fakeSeasonRankingsIndexViewModel.SelectedSeasonYear.ShouldBe(selectedSeason.Year);
+
+            // Verify leagues.
+            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
+            fakeSeasonRankingsIndexViewModel.Leagues.ShouldBeOfType<SelectList>();
+            fakeSeasonRankingsIndexViewModel.Leagues.Items.ShouldBe(leagues);
+            fakeSeasonRankingsIndexViewModel.Leagues.DataValueField.ShouldBe<string>("ShortName");
+            fakeSeasonRankingsIndexViewModel.Leagues.DataTextField.ShouldBe<string>("ShortName");
+            fakeSeasonRankingsIndexViewModel.Leagues.SelectedValue.ShouldBe(selectedLeague.ShortName);
+            fakeSeasonRankingsIndexViewModel.SelectedLeagueName.ShouldBe(selectedLeague.ShortName);
+            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(selectedLeague.ShortName))
+                .MustHaveHappenedOnceExactly();
+
+            // Verify ranking types.
+            fakeSeasonRankingsIndexViewModel.RankingTypes.ShouldBeOfType<SelectList>();
+            testController.HttpContext.Session.GetObject<SeasonRankingType?>("SelectedRankingType")
+                .ShouldBe(selectedRankingType);
+            var expectedRankingTypesSelectListItems = Enum.GetValues<SeasonRankingType>()
+                .Select(e => new { Value = (int)e, Text = e.ToString() });
+            for (int i = 0; i < expectedRankingTypesSelectListItems.Count(); i++)
+            {
+                var actualItem = fakeSeasonRankingsIndexViewModel.RankingTypes.ElementAt(i).Value;
+                var expectedItem = expectedRankingTypesSelectListItems.ElementAt(i);
+            }
+            fakeSeasonRankingsIndexViewModel.RankingTypes.DataValueField.ShouldBe<string>("Value");
+            fakeSeasonRankingsIndexViewModel.RankingTypes.DataTextField.ShouldBe<string>("Text");
+            fakeSeasonRankingsIndexViewModel.RankingTypes.SelectedValue.ShouldBe(selectedRankingType);
+            fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(selectedRankingType);
+
+            // Verify GetSeasonRankingsAsync().
+            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBe([]);
+
+            // Verify result.
+            result.ShouldBeOfType<ViewResult>();
+            ((ViewResult)result).Model.ShouldBe(fakeSeasonRankingsIndexViewModel);
+        }
+
+        [Fact]
+        public async Task Index_WhenSelectedRankingTypeIsOffensive_ShouldSetSelectedValuesAndReturnSeasonRankingsIndexView()
+        {
+            // Arrange
+            // Set up SeasonRankingsIndexViewModel.
+            var fakeSeasonRankingsIndexViewModel = A.Fake<ISeasonRankingsIndexViewModel>();
+
+            // Set up seasons.
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var seasons = new List<Season>
+            {
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
+            };
+            seasons = [.. seasons.OrderByDescending(s => s.Year)];
+            var selectedSeason = seasons.First(s => s.Year == 1920);
+            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
+
+            // Set up associations.
+            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
+            var associations = new List<Association>
+            {
+                new()
+                {
+                    Id = 1,
+                    ParentId = null,
+                    LongName = "American Professional Football Association",
+                    ShortName = "APFA",
+                    FirstSeasonYear = 1920,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1920),
+                    LastSeasonYear = 1922,
+                    LastSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 2,
+                    ParentId = null,
+                    LongName = "National Football League",
+                    ShortName = "NFL",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 3,
+                    ParentId = null,
+                    LongName = "American Football League",
+                    ShortName = "AFL",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 4,
+                    ParentId = null,
+                    LongName = "American Football Conference",
+                    ShortName = "AFC",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 5,
+                    ParentId = null,
+                    LongName = "National Football Conference",
+                    ShortName = "NFC",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+            };
+            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
+            var leagues = associations
+                .Where(a => a.ParentId is null)
+                .Where(
+                    l => l.FirstSeasonYearNavigation.Year <= selectedSeason.Year
+                    && (l.LastSeasonYearNavigation is null || selectedSeason.Year <= l.LastSeasonYearNavigation.Year)
+                )
+                .OrderByDescending(a => a.ShortName)
+                .ToList();
+            Association selectedLeague = leagues.First();
+            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(A<string>.Ignored))
+                .Returns(selectedLeague);
+
+            // Set up season rankings.
+            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+            var seasonRankings = new List<RankingsOffensiveTeamSeason>
+                {
+                    new() { TeamName = "Team A" },
+                    new() { TeamName = "Team B" },
+                    new() { TeamName = "Team C" },
+                };
+            A.CallTo(() => fakeSeasonRankingsRepository.GetOffensiveRankingsAsync(An<int>.Ignored, An<int>.Ignored))
+                .Returns(seasonRankings);
+            var selectedRankingType = SeasonRankingType.Offensive;
+
+            // Set up HTTP session.
+            var fakeSession = new MockHttpSession();
+
+            fakeSession.SetObject<int?>("SelectedSeasonYear", selectedSeason.Year);
+            fakeSession.SetObject("SelectedLeagueName", selectedLeague.ShortName);
+            fakeSession.SetObject<SeasonRankingType?>("SelectedRankingType", selectedRankingType);
+
+            var httpContext = new Mock<HttpContext>();
+            httpContext.Setup(c => c.Session).Returns(fakeSession);
+
+            // Set up test controller.
+            var testController = new SeasonRankingsController(fakeSeasonRankingsIndexViewModel, fakeSeasonRepository,
+                fakeAssociationRepository, fakeSeasonRankingsRepository)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = httpContext.Object
+                }
+            };
+
+            // Act
+            var result = await testController.Index();
+
+            // Assert
+            // Verify seasons.
+            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
+            fakeSeasonRankingsIndexViewModel.Seasons.ShouldBeOfType<SelectList>();
+            fakeSeasonRankingsIndexViewModel.Seasons.Items.ShouldBe(seasons);
+            fakeSeasonRankingsIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Year");
+            fakeSeasonRankingsIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Year");
+            fakeSeasonRankingsIndexViewModel.Seasons.SelectedValue.ShouldBe(selectedSeason.Year);
+            fakeSeasonRankingsIndexViewModel.SelectedSeasonYear.ShouldBe(selectedSeason.Year);
+
+            // Verify leagues.
+            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
+            fakeSeasonRankingsIndexViewModel.Leagues.ShouldBeOfType<SelectList>();
+            fakeSeasonRankingsIndexViewModel.Leagues.Items.ShouldBe(leagues);
+            fakeSeasonRankingsIndexViewModel.Leagues.DataValueField.ShouldBe<string>("ShortName");
+            fakeSeasonRankingsIndexViewModel.Leagues.DataTextField.ShouldBe<string>("ShortName");
+            fakeSeasonRankingsIndexViewModel.Leagues.SelectedValue.ShouldBe(selectedLeague.ShortName);
+            fakeSeasonRankingsIndexViewModel.SelectedLeagueName.ShouldBe(selectedLeague.ShortName);
+            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(selectedLeague.ShortName))
+                .MustHaveHappenedOnceExactly();
+
+            // Verify ranking types.
+            fakeSeasonRankingsIndexViewModel.RankingTypes.ShouldBeOfType<SelectList>();
+            testController.HttpContext.Session.GetObject<SeasonRankingType?>("SelectedRankingType")
+                .ShouldBe(selectedRankingType);
+            var expectedRankingTypesSelectListItems = Enum.GetValues<SeasonRankingType>()
+                .Select(e => new { Value = (int)e, Text = e.ToString() });
+            for (int i = 0; i < expectedRankingTypesSelectListItems.Count(); i++)
+            {
+                var actualItem = fakeSeasonRankingsIndexViewModel.RankingTypes.ElementAt(i).Value;
+                var expectedItem = expectedRankingTypesSelectListItems.ElementAt(i);
+            }
+            fakeSeasonRankingsIndexViewModel.RankingTypes.DataValueField.ShouldBe<string>("Value");
+            fakeSeasonRankingsIndexViewModel.RankingTypes.DataTextField.ShouldBe<string>("Text");
+            fakeSeasonRankingsIndexViewModel.RankingTypes.SelectedValue.ShouldBe(selectedRankingType);
+            fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(selectedRankingType);
+
+            // Verify GetSeasonRankingsAsync().
+            A.CallTo(() => fakeSeasonRankingsRepository.GetOffensiveRankingsAsync(selectedSeason.Year, selectedLeague.Id))
                 .MustHaveHappenedOnceExactly();
             fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBeEquivalentTo(seasonRankings);
 
@@ -156,51 +830,104 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>
             {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
             };
+            seasons = [.. seasons.OrderByDescending(s => s.Year)];
+            var selectedSeason = seasons.First(s => s.Year == 1920);
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
-            // Set up leagues.
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            var leagues = new List<League>
+            // Set up associations.
+            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
+            var associations = new List<Association>
             {
-                new() { Id = 1, ShortName = "APFA", LongName = "American Professional Football Association", FirstSeasonId = 1920 },
-                new() { Id = 2, ShortName = "NFL", LongName = "National Football League", FirstSeasonId = 1922 },
-                new() { Id = 3, ShortName = "AFL", LongName = "American Football League", FirstSeasonId = 1960 },
+                new()
+                {
+                    Id = 1,
+                    ParentId = null,
+                    LongName = "American Professional Football Association",
+                    ShortName = "APFA",
+                    FirstSeasonYear = 1920,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1920),
+                    LastSeasonYear = 1922,
+                    LastSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 2,
+                    ParentId = null,
+                    LongName = "National Football League",
+                    ShortName = "NFL",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 3,
+                    ParentId = null,
+                    LongName = "American Football League",
+                    ShortName = "AFL",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 4,
+                    ParentId = null,
+                    LongName = "American Football Conference",
+                    ShortName = "AFC",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 5,
+                    ParentId = null,
+                    LongName = "National Football Conference",
+                    ShortName = "NFC",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
             };
-            A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).Returns(leagues);
+            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
+            var leagues = associations
+                .Where(a => a.ParentId is null)
+                .Where(
+                    l => l.FirstSeasonYearNavigation.Year <= selectedSeason.Year
+                    && (l.LastSeasonYearNavigation is null || selectedSeason.Year <= l.LastSeasonYearNavigation.Year)
+                )
+                .OrderByDescending(a => a.ShortName)
+                .ToList();
+            Association selectedLeague = leagues.First();
+            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(A<string>.Ignored))
+                .Returns(selectedLeague);
 
             // Set up season rankings.
             var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
             var seasonRankings = new List<RankingsDefensiveTeamSeason>
-            {
-                new() { TeamName = "Team A" },
-                new() { TeamName = "Team B" },
-                new() { TeamName = "Team C" },
-            };
-            A.CallTo(() => fakeSeasonRankingsRepository.GetDefensiveRankingsForSeasonAsync(An<int>.Ignored))
+                {
+                    new() { TeamName = "Team A" },
+                    new() { TeamName = "Team B" },
+                    new() { TeamName = "Team C" },
+                };
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDefensiveRankingsAsync(An<int>.Ignored, An<int>.Ignored))
                 .Returns(seasonRankings);
+            var selectedRankingType = SeasonRankingType.Defensive;
 
             // Set up HTTP session.
             var fakeSession = new MockHttpSession();
 
-            int? selectedSeasonYear = 1920;
-            fakeSession.SetObject("SelectedSeasonYear", selectedSeasonYear);
-
-            string selectedLeagueName = "APFA";
-            fakeSession.SetObject("SelectedLeagueName", selectedLeagueName);
-
-            SeasonRankingType? selectedRankingType = SeasonRankingType.Defensive;
-            fakeSession.SetObject("SelectedRankingType", selectedRankingType);
+            fakeSession.SetObject<int?>("SelectedSeasonYear", selectedSeason.Year);
+            fakeSession.SetObject("SelectedLeagueName", selectedLeague.ShortName);
+            fakeSession.SetObject<SeasonRankingType?>("SelectedRankingType", selectedRankingType);
 
             var httpContext = new Mock<HttpContext>();
             httpContext.Setup(c => c.Session).Returns(fakeSession);
 
             // Set up test controller.
             var testController = new SeasonRankingsController(fakeSeasonRankingsIndexViewModel, fakeSeasonRepository,
-                fakeLeagueRepository, fakeSeasonRankingsRepository)
+                fakeAssociationRepository, fakeSeasonRankingsRepository)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -212,41 +939,30 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Index();
 
             // Assert
-            // Verify SelectSeason().
+            // Verify seasons.
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
-
-            var orderedSeasons = seasons.OrderByDescending(s => s.Id).ToList();
-
-            var seasonsFromSession = testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons");
-            seasonsFromSession.ShouldBeEquivalentTo(orderedSeasons);
-
             fakeSeasonRankingsIndexViewModel.Seasons.ShouldBeOfType<SelectList>();
-            fakeSeasonRankingsIndexViewModel.Seasons.Items.ShouldBe(orderedSeasons);
-            fakeSeasonRankingsIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Id");
-            fakeSeasonRankingsIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Id");
-            fakeSeasonRankingsIndexViewModel.Seasons.SelectedValue.ShouldBe(selectedSeasonYear);
-            fakeSeasonRankingsIndexViewModel.SelectedSeasonYear.ShouldBe(selectedSeasonYear);
+            fakeSeasonRankingsIndexViewModel.Seasons.Items.ShouldBe(seasons);
+            fakeSeasonRankingsIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Year");
+            fakeSeasonRankingsIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Year");
+            fakeSeasonRankingsIndexViewModel.Seasons.SelectedValue.ShouldBe(selectedSeason.Year);
+            fakeSeasonRankingsIndexViewModel.SelectedSeasonYear.ShouldBe(selectedSeason.Year);
 
-            // Verify SelectLeague().
-            A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).MustHaveHappenedOnceExactly();
-
-            var orderedLeagues = leagues.OrderBy(l => l.Id).ToList();
-
-            var leaguesFromSession = testController.HttpContext.Session.GetObject<IEnumerable<League>>("Leagues");
-            leaguesFromSession.ShouldBeEquivalentTo(orderedLeagues);
-
+            // Verify leagues.
+            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
             fakeSeasonRankingsIndexViewModel.Leagues.ShouldBeOfType<SelectList>();
-            fakeSeasonRankingsIndexViewModel.Leagues.Items.ShouldBe(orderedLeagues);
+            fakeSeasonRankingsIndexViewModel.Leagues.Items.ShouldBe(leagues);
             fakeSeasonRankingsIndexViewModel.Leagues.DataValueField.ShouldBe<string>("ShortName");
             fakeSeasonRankingsIndexViewModel.Leagues.DataTextField.ShouldBe<string>("ShortName");
-            fakeSeasonRankingsIndexViewModel.Leagues.SelectedValue.ShouldBe(selectedLeagueName);
-            fakeSeasonRankingsIndexViewModel.SelectedLeague.ShouldBe(selectedLeagueName);
-
-            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(selectedLeagueName))
+            fakeSeasonRankingsIndexViewModel.Leagues.SelectedValue.ShouldBe(selectedLeague.ShortName);
+            fakeSeasonRankingsIndexViewModel.SelectedLeagueName.ShouldBe(selectedLeague.ShortName);
+            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(selectedLeague.ShortName))
                 .MustHaveHappenedOnceExactly();
 
-            // Verify SelectRankingType().
+            // Verify ranking types.
             fakeSeasonRankingsIndexViewModel.RankingTypes.ShouldBeOfType<SelectList>();
+            testController.HttpContext.Session.GetObject<SeasonRankingType?>("SelectedRankingType")
+                .ShouldBe(selectedRankingType);
             var expectedRankingTypesSelectListItems = Enum.GetValues<SeasonRankingType>()
                 .Select(e => new { Value = (int)e, Text = e.ToString() });
             for (int i = 0; i < expectedRankingTypesSelectListItems.Count(); i++)
@@ -256,11 +972,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             }
             fakeSeasonRankingsIndexViewModel.RankingTypes.DataValueField.ShouldBe<string>("Value");
             fakeSeasonRankingsIndexViewModel.RankingTypes.DataTextField.ShouldBe<string>("Text");
-            fakeSeasonRankingsIndexViewModel.RankingTypes.SelectedValue.ShouldBe(selectedRankingType.Value);
-            fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(selectedRankingType.Value);
+            fakeSeasonRankingsIndexViewModel.RankingTypes.SelectedValue.ShouldBe(selectedRankingType);
+            fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(selectedRankingType);
 
             // Verify GetSeasonRankingsAsync().
-            A.CallTo(() => fakeSeasonRankingsRepository.GetDefensiveRankingsForSeasonAsync(selectedSeasonYear.Value))
+            A.CallTo(() => fakeSeasonRankingsRepository.GetDefensiveRankingsAsync(selectedSeason.Year, selectedLeague.Id))
                 .MustHaveHappenedOnceExactly();
             fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBeEquivalentTo(seasonRankings);
 
@@ -280,51 +996,104 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>
             {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
             };
+            seasons = [.. seasons.OrderByDescending(s => s.Year)];
+            var selectedSeason = seasons.First(s => s.Year == 1920);
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
-            // Set up leagues.
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            var leagues = new List<League>
+            // Set up associations.
+            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
+            var associations = new List<Association>
             {
-                new() { Id = 1, ShortName = "APFA", LongName = "American Professional Football Association", FirstSeasonId = 1920 },
-                new() { Id = 2, ShortName = "NFL", LongName = "National Football League", FirstSeasonId = 1922 },
-                new() { Id = 3, ShortName = "AFL", LongName = "American Football League", FirstSeasonId = 1960 },
+                new()
+                {
+                    Id = 1,
+                    ParentId = null,
+                    LongName = "American Professional Football Association",
+                    ShortName = "APFA",
+                    FirstSeasonYear = 1920,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1920),
+                    LastSeasonYear = 1922,
+                    LastSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 2,
+                    ParentId = null,
+                    LongName = "National Football League",
+                    ShortName = "NFL",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 3,
+                    ParentId = null,
+                    LongName = "American Football League",
+                    ShortName = "AFL",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 4,
+                    ParentId = null,
+                    LongName = "American Football Conference",
+                    ShortName = "AFC",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
+                new()
+                {
+                    Id = 5,
+                    ParentId = null,
+                    LongName = "National Football Conference",
+                    ShortName = "NFC",
+                    FirstSeasonYear = 1922,
+                    FirstSeasonYearNavigation = seasons.First(s => s.Year == 1922)
+                },
             };
-            A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).Returns(leagues);
+            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
+            var leagues = associations
+                .Where(a => a.ParentId is null)
+                .Where(
+                    l => l.FirstSeasonYearNavigation.Year <= selectedSeason.Year
+                    && (l.LastSeasonYearNavigation is null || selectedSeason.Year <= l.LastSeasonYearNavigation.Year)
+                )
+                .OrderByDescending(a => a.ShortName)
+                .ToList();
+            Association selectedLeague = leagues.First();
+            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(A<string>.Ignored))
+                .Returns(selectedLeague);
 
             // Set up season rankings.
             var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
             var seasonRankings = new List<RankingsTotalTeamSeason>
-            {
-                new() { TeamName = "Team A" },
-                new() { TeamName = "Team B" },
-                new() { TeamName = "Team C" },
-            };
-            A.CallTo(() => fakeSeasonRankingsRepository.GetTotalRankingsForSeasonAsync(An<int>.Ignored))
+                {
+                    new() { TeamName = "Team A" },
+                    new() { TeamName = "Team B" },
+                    new() { TeamName = "Team C" },
+                };
+            A.CallTo(() => fakeSeasonRankingsRepository.GetTotalRankingsAsync(An<int>.Ignored, An<int>.Ignored))
                 .Returns(seasonRankings);
+            var selectedRankingType = SeasonRankingType.Total;
 
             // Set up HTTP session.
             var fakeSession = new MockHttpSession();
 
-            int? selectedSeasonYear = 1920;
-            fakeSession.SetObject("SelectedSeasonYear", selectedSeasonYear);
-
-            string selectedLeagueName = "APFA";
-            fakeSession.SetObject("SelectedLeagueName", selectedLeagueName);
-
-            SeasonRankingType? selectedRankingType = SeasonRankingType.Total;
-            fakeSession.SetObject("SelectedRankingType", selectedRankingType);
+            fakeSession.SetObject<int?>("SelectedSeasonYear", selectedSeason.Year);
+            fakeSession.SetObject("SelectedLeagueName", selectedLeague.ShortName);
+            fakeSession.SetObject<SeasonRankingType?>("SelectedRankingType", selectedRankingType);
 
             var httpContext = new Mock<HttpContext>();
             httpContext.Setup(c => c.Session).Returns(fakeSession);
 
             // Set up test controller.
             var testController = new SeasonRankingsController(fakeSeasonRankingsIndexViewModel, fakeSeasonRepository,
-                fakeLeagueRepository, fakeSeasonRankingsRepository)
+                fakeAssociationRepository, fakeSeasonRankingsRepository)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -336,41 +1105,30 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Index();
 
             // Assert
-            // Verify SelectSeason().
+            // Verify seasons.
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
-
-            var orderedSeasons = seasons.OrderByDescending(s => s.Id).ToList();
-
-            var seasonsFromSession = testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons");
-            seasonsFromSession.ShouldBeEquivalentTo(orderedSeasons);
-
             fakeSeasonRankingsIndexViewModel.Seasons.ShouldBeOfType<SelectList>();
-            fakeSeasonRankingsIndexViewModel.Seasons.Items.ShouldBe(orderedSeasons);
-            fakeSeasonRankingsIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Id");
-            fakeSeasonRankingsIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Id");
-            fakeSeasonRankingsIndexViewModel.Seasons.SelectedValue.ShouldBe(selectedSeasonYear);
-            fakeSeasonRankingsIndexViewModel.SelectedSeasonYear.ShouldBe(selectedSeasonYear);
+            fakeSeasonRankingsIndexViewModel.Seasons.Items.ShouldBe(seasons);
+            fakeSeasonRankingsIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Year");
+            fakeSeasonRankingsIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Year");
+            fakeSeasonRankingsIndexViewModel.Seasons.SelectedValue.ShouldBe(selectedSeason.Year);
+            fakeSeasonRankingsIndexViewModel.SelectedSeasonYear.ShouldBe(selectedSeason.Year);
 
-            // Verify SelectLeague().
-            A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).MustHaveHappenedOnceExactly();
-
-            var orderedLeagues = leagues.OrderBy(l => l.Id).ToList();
-
-            var leaguesFromSession = testController.HttpContext.Session.GetObject<IEnumerable<League>>("Leagues");
-            leaguesFromSession.ShouldBeEquivalentTo(orderedLeagues);
-
+            // Verify leagues.
+            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
             fakeSeasonRankingsIndexViewModel.Leagues.ShouldBeOfType<SelectList>();
-            fakeSeasonRankingsIndexViewModel.Leagues.Items.ShouldBe(orderedLeagues);
+            fakeSeasonRankingsIndexViewModel.Leagues.Items.ShouldBe(leagues);
             fakeSeasonRankingsIndexViewModel.Leagues.DataValueField.ShouldBe<string>("ShortName");
             fakeSeasonRankingsIndexViewModel.Leagues.DataTextField.ShouldBe<string>("ShortName");
-            fakeSeasonRankingsIndexViewModel.Leagues.SelectedValue.ShouldBe(selectedLeagueName);
-            fakeSeasonRankingsIndexViewModel.SelectedLeague.ShouldBe(selectedLeagueName);
-
-            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(selectedLeagueName))
+            fakeSeasonRankingsIndexViewModel.Leagues.SelectedValue.ShouldBe(selectedLeague.ShortName);
+            fakeSeasonRankingsIndexViewModel.SelectedLeagueName.ShouldBe(selectedLeague.ShortName);
+            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(selectedLeague.ShortName))
                 .MustHaveHappenedOnceExactly();
 
-            // Verify SelectRankingType().
+            // Verify ranking types.
             fakeSeasonRankingsIndexViewModel.RankingTypes.ShouldBeOfType<SelectList>();
+            testController.HttpContext.Session.GetObject<SeasonRankingType?>("SelectedRankingType")
+                .ShouldBe(selectedRankingType);
             var expectedRankingTypesSelectListItems = Enum.GetValues<SeasonRankingType>()
                 .Select(e => new { Value = (int)e, Text = e.ToString() });
             for (int i = 0; i < expectedRankingTypesSelectListItems.Count(); i++)
@@ -380,11 +1138,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             }
             fakeSeasonRankingsIndexViewModel.RankingTypes.DataValueField.ShouldBe<string>("Value");
             fakeSeasonRankingsIndexViewModel.RankingTypes.DataTextField.ShouldBe<string>("Text");
-            fakeSeasonRankingsIndexViewModel.RankingTypes.SelectedValue.ShouldBe(selectedRankingType.Value);
-            fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(selectedRankingType.Value);
+            fakeSeasonRankingsIndexViewModel.RankingTypes.SelectedValue.ShouldBe(selectedRankingType);
+            fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(selectedRankingType);
 
             // Verify GetSeasonRankingsAsync().
-            A.CallTo(() => fakeSeasonRankingsRepository.GetTotalRankingsForSeasonAsync(selectedSeasonYear.Value))
+            A.CallTo(() => fakeSeasonRankingsRepository.GetTotalRankingsAsync(selectedSeason.Year, selectedLeague.Id))
                 .MustHaveHappenedOnceExactly();
             fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBeEquivalentTo(seasonRankings);
 
@@ -394,567 +1152,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task Index_WhenSelectedRankingTypeIsNone_ShouldSetSelectedValuesAndReturnSeasonRankingsIndexView()
-        {
-            // Arrange
-            // Set up SeasonRankingsIndexViewModel.
-            var fakeSeasonRankingsIndexViewModel = A.Fake<ISeasonRankingsIndexViewModel>();
-
-            // Set up seasons.
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var seasons = new List<Season>
-            {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
-            };
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
-
-            // Set up leagues.
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            var leagues = new List<League>
-            {
-                new() { Id = 1, ShortName = "APFA", LongName = "American Professional Football Association", FirstSeasonId = 1920 },
-                new() { Id = 2, ShortName = "NFL", LongName = "National Football League", FirstSeasonId = 1922 },
-                new() { Id = 3, ShortName = "AFL", LongName = "American Football League", FirstSeasonId = 1960 },
-            };
-            A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).Returns(leagues);
-
-            // Set up season rankings.
-            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
-
-            // Set up HTTP session.
-            var fakeSession = new MockHttpSession();
-
-            int? selectedSeasonYear = 1920;
-            fakeSession.SetObject("SelectedSeasonYear", selectedSeasonYear);
-
-            string selectedLeagueName = "APFA";
-            fakeSession.SetObject("SelectedLeagueName", selectedLeagueName);
-
-            SeasonRankingType? selectedRankingType = SeasonRankingType.None;
-            fakeSession.SetObject("SelectedRankingType", selectedRankingType);
-
-            var httpContext = new Mock<HttpContext>();
-            httpContext.Setup(c => c.Session).Returns(fakeSession);
-
-            // Set up test controller.
-            var testController = new SeasonRankingsController(fakeSeasonRankingsIndexViewModel, fakeSeasonRepository,
-                fakeLeagueRepository, fakeSeasonRankingsRepository)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = httpContext.Object
-                }
-            };
-
-            // Act
-            var result = await testController.Index();
-
-            // Assert
-            // Verify SelectSeason().
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
-
-            var orderedSeasons = seasons.OrderByDescending(s => s.Id).ToList();
-
-            var seasonsFromSession = testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons");
-            seasonsFromSession.ShouldBeEquivalentTo(orderedSeasons);
-
-            fakeSeasonRankingsIndexViewModel.Seasons.ShouldBeOfType<SelectList>();
-            fakeSeasonRankingsIndexViewModel.Seasons.Items.ShouldBe(orderedSeasons);
-            fakeSeasonRankingsIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Id");
-            fakeSeasonRankingsIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Id");
-            fakeSeasonRankingsIndexViewModel.Seasons.SelectedValue.ShouldBe(selectedSeasonYear);
-            fakeSeasonRankingsIndexViewModel.SelectedSeasonYear.ShouldBe(selectedSeasonYear);
-
-            // Verify SelectLeague().
-            A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).MustHaveHappenedOnceExactly();
-
-            var orderedLeagues = leagues.OrderBy(l => l.Id).ToList();
-
-            var leaguesFromSession = testController.HttpContext.Session.GetObject<IEnumerable<League>>("Leagues");
-            leaguesFromSession.ShouldBeEquivalentTo(orderedLeagues);
-
-            fakeSeasonRankingsIndexViewModel.Leagues.ShouldBeOfType<SelectList>();
-            fakeSeasonRankingsIndexViewModel.Leagues.Items.ShouldBe(orderedLeagues);
-            fakeSeasonRankingsIndexViewModel.Leagues.DataValueField.ShouldBe<string>("ShortName");
-            fakeSeasonRankingsIndexViewModel.Leagues.DataTextField.ShouldBe<string>("ShortName");
-            fakeSeasonRankingsIndexViewModel.Leagues.SelectedValue.ShouldBe(selectedLeagueName);
-            fakeSeasonRankingsIndexViewModel.SelectedLeague.ShouldBe(selectedLeagueName);
-
-            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(selectedLeagueName))
-                .MustHaveHappenedOnceExactly();
-
-            // Verify SelectRankingType().
-            fakeSeasonRankingsIndexViewModel.RankingTypes.ShouldBeOfType<SelectList>();
-            var expectedRankingTypesSelectListItems = Enum.GetValues<SeasonRankingType>()
-                .Select(e => new { Value = (int)e, Text = e.ToString() });
-            for (int i = 0; i < expectedRankingTypesSelectListItems.Count(); i++)
-            {
-                var actualItem = fakeSeasonRankingsIndexViewModel.RankingTypes.ElementAt(i).Value;
-                var expectedItem = expectedRankingTypesSelectListItems.ElementAt(i);
-            }
-            fakeSeasonRankingsIndexViewModel.RankingTypes.DataValueField.ShouldBe<string>("Value");
-            fakeSeasonRankingsIndexViewModel.RankingTypes.DataTextField.ShouldBe<string>("Text");
-            fakeSeasonRankingsIndexViewModel.RankingTypes.SelectedValue.ShouldBe(selectedRankingType.Value);
-            fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(selectedRankingType.Value);
-
-            // Verify GetSeasonRankingsAsync().
-            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBe([]);
-
-            // Verify result.
-            result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(fakeSeasonRankingsIndexViewModel);
-        }
-
-        [Fact]
-        public async Task Index_WhenSelectedSeasonYearIsNull_ShouldSetSelectedValuesAndReturnSeasonRankingsIndexView()
-        {
-            // Arrange
-            // Set up SeasonRankingsIndexViewModel.
-            var fakeSeasonRankingsIndexViewModel = A.Fake<ISeasonRankingsIndexViewModel>();
-
-            // Set up seasons.
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var seasons = new List<Season>
-            {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
-            };
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
-
-            // Set up leagues.
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            var leagues = new List<League>
-            {
-                new() { Id = 1, ShortName = "APFA", LongName = "American Professional Football Association", FirstSeasonId = 1920 },
-                new() { Id = 2, ShortName = "NFL", LongName = "National Football League", FirstSeasonId = 1922 },
-                new() { Id = 3, ShortName = "AFL", LongName = "American Football League", FirstSeasonId = 1960 },
-            };
-            A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).Returns(leagues);
-
-            // Set up season rankings.
-            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
-
-            // Set up HTTP session.
-            var fakeSession = new MockHttpSession();
-
-            int? selectedSeasonYear = null;
-            fakeSession.SetObject("SelectedSeasonYear", selectedSeasonYear);
-
-            string selectedLeagueName = "APFA";
-            fakeSession.SetObject("SelectedLeagueName", selectedLeagueName);
-
-            SeasonRankingType? selectedRankingType = SeasonRankingType.None;
-            fakeSession.SetObject("SelectedRankingType", selectedRankingType);
-
-            var httpContext = new Mock<HttpContext>();
-            httpContext.Setup(c => c.Session).Returns(fakeSession);
-
-            // Set up test controller.
-            var testController = new SeasonRankingsController(fakeSeasonRankingsIndexViewModel, fakeSeasonRepository,
-                fakeLeagueRepository, fakeSeasonRankingsRepository)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = httpContext.Object
-                }
-            };
-
-            // Act
-            var result = await testController.Index();
-
-            // Assert
-            // Verify SelectSeason().
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
-
-            var orderedSeasons = seasons.OrderByDescending(s => s.Id).ToList();
-
-            var seasonsFromSession = testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons");
-            seasonsFromSession.ShouldBeEquivalentTo(orderedSeasons);
-
-            var defaultSeasonYear = 1922;
-
-            var selectedSeasonYearFromSession = testController.HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
-            selectedSeasonYearFromSession.ShouldBe(defaultSeasonYear);
-
-            fakeSeasonRankingsIndexViewModel.Seasons.ShouldBeOfType<SelectList>();
-            fakeSeasonRankingsIndexViewModel.Seasons.Items.ShouldBe(orderedSeasons);
-            fakeSeasonRankingsIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Id");
-            fakeSeasonRankingsIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Id");
-            fakeSeasonRankingsIndexViewModel.Seasons.SelectedValue.ShouldBe(defaultSeasonYear);
-            fakeSeasonRankingsIndexViewModel.SelectedSeasonYear.ShouldBe(defaultSeasonYear);
-
-            // Verify SelectLeague().
-            A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).MustHaveHappenedOnceExactly();
-
-            var orderedLeagues = leagues.OrderBy(l => l.Id).ToList();
-
-            var leaguesFromSession = testController.HttpContext.Session.GetObject<IEnumerable<League>>("Leagues");
-            leaguesFromSession.ShouldBeEquivalentTo(orderedLeagues);
-
-            fakeSeasonRankingsIndexViewModel.Leagues.ShouldBeOfType<SelectList>();
-            fakeSeasonRankingsIndexViewModel.Leagues.Items.ShouldBe(orderedLeagues);
-            fakeSeasonRankingsIndexViewModel.Leagues.DataValueField.ShouldBe<string>("ShortName");
-            fakeSeasonRankingsIndexViewModel.Leagues.DataTextField.ShouldBe<string>("ShortName");
-            fakeSeasonRankingsIndexViewModel.Leagues.SelectedValue.ShouldBe(selectedLeagueName);
-            fakeSeasonRankingsIndexViewModel.SelectedLeague.ShouldBe(selectedLeagueName);
-
-            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(selectedLeagueName))
-                .MustHaveHappenedOnceExactly();
-
-            // Verify SelectRankingType().
-            fakeSeasonRankingsIndexViewModel.RankingTypes.ShouldBeOfType<SelectList>();
-            var expectedRankingTypesSelectListItems = Enum.GetValues<SeasonRankingType>()
-                .Select(e => new { Value = (int)e, Text = e.ToString() });
-            for (int i = 0; i < expectedRankingTypesSelectListItems.Count(); i++)
-            {
-                var actualItem = fakeSeasonRankingsIndexViewModel.RankingTypes.ElementAt(i).Value;
-                var expectedItem = expectedRankingTypesSelectListItems.ElementAt(i);
-            }
-            fakeSeasonRankingsIndexViewModel.RankingTypes.DataValueField.ShouldBe<string>("Value");
-            fakeSeasonRankingsIndexViewModel.RankingTypes.DataTextField.ShouldBe<string>("Text");
-            fakeSeasonRankingsIndexViewModel.RankingTypes.SelectedValue.ShouldBe(selectedRankingType.Value);
-            fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(selectedRankingType.Value);
-
-            // Verify GetSeasonRankingsAsync().
-            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBe([]);
-
-            // Verify result.
-            result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(fakeSeasonRankingsIndexViewModel);
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData(null!)]
-        public async Task Index_WhenSelectedSelectedLeagueNameIsNullOrEmpty_ShouldSetSelectedValuesAndReturnSeasonRankingsIndexView(
-            string selectedLeagueName)
-        {
-            // Arrange
-            // Set up SeasonRankingsIndexViewModel.
-            var fakeSeasonRankingsIndexViewModel = A.Fake<ISeasonRankingsIndexViewModel>();
-
-            // Set up seasons.
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var seasons = new List<Season>
-            {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
-            };
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
-
-            // Set up leagues.
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            var leagues = new List<League>
-            {
-                new() { Id = 1, ShortName = "APFA", LongName = "American Professional Football Association", FirstSeasonId = 1920 },
-                new() { Id = 2, ShortName = "NFL", LongName = "National Football League", FirstSeasonId = 1922 },
-                new() { Id = 3, ShortName = "AFL", LongName = "American Football League", FirstSeasonId = 1960 },
-            };
-            A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).Returns(leagues);
-
-            // Set up season rankings.
-            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
-
-            // Set up HTTP session.
-            var fakeSession = new MockHttpSession();
-
-            int? selectedSeasonYear = null;
-            fakeSession.SetObject("SelectedSeasonYear", selectedSeasonYear);
-
-            fakeSession.SetObject("SelectedLeagueName", selectedLeagueName);
-
-            SeasonRankingType? selectedRankingType = SeasonRankingType.None;
-            fakeSession.SetObject("SelectedRankingType", selectedRankingType);
-
-            var httpContext = new Mock<HttpContext>();
-            httpContext.Setup(c => c.Session).Returns(fakeSession);
-
-            // Set up test controller.
-            var testController = new SeasonRankingsController(fakeSeasonRankingsIndexViewModel, fakeSeasonRepository,
-                fakeLeagueRepository, fakeSeasonRankingsRepository)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = httpContext.Object
-                }
-            };
-
-            // Act
-            var result = await testController.Index();
-
-            // Assert
-            // Verify SelectSeason().
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
-
-            var orderedSeasons = seasons.OrderByDescending(s => s.Id).ToList();
-
-            var seasonsFromSession = testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons");
-            seasonsFromSession.ShouldBeEquivalentTo(orderedSeasons);
-
-            var defaultSeasonYear = 1922;
-
-            var selectedSeasonYearFromSession = testController.HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
-            selectedSeasonYearFromSession.ShouldBe(defaultSeasonYear);
-
-            fakeSeasonRankingsIndexViewModel.Seasons.ShouldBeOfType<SelectList>();
-            fakeSeasonRankingsIndexViewModel.Seasons.Items.ShouldBe(orderedSeasons);
-            fakeSeasonRankingsIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Id");
-            fakeSeasonRankingsIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Id");
-            fakeSeasonRankingsIndexViewModel.Seasons.SelectedValue.ShouldBe(defaultSeasonYear);
-            fakeSeasonRankingsIndexViewModel.SelectedSeasonYear.ShouldBe(defaultSeasonYear);
-
-            // Verify SelectLeague().
-            A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).MustHaveHappenedOnceExactly();
-
-            var orderedLeagues = leagues.OrderBy(l => l.Id).ToList();
-
-            var defaultLeagueName = "NFL";
-
-            var selectedLeagueFromSession = testController.HttpContext.Session.GetObject<string>("SelectedLeagueName");
-            selectedLeagueFromSession.ShouldBe(defaultLeagueName);
-
-            fakeSeasonRankingsIndexViewModel.Leagues.ShouldBeOfType<SelectList>();
-            fakeSeasonRankingsIndexViewModel.Leagues.Items.ShouldBe(orderedLeagues);
-            fakeSeasonRankingsIndexViewModel.Leagues.DataValueField.ShouldBe<string>("ShortName");
-            fakeSeasonRankingsIndexViewModel.Leagues.DataTextField.ShouldBe<string>("ShortName");
-            fakeSeasonRankingsIndexViewModel.Leagues.SelectedValue.ShouldBe(defaultLeagueName);
-            fakeSeasonRankingsIndexViewModel.SelectedLeague.ShouldBe(defaultLeagueName);
-
-            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(defaultLeagueName))
-                .MustHaveHappenedOnceExactly();
-
-            // Verify SelectRankingType().
-            fakeSeasonRankingsIndexViewModel.RankingTypes.ShouldBeOfType<SelectList>();
-            var expectedRankingTypesSelectListItems = Enum.GetValues<SeasonRankingType>()
-                .Select(e => new { Value = (int)e, Text = e.ToString() });
-            for (int i = 0; i < expectedRankingTypesSelectListItems.Count(); i++)
-            {
-                var actualItem = fakeSeasonRankingsIndexViewModel.RankingTypes.ElementAt(i).Value;
-                var expectedItem = expectedRankingTypesSelectListItems.ElementAt(i);
-            }
-            fakeSeasonRankingsIndexViewModel.RankingTypes.DataValueField.ShouldBe<string>("Value");
-            fakeSeasonRankingsIndexViewModel.RankingTypes.DataTextField.ShouldBe<string>("Text");
-            fakeSeasonRankingsIndexViewModel.RankingTypes.SelectedValue.ShouldBe(selectedRankingType.Value);
-            fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(selectedRankingType.Value);
-
-            // Verify GetSeasonRankingsAsync().
-            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBe([]);
-
-            // Verify result.
-            result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(fakeSeasonRankingsIndexViewModel);
-        }
-
-        [Fact]
-        public async Task Index_WhenSelectedSelectedRankingTypeIsNull_ShouldSetSelectedValuesToDefaultsAndReturnSeasonRankingsIndexView()
-        {
-            // Arrange
-            // Set up SeasonRankingsIndexViewModel.
-            var fakeSeasonRankingsIndexViewModel = A.Fake<ISeasonRankingsIndexViewModel>();
-
-            // Set up seasons.
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var seasons = new List<Season>
-            {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
-            };
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
-
-            // Set up leagues.
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            var leagues = new List<League>
-            {
-                new() { Id = 1, ShortName = "APFA", LongName = "American Professional Football Association", FirstSeasonId = 1920 },
-                new() { Id = 2, ShortName = "NFL", LongName = "National Football League", FirstSeasonId = 1922 },
-                new() { Id = 3, ShortName = "AFL", LongName = "American Football League", FirstSeasonId = 1960 },
-            };
-            A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).Returns(leagues);
-
-            // Set up season rankings.
-            var fakeSeasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
-
-            // Set up HTTP session.
-            var fakeSession = new MockHttpSession();
-
-            int? selectedSeasonYear = null;
-            fakeSession.SetObject("SelectedSeasonYear", selectedSeasonYear);
-
-            string selectedLeagueName = string.Empty;
-            fakeSession.SetObject("SelectedLeagueName", selectedLeagueName);
-
-            SeasonRankingType? selectedRankingType = null;
-            fakeSession.SetObject("SelectedRankingType", selectedRankingType);
-
-            var httpContext = new Mock<HttpContext>();
-            httpContext.Setup(c => c.Session).Returns(fakeSession);
-
-            // Set up test controller.
-            var testController = new SeasonRankingsController(fakeSeasonRankingsIndexViewModel, fakeSeasonRepository,
-                fakeLeagueRepository, fakeSeasonRankingsRepository)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = httpContext.Object
-                }
-            };
-
-            // Act
-            var result = await testController.Index();
-
-            // Assert
-            // Verify SelectSeason().
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
-
-            var orderedSeasons = seasons.OrderByDescending(s => s.Id).ToList();
-
-            var seasonsFromSession = testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons");
-            seasonsFromSession.ShouldBeEquivalentTo(orderedSeasons);
-
-            var defaultSeasonYear = 1922;
-
-            var selectedSeasonYearFromSession = testController.HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
-            selectedSeasonYearFromSession.ShouldBe(defaultSeasonYear);
-
-            fakeSeasonRankingsIndexViewModel.Seasons.ShouldBeOfType<SelectList>();
-            fakeSeasonRankingsIndexViewModel.Seasons.Items.ShouldBe(orderedSeasons);
-            fakeSeasonRankingsIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Id");
-            fakeSeasonRankingsIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Id");
-            fakeSeasonRankingsIndexViewModel.Seasons.SelectedValue.ShouldBe(defaultSeasonYear);
-            fakeSeasonRankingsIndexViewModel.SelectedSeasonYear.ShouldBe(defaultSeasonYear);
-
-            // Verify SelectLeague().
-            A.CallTo(() => fakeLeagueRepository.GetLeaguesAsync()).MustHaveHappenedOnceExactly();
-
-            var orderedLeagues = leagues.OrderBy(l => l.Id).ToList();
-
-            var defaultLeagueName = "NFL";
-
-            var selectedLeagueFromSession = testController.HttpContext.Session.GetObject<string>("SelectedLeagueName");
-            selectedLeagueFromSession.ShouldBe(defaultLeagueName);
-
-            fakeSeasonRankingsIndexViewModel.Leagues.ShouldBeOfType<SelectList>();
-            fakeSeasonRankingsIndexViewModel.Leagues.Items.ShouldBe(orderedLeagues);
-            fakeSeasonRankingsIndexViewModel.Leagues.DataValueField.ShouldBe<string>("ShortName");
-            fakeSeasonRankingsIndexViewModel.Leagues.DataTextField.ShouldBe<string>("ShortName");
-            fakeSeasonRankingsIndexViewModel.Leagues.SelectedValue.ShouldBe(defaultLeagueName);
-            fakeSeasonRankingsIndexViewModel.SelectedLeague.ShouldBe(defaultLeagueName);
-
-            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(defaultLeagueName))
-                .MustHaveHappenedOnceExactly();
-
-            // Verify SelectRankingType().
-            var defaultRankingType = SeasonRankingType.None;
-
-            var selectedRankingTypeFromSession = testController.HttpContext.Session
-                .GetObject<SeasonRankingType?>("SelectedRankingType");
-            selectedRankingTypeFromSession.ShouldBe(defaultRankingType);
-
-            fakeSeasonRankingsIndexViewModel.RankingTypes.ShouldBeOfType<SelectList>();
-            var expectedRankingTypesSelectListItems = Enum.GetValues<SeasonRankingType>()
-                .Select(e => new { Value = (int)e, Text = e.ToString() });
-            for (int i = 0; i < expectedRankingTypesSelectListItems.Count(); i++)
-            {
-                var actualItem = fakeSeasonRankingsIndexViewModel.RankingTypes.ElementAt(i).Value;
-                var expectedItem = expectedRankingTypesSelectListItems.ElementAt(i);
-            }
-            fakeSeasonRankingsIndexViewModel.RankingTypes.DataValueField.ShouldBe<string>("Value");
-            fakeSeasonRankingsIndexViewModel.RankingTypes.DataTextField.ShouldBe<string>("Text");
-            fakeSeasonRankingsIndexViewModel.RankingTypes.SelectedValue.ShouldBe(defaultRankingType);
-            fakeSeasonRankingsIndexViewModel.SelectedRankingType.ShouldBe(defaultRankingType);
-            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBe([]);
-
-            // Verify GetSeasonRankingsAsync().
-            fakeSeasonRankingsIndexViewModel.SeasonRankings.ShouldBe([]);
-
-            // Verify result.
-            result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(fakeSeasonRankingsIndexViewModel);
-        }
-
-        [Fact]
-        public void SetSelectedLeagueName_WhenLeagueNameArgIsNeitherNullNorEmpty_ShouldSetSelectedLeagueNameAndRedirectToIndexView()
-        {
-            // Arrange
-            var seasonRankingsIndexViewModel = A.Fake<ISeasonRankingsIndexViewModel>();
-            var seasonRepository = A.Fake<ISeasonRepository>();
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            var seasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
-
-            var fakeSession = new MockHttpSession();
-            var selectedLeagueNameToSession = "NFL";
-            fakeSession.SetObject("SelectedLeagueName", selectedLeagueNameToSession);
-
-            var httpContext = new Mock<HttpContext>();
-            httpContext.Setup(c => c.Session).Returns(fakeSession);
-
-            var testController = new SeasonRankingsController(seasonRankingsIndexViewModel, seasonRepository,
-                fakeLeagueRepository, seasonRankingsRepository)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = httpContext.Object
-                }
-            };
-
-            string leagueName = "APFA";
-
-            // Act
-            var result = testController.SetSelectedLeagueName(leagueName);
-
-            // Assert
-            var selectedLeagueNameFromSession = testController.HttpContext.Session.GetObject<string>("SelectedLeagueName");
-            selectedLeagueNameFromSession.ShouldBe(leagueName);
-            result.ShouldBeOfType<RedirectToActionResult>();
-            ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData(null!)]
-        public void SetSelectedLeagueName_WhenLeagueNameArgIsNullOrEmpty_ShouldReturnBadRequest(string leagueName)
-        {
-            // Arrange
-            var seasonRankingsIndexViewModel = A.Fake<ISeasonRankingsIndexViewModel>();
-            var seasonRepository = A.Fake<ISeasonRepository>();
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            var seasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
-
-            var fakeSession = new MockHttpSession();
-            var selectedLeagueNameToSession = "NFL";
-            fakeSession.SetObject("SelectedLeagueName", selectedLeagueNameToSession);
-
-            var httpContext = new Mock<HttpContext>();
-            httpContext.Setup(c => c.Session).Returns(fakeSession);
-
-            var testController = new SeasonRankingsController(seasonRankingsIndexViewModel, seasonRepository,
-                fakeLeagueRepository, seasonRankingsRepository)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = httpContext.Object
-                }
-            };
-
-            // Act
-            var result = testController.SetSelectedLeagueName(leagueName);
-
-            // Assert
-            result.ShouldBeOfType<BadRequestResult>();
-        }
-
-        [Fact]
         public void SetSelectedSeasonYear_WhenSeasonYearArgIsNotNull_ShouldSetSelectedSeasonYearAndRedirectToIndexView()
         {
             // Arrange
             var seasonRankingsIndexViewModel = A.Fake<ISeasonRankingsIndexViewModel>();
             var seasonRepository = A.Fake<ISeasonRepository>();
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
+            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             var seasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
 
             var fakeSession = new MockHttpSession();
@@ -965,7 +1168,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             httpContext.Setup(c => c.Session).Returns(fakeSession);
 
             var testController = new SeasonRankingsController(seasonRankingsIndexViewModel, seasonRepository,
-                fakeLeagueRepository, seasonRankingsRepository)
+                fakeAssociationRepository, seasonRankingsRepository)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -973,14 +1176,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 }
             };
 
-            int? seasonId = 1920;
+            int? seasonYear = 1920;
 
             // Act
-            var result = testController.SetSelectedSeasonYear(seasonId);
+            var result = testController.SetSelectedSeasonYear(seasonYear);
 
             // Assert
             var selectedSeasonYearFromSession = testController.HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
-            selectedSeasonYearFromSession.ShouldBe(seasonId.Value);
+            selectedSeasonYearFromSession.ShouldBe(seasonYear.Value);
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
         }
@@ -991,7 +1194,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Arrange
             var seasonRankingsIndexViewModel = A.Fake<ISeasonRankingsIndexViewModel>();
             var seasonRepository = A.Fake<ISeasonRepository>();
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
+            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             var seasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
 
             var fakeSession = new MockHttpSession();
@@ -1002,7 +1205,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             httpContext.Setup(c => c.Session).Returns(fakeSession);
 
             var testController = new SeasonRankingsController(seasonRankingsIndexViewModel, seasonRepository,
-                fakeLeagueRepository, seasonRankingsRepository)
+                fakeAssociationRepository, seasonRankingsRepository)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -1010,10 +1213,80 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 }
             };
 
-            int? seasonId = null;
+            int? seasonYear = null;
 
             // Act
-            var result = testController.SetSelectedSeasonYear(seasonId);
+            var result = testController.SetSelectedSeasonYear(seasonYear);
+
+            // Assert
+            result.ShouldBeOfType<BadRequestResult>();
+        }
+
+        [Fact]
+        public void SetSelectedLeagueName_WhenAssociationNameArgIsNeitherNullNorEmpty_ShouldSetSelectedLeagueNameAndRedirectToIndexView()
+        {
+            // Arrange
+            var seasonRankingsIndexViewModel = A.Fake<ISeasonRankingsIndexViewModel>();
+            var seasonRepository = A.Fake<ISeasonRepository>();
+            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
+            var seasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+
+            var fakeSession = new MockHttpSession();
+            var selectedAssociationNameToSession = "NFL";
+            fakeSession.SetObject("SelectedLeagueName", selectedAssociationNameToSession);
+
+            var httpContext = new Mock<HttpContext>();
+            httpContext.Setup(c => c.Session).Returns(fakeSession);
+
+            var testController = new SeasonRankingsController(seasonRankingsIndexViewModel, seasonRepository,
+                fakeAssociationRepository, seasonRankingsRepository)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = httpContext.Object
+                }
+            };
+
+            string associationName = "APFA";
+
+            // Act
+            var result = testController.SetSelectedLeagueName(associationName);
+
+            // Assert
+            testController.HttpContext.Session.GetObject<string>("SelectedLeagueName").ShouldBe(associationName);
+            result.ShouldBeOfType<RedirectToActionResult>();
+            ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        public void SetSelectedLeagueName_WhenAssociationNameArgIsNullOrEmpty_ShouldReturnBadRequest(string? associationName)
+        {
+            // Arrange
+            var seasonRankingsIndexViewModel = A.Fake<ISeasonRankingsIndexViewModel>();
+            var seasonRepository = A.Fake<ISeasonRepository>();
+            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
+            var seasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
+
+            var fakeSession = new MockHttpSession();
+            var selectedAssociationNameToSession = "NFL";
+            fakeSession.SetObject("SelectedLeagueName", selectedAssociationNameToSession);
+
+            var httpContext = new Mock<HttpContext>();
+            httpContext.Setup(c => c.Session).Returns(fakeSession);
+
+            var testController = new SeasonRankingsController(seasonRankingsIndexViewModel, seasonRepository,
+                fakeAssociationRepository, seasonRankingsRepository)
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = httpContext.Object
+                }
+            };
+
+            // Act
+            var result = testController.SetSelectedLeagueName(associationName);
 
             // Assert
             result.ShouldBeOfType<BadRequestResult>();
@@ -1024,13 +1297,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         [InlineData(SeasonRankingType.Defensive)]
         [InlineData(SeasonRankingType.Total)]
         [InlineData(SeasonRankingType.None)]
-        [InlineData(null!)]
-        public void SetSelectedRankingtype_ShouldSetSelectedRankingTypeAndRedirectToIndexView(SeasonRankingType? rankingType)
+        public void SetSelectedRankingType_ShouldSetSelectedRankingTypeAndRedirectToIndexView(SeasonRankingType? rankingType)
         {
             // Arrange
             var seasonRankingsIndexViewModel = A.Fake<ISeasonRankingsIndexViewModel>();
             var seasonRepository = A.Fake<ISeasonRepository>();
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
+            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             var seasonRankingsRepository = A.Fake<ISeasonRankingsRepository>();
 
             var fakeSession = new MockHttpSession();
@@ -1041,7 +1313,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             httpContext.Setup(c => c.Session).Returns(fakeSession);
 
             var testController = new SeasonRankingsController(seasonRankingsIndexViewModel, seasonRepository,
-                fakeLeagueRepository, seasonRankingsRepository)
+                fakeAssociationRepository, seasonRankingsRepository)
             {
                 ControllerContext = new ControllerContext
                 {
@@ -1050,7 +1322,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             };
 
             // Act
-            var result = testController.SetSelectedRankingType(rankingType);
+            var result = testController.SetSelectedRankingType(rankingType.Value);
 
             // Assert
             var selectedRankingTypeFromSession = testController.HttpContext.Session

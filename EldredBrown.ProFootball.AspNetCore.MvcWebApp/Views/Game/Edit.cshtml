@@ -20,6 +20,11 @@
                 <span class="text-danger" asp-validation-for="SeasonYear"></span>
             </div>
             <div class="form-group">
+                <label class="col-form-label" asp-for="LeagueName"></label>
+                <select class="form-control" asp-for="LeagueName" asp-items="ViewBag.Leagues"></select>
+                <span class="text-danger" asp-validation-for="LeagueName"></span>
+            </div>
+            <div class="form-group">
                 <label class="col-form-label" asp-for="Week"></label>
                 <select class="form-control" asp-for="Week" asp-items="ViewBag.Weeks"></select>
                 <span class="text-danger" asp-validation-for="Week"></span>
@@ -57,7 +62,7 @@
             </div>
             <div class="form-group">
                 <p>
-                    <button class="btn btn-primary" type="submit">Create</button>
+                    <button class="btn btn-primary" type="submit">Save</button>
                 </p>
             </div>
         </form>

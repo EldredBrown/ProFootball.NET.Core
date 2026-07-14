@@ -8,17 +8,17 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Pages.Leagues
 {
     public class DeleteModel : PageModel
     {
-        private readonly ILeagueRepository _leagueRepository;
+        private readonly IAssociationRepository _associationRepository;
         private readonly ISharedRepository _sharedRepository;
 
-        public DeleteModel(ILeagueRepository leagueRepository, ISharedRepository sharedRepository)
+        public DeleteModel(IAssociationRepository leagueRepository, ISharedRepository sharedRepository)
         {
-            _leagueRepository = leagueRepository;
+            _associationRepository = leagueRepository;
             _sharedRepository = sharedRepository;
         }
 
         [BindProperty]
-        public League League { get; set; }
+        public Association League { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -27,7 +27,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Pages.Leagues
                 return NotFound();
             }
 
-            League = await _leagueRepository.GetLeagueAsync(id.Value);
+            League = await _associationRepository.GetAssociationAsync(id.Value);
 
             if (League is null)
             {
@@ -43,11 +43,11 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Pages.Leagues
                 return NotFound();
             }
 
-            League = await _leagueRepository.GetLeagueAsync(id.Value);
+            League = await _associationRepository.GetAssociationAsync(id.Value);
 
             if (!(League is null))
             {
-                await _leagueRepository.DeleteAsync(League.Id);
+                await _associationRepository.DeleteAsync(League.Id);
                 await _sharedRepository.SaveChangesAsync();
             }
 

@@ -27,14 +27,14 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="id">The year of the <see cref="Season"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Season"/> entity.</returns>
-        Season? GetSeason(int id);
+        Season? GetSeason(int year);
 
         /// <summary>
         /// Gets a single <see cref="Season"/> entity from the data store asynchronously by Id.
         /// </summary>
         /// <param name="id">The year of the <see cref="Season"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Season"/> entity.</returns>
-        Task<Season?> GetSeasonAsync(int id);
+        Task<Season?> GetSeasonAsync(int year);
 
         /// <summary>
         /// Adds a <see cref="Season"/> entity to the data store.
@@ -50,12 +50,8 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>The added <see cref="Season"/> entity.</returns>
         Task<Season> AddAsync(Season season);
 
-        /// <summary>
-        /// Updates a <see cref="Season"/> entity in the data store.
-        /// </summary>
-        /// <param name="season">The <see cref="Season"/> entity to update.</param>
-        /// <returns>The updated <see cref="Season"/> entity.</returns>
-        Season Update(Season season);
+        // Unlike most of my repositories, this repository does not have an Update action because the only property of a
+        // Season is the Year, which is the primary key. Therefore, there is no way to edit a Season.
 
         /// <summary>
         /// Deletes a <see cref="Season"/> entity from the data store.

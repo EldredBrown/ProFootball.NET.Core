@@ -27,7 +27,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.SeasonRankings
         /// <summary>
         /// Gets or sets the name of the selected league for the current view model.
         /// </summary>
-        string SelectedLeague { get; set; }
+        string SelectedLeagueName { get; set; }
 
         /// <summary>
         /// Gets or sets the list that lets users select a ranking type.

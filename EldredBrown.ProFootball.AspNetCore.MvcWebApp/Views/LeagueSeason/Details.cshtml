@@ -24,6 +24,18 @@
             @Html.DisplayFor(model => model.LeagueSeason.SeasonYear)
         </dd>
         <dt class="col-sm-2">
+            <label asp-for="LeagueSeason.NumOfWeeksScheduled"></label>
+        </dt>
+        <dd class=" col-sm-10">
+            @Html.DisplayFor(model => model.LeagueSeason.NumOfWeeksScheduled)
+        </dd>
+        <dt class="col-sm-2">
+            <label asp-for="LeagueSeason.NumOfWeeksCompleted"></label>
+        </dt>
+        <dd class=" col-sm-10">
+            @Html.DisplayFor(model => model.LeagueSeason.NumOfWeeksCompleted)
+        </dd>
+        <dt class="col-sm-2">
             <label asp-for="LeagueSeason.TotalGames"></label>
         </dt>
         <dd class="col-sm-10">
@@ -47,6 +59,7 @@
 <div>
     <p>
         <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.LeagueSeason.Id">Edit</a>
+        <a class="btn btn-danger" asp-action="Delete" asp-route-id="@Model.LeagueSeason.Id">Delete</a>
     </p>
     <p>
         <a asp-action="Index">Back to List</a>

@@ -8,7 +8,11 @@ public partial class LeagueSeason
 
     public int LeagueId { get; set; }
 
-    public int SeasonId { get; set; }
+    public int SeasonYear { get; set; }
+
+    public int NumOfWeeksScheduled { get; set; }
+
+    public int NumOfWeeksCompleted { get; set; }
 
     public int TotalGames { get; set; }
 
@@ -17,8 +21,8 @@ public partial class LeagueSeason
     public decimal? AveragePoints { get; set; }
 
     [ValidateNever]
-    public virtual League LeagueIdNavigation { get; set; } = null!;
+    public virtual Association LeagueIdNavigation { get; set; } = null!;
 
     [ValidateNever]
-    public virtual Season SeasonIdNavigation { get; set; } = null!;
+    public virtual Season SeasonYearNavigation { get; set; } = null!;
 }

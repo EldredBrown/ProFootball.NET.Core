@@ -40,11 +40,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     public class SeasonRankingsController(
         ISeasonRankingsIndexViewModel seasonRankingsIndexViewModel,
         ISeasonRepository seasonRepository,
-        ILeagueRepository leagueRepository,
+        IAssociationRepository associationRepository,
         ISeasonRankingsRepository seasonRankingsRepository
-        ) : Controller
+    ) : Controller
     {
-        private const string _defaultLeagueName = "NFL";
+        private int? _selectedSeasonYear = null;
+        private string _selectedLeagueName = null;
+        private SeasonRankingType? _selectedRankingType = SeasonRankingType.None;
 
         // GET: SeasonRankings
         /// <summary>
@@ -54,25 +56,47 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            int? selectedSeasonYear = await SelectSeason();
-            League selectedLeague = await SelectLeague();
-            SeasonRankingType? selectedRankingType = SelectRankingType();
-            await GetSelectedRankings(selectedSeasonYear, selectedRankingType.Value);
+            await LoadSeasonsAndSelectedSeasonYearIntoIndexViewModel();
+            await LoadLeaguesAndSelectedLeagueNameIntoIndexViewModel();
+            LoadRankingTypesAndSelectedRankingTypeIntoIndexViewModel();
+            await GetSelectedRankings();
+
             return View(seasonRankingsIndexViewModel);
         }
 
         /// <summary>
-        /// Sets the selected season Id.
+        /// Sets the selected season year.
         /// </summary>
-        /// <param name="leagueName">The name of the selected league.</param>
+        /// <param name="seasonYear">The year of the selected season.</param>
         /// <returns>The rendered view of the <see cref="RedirectToActionResult"/>.</returns>
-        public IActionResult SetSelectedLeagueName(string leagueShortName)
+        public IActionResult SetSelectedSeasonYear(int? seasonYear)
         {
-            if (leagueShortName.IsNullOrEmpty())
+            if (seasonYear is null)
             {
                 return BadRequest();
             }
-            HttpContext.Session.SetObject("SelectedLeagueName", leagueShortName);
+
+            _selectedSeasonYear = seasonYear.Value;
+            HttpContext.Session.SetObject("SelectedSeasonYear", seasonYear.Value);
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        /// <summary>
+        /// Sets the selected league Id.
+        /// </summary>
+        /// <param name="seasonYear">The year of the selected season.</param>
+        /// <returns>The rendered view of the <see cref="RedirectToActionResult"/>.</returns>
+        public IActionResult SetSelectedLeagueName(string leagueName)
+        {
+            if (leagueName.IsNullOrEmpty())
+            {
+                return BadRequest();
+            }
+
+            _selectedLeagueName = leagueName;
+            HttpContext.Session.SetObject("SelectedLeagueName", leagueName);
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -81,42 +105,47 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// </summary>
         /// <param name="rankingType">The selected league.</param>
         /// <returns>The rendered view of the <see cref="RedirectToActionResult"/>.</returns>
-        public IActionResult SetSelectedRankingType(SeasonRankingType? rankingType)
+        public IActionResult SetSelectedRankingType(SeasonRankingType rankingType)
         {
+            _selectedRankingType = rankingType;
             HttpContext.Session.SetObject("SelectedRankingType", rankingType);
+
             return RedirectToAction(nameof(Index));
         }
 
-        /// <summary>
-        /// Sets the selected season Id.
-        /// </summary>
-        /// <param name="seasonYear">The Id of the selected season.</param>
-        /// <returns>The rendered view of the <see cref="RedirectToActionResult"/>.</returns>
-        public IActionResult SetSelectedSeasonYear(int? seasonYear)
+        private async Task<IEnumerable<Association>> GetLeagues()
         {
-            if (seasonYear is null)
-            {
-                return BadRequest();
-            }
-            HttpContext.Session.SetObject("SelectedSeasonYear", seasonYear);
-            return RedirectToAction(nameof(Index));
+            return [.. (await associationRepository.GetAssociationsAsync())
+                .Where(a => a.ParentId is null)
+                .Where(
+                    l => l.FirstSeasonYearNavigation.Year <= _selectedSeasonYear
+                    && (l.LastSeasonYearNavigation is null || _selectedSeasonYear <= l.LastSeasonYearNavigation.Year)
+                )
+                .OrderByDescending(a => a.ShortName)];
         }
 
-        private async Task GetSelectedRankings(int? selectedSeasonYear, SeasonRankingType selectedRankingType)
+        private async Task<IEnumerable<Season>> GetSeasons()
         {
-            switch (selectedRankingType)
+            return [.. (await seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Year)];
+        }
+
+        private async Task GetSelectedRankings()
+        {
+            var selectedLeague = await associationRepository.GetAssociationByShortNameAsync(_selectedLeagueName);
+
+            switch (_selectedRankingType)
             {
                 case SeasonRankingType.Offensive:
                     seasonRankingsIndexViewModel.SeasonRankings =
-                        await seasonRankingsRepository.GetOffensiveRankingsForSeasonAsync(selectedSeasonYear.Value);
+                        await seasonRankingsRepository.GetOffensiveRankingsAsync(_selectedSeasonYear.Value, selectedLeague.Id);
                     break;
                 case SeasonRankingType.Defensive:
                     seasonRankingsIndexViewModel.SeasonRankings =
-                        await seasonRankingsRepository.GetDefensiveRankingsForSeasonAsync(selectedSeasonYear.Value);
+                        await seasonRankingsRepository.GetDefensiveRankingsAsync(_selectedSeasonYear.Value, selectedLeague.Id);
                     break;
                 case SeasonRankingType.Total:
                     seasonRankingsIndexViewModel.SeasonRankings =
-                        await seasonRankingsRepository.GetTotalRankingsForSeasonAsync(selectedSeasonYear.Value);
+                        await seasonRankingsRepository.GetTotalRankingsAsync(_selectedSeasonYear.Value, selectedLeague.Id);
                     break;
                 case SeasonRankingType.None:
                     seasonRankingsIndexViewModel.SeasonRankings = [];
@@ -124,55 +153,52 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             }
         }
 
-        private async Task<League> SelectLeague()
+        private async Task LoadLeaguesAndSelectedLeagueNameIntoIndexViewModel()
         {
-            var leagues = (await leagueRepository.GetLeaguesAsync()).OrderBy(l => l.Id);
-            HttpContext.Session.SetObject("Leagues", leagues);
+            _selectedLeagueName = HttpContext.Session.GetObject<string>("SelectedLeagueName");
 
-            var selectedLeagueName = HttpContext.Session.GetObject<string>("SelectedLeagueName");
-            if (selectedLeagueName.IsNullOrEmpty())
+            var leagues = await GetLeagues();
+            if (_selectedLeagueName.IsNullOrEmpty())
             {
-                selectedLeagueName = _defaultLeagueName;
-                SetSelectedLeagueName(_defaultLeagueName);
+                SetSelectedLeagueName(leagues.First().ShortName);
             }
-            seasonRankingsIndexViewModel.Leagues = new SelectList(leagues, "ShortName", "ShortName", selectedLeagueName);
-            seasonRankingsIndexViewModel.SelectedLeague = selectedLeagueName;
-            return await leagueRepository.GetLeagueByShortNameAsync(selectedLeagueName);
+            seasonRankingsIndexViewModel.Leagues = new SelectList(leagues, "ShortName", "ShortName", _selectedLeagueName);
+            seasonRankingsIndexViewModel.SelectedLeagueName = _selectedLeagueName;
         }
 
-        private SeasonRankingType SelectRankingType()
+        private SeasonRankingType LoadRankingTypesAndSelectedRankingTypeIntoIndexViewModel()
         {
-            var selectedRankingType = HttpContext.Session.GetObject<SeasonRankingType?>("SelectedRankingType");
-            if (selectedRankingType is null)
+            _selectedRankingType = HttpContext.Session.GetObject<SeasonRankingType?>("SelectedRankingType");
+
+            if (_selectedRankingType is null)
             {
-                selectedRankingType = SeasonRankingType.None;
-                SetSelectedRankingType(selectedRankingType.Value);
+                _selectedRankingType = SeasonRankingType.None;
+                SetSelectedRankingType(_selectedRankingType.Value);
             }
+
             seasonRankingsIndexViewModel.RankingTypes = new SelectList(
                 Enum.GetValues<SeasonRankingType>()
                     .Select(e => new { Value = (int)e, Text = e.ToString() }),
                 "Value",
                 "Text",
-                selectedRankingType.Value
+                _selectedRankingType.Value
             );
-            seasonRankingsIndexViewModel.SelectedRankingType = selectedRankingType.Value;
-            return selectedRankingType.Value;
+
+            seasonRankingsIndexViewModel.SelectedRankingType = _selectedRankingType.Value;
+            return _selectedRankingType.Value;
         }
 
-        private async Task<int?> SelectSeason()
+        private async Task LoadSeasonsAndSelectedSeasonYearIntoIndexViewModel()
         {
-            var seasons = (await seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Id);
-            HttpContext.Session.SetObject("Seasons", seasons);
+            _selectedSeasonYear = HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
 
-            var selectedSeasonYear = HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
-            if (selectedSeasonYear is null)
+            var seasons = await GetSeasons();
+            if (_selectedSeasonYear is null)
             {
-                selectedSeasonYear = seasons.First().Id;
-                SetSelectedSeasonYear(selectedSeasonYear);
+                SetSelectedSeasonYear(seasons.First().Year);
             }
-            seasonRankingsIndexViewModel.Seasons = new SelectList(seasons, "Id", "Id", selectedSeasonYear);
-            seasonRankingsIndexViewModel.SelectedSeasonYear = selectedSeasonYear;
-            return selectedSeasonYear;
+            seasonRankingsIndexViewModel.Seasons = new SelectList(seasons, "Year", "Year", _selectedSeasonYear);
+            seasonRankingsIndexViewModel.SelectedSeasonYear = _selectedSeasonYear;
         }
     }
 }

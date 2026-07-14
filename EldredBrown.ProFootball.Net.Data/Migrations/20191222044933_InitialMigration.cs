@@ -10,129 +10,50 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                 name: "Season",
                 columns: table => new
                 {
-                    Year = table.Column<int>(nullable: false),
-                    NumOfWeeksScheduled = table.Column<int>(nullable: false, defaultValue: 0),
-                    NumOfWeeksCompleted = table.Column<int>(nullable: false, defaultValue: 0)
+                    year = table.Column<int>(nullable: false),
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Season", x => x.Year);
+                    table.PrimaryKey("PK_Season", x => x.year);
+                    table.CheckConstraint("CK_Season_Year_Min", "[Year] >= 1920");
                 });
 
             migrationBuilder.CreateTable(
-                name: "League",
+                name: "Association",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ShortName = table.Column<string>(maxLength: 5, nullable: false),
-                    LongName = table.Column<string>(maxLength: 50, nullable: false),
-                    FirstSeasonYear = table.Column<int>(nullable: false),
-                    LastSeasonYear = table.Column<int>(nullable: true)
+                    parent_id = table.Column<int>(nullable: true),
+                    long_name = table.Column<string>(maxLength: 100, nullable: false),
+                    short_name = table.Column<string>(maxLength: 5, nullable: false),
+                    first_season_year = table.Column<int>(nullable: false),
+                    last_season_year = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_League", x => x.Id);
-                    table.UniqueConstraint("UQ_League_ShortName", x => x.ShortName);
-                    table.UniqueConstraint("UQ_League_LongName", x => x.LongName);
+                    table.PrimaryKey("PK_Association", x => x.id);
+                    table.UniqueConstraint("UQ_Association_LongName", x => x.long_name);
+                    table.UniqueConstraint("UQ_Association_ShortName", x => x.short_name);
                     table.ForeignKey(
-                        name: "FK_League_Season_FirstSeasonYear",
-                        column: x => x.FirstSeasonYear,
-                        principalTable: "Season",
-                        principalColumn: "Year",
+                        name: "FK_Association_ParentId",
+                        column: x => x.parent_id,
+                        principalTable: "Association",
+                        principalColumn: "id",
                         onUpdate: ReferentialAction.NoAction,
                         onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
-                        name: "FK_League_Season_LastSeasonYear",
-                        column: x => x.LastSeasonYear,
+                        name: "FK_Association_Season_FirstSeasonYear",
+                        column: x => x.first_season_year,
                         principalTable: "Season",
-                        principalColumn: "Year",
-                        onUpdate: ReferentialAction.NoAction,
-                        onDelete: ReferentialAction.NoAction);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Conference",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ShortName = table.Column<string>(maxLength: 5, nullable: false),
-                    LongName = table.Column<string>(maxLength: 50, nullable: false),
-                    LeagueId = table.Column<int>(nullable: false),
-                    FirstSeasonYear = table.Column<int>(nullable: false),
-                    LastSeasonYear = table.Column<int>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Conference", x => x.Id);
-                    table.UniqueConstraint("UQ_Conference_ShortName", x => x.ShortName);
-                    table.UniqueConstraint("UQ_Conference_LongName", x => x.LongName);
-                    table.ForeignKey(
-                        name: "FK_Conference_League_LeagueId",
-                        column: x => x.LeagueId,
-                        principalTable: "League",
-                        principalColumn: "Id",
-                        onUpdate: ReferentialAction.NoAction,
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Conference_Season_FirstSeasonYear",
-                        column: x => x.FirstSeasonYear,
-                        principalTable: "Season",
-                        principalColumn: "Year",
+                        principalColumn: "year",
                         onUpdate: ReferentialAction.NoAction,
                         onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
-                        name: "FK_Conference_Season_LastSeasonYear",
-                        column: x => x.LastSeasonYear,
+                        name: "FK_Association_Season_LastSeasonYear",
+                        column: x => x.last_season_year,
                         principalTable: "Season",
-                        principalColumn: "Year",
-                        onUpdate: ReferentialAction.Restrict,
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Division",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(maxLength: 50, nullable: false),
-                    LeagueId = table.Column<int>(nullable: false),
-                    ConferenceId = table.Column<int>(nullable: true),
-                    FirstSeasonYear = table.Column<int>(nullable: false),
-                    LastSeasonYear = table.Column<int>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Division", x => x.Id);
-                    table.UniqueConstraint("UQ_Division_Name", x => x.Name);
-                    table.ForeignKey(
-                        name: "FK_Division_League_LeagueId",
-                        column: x => x.LeagueId,
-                        principalTable: "League",
-                        principalColumn: "Id",
-                        onUpdate: ReferentialAction.NoAction,
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Division_Conference_ConferenceId",
-                        column: x => x.ConferenceId,
-                        principalTable: "Conference",
-                        principalColumn: "Id",
-                        onUpdate: ReferentialAction.NoAction,
-                        onDelete: ReferentialAction.NoAction);
-                    table.ForeignKey(
-                        name: "FK_Division_Season_FirstSeasonYear",
-                        column: x => x.FirstSeasonYear,
-                        principalTable: "Season",
-                        principalColumn: "Year",
-                        onUpdate: ReferentialAction.NoAction,
-                        onDelete: ReferentialAction.NoAction);
-                    table.ForeignKey(
-                        name: "FK_Division_Season_LastSeasonYear",
-                        column: x => x.LastSeasonYear,
-                        principalTable: "Season",
-                        principalColumn: "Year",
+                        principalColumn: "year",
                         onUpdate: ReferentialAction.NoAction,
                         onDelete: ReferentialAction.NoAction);
                 });
@@ -141,40 +62,50 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                 name: "Team",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(maxLength: 50, nullable: false)
+                    name = table.Column<string>(maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Team", x => x.Id);
-                    table.UniqueConstraint("UQ_Team_Name", x => x.Name);
+                    table.PrimaryKey("PK_Team", x => x.id);
+                    table.UniqueConstraint("UQ_Team_Name", x => x.name);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Game",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SeasonYear = table.Column<int>(nullable: false),
-                    Week = table.Column<int>(nullable: false),
-                    GuestName = table.Column<string>(maxLength: 50, nullable: false),
-                    GuestScore = table.Column<int>(nullable: false, defaultValue: 0),
-                    HostName = table.Column<string>(maxLength: 50, nullable: false),
-                    HostScore = table.Column<int>(nullable: false, defaultValue: 0),
-                    IsPlayoff = table.Column<bool>(nullable: false, defaultValue: false),
-                    Notes = table.Column<string>(nullable: true)
+                    season_year = table.Column<int>(nullable: false),
+                    league_id = table.Column<int>(nullable: true),
+                    week = table.Column<int>(nullable: false),
+                    guest_name = table.Column<string>(maxLength: 100, nullable: false),
+                    guest_score = table.Column<int>(nullable: false, defaultValue: 0),
+                    host_name = table.Column<string>(maxLength: 100, nullable: false),
+                    host_score = table.Column<int>(nullable: false, defaultValue: 0),
+                    is_playoff = table.Column<bool>(nullable: false, defaultValue: false),
+                    notes = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Game", x => x.Id);
-                    table.UniqueConstraint("UQ_Game_Season_Week_Teams", x => new { x.SeasonYear, x.Week, x.GuestName, x.HostName });
+                    table.PrimaryKey("PK_Game", x => x.id);
+                    table.UniqueConstraint("UQ_Game_Season_League_Week_Teams", x => new {
+                        x.season_year, x.league_id, x.week, x.guest_name, x.host_name
+                    });
                     table.ForeignKey(
                         name: "FK_Game_Season_SeasonYear",
-                        column: x => x.SeasonYear,
+                        column: x => x.season_year,
                         principalTable: "Season",
-                        principalColumn: "Year",
+                        principalColumn: "year",
+                        onUpdate: ReferentialAction.Restrict,
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Game_Association_LeagueId",
+                        column: x => x.league_id,
+                        principalTable: "Association",
+                        principalColumn: "id",
                         onUpdate: ReferentialAction.Restrict,
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -183,30 +114,32 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                 name: "LeagueSeason",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    LeagueId = table.Column<int>(nullable: false),
-                    SeasonYear = table.Column<int>(nullable: false),
-                    TotalGames = table.Column<int>(nullable: false, defaultValue: 0),
-                    TotalPoints = table.Column<int>(nullable: false, defaultValue: 0),
-                    AveragePoints = table.Column<decimal>(nullable: true)
+                    league_id = table.Column<int>(nullable: false),
+                    season_year = table.Column<int>(nullable: false),
+                    num_of_weeks_scheduled = table.Column<int>(nullable: false, defaultValue: 0),
+                    num_of_weeks_completed = table.Column<int>(nullable: false, defaultValue: 0),
+                    total_games = table.Column<int>(nullable: false, defaultValue: 0),
+                    total_points = table.Column<int>(nullable: false, defaultValue: 0),
+                    average_points = table.Column<decimal>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LeagueSeason", x => x.Id);
-                    table.UniqueConstraint("UQ_LeagueSeason_League_Season", x => new { x.LeagueId, x.SeasonYear });
+                    table.PrimaryKey("PK_LeagueSeason", x => x.id);
+                    table.UniqueConstraint("UQ_LeagueSeason_League_Season", x => new { x.league_id, x.season_year });
                     table.ForeignKey(
-                        name: "FK_LeagueSeason_League_LeagueId",
-                        column: x => x.LeagueId,
-                        principalTable: "League",
-                        principalColumn: "Id",
+                        name: "FK_LeagueSeason_Association_LeagueId",
+                        column: x => x.league_id,
+                        principalTable: "Association",
+                        principalColumn: "id",
                         onUpdate: ReferentialAction.NoAction,
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_LeagueSeason_Season_SeasonYear",
-                        column: x => x.SeasonYear,
+                        column: x => x.season_year,
                         principalTable: "Season",
-                        principalColumn: "Year",
+                        principalColumn: "year",
                         onUpdate: ReferentialAction.Restrict,
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -215,154 +148,129 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                 name: "TeamSeason",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TeamId = table.Column<int>(nullable: false),
-                    SeasonYear = table.Column<int>(nullable: false),
-                    LeagueId = table.Column<int>(nullable: false),
-                    ConferenceId = table.Column<int>(nullable: true),
-                    DivisionId = table.Column<int>(nullable: true),
-                    Games = table.Column<int>(nullable: false, defaultValue: 0),
-                    Wins = table.Column<int>(nullable: false, defaultValue: 0),
-                    Losses = table.Column<int>(nullable: false, defaultValue: 0),
-                    Ties = table.Column<int>(nullable: false, defaultValue: 0),
-                    PointsFor = table.Column<int>(nullable: false, defaultValue: 0),
-                    PointsAgainst = table.Column<int>(nullable: false, defaultValue: 0),
-                    ExpectedWins = table.Column<decimal>(nullable: false, defaultValue: 0m),
-                    ExpectedLosses = table.Column<decimal>(nullable: false, defaultValue: 0m),
-                    OffensiveAverage = table.Column<decimal>(nullable: true),
-                    OffensiveFactor = table.Column<decimal>(nullable: true),
-                    OffensiveIndex = table.Column<decimal>(nullable: true),
-                    DefensiveAverage = table.Column<decimal>(nullable: true),
-                    DefensiveFactor = table.Column<decimal>(nullable: true),
-                    DefensiveIndex = table.Column<decimal>(nullable: true),
-                    FinalExpectedWinningPercentage = table.Column<decimal>(nullable: true)
+                    team_id = table.Column<int>(nullable: false),
+                    season_year = table.Column<int>(nullable: false),
+                    league_id = table.Column<int>(nullable: false),
+                    conference_id = table.Column<int>(nullable: true),
+                    division_id = table.Column<int>(nullable: true),
+                    games = table.Column<int>(nullable: false, defaultValue: 0),
+                    wins = table.Column<int>(nullable: false, defaultValue: 0),
+                    losses = table.Column<int>(nullable: false, defaultValue: 0),
+                    ties = table.Column<int>(nullable: false, defaultValue: 0),
+                    points_for = table.Column<int>(nullable: false, defaultValue: 0),
+                    points_against = table.Column<int>(nullable: false, defaultValue: 0),
+                    expected_wins = table.Column<decimal>(nullable: false, defaultValue: 0m),
+                    expected_losses = table.Column<decimal>(nullable: false, defaultValue: 0m),
+                    offensive_average = table.Column<decimal>(nullable: true),
+                    offensive_factor = table.Column<decimal>(nullable: true),
+                    offensive_index = table.Column<decimal>(nullable: true),
+                    defensive_average = table.Column<decimal>(nullable: true),
+                    defensive_factor = table.Column<decimal>(nullable: true),
+                    defensive_index = table.Column<decimal>(nullable: true),
+                    final_expected_winning_percentage = table.Column<decimal>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TeamSeason", x => x.Id);
-                    table.UniqueConstraint("UQ_TeamSeason_Team_Season", x => new { x.TeamId, x.SeasonYear });
+                    table.PrimaryKey("PK_TeamSeason", x => x.id);
+                    table.UniqueConstraint("UQ_TeamSeason_Team_Season", x => new { x.team_id, x.season_year });
                     table.ForeignKey(
                         name: "FK_TeamSeason_Team_TeamId",
-                        column: x => x.TeamId,
+                        column: x => x.team_id,
                         principalTable: "Team",
                         principalColumn: "Id",
                         onUpdate: ReferentialAction.NoAction,
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_TeamSeason_Season_SeasonYear",
-                        column: x => x.SeasonYear,
+                        column: x => x.season_year,
                         principalTable: "Season",
-                        principalColumn: "Year",
+                        principalColumn: "year",
                         onUpdate: ReferentialAction.NoAction,
                         onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
-                        name: "FK_TeamSeason_League_LeagueId",
-                        column: x => x.LeagueId,
-                        principalTable: "League",
-                        principalColumn: "Id",
-                        onUpdate: ReferentialAction.NoAction,
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TeamSeason_Conference_ConferenceId",
-                        column: x => x.ConferenceId,
-                        principalTable: "Conference",
+                        name: "FK_TeamSeason_Association_LeagueId",
+                        column: x => x.league_id,
+                        principalTable: "Association",
                         principalColumn: "Id",
                         onUpdate: ReferentialAction.NoAction,
                         onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
-                        name: "FK_TeamSeason_Division_DivisionId",
-                        column: x => x.DivisionId,
-                        principalTable: "Division",
+                        name: "FK_TeamSeason_Association_ConferenceId",
+                        column: x => x.conference_id,
+                        principalTable: "Association",
+                        principalColumn: "Id",
+                        onUpdate: ReferentialAction.NoAction,
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_TeamSeason_Association_DivisionId",
+                        column: x => x.division_id,
+                        principalTable: "Association",
                         principalColumn: "Id",
                         onUpdate: ReferentialAction.NoAction,
                         onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_FK_League_Season_FirstSeasonYear",
-                table: "League",
-                column: "FirstSeasonYear");
+                name: "IX_FK_Association_ParentId",
+                table: "Association",
+                column: "parent_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FK_League_Season_LastSeasonYear",
-                table: "League",
-                column: "LastSeasonYear");
+                name: "IX_FK_Association_Season_FirstSeasonYear",
+                table: "Association",
+                column: "first_season_year");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FK_Conference_League_LeagueId",
-                table: "Conference",
-                column: "LeagueId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FK_Conference_Season_FirstSeasonYear",
-                table: "Conference",
-                column: "FirstSeasonYear");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FK_Conference_Season_LastSeasonYear",
-                table: "Conference",
-                column: "LastSeasonYear");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FK_Division_League_LeagueId",
-                table: "Division",
-                column: "LeagueId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FK_Division_Conference_ConferenceId",
-                table: "Division",
-                column: "ConferenceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FK_Division_Season_FirstSeasonYear",
-                table: "Division",
-                column: "FirstSeasonYear");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FK_Division_Season_LastSeasonYear",
-                table: "Division",
-                column: "LastSeasonYear");
+                name: "IX_FK_Association_Season_LastSeasonYear",
+                table: "Association",
+                column: "last_season_year");
 
             migrationBuilder.CreateIndex(
                 name: "FK_Game_Season_SeasonYear",
                 table: "Game",
-                column: "SeasonYear");
+                column: "season_year");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FK_LeagueSeason_League_LeagueId",
+                name: "FK_Game_Association_LeagueId",
+                table: "Game",
+                column: "league_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FK_LeagueSeason_Association_LeagueId",
                 table: "LeagueSeason",
-                column: "LeagueId");
+                column: "league_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FK_LeagueSeason_Season_SeasonYear",
                 table: "LeagueSeason",
-                column: "SeasonYear");
+                column: "season_year");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FK_TeamSeason_Team_TeamId",
                 table: "TeamSeason",
-                column: "TeamId");
+                column: "team_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FK_TeamSeason_Season_SeasonYear",
                 table: "TeamSeason",
-                column: "SeasonYear");
+                column: "season_year");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FK_TeamSeason_League_LeagueId",
+                name: "IX_FK_TeamSeason_Association_LeagueId",
                 table: "TeamSeason",
-                column: "LeagueId");
+                column: "league_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FK_TeamSeason_Conference_ConferenceId",
+                name: "IX_FK_TeamSeason_Association_ConferenceId",
                 table: "TeamSeason",
-                column: "ConferenceId");
+                column: "conference_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FK_TeamSeason_Division_DivisionId",
+                name: "IX_FK_TeamSeason_Association_DivisionId",
                 table: "TeamSeason",
-                column: "DivisionId");
+                column: "division_id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -392,13 +300,7 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
                 name: "Team");
 
             migrationBuilder.DropTable(
-                name: "Division");
-
-            migrationBuilder.DropTable(
-                name: "Conference");
-
-            migrationBuilder.DropTable(
-                name: "League");
+                name: "Association");
 
             migrationBuilder.DropTable(
                 name: "Season");

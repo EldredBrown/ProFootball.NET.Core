@@ -7,16 +7,10 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
 		protected override void Up(MigrationBuilder migrationBuilder)
 		{
 			CreateSpGetSeasonStandings(migrationBuilder);
-			CreateSpGetSeasonStandingsForLeague(migrationBuilder);
-			CreateSpGetSeasonStandingsForConference(migrationBuilder);
-			CreateSpGetSeasonStandingsForDivision(migrationBuilder);
 		}
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("DROP PROCEDURE sp_GetSeasonStandingsForDivision");
-            migrationBuilder.Sql("DROP PROCEDURE sp_GetSeasonStandingsForConference");
-            migrationBuilder.Sql("DROP PROCEDURE sp_GetSeasonStandingsForLeague");
             migrationBuilder.Sql("DROP PROCEDURE sp_GetSeasonStandings");
         }
 
@@ -27,18 +21,33 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+USE ProFootballDb_Proposed
+GO
+-- =============================================
+-- Author:		Eldred Brown
+-- Create date: 2017-01-14
+-- Description:	A procedure to return a conference's season standings
+-- Revision history:
+--	2025-10-02	Eldred Brown
+--	*	Changed variable names to snake_case to make more Pythonic
+--	2025-10-25	Eldred Brown
+--	*	Changed casting of avg_points_for and avg_points_against to decimal.
+--	2026-05-07	Eldred Brown
+--	*	Changed winning_percentage to derived value after removing column from TeamSeason table.
+-- =============================================
 CREATE PROCEDURE dbo.sp_GetSeasonStandings
-	@season_year int,
-	@group_by_division bit
+	-- Add the parameters for the stored procedure here
+	@season_id int
 AS
 BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
 
 	BEGIN
+		-- Insert statements for procedure here
 		SELECT
-			team_name as team,
-			conference_name as conference,
-			division_name as division,
+			(SELECT name FROM dbo.Team WHERE id = team_id) AS team,
 			wins,
 			losses,
 			ties,
@@ -62,199 +71,14 @@ BEGIN
 			expected_wins,
 			expected_losses
 		FROM dbo.TeamSeason AS ts
-		WHERE season_year = @season_year
+		WHERE season_id = @season_id
 		ORDER BY
-			CASE
-				WHEN @group_by_division = 0 THEN conference_name
-				WHEN @group_by_division = 1 THEN division_name
-			END,
 			winning_percentage DESC,
 			wins DESC,
 			losses ASC,
 			expected_wins DESC,
 			expected_losses ASC,
-			team_name ASC
-
-	END
-END
-GO");
-        }
-
-        private void CreateSpGetSeasonStandingsForLeague(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.Sql(@"
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE PROCEDURE dbo.sp_GetSeasonStandingsForLeague
-	@season_year int,
-	@league_name varchar(5)
-AS
-BEGIN
-	SET NOCOUNT ON;
-
-	IF EXISTS (
-		SELECT year FROM dbo.Season WHERE year = @season_year
-	)
-	AND EXISTS (
-		SELECT short_name FROM dbo.League WHERE short_name = @league_name
-	)
-	BEGIN
-		SELECT
-			team_name as team,
-			wins,
-			losses,
-			ties,
-			winning_percentage = 
-				CASE
-					WHEN games = 0 THEN NULL
-					ELSE ((2 * CAST(wins as decimal(18,0)) + CAST(ties as decimal(18,0))) / (2 * CAST(games as decimal(18,0))))
-				END,
-			points_for,
-			points_against,
-			avg_points_for =
-				CASE
-					WHEN games = 0 THEN NULL
-					ELSE (CAST(points_for as decimal(18,0)) / CAST(games as decimal(18,0)))
-				END,
-			avg_points_against =
-				CASE
-					WHEN games = 0 THEN NULL
-					ELSE (CAST(points_against as decimal(18,0)) / CAST(games as decimal(18,0)))
-				END
-		FROM
-			dbo.TeamSeason as ts
-		WHERE
-			season_year = @season_year
-			AND
-			league_name = @league_name
-		ORDER BY
-			winning_percentage DESC,
-			wins DESC,
-			losses ASC,
-			team_name ASC
-
-	END
-END
-GO");
-        }
-
-        private void CreateSpGetSeasonStandingsForConference(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.Sql(@"
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE PROCEDURE dbo.sp_GetSeasonStandingsForConference
-	@season_year int,
-	@conference_name varchar(5)
-AS
-BEGIN
-	SET NOCOUNT ON;
-
-	IF EXISTS (
-		SELECT year FROM dbo.Season WHERE year = @season_year
-	)
-	AND EXISTS (
-		SELECT short_name FROM dbo.Conference WHERE short_name = @conference_name
-	)
-	BEGIN
-		SELECT
-			team_name as team,
-			wins,
-			losses,
-			ties,
-			winning_percentage = 
-				CASE
-					WHEN games = 0 THEN NULL
-					ELSE ((2 * CAST(wins as decimal(18,0)) + CAST(ties as decimal(18,0))) / (2 * CAST(games as decimal(18,0))))
-				END,
-			points_for,
-			points_against,
-			avg_points_for =
-				CASE
-					WHEN games = 0 THEN NULL
-					ELSE (CAST(points_for as decimal(18,0)) / CAST(games as decimal(18,0)))
-				END,
-			avg_points_against =
-				CASE
-					WHEN games = 0 THEN NULL
-					ELSE (CAST(points_against as decimal(18,0)) / CAST(games as decimal(18,0)))
-				END
-		FROM
-			dbo.TeamSeason as ts
-		WHERE
-			season_year = @season_year
-			AND
-			conference_name = @conference_name
-		ORDER BY
-			winning_percentage DESC,
-			wins DESC,
-			losses ASC,
-			team_name ASC
-
-	END
-END
-GO");
-        }
-
-        private void CreateSpGetSeasonStandingsForDivision(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.Sql(@"
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE PROCEDURE dbo.sp_GetSeasonStandingsForDivision
-	@season_year int,
-	@division_name varchar(50)
-AS
-BEGIN
-	SET NOCOUNT ON;
-
-	IF EXISTS (
-		SELECT year FROM dbo.Season WHERE year = @season_year
-	)
-	AND EXISTS (
-		SELECT name FROM dbo.Division WHERE name = @division_name
-	)
-	BEGIN
-		SELECT
-			team_name as team,
-			wins,
-			losses,
-			ties,
-			winning_percentage = 
-				CASE
-					WHEN games = 0 THEN NULL
-					ELSE ((2 * CAST(wins as decimal(18,0)) + CAST(ties as decimal(18,0))) / (2 * CAST(games as decimal(18,0))))
-				END,
-			points_for,
-			points_against,
-			avg_points_for =
-				CASE
-					WHEN games = 0 THEN NULL
-					ELSE (CAST(points_for as decimal(18,0)) / CAST(games as decimal(18,0)))
-				END,
-			avg_points_against =
-				CASE
-					WHEN games = 0 THEN NULL
-					ELSE (CAST(points_against as decimal(18,0)) / CAST(games as decimal(18,0)))
-				END
-		FROM
-			dbo.TeamSeason as ts
-		WHERE
-			season_year = @season_year
-			AND
-			division_name = @division_name
-		ORDER BY
-			winning_percentage DESC,
-			wins DESC,
-			losses ASC,
-			team_name ASC
-
+			team ASC
 	END
 END
 GO");

@@ -55,18 +55,33 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.LeagueSeason
         {
             get
             {
-                if (LeagueSeason.SeasonIdNavigation is null)
+                if (LeagueSeason.SeasonYearNavigation is null)
                 {
                     return _seasonYear;
                 }
-                return LeagueSeason.SeasonIdNavigation.Id;
+                return LeagueSeason.SeasonYearNavigation.Year;
             }
             set { _seasonYear = value; }
+        }
+
+        [Display(Name = "Weeks Scheduled")]
+        public int NumOfWeeksScheduled
+        {
+            get { return LeagueSeason.NumOfWeeksScheduled; }
+            set { LeagueSeason.NumOfWeeksScheduled = value; }
+        }
+
+        [Display(Name = "Weeks Completed")]
+        public int NumOfWeeksCompleted
+        {
+            get { return LeagueSeason.NumOfWeeksCompleted; }
+            set { LeagueSeason.NumOfWeeksCompleted = value; }
         }
 
         /// <summary>
         /// Gets or sets the number of games played by the wrapped <see cref="LeagueSeason"/> entity.
         /// </summary>
+        [Display(Name = "Games")]
         [DefaultValue(0)]
         public int TotalGames
         {
@@ -77,6 +92,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.LeagueSeason
         /// <summary>
         /// Gets or sets the points scored by the wrapped <see cref="LeagueSeason"/> entity.
         /// </summary>
+        [Display(Name = "Points")]
         [DefaultValue(0)]
         public int TotalPoints
         {
@@ -87,6 +103,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.LeagueSeason
         /// <summary>
         /// Gets or sets the offensive average of the wrapped <see cref="LeagueSeason"/> entity.
         /// </summary>
+        [Display(Name = "Avg.")]
         [DisplayFormat(DataFormatString = "{0:N2}")]
         public decimal? AveragePoints
         {

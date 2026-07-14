@@ -20,20 +20,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             // Arrange
             var leagueId = 1;
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             var expected = new LeagueSeasonTotals { };
 
             _testRepository.TotalsToReturn = expected;
 
             // Act
-            var result = _testRepository.GetLeagueSeasonTotals(leagueId, seasonId);
+            var result = _testRepository.GetLeagueSeasonTotals(leagueId, seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
             _testRepository.CapturedLeagueId.ShouldBe(leagueId);
-            _testRepository.CapturedSeasonId.ShouldBe(seasonId);
+            _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
         }
 
         [Fact]
@@ -41,20 +41,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             // Arrange
             var leagueId = 1;
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             var expected = new LeagueSeasonTotals { };
 
             _testRepository.TotalsToReturn = expected;
 
             // Act
-            var result = await _testRepository.GetLeagueSeasonTotalsAsync(leagueId, seasonId);
+            var result = await _testRepository.GetLeagueSeasonTotalsAsync(leagueId, seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
             _testRepository.CapturedLeagueId.ShouldBe(leagueId);
-            _testRepository.CapturedSeasonId.ShouldBe(seasonId);
+            _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
         }
 
         /// <summary>
@@ -67,22 +67,22 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             public TestableLeagueSeasonTotalsRepository() : base(null!) { }
 
             public int CapturedLeagueId { get; private set; }
-            public int CapturedSeasonId { get; private set; }
+            public int CapturedSeasonYear { get; private set; }
 
             public LeagueSeasonTotals TotalsToReturn { get; set; }
                 = new LeagueSeasonTotals { };
 
-            protected override LeagueSeasonTotals? ExecuteGetLeagueSeasonTotals(int leagueId, int seasonId)
+            protected override LeagueSeasonTotals? ExecuteGetLeagueSeasonTotals(int leagueId, int seasonYear)
             {
                 CapturedLeagueId = leagueId;
-                CapturedSeasonId = seasonId;
+                CapturedSeasonYear = seasonYear;
                 return TotalsToReturn;
             }
 
-            protected override async Task<LeagueSeasonTotals?> ExecuteGetLeagueSeasonTotalsAsync(int leagueId, int seasonId)
+            protected override async Task<LeagueSeasonTotals?> ExecuteGetLeagueSeasonTotalsAsync(int leagueId, int seasonYear)
             {
                 CapturedLeagueId = leagueId;
-                CapturedSeasonId = seasonId;
+                CapturedSeasonYear = seasonYear;
                 return await Task.FromResult(TotalsToReturn);
             }
         }

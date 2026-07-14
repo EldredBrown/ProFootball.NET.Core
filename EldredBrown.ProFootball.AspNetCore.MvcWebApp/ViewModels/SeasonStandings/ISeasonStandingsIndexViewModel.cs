@@ -10,6 +10,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.SeasonStanding
     {
         SelectList Seasons { get; set; }
         int? SelectedSeasonYear { get; set; }
+        SelectList Leagues { get; set; }
+        string SelectedLeagueName { get; set; }
         IEnumerable<StandingsTeamSeason> SeasonStandings { get; set; }
     }
 }

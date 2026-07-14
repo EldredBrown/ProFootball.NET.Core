@@ -8,17 +8,17 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Pages.Leagues
 {
     public class CreateModel : PageModel
     {
-        private readonly ILeagueRepository _leagueRepository;
+        private readonly IAssociationRepository _associationRepository;
         private readonly ISharedRepository _sharedRepository;
 
-        public CreateModel(ILeagueRepository leagueRepository, ISharedRepository sharedRepository)
+        public CreateModel(IAssociationRepository associationRepository, ISharedRepository sharedRepository)
         {
-            _leagueRepository = leagueRepository;
+            _associationRepository = associationRepository;
             _sharedRepository = sharedRepository;
         }
 
         [BindProperty]
-        public League League { get; set; }
+        public Association League { get; set; }
 
         public IActionResult OnGet()
         {
@@ -34,7 +34,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Pages.Leagues
                 return Page();
             }
 
-            await _leagueRepository.AddAsync(League);
+            await _associationRepository.AddAsync(League);
             await _sharedRepository.SaveChangesAsync();
 
             return RedirectToPage("./Index");

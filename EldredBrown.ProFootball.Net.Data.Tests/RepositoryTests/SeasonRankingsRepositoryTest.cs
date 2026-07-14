@@ -20,10 +20,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Fact]
-        public void GetOffensiveRankingsForSeason_ShouldReturnOffensiveRankings()
+        public void GetOffensiveRankings_ShouldReturnOffensiveRankings()
         {
             // Arrange
-            var seasonId = 1920;
+            var seasonYear = 1920;
+            var leagueId = 1;
 
             var expected = new List<RankingsOffensiveTeamSeason>
             {
@@ -33,19 +34,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             _testRepository.OffensiveRankingsToReturn = expected;
 
             // Act
-            var result = _testRepository.GetOffensiveRankingsForSeason(seasonId);
+            var result = _testRepository.GetOffensiveRankings(seasonYear, leagueId);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
-            _testRepository.CapturedseasonId.ShouldBe(seasonId);
+            _testRepository.CapturedseasonYear.ShouldBe(seasonYear);
         }
 
         [Fact]
-        public async Task GetOffensiveRankingsForSeasonAsync_ShouldReturnOffensiveRankings()
+        public async Task GetOffensiveRankingsAsync_ShouldReturnOffensiveRankings()
         {
             // Arrange
-            var seasonId = 1920;
+            var seasonYear = 1920;
+            var leagueId = 1;
 
             var expected = new List<RankingsOffensiveTeamSeason>
             {
@@ -55,19 +57,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             _testRepository.OffensiveRankingsToReturn = expected;
 
             // Act
-            var result = await _testRepository.GetOffensiveRankingsForSeasonAsync(seasonId);
+            var result = await _testRepository.GetOffensiveRankingsAsync(seasonYear, leagueId);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
-            _testRepository.CapturedseasonId.ShouldBe(seasonId);
+            _testRepository.CapturedseasonYear.ShouldBe(seasonYear);
         }
 
         [Fact]
-        public void GetDefensiveRankingsForSeason_ShouldReturnDefensiveRankings()
+        public void GetDefensiveRankings_ShouldReturnDefensiveRankings()
         {
             // Arrange
-            var seasonId = 1920;
+            var seasonYear = 1920;
+            var leagueId = 1;
 
             var expected = new List<RankingsDefensiveTeamSeason>
             {
@@ -77,19 +80,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             _testRepository.DefensiveRankingsToReturn = expected;
 
             // Act
-            var result = _testRepository.GetDefensiveRankingsForSeason(seasonId);
+            var result = _testRepository.GetDefensiveRankings(seasonYear, leagueId);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
-            _testRepository.CapturedseasonId.ShouldBe(seasonId);
+            _testRepository.CapturedseasonYear.ShouldBe(seasonYear);
         }
 
         [Fact]
-        public async Task GetDefensiveRankingsForSeasonAsync_ShouldReturnDefensiveRankings()
+        public async Task GetDefensiveRankingsAsync_ShouldReturnDefensiveRankings()
         {
             // Arrange
-            var seasonId = 1920;
+            var seasonYear = 1920;
+            var leagueId = 1;
 
             var expected = new List<RankingsDefensiveTeamSeason>
             {
@@ -99,19 +103,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             _testRepository.DefensiveRankingsToReturn = expected;
 
             // Act
-            var result = await _testRepository.GetDefensiveRankingsForSeasonAsync(seasonId);
+            var result = await _testRepository.GetDefensiveRankingsAsync(seasonYear, leagueId);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
-            _testRepository.CapturedseasonId.ShouldBe(seasonId);
+            _testRepository.CapturedseasonYear.ShouldBe(seasonYear);
         }
 
         [Fact]
-        public void GetTotalRankingsForSeason_ShouldReturnTotalRankings()
+        public void GetTotalRankings_ShouldReturnTotalRankings()
         {
             // Arrange
-            var seasonId = 1920;
+            var seasonYear = 1920;
+            var leagueId = 1;
 
             var expected = new List<RankingsTotalTeamSeason>
             {
@@ -121,19 +126,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             _testRepository.TotalRankingsToReturn = expected;
 
             // Act
-            var result = _testRepository.GetTotalRankingsForSeason(seasonId);
+            var result = _testRepository.GetTotalRankings(seasonYear, leagueId);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
-            _testRepository.CapturedseasonId.ShouldBe(seasonId);
+            _testRepository.CapturedseasonYear.ShouldBe(seasonYear);
         }
 
         [Fact]
-        public async Task GetTotalRankingsForSeasonAsync_ShouldReturnTotalRankings()
+        public async Task GetTotalRankingsAsync_ShouldReturnTotalRankings()
         {
             // Arrange
-            var seasonId = 1920;
+            var seasonYear = 1920;
+            var leagueId = 1;
 
             var expected = new List<RankingsTotalTeamSeason>
             {
@@ -143,12 +149,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             _testRepository.TotalRankingsToReturn = expected;
 
             // Act
-            var result = await _testRepository.GetTotalRankingsForSeasonAsync(seasonId);
+            var result = await _testRepository.GetTotalRankingsAsync(seasonYear, leagueId);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
-            _testRepository.CapturedseasonId.ShouldBe(seasonId);
+            _testRepository.CapturedseasonYear.ShouldBe(seasonYear);
         }
 
         [Fact]
@@ -194,7 +200,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             var testRepository = new SeasonRankingsRepository(null!, fakeConnectionStringProvider, fakeFactory);
 
-            var teamSeason = new TeamSeason { TeamId = 1, SeasonId = 1, LeagueId = 1 };
+            var teamSeason = new TeamSeason { TeamId = 1, SeasonYear = 1, LeagueId = 1 };
 
             // Act
             var result = testRepository.GetDataForRankingsUpdate(teamSeason);
@@ -217,7 +223,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Pass null for dbContext and connectionFactory — the override means they are never touched in tests.
             public TestableSeasonRankingsRepository() : base(null!, null!, null!) { }
 
-            public int CapturedseasonId { get; private set; }
+            public int CapturedseasonYear { get; private set; }
 
             public IEnumerable<RankingsOffensiveTeamSeason> OffensiveRankingsToReturn { get; set; }
                 = new List<RankingsOffensiveTeamSeason>();
@@ -229,44 +235,44 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 = new List<RankingsTotalTeamSeason>();
 
             protected override IEnumerable<RankingsOffensiveTeamSeason> 
-                ExecuteGetOffensiveRankingsForSeason(int seasonId)
+                ExecuteGetOffensiveRankings(int seasonYear, int leagueId)
             {
-                CapturedseasonId = seasonId;
+                CapturedseasonYear = seasonYear;
                 return OffensiveRankingsToReturn;
             }
 
             protected override async Task<IEnumerable<RankingsOffensiveTeamSeason>>
-                ExecuteGetOffensiveRankingsForSeasonAsync(int seasonId)
+                ExecuteGetOffensiveRankingsAsync(int seasonYear, int leagueId)
             {
-                CapturedseasonId = seasonId;
+                CapturedseasonYear = seasonYear;
                 return await Task.FromResult(OffensiveRankingsToReturn);
             }
 
             protected override IEnumerable<RankingsDefensiveTeamSeason>
-                ExecuteGetDefensiveRankingsForSeason(int seasonId)
+                ExecuteGetDefensiveRankings(int seasonYear, int leagueId)
             {
-                CapturedseasonId = seasonId;
+                CapturedseasonYear = seasonYear;
                 return DefensiveRankingsToReturn;
             }
 
             protected override async Task<IEnumerable<RankingsDefensiveTeamSeason>>
-                ExecuteGetDefensiveRankingsForSeasonAsync(int seasonId)
+                ExecuteGetDefensiveRankingsAsync(int seasonYear, int leagueId)
             {
-                CapturedseasonId = seasonId;
+                CapturedseasonYear = seasonYear;
                 return await Task.FromResult(DefensiveRankingsToReturn);
             }
 
             protected override IEnumerable<RankingsTotalTeamSeason>
-                ExecuteGetTotalRankingsForSeason(int seasonId)
+                ExecuteGetTotalRankings(int seasonYear, int leagueId)
             {
-                CapturedseasonId = seasonId;
+                CapturedseasonYear = seasonYear;
                 return TotalRankingsToReturn;
             }
 
             protected override async Task<IEnumerable<RankingsTotalTeamSeason>>
-                ExecuteGetTotalRankingsForSeasonAsync(int seasonId)
+                ExecuteGetTotalRankingsAsync(int seasonYear, int leagueId)
             {
-                CapturedseasonId = seasonId;
+                CapturedseasonYear = seasonYear;
                 return await Task.FromResult(TotalRankingsToReturn);
             }
         }

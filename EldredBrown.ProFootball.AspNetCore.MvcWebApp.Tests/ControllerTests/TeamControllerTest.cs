@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
@@ -158,7 +159,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForPrimaryKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
+        public async Task CreatePost_WhenDbUpdateExceptionCaughtForPrimaryKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
             var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
@@ -167,21 +168,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
-                new()
-                {
-                    Id = 1,
-                    Name = "Team 1"
-                },
-                new()
-                {
-                    Id = 2,
-                    Name = "Team 2"
-                },
-                new()
-                {
-                    Id = 3,
-                    Name = "Team 3"
-                },
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
             };
             A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).Returns(teams);
 
@@ -192,11 +181,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeTeamRepository, fakeSharedRepository);
 
             // Act
-            var team = new Team
-            {
-                Id = 2,
-                Name = "Team 4"
-            };
+            var team = new Team { Id = 2, Name = "Team 4" };
             var result = await testController.Create(team);
 
             // Assert
@@ -213,7 +198,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForUniqueKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
+        public async Task CreatePost_WhenDbUpdateExceptionCaughtForNameTooLong_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
             var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
@@ -222,36 +207,29 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
-                new()
-                {
-                    Id = 1,
-                    Name = "Team 1"
-                },
-                new()
-                {
-                    Id = 2,
-                    Name = "Team 2"
-                },
-                new()
-                {
-                    Id = 3,
-                    Name = "Team 3"
-                },
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
             };
             A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).Returns(teams);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
+            var ex = new DbUpdateException(
+                message: "DbUpdateException",
+                innerException: new Exception("String or binary data would be truncated in table 'ProFootballDb_Proposed.dbo.Team', column 'name'.")
+            );
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
                 fakeTeamRepository, fakeSharedRepository);
 
             // Act
-            var team = new Team
+            var name = new StringBuilder();
+            for (int i = 0; i <= 100; i++)
             {
-                Id = 4,
-                Name = "Team 2"
-            };
+                name.Append('Z');
+            }
+            var team = new Team { Id = 4, Name = name.ToString() };
             var result = await testController.Create(team);
 
             // Assert
@@ -262,13 +240,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey("Name");
             testController.ModelState["Name"].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. A team with the same name already exists.");
+                .ShouldBe("Unable to save changes. The entered Name is too long.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(team);
         }
 
         [Fact]
-        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForSomethingElse_ShouldHandleExceptionAndReturnSeasonCreateView()
+        public async Task CreatePost_WhenDbUpdateExceptionCaughtForUniqueKeyViolationOnName_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
             var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
@@ -277,21 +255,52 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
-                new()
-                {
-                    Id = 1,
-                    Name = "Team 1"
-                },
-                new()
-                {
-                    Id = 2,
-                    Name = "Team 2"
-                },
-                new()
-                {
-                    Id = 3,
-                    Name = "Team 3"
-                },
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).Returns(teams);
+
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            var ex = new DbUpdateException(
+                message: "DbUpdateException",
+                innerException: new Exception("Violation of UNIQUE KEY constraint 'UQ_Team_Name'.")
+            );
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
+
+            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
+                fakeTeamRepository, fakeSharedRepository);
+
+            // Act
+            var team = new Team { Id = 4, Name = "Team 2" };
+            var result = await testController.Create(team);
+
+            // Assert
+            A.CallTo(() => fakeTeamRepository.AddAsync(team)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).MustHaveHappenedOnceExactly();
+            testController.ModelState.IsValid.ShouldBeFalse();
+            testController.ModelState.ErrorCount.ShouldBe(1);
+            testController.ModelState.ShouldContainKey(string.Empty);
+            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+                .ShouldBe("Unable to save changes. Violation of UNIQUE KEY constraint Name.");
+            result.ShouldBeOfType<ViewResult>();
+            ((ViewResult)result).Model.ShouldBe(team);
+        }
+
+        [Fact]
+        public async Task CreatePost_WhenDbUpdateExceptionCaughtForSomethingElse_ShouldHandleExceptionAndReturnSeasonCreateView()
+        {
+            // Arrange
+            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
+
+            var fakeTeamRepository = A.Fake<ITeamRepository>();
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
             };
             A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).Returns(teams);
 
@@ -430,10 +439,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             // Act
             int id = 1;
-            var team = new Team
-            {
-                Id = id
-            };
+            var team = new Team { Id = id };
             var result = await testController.Edit(id, team);
 
             // Assert
@@ -456,10 +462,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             // Act
             int id = 0;
-            var team = new Team
-            {
-                Id = 1
-            };
+            var team = new Team { Id = 1 };
             var result = await testController.Edit(id, team);
 
             // Assert
@@ -484,10 +487,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             // Act
             int id = 1;
-            var team = new Team
-            {
-                Id = id
-            };
+            var team = new Team { Id = id };
             var result = await testController.Edit(id, team);
 
             // Assert
@@ -514,10 +514,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             // Act
             int id = 1;
-            var team = new Team
-            {
-                Id = id
-            };
+            var team = new Team { Id = id };
             var func = new Func<Task<IActionResult>>(async () => await testController.Edit(id, team));
 
             // Assert
@@ -525,7 +522,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForUniqueKeyViolation_ShouldHandleExceptionAndReturnViewForSeason()
+        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForNameTooLong_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
             var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
@@ -534,37 +531,25 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
-                new()
-                {
-                    Id = 1,
-                    Name = "Team 1"
-                },
-                new()
-                {
-                    Id = 2,
-                    Name = "Team 3"
-                },
-                new()
-                {
-                    Id = 3,
-                    Name = "Team 3"
-                },
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
             };
             A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).Returns(teams);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
+            var ex = new DbUpdateException(
+                message: "DbUpdateException",
+                innerException: new Exception("String or binary data would be truncated in table 'ProFootballDb_Proposed.dbo.Team', column 'name'.")
+            );
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
                 fakeTeamRepository, fakeSharedRepository);
 
             // Act
             int id = 2;
-            var team = new Team
-            {
-                Id = id,
-                Name = "Team 3"
-            };
+            var team = new Team { Id = id, Name = "Team 3" };
             var result = await testController.Edit(id, team);
 
             // Assert
@@ -574,7 +559,50 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey("Name");
             testController.ModelState["Name"].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. A team with the same name already exists.");
+                .ShouldBe("Unable to save changes. The entered Name is too long.");
+            result.ShouldBeOfType<ViewResult>();
+            ((ViewResult)result).Model.ShouldBe(team);
+        }
+
+        [Fact]
+        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForUniqueKeyViolationOnName_ShouldHandleExceptionAndReturnViewForSeason()
+        {
+            // Arrange
+            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
+
+            var fakeTeamRepository = A.Fake<ITeamRepository>();
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).Returns(teams);
+
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            var ex = new DbUpdateException(
+                message: "DbUpdateException",
+                innerException: new Exception("Violation of UNIQUE KEY constraint 'UQ_Team_Name'.")
+            );
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
+
+            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
+                fakeTeamRepository, fakeSharedRepository);
+
+            // Act
+            int id = 2;
+            var team = new Team { Id = id, Name = "Team 3" };
+            var result = await testController.Edit(id, team);
+
+            // Assert
+            A.CallTo(() => fakeTeamRepository.Update(team)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            testController.ModelState.IsValid.ShouldBeFalse();
+            testController.ModelState.ErrorCount.ShouldBe(1);
+            testController.ModelState.ShouldContainKey(string.Empty);
+            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+                .ShouldBe("Unable to save changes. Violation of UNIQUE KEY constraint Name.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(team);
         }
@@ -589,21 +617,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
-                new()
-                {
-                    Id = 1,
-                    Name = "Team 1"
-                },
-                new()
-                {
-                    Id = 2,
-                    Name = "Team 2"
-                },
-                new()
-                {
-                    Id = 3,
-                    Name = "Team 3"
-                },
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
             };
             A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).Returns(teams);
 
@@ -649,10 +665,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             // Act
             int id = 1;
-            var team = new Team
-            {
-                Id = 1
-            };
+            var team = new Team { Id = 1 };
             var result = await testController.Edit(id, team);
 
             // Assert

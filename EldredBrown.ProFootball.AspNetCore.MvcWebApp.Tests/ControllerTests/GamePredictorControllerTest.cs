@@ -26,8 +26,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         [InlineData(null, null, 1922, "Guest1")]
         [InlineData(null, "Guest", 1922, "Guest")]
         [InlineData(1920, "Guest", 1920, "Guest")]
-        public async Task PredictGameGet_GuestValues_ShouldReturnTemplateFormView(int? guestSeasonId, string? guestName,
-            int expGuestSeasonId, string expGuestName)
+        public async Task PredictGameGet_GuestValues_ShouldReturnTemplateFormView(int? guestSeasonYear, string? guestName,
+            int expGuestSeasonYear, string expGuestName)
         {
             // Arrange
             var prediction = new GamePrediction();
@@ -35,9 +35,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>
             {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
             };
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
@@ -61,11 +61,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeSession = new MockHttpSession();
 
-            fakeSession.SetObject("GuestSeasonId", guestSeasonId);
+            fakeSession.SetObject("GuestSeasonYear", guestSeasonYear);
             fakeSession.SetObject("GuestName", guestName);
 
-            int? hostSeasonId = 1921;
-            fakeSession.SetObject("HostSeasonId", hostSeasonId);
+            int? hostSeasonYear = 1921;
+            fakeSession.SetObject("HostSeasonYear", hostSeasonYear);
 
             string hostName = "Host";
             fakeSession.SetObject("HostName", hostName);
@@ -89,19 +89,19 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
 
             var seasonsFromSession = testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons");
-            var orderedSeasons = seasonsFromSession.OrderByDescending(s => s.Id).ToList();
+            var orderedSeasons = seasonsFromSession.OrderByDescending(s => s.Year).ToList();
             seasonsFromSession.ShouldBe(orderedSeasons);
 
             Assert.IsType<SelectList>(testController.ViewBag.GuestSeasons);
             var viewBagGuestSeasons = (SelectList)testController.ViewBag.GuestSeasons;
             viewBagGuestSeasons.Items.ShouldBeEquivalentTo(orderedSeasons);
-            viewBagGuestSeasons.DataValueField.ShouldBe<string>("Id");
-            viewBagGuestSeasons.DataTextField.ShouldBe<string>("Id");
-            viewBagGuestSeasons.SelectedValue.ShouldBe(expGuestSeasonId);
+            viewBagGuestSeasons.DataValueField.ShouldBe<string>("Year");
+            viewBagGuestSeasons.DataTextField.ShouldBe<string>("Year");
+            viewBagGuestSeasons.SelectedValue.ShouldBe(expGuestSeasonYear);
 
-            prediction.GuestSeasonId.ShouldBe(expGuestSeasonId);
+            prediction.GuestSeasonYear.ShouldBe(expGuestSeasonYear);
 
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(expGuestSeasonId))
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(expGuestSeasonYear))
                 .MustHaveHappenedOnceExactly();
             var guestTeamSeasonsFromSession = testController.HttpContext.Session
                 .GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons");
@@ -117,13 +117,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             Assert.IsType<SelectList>(testController.ViewBag.HostSeasons);
             var viewBagHostSeasons = (SelectList)testController.ViewBag.HostSeasons;
             viewBagHostSeasons.Items.ShouldBeEquivalentTo(orderedSeasons);
-            viewBagHostSeasons.DataValueField.ShouldBe<string>("Id");
-            viewBagHostSeasons.DataTextField.ShouldBe<string>("Id");
-            viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonId);
+            viewBagHostSeasons.DataValueField.ShouldBe<string>("Year");
+            viewBagHostSeasons.DataTextField.ShouldBe<string>("Year");
+            viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonYear);
 
-            prediction.HostSeasonId.ShouldBe(hostSeasonId.Value);
+            prediction.HostSeasonYear.ShouldBe(hostSeasonYear.Value);
 
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(hostSeasonId.Value))
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(hostSeasonYear.Value))
                 .MustHaveHappenedOnceExactly();
             var hostTeamSeasonsFromSession = testController.HttpContext.Session
                 .GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons");
@@ -141,7 +141,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task PredictGameGet_WhenHostSeasonIdIsNotNullAndHostNameIsNeitherNullNorEmpty_ShouldReturnTemplateFormView()
+        public async Task PredictGameGet_WhenHostSeasonYearIsNotNullAndHostNameIsNeitherNullNorEmpty_ShouldReturnTemplateFormView()
         {
             // Arrange
             var prediction = new GamePrediction();
@@ -149,9 +149,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>
             {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
             };
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
@@ -175,14 +175,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeSession = new MockHttpSession();
 
-            int? guestSeasonId = null;
-            fakeSession.SetObject("GuestSeasonId", guestSeasonId);
+            int? guestSeasonYear = null;
+            fakeSession.SetObject("GuestSeasonYear", guestSeasonYear);
 
             string guestName = string.Empty;
             fakeSession.SetObject("GuestName", guestName);
 
-            int? hostSeasonId = 1921;
-            fakeSession.SetObject("HostSeasonId", hostSeasonId);
+            int? hostSeasonYear = 1921;
+            fakeSession.SetObject("HostSeasonYear", hostSeasonYear);
 
             string hostName = "Host";
             fakeSession.SetObject("HostName", hostName);
@@ -206,7 +206,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
 
             var seasonsFromSession = testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons");
-            var orderedSeasons = seasonsFromSession.OrderByDescending(s => s.Id).ToList();
+            var orderedSeasons = seasonsFromSession.OrderByDescending(s => s.Year).ToList();
             seasonsFromSession.ShouldBe(orderedSeasons);
 
             var defaultSeasonYear = 1922;
@@ -214,11 +214,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             Assert.IsType<SelectList>(testController.ViewBag.GuestSeasons);
             var viewBagGuestSeasons = (SelectList)testController.ViewBag.GuestSeasons;
             viewBagGuestSeasons.Items.ShouldBeEquivalentTo(orderedSeasons);
-            viewBagGuestSeasons.DataValueField.ShouldBe<string>("Id");
-            viewBagGuestSeasons.DataTextField.ShouldBe<string>("Id");
+            viewBagGuestSeasons.DataValueField.ShouldBe<string>("Year");
+            viewBagGuestSeasons.DataTextField.ShouldBe<string>("Year");
             viewBagGuestSeasons.SelectedValue.ShouldBe(defaultSeasonYear);
 
-            prediction.GuestSeasonId.ShouldBe(defaultSeasonYear);
+            prediction.GuestSeasonYear.ShouldBe(defaultSeasonYear);
 
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(defaultSeasonYear))
                 .MustHaveHappenedOnceExactly();
@@ -238,13 +238,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             Assert.IsType<SelectList>(testController.ViewBag.HostSeasons);
             var viewBagHostSeasons = (SelectList)testController.ViewBag.HostSeasons;
             viewBagHostSeasons.Items.ShouldBeEquivalentTo(orderedSeasons);
-            viewBagHostSeasons.DataValueField.ShouldBe<string>("Id");
-            viewBagHostSeasons.DataTextField.ShouldBe<string>("Id");
-            viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonId);
+            viewBagHostSeasons.DataValueField.ShouldBe<string>("Year");
+            viewBagHostSeasons.DataTextField.ShouldBe<string>("Year");
+            viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonYear);
 
-            prediction.HostSeasonId.ShouldBe(hostSeasonId.Value);
+            prediction.HostSeasonYear.ShouldBe(hostSeasonYear.Value);
 
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(hostSeasonId.Value))
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(hostSeasonYear.Value))
                 .MustHaveHappenedOnceExactly();
             var hostTeamSeasonsFromSession = testController.HttpContext.Session
                 .GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons");
@@ -265,8 +265,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         [InlineData(null, "", 1922, "Host1")]
         [InlineData(null, null, 1922, "Host1")]
         [InlineData(null, "Host", 1922, "Host")]
-        public async Task PredictGameGet_HostValues_ShouldReturnTemplateFormView(int? hostSeasonId, string? hostName,
-            int expHostSeasonId, string expHostName)
+        public async Task PredictGameGet_HostValues_ShouldReturnTemplateFormView(int? hostSeasonYear, string? hostName,
+            int expHostSeasonYear, string expHostName)
         {
             // Arrange
             var prediction = new GamePrediction();
@@ -274,9 +274,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>
             {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
             };
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
@@ -300,13 +300,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeSession = new MockHttpSession();
 
-            int? guestSeasonId = null;
-            fakeSession.SetObject("GuestSeasonId", guestSeasonId);
+            int? guestSeasonYear = null;
+            fakeSession.SetObject("GuestSeasonYear", guestSeasonYear);
 
             string guestName = string.Empty;
             fakeSession.SetObject("GuestName", guestName);
 
-            fakeSession.SetObject("HostSeasonId", hostSeasonId);
+            fakeSession.SetObject("HostSeasonYear", hostSeasonYear);
             fakeSession.SetObject("HostName", hostName);
 
             var fakeHttpContext = new Mock<HttpContext>();
@@ -328,7 +328,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
 
             var seasonsFromSession = testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons");
-            var orderedSeasons = seasonsFromSession.OrderByDescending(s => s.Id).ToList();
+            var orderedSeasons = seasonsFromSession.OrderByDescending(s => s.Year).ToList();
             seasonsFromSession.ShouldBe(orderedSeasons);
 
             var defaultSeasonYear = 1922;
@@ -336,11 +336,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             Assert.IsType<SelectList>(testController.ViewBag.GuestSeasons);
             var viewBagGuestSeasons = (SelectList)testController.ViewBag.GuestSeasons;
             viewBagGuestSeasons.Items.ShouldBeEquivalentTo(orderedSeasons);
-            viewBagGuestSeasons.DataValueField.ShouldBe<string>("Id");
-            viewBagGuestSeasons.DataTextField.ShouldBe<string>("Id");
+            viewBagGuestSeasons.DataValueField.ShouldBe<string>("Year");
+            viewBagGuestSeasons.DataTextField.ShouldBe<string>("Year");
             viewBagGuestSeasons.SelectedValue.ShouldBe(defaultSeasonYear);
 
-            prediction.GuestSeasonId.ShouldBe(defaultSeasonYear);
+            prediction.GuestSeasonYear.ShouldBe(defaultSeasonYear);
 
             var guestTeamSeasonsFromSession = testController.HttpContext.Session
                 .GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons");
@@ -358,11 +358,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             Assert.IsType<SelectList>(testController.ViewBag.HostSeasons);
             var viewBagHostSeasons = (SelectList)testController.ViewBag.HostSeasons;
             viewBagHostSeasons.Items.ShouldBeEquivalentTo(orderedSeasons);
-            viewBagHostSeasons.DataValueField.ShouldBe<string>("Id");
-            viewBagHostSeasons.DataTextField.ShouldBe<string>("Id");
-            viewBagHostSeasons.SelectedValue.ShouldBe(expHostSeasonId);
+            viewBagHostSeasons.DataValueField.ShouldBe<string>("Year");
+            viewBagHostSeasons.DataTextField.ShouldBe<string>("Year");
+            viewBagHostSeasons.SelectedValue.ShouldBe(expHostSeasonYear);
 
-            prediction.HostSeasonId.ShouldBe(expHostSeasonId);
+            prediction.HostSeasonYear.ShouldBe(expHostSeasonYear);
 
             var hostTeamSeasonsFromSession = testController.HttpContext.Session
                 .GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons");
@@ -387,15 +387,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         {
             // Arrange
             TeamSeason? guestTeamSeason = new() { Id = 1, TeamIdNavigation = new Team { Name = "Guest" } };
-            var guestSeasonId = 1920;
+            var guestSeasonYear = 1920;
             TeamSeason? hostTeamSeason = new() { Id = 2, TeamIdNavigation = new Team { Name = "Host" } };
-            var hostSeasonId = 1921;
+            var hostSeasonYear = 1921;
             var prediction = new GamePrediction
             {
                 GuestName = guestTeamSeason.TeamIdNavigation.Name,
-                GuestSeasonId = guestSeasonId,
+                GuestSeasonYear = guestSeasonYear,
                 HostName = hostTeamSeason.TeamIdNavigation.Name,
-                HostSeasonId = hostSeasonId,
+                HostSeasonYear = hostSeasonYear,
             };
 
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
@@ -414,9 +414,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var seasons = new List<Season>
             {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
             };
             fakeSession.SetObject("Seasons", seasons);
 
@@ -444,14 +444,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Assert
             fakeSession.GetObject<IEnumerable<Season>>("Seasons").ShouldBeEquivalentTo(seasons);
 
-            fakeSession.GetObject<int>("GuestSeasonId").ShouldBe(guestSeasonId);
+            fakeSession.GetObject<int>("GuestSeasonYear").ShouldBe(guestSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.GuestSeasons);
             var viewBagGuestSeasons = (SelectList)testController.ViewBag.GuestSeasons;
             viewBagGuestSeasons.Items.ShouldBeEquivalentTo(seasons);
-            viewBagGuestSeasons.DataValueField.ShouldBe("Id");
-            viewBagGuestSeasons.DataTextField.ShouldBe("Id");
-            viewBagGuestSeasons.SelectedValue.ShouldBe(guestSeasonId);    
+            viewBagGuestSeasons.DataValueField.ShouldBe("Year");
+            viewBagGuestSeasons.DataTextField.ShouldBe("Year");
+            viewBagGuestSeasons.SelectedValue.ShouldBe(guestSeasonYear);
 
             fakeSession.GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons").ShouldBeEquivalentTo(guestTeamSeasons);
 
@@ -460,14 +460,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             viewBagGuests.Items.ShouldBeEquivalentTo(guestTeamSeasons.Select(ts => ts.TeamIdNavigation.Name).ToList());
             viewBagGuests.SelectedValue.ShouldBe(guestTeamSeason.TeamIdNavigation.Name);
 
-            fakeSession.GetObject<int>("HostSeasonId").ShouldBe(hostSeasonId);
+            fakeSession.GetObject<int>("HostSeasonYear").ShouldBe(hostSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.HostSeasons);
             var viewBagHostSeasons = (SelectList)testController.ViewBag.HostSeasons;
             viewBagHostSeasons.Items.ShouldBeEquivalentTo(seasons);
-            viewBagHostSeasons.DataValueField.ShouldBe("Id");
-            viewBagHostSeasons.DataTextField.ShouldBe("Id");
-            viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonId);
+            viewBagHostSeasons.DataValueField.ShouldBe("Year");
+            viewBagHostSeasons.DataTextField.ShouldBe("Year");
+            viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonYear);
 
             fakeSession.GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons").ShouldBeEquivalentTo(hostTeamSeasons);
 
@@ -489,15 +489,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         {
             // Arrange
             TeamSeason? guestTeamSeason = new() { Id = 1, TeamIdNavigation = new Team { Name = "Guest" } };
-            var guestSeasonId = 1920;
+            var guestSeasonYear = 1920;
             TeamSeason? hostTeamSeason = new() { Id = 2, TeamIdNavigation = new Team { Name = "Host" } };
-            var hostSeasonId = 1921;
+            var hostSeasonYear = 1921;
             var prediction = new GamePrediction
             {
                 GuestName = guestTeamSeason.TeamIdNavigation.Name,
-                GuestSeasonId = guestSeasonId,
+                GuestSeasonYear = guestSeasonYear,
                 HostName = hostTeamSeason.TeamIdNavigation.Name,
-                HostSeasonId = hostSeasonId,
+                HostSeasonYear = hostSeasonYear,
             };
 
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
@@ -516,9 +516,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var seasons = new List<Season>
             {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
             };
             fakeSession.SetObject("Seasons", seasons);
 
@@ -546,14 +546,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Assert
             fakeSession.GetObject<IEnumerable<Season>>("Seasons").ShouldBeEquivalentTo(seasons);
 
-            fakeSession.GetObject<int>("GuestSeasonId").ShouldBe(guestSeasonId);
+            fakeSession.GetObject<int>("GuestSeasonYear").ShouldBe(guestSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.GuestSeasons);
             var viewBagGuestSeasons = (SelectList)testController.ViewBag.GuestSeasons;
             viewBagGuestSeasons.Items.ShouldBeEquivalentTo(seasons);
-            viewBagGuestSeasons.DataValueField.ShouldBe("Id");
-            viewBagGuestSeasons.DataTextField.ShouldBe("Id");
-            viewBagGuestSeasons.SelectedValue.ShouldBe(guestSeasonId);
+            viewBagGuestSeasons.DataValueField.ShouldBe("Year");
+            viewBagGuestSeasons.DataTextField.ShouldBe("Year");
+            viewBagGuestSeasons.SelectedValue.ShouldBe(guestSeasonYear);
 
             fakeSession.GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons").ShouldBeEquivalentTo(guestTeamSeasons);
 
@@ -562,14 +562,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             viewBagGuests.Items.ShouldBeEquivalentTo(guestTeamSeasons.Select(ts => ts.TeamIdNavigation.Name).ToList());
             viewBagGuests.SelectedValue.ShouldBe(prediction.GuestName);
 
-            fakeSession.GetObject<int>("HostSeasonId").ShouldBe(hostSeasonId);
+            fakeSession.GetObject<int>("HostSeasonYear").ShouldBe(hostSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.HostSeasons);
             var viewBagHostSeasons = (SelectList)testController.ViewBag.HostSeasons;
             viewBagHostSeasons.Items.ShouldBeEquivalentTo(seasons);
-            viewBagHostSeasons.DataValueField.ShouldBe("Id");
-            viewBagHostSeasons.DataTextField.ShouldBe("Id");
-            viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonId);
+            viewBagHostSeasons.DataValueField.ShouldBe("Year");
+            viewBagHostSeasons.DataTextField.ShouldBe("Year");
+            viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonYear);
 
             fakeSession.GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons").ShouldBeEquivalentTo(hostTeamSeasons);
 
@@ -591,15 +591,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         {
             // Arrange
             TeamSeason? guestTeamSeason = new() { Id = 1, TeamIdNavigation = new Team { Name = "Guest" } };
-            var guestSeasonId = 1920;
+            var guestSeasonYear = 1920;
             TeamSeason? hostTeamSeason = new() { Id = 2, TeamIdNavigation = new Team { Name = "Host" } };
-            var hostSeasonId = 1921;
+            var hostSeasonYear = 1921;
             var prediction = new GamePrediction
             {
                 GuestName = guestTeamSeason.TeamIdNavigation.Name,
-                GuestSeasonId = guestSeasonId,
+                GuestSeasonYear = guestSeasonYear,
                 HostName = hostTeamSeason.TeamIdNavigation.Name,
-                HostSeasonId = hostSeasonId,
+                HostSeasonYear = hostSeasonYear,
             };
 
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
@@ -618,9 +618,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var seasons = new List<Season>
             {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
             };
             fakeSession.SetObject("Seasons", seasons);
 
@@ -648,14 +648,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Assert
             fakeSession.GetObject<IEnumerable<Season>>("Seasons").ShouldBeEquivalentTo(seasons);
 
-            fakeSession.GetObject<int>("GuestSeasonId").ShouldBe(guestSeasonId);
+            fakeSession.GetObject<int>("GuestSeasonYear").ShouldBe(guestSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.GuestSeasons);
             var viewBagGuestSeasons = (SelectList)testController.ViewBag.GuestSeasons;
             viewBagGuestSeasons.Items.ShouldBeEquivalentTo(seasons);
-            viewBagGuestSeasons.DataValueField.ShouldBe("Id");
-            viewBagGuestSeasons.DataTextField.ShouldBe("Id");
-            viewBagGuestSeasons.SelectedValue.ShouldBe(guestSeasonId);
+            viewBagGuestSeasons.DataValueField.ShouldBe("Year");
+            viewBagGuestSeasons.DataTextField.ShouldBe("Year");
+            viewBagGuestSeasons.SelectedValue.ShouldBe(guestSeasonYear);
 
             fakeSession.GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons").ShouldBeEquivalentTo(guestTeamSeasons);
 
@@ -664,14 +664,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             viewBagGuests.Items.ShouldBeEquivalentTo(guestTeamSeasons.Select(ts => ts.TeamIdNavigation.Name).ToList());
             viewBagGuests.SelectedValue.ShouldBe(prediction.GuestName);
 
-            fakeSession.GetObject<int>("HostSeasonId").ShouldBe(hostSeasonId);
+            fakeSession.GetObject<int>("HostSeasonYear").ShouldBe(hostSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.HostSeasons);
             var viewBagHostSeasons = (SelectList)testController.ViewBag.HostSeasons;
             viewBagHostSeasons.Items.ShouldBeEquivalentTo(seasons);
-            viewBagHostSeasons.DataValueField.ShouldBe("Id");
-            viewBagHostSeasons.DataTextField.ShouldBe("Id");
-            viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonId);
+            viewBagHostSeasons.DataValueField.ShouldBe("Year");
+            viewBagHostSeasons.DataTextField.ShouldBe("Year");
+            viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonYear);
 
             fakeSession.GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons").ShouldBeEquivalentTo(hostTeamSeasons);
 
@@ -693,15 +693,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         {
             // Arrange
             TeamSeason? guestTeamSeason = new() { Id = 1, TeamIdNavigation = new Team { Name = "Guest" } };
-            var guestSeasonId = 1920;
+            var guestSeasonYear = 1920;
             TeamSeason? hostTeamSeason = new() { Id = 2, TeamIdNavigation = new Team { Name = "Host" } };
-            var hostSeasonId = 1921;
+            var hostSeasonYear = 1921;
             var prediction = new GamePrediction
             {
                 GuestName = guestTeamSeason.TeamIdNavigation.Name,
-                GuestSeasonId = guestSeasonId,
+                GuestSeasonYear = guestSeasonYear,
                 HostName = hostTeamSeason.TeamIdNavigation.Name,
-                HostSeasonId = hostSeasonId,
+                HostSeasonYear = hostSeasonYear,
             };
 
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
@@ -720,9 +720,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var seasons = new List<Season>
             {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
             };
             fakeSession.SetObject("Seasons", seasons);
 
@@ -750,14 +750,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Assert
             fakeSession.GetObject<IEnumerable<Season>>("Seasons").ShouldBeEquivalentTo(seasons);
 
-            fakeSession.GetObject<int>("GuestSeasonId").ShouldBe(guestSeasonId);
+            fakeSession.GetObject<int>("GuestSeasonYear").ShouldBe(guestSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.GuestSeasons);
             var viewBagGuestSeasons = (SelectList)testController.ViewBag.GuestSeasons;
             viewBagGuestSeasons.Items.ShouldBeEquivalentTo(seasons);
-            viewBagGuestSeasons.DataValueField.ShouldBe("Id");
-            viewBagGuestSeasons.DataTextField.ShouldBe("Id");
-            viewBagGuestSeasons.SelectedValue.ShouldBe(guestSeasonId);
+            viewBagGuestSeasons.DataValueField.ShouldBe("Year");
+            viewBagGuestSeasons.DataTextField.ShouldBe("Year");
+            viewBagGuestSeasons.SelectedValue.ShouldBe(guestSeasonYear);
 
             fakeSession.GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons").ShouldBeEquivalentTo(guestTeamSeasons);
 
@@ -766,14 +766,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             viewBagGuests.Items.ShouldBeEquivalentTo(guestTeamSeasons.Select(ts => ts.TeamIdNavigation.Name).ToList());
             viewBagGuests.SelectedValue.ShouldBe(prediction.GuestName);
 
-            fakeSession.GetObject<int>("HostSeasonId").ShouldBe(hostSeasonId);
+            fakeSession.GetObject<int>("HostSeasonYear").ShouldBe(hostSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.HostSeasons);
             var viewBagHostSeasons = (SelectList)testController.ViewBag.HostSeasons;
             viewBagHostSeasons.Items.ShouldBeEquivalentTo(seasons);
-            viewBagHostSeasons.DataValueField.ShouldBe("Id");
-            viewBagHostSeasons.DataTextField.ShouldBe("Id");
-            viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonId);
+            viewBagHostSeasons.DataValueField.ShouldBe("Year");
+            viewBagHostSeasons.DataTextField.ShouldBe("Year");
+            viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonYear);
 
             fakeSession.GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons").ShouldBeEquivalentTo(hostTeamSeasons);
 
@@ -794,11 +794,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             ((ViewResult)result).Model.ShouldBe(prediction);
         }
 
-        public readonly struct Filter(int? guestSeasonId, string? guestName, int? hostSeasonId, string? hostName)
+        public readonly struct Filter(int? guestSeasonYear, string? guestName, int? hostSeasonYear, string? hostName)
         {
-            public int? GuestSeasonId { get; init; } = guestSeasonId;
+            public int? GuestSeasonYear { get; init; } = guestSeasonYear;
             public string? GuestName { get; init; } = guestName;
-            public int? HostSeasonId { get; init; } = hostSeasonId;
+            public int? HostSeasonYear { get; init; } = hostSeasonYear;
             public string? HostName { get; init; } = hostName;
         }
 
@@ -854,9 +854,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeSession = new MockHttpSession();
 
-            fakeSession.SetObject("GuestSeasonId", startingFilter.GuestSeasonId);
+            fakeSession.SetObject("GuestSeasonYear", startingFilter.GuestSeasonYear);
             fakeSession.SetObject("GuestName", startingFilter.GuestName);
-            fakeSession.SetObject("HostSeasonId", startingFilter.HostSeasonId);
+            fakeSession.SetObject("HostSeasonYear", startingFilter.HostSeasonYear);
             fakeSession.SetObject("HostName", startingFilter.HostName);
 
             var fakeHttpContext = new Mock<HttpContext>();
@@ -872,13 +872,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             };
 
             // Act
-            var result = testController.ApplyFilter(newFilter.GuestSeasonId, newFilter.GuestName,
-                newFilter.HostSeasonId, newFilter.HostName);
+            var result = testController.ApplyFilter(newFilter.GuestSeasonYear, newFilter.GuestName,
+                newFilter.HostSeasonYear, newFilter.HostName);
 
             // Assert
-            fakeSession.GetObject<int?>("GuestSeasonId").ShouldBe(expFilter.GuestSeasonId);
+            fakeSession.GetObject<int?>("GuestSeasonYear").ShouldBe(expFilter.GuestSeasonYear);
             fakeSession.GetObject<string?>("GuestName").ShouldBe(expFilter.GuestName);
-            fakeSession.GetObject<int?>("HostSeasonId").ShouldBe(expFilter.HostSeasonId);
+            fakeSession.GetObject<int?>("HostSeasonYear").ShouldBe(expFilter.HostSeasonYear);
             fakeSession.GetObject<string?>("HostName").ShouldBe(expFilter.HostName);
 
             result.ShouldBeOfType<RedirectToActionResult>();

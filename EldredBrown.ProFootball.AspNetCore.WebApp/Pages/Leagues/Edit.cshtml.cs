@@ -9,17 +9,17 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Pages.Leagues
 {
     public class EditModel : PageModel
     {
-        private readonly ILeagueRepository _leagueRepository;
+        private readonly IAssociationRepository _associationRepository;
         private readonly ISharedRepository _sharedRepository;
 
-        public EditModel(ILeagueRepository leagueRepository, ISharedRepository sharedRepository)
+        public EditModel(IAssociationRepository leagueRepository, ISharedRepository sharedRepository)
         {
-            _leagueRepository = leagueRepository;
+            _associationRepository = leagueRepository;
             _sharedRepository = sharedRepository;
         }
 
         [BindProperty]
-        public League League { get; set; }
+        public Association League { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -28,7 +28,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Pages.Leagues
                 return NotFound();
             }
 
-            League = await _leagueRepository.GetLeagueAsync(id.Value);
+            League = await _associationRepository.GetAssociationAsync(id.Value);
 
             if (League is null)
             {
@@ -46,7 +46,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Pages.Leagues
                 return Page();
             }
 
-            _leagueRepository.Update(League);
+            _associationRepository.Update(League);
 
             try
             {
@@ -54,7 +54,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Pages.Leagues
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!(await _leagueRepository.LeagueExistsAsync(League.Id)))
+                if (!(await _associationRepository.AssociationExistsAsync(League.Id)))
                 {
                     return NotFound();
                 }

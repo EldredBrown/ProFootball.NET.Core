@@ -15,7 +15,7 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <param name="leagueName">The league name of the <see cref="LeagueSeasonTotals"/> entity to fetch.</param>
         /// <param name="seasonYear">The season year of the <see cref="LeagueSeasonTotals"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="LeagueSeasonTotals"/> entity, or <c>null</c> if not found.</returns>
-        LeagueSeasonTotals? GetLeagueSeasonTotals(int leagueId, int seasonId);
+        LeagueSeasonTotals? GetLeagueSeasonTotals(int leagueId, int seasonYear);
 
         /// <summary>
         /// Gets a single <see cref="LeagueSeasonTotals"/> entity from the data store by league name and season Id.
@@ -23,6 +23,6 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <param name="leagueName">The league name of the <see cref="LeagueSeasonTotals"/> entity to fetch.</param>
         /// <param name="seasonYear">The season year of the <see cref="LeagueSeasonTotals"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="LeagueSeasonTotals"/> entity, or <c>null</c> if not found.</returns>
-        Task<LeagueSeasonTotals?> GetLeagueSeasonTotalsAsync(int leagueId, int seasonId);
+        Task<LeagueSeasonTotals?> GetLeagueSeasonTotalsAsync(int leagueId, int seasonYear);
     }
 }

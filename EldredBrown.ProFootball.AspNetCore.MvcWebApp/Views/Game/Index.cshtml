@@ -15,6 +15,12 @@
         </select>
     </div>
     <div class="form-group">
+        <label class="col-form-label">League</label>
+        <select onchange="document.location.href=`/Game/SetSelectedLeagueName?LeagueName=${this.options[this.selectedIndex].value}`;"
+                asp-for="SelectedLeagueName" asp-items="Model.Leagues">
+        </select>
+    </div>
+    <div class="form-group">
         <label class="col-form-label">Week</label>
         <select onchange = "document.location.href=`/Game/SetSelectedWeek?Week=${this.options[this.selectedIndex].value}`;"
                 asp-for="SelectedWeek" asp-items="Model.Weeks">

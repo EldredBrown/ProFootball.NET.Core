@@ -12,7 +12,7 @@ namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
     public class ProcessGameStrategyFactory(
         ITeamRepository teamRepository,
         ITeamSeasonRepository teamSeasonRepository
-        ) : IProcessGameStrategyFactory
+    ) : IProcessGameStrategyFactory
     {
         /// <summary>
         /// Creates a subclass instance of the <see cref="ProcessGameStrategyBase"/> class.

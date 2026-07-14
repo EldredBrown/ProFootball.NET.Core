@@ -41,9 +41,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>
             {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
             };
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
@@ -82,9 +82,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Assert
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
             fakeTeamSeasonIndexViewModel.Seasons.ShouldBeOfType<SelectList>();
-            fakeTeamSeasonIndexViewModel.Seasons.Items.ShouldBe(seasons.OrderByDescending(s => s.Id));
-            fakeTeamSeasonIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Id");
-            fakeTeamSeasonIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Id");
+            fakeTeamSeasonIndexViewModel.Seasons.Items.ShouldBe(seasons.OrderByDescending(s => s.Year));
+            fakeTeamSeasonIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Year");
+            fakeTeamSeasonIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Year");
             fakeTeamSeasonIndexViewModel.Seasons.SelectedValue.ShouldBe(selectedSeasonYear);
             fakeTeamSeasonIndexViewModel.SelectedSeasonYear.ShouldBe(selectedSeasonYear);
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(selectedSeasonYear.Value))
@@ -119,9 +119,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>
             {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
             };
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
@@ -160,9 +160,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             // Assert
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
             fakeTeamSeasonIndexViewModel.Seasons.ShouldBeOfType<SelectList>();
-            fakeTeamSeasonIndexViewModel.Seasons.Items.ShouldBe(seasons.OrderByDescending(s => s.Id));
-            fakeTeamSeasonIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Id");
-            fakeTeamSeasonIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Id");
+            fakeTeamSeasonIndexViewModel.Seasons.Items.ShouldBe(seasons.OrderByDescending(s => s.Year));
+            fakeTeamSeasonIndexViewModel.Seasons.DataValueField.ShouldBe<string>("Year");
+            fakeTeamSeasonIndexViewModel.Seasons.DataTextField.ShouldBe<string>("Year");
             fakeTeamSeasonIndexViewModel.Seasons.SelectedValue.ShouldBe(1922);
             fakeTeamSeasonIndexViewModel.SelectedSeasonYear.ShouldBe(1922);
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(1922))
@@ -193,11 +193,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             int teamId = 1;
-            int seasonId = 1920;
+            int seasonYear = 1;
             TeamSeason? teamSeason = new()
             {
                 TeamId = teamId,
-                SeasonId = seasonId
+                SeasonYear = seasonYear
             };
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonAsync(An<int>.Ignored)).Returns(teamSeason);
 
@@ -230,15 +230,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 .MustHaveHappenedOnceExactly();
             fakeTeamSeasonDetailsViewModel.TeamSeason.ShouldBe(teamSeasonViewModel);
 
-            A.CallTo(() => fakeTeamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonId))
+            A.CallTo(() => fakeTeamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonYear))
                 .MustHaveHappenedOnceExactly();
             fakeTeamSeasonDetailsViewModel.TeamSeasonScheduleProfile.ShouldBe(teamSeasonScheduleProfile);
 
-            A.CallTo(() => fakeTeamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonId))
+            A.CallTo(() => fakeTeamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonYear))
                 .MustHaveHappenedOnceExactly();
             fakeTeamSeasonDetailsViewModel.TeamSeasonScheduleTotals.ShouldBe(teamSeasonScheduleTotals);
 
-            A.CallTo(() => fakeTeamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonId))
+            A.CallTo(() => fakeTeamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonYear))
                 .MustHaveHappenedOnceExactly();
             fakeTeamSeasonDetailsViewModel.TeamSeasonScheduleAverages.ShouldBe(teamSeasonScheduleAverages);
 
@@ -367,12 +367,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             };
 
             // Act
-            int? seasonId = 1920;
-            var result = testController.SetSelectedSeasonYear(seasonId);
+            int? seasonYear = 1920;
+            var result = testController.SetSelectedSeasonYear(seasonYear);
 
             // Assert
             var selectedSeasonYearFromSession = testController.HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
-            selectedSeasonYearFromSession.ShouldBe(seasonId.Value);
+            selectedSeasonYearFromSession.ShouldBe(seasonYear.Value);
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
         }
@@ -393,10 +393,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeTeamSeasonViewModelMapper, fakeSeasonRepository, fakeTeamSeasonRepository,
                 fakeTeamSeasonScheduleRepository, fakeWeeklyUpdateService);
 
-            int? seasonId = null;
+            int? seasonYear = null;
 
             // Act
-            var result = testController.SetSelectedSeasonYear(seasonId);
+            var result = testController.SetSelectedSeasonYear(seasonYear);
 
             // Assert
             result.ShouldBeOfType<BadRequestResult>();

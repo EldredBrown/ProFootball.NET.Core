@@ -19,6 +19,12 @@
             <th>
                 <label asp-for="LeagueSeasons.SingleOrDefault().SeasonYear"></label>
             </th>
+            <th class="text-right">
+                <label asp-for="LeagueSeasons.SingleOrDefault().NumOfWeeksScheduled"></label>
+            </th>
+            <th class="text-right">
+                <label asp-for="LeagueSeasons.SingleOrDefault().NumOfWeeksCompleted"></label>
+            </th>
             <th>
                 <label asp-for="LeagueSeasons.SingleOrDefault().TotalGames"></label>
             </th>
@@ -40,6 +46,12 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => leagueSeason.SeasonYear)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => leagueSeason.NumOfWeeksScheduled)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => leagueSeason.NumOfWeeksCompleted)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => leagueSeason.TotalGames)

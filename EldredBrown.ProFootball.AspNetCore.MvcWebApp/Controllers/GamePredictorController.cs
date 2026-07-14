@@ -17,10 +17,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     public enum SessionKey
     {
         Seasons,
-        GuestSeasonId,
+        GuestSeasonYear,
         GuestTeamSeasons,
         GuestName,
-        HostSeasonId,
+        HostSeasonYear,
         HostTeamSeasons,
         HostName,
     }
@@ -32,7 +32,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     /// Initializes a new instance of the <see cref="GamePredictorController"/> class.
     /// </remarks>
     /// <param name="seasonRepository">
-    /// The <see cref="ISeasonRepository"/> by which season data will be accessed.
+    /// The <see cref="IAssociationRepository"/> by which season data will be accessed.
     /// </param>
     /// <param name="teamSeasonRepository">
     /// The <see cref="ITeamSeasonRepository"/> by which team season data will be accessed.
@@ -41,11 +41,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     /// The <see cref="IGamePredictorService"/> by which a game prediction will be calculated.
     /// </param>
     public class GamePredictorController(
-        IGamePrediction prediction,
+        GamePrediction prediction,
         ISeasonRepository seasonRepository,
         ITeamSeasonRepository teamSeasonRepository,
         IGamePredictorService gamePredictorService
-        ) : Controller
+    ) : Controller
     {
         // GET: GamePredictor/PredictGame
         /// <summary>
@@ -55,12 +55,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> PredictGame()
         {
-            var seasons = (await seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Id).ToList();
-            HttpContext.Session.SetObject("Seasons", seasons);
+            var seasons = (await seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Year).ToList();
+            HttpContext.Session.SetObject(nameof(SessionKey.Seasons), seasons);
 
-            await SelectTeamSeasonYearGetTeamSeasonsAndSelectTeamName(seasons, SessionKey.GuestSeasonId,
+            await SelectTeamSeasonYearGetTeamSeasonsAndSelectTeamName(seasons, SessionKey.GuestSeasonYear,
                 SessionKey.GuestTeamSeasons, SessionKey.GuestName);
-            await SelectTeamSeasonYearGetTeamSeasonsAndSelectTeamName(seasons, SessionKey.HostSeasonId,
+            await SelectTeamSeasonYearGetTeamSeasonsAndSelectTeamName(seasons, SessionKey.HostSeasonYear,
                 SessionKey.HostTeamSeasons, SessionKey.HostName);
 
             return View(prediction);
@@ -72,16 +72,18 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Processes the data posted back from the Game Predictor form.
         /// </summary>
-        /// <param name="prediction">A <see cref="GamePrediction"/> object representing the game matchup.</param>
+        /// <param name="prediction">A <see cref="IGamePredictionViewModel"/> object representing the game matchup.</param>
         /// <returns>The rendered view of the Game Predictor form.</returns>
         [HttpPost]
-        public async Task<IActionResult> PredictGame([Bind("GuestSeasonId,GuestName,GuestScore,HostSeasonId,HostName,HostScore")] GamePrediction prediction)
+        public async Task<IActionResult> PredictGame(
+            [Bind("GuestSeasonYear,GuestName,GuestScore,HostSeasonYear,HostName,HostScore")] GamePrediction prediction
+        )
         {
             var seasons = HttpContext.Session.GetObject<IEnumerable<Season>>(nameof(SessionKey.Seasons));
 
-            var guestSeasonId = prediction.GuestSeasonId;
-            HttpContext.Session.SetObject(nameof(SessionKey.GuestSeasonId), guestSeasonId);
-            ViewBag.GuestSeasons = new SelectList(seasons, "Id", "Id", guestSeasonId);
+            var guestSeasonYear = prediction.GuestSeasonYear;
+            HttpContext.Session.SetObject(nameof(SessionKey.GuestSeasonYear), guestSeasonYear);
+            ViewBag.GuestSeasons = new SelectList(seasons, "Year", "Year", guestSeasonYear);
 
             var guestTeamSeasons = HttpContext.Session.GetObject<IEnumerable<TeamSeason>>(nameof(SessionKey.GuestTeamSeasons));
             var guestTeamSeason = guestTeamSeasons.FirstOrDefault(ts => ts.TeamIdNavigation.Name == prediction.GuestName);
@@ -96,11 +98,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                     guestTeamSeason.TeamIdNavigation.Name);
             }
 
-            var hostSeasonId = prediction.HostSeasonId;
-            HttpContext.Session.SetObject("HostSeasonId", hostSeasonId);
-            ViewBag.HostSeasons = new SelectList(seasons, "Id", "Id", hostSeasonId);
+            var hostSeasonYear = prediction.HostSeasonYear;
+            HttpContext.Session.SetObject(nameof(SessionKey.HostSeasonYear), hostSeasonYear);
+            ViewBag.HostSeasons = new SelectList(seasons, "Year", "Year", hostSeasonYear);
 
-            var hostTeamSeasons = HttpContext.Session.GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons");
+            var hostTeamSeasons = HttpContext.Session.GetObject<IEnumerable<TeamSeason>>(nameof(SessionKey.HostTeamSeasons));
             var hostTeamSeason = hostTeamSeasons.FirstOrDefault(ts => ts.TeamIdNavigation.Name == prediction.HostName);
             if (hostTeamSeason is null)
             {
@@ -132,14 +134,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <summary>
         /// Applies a filter to listed guest or host data.
         /// </summary>
-        /// <param name="guestSeasonId">The season for which possible guests will be shown.</param>
-        /// <param name="hostSeasonId">The season for which possible hosts will be shown.</param>
+        /// <param name="guestSeasonYear">The season for which possible guests will be shown.</param>
+        /// <param name="hostSeasonYear">The season for which possible hosts will be shown.</param>
         /// <returns>The rendered view of the Game Predictor form.</returns>
-        public IActionResult ApplyFilter(int? guestSeasonId, string guestName, int? hostSeasonId, string hostName)
+        public IActionResult ApplyFilter(int? guestSeasonYear, string guestName, int? hostSeasonYear, string hostName)
         {
-            if (guestSeasonId.HasValue)
+            if (guestSeasonYear.HasValue)
             {
-                HttpContext.Session.SetObject("GuestSeasonId", guestSeasonId);
+                HttpContext.Session.SetObject("GuestSeasonYear", guestSeasonYear);
             }
 
             if (!guestName.IsNullOrEmpty())
@@ -147,9 +149,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 HttpContext.Session.SetObject("GuestName", guestName);
             }
 
-            if (hostSeasonId.HasValue)
+            if (hostSeasonYear.HasValue)
             {
-                HttpContext.Session.SetObject("HostSeasonId", hostSeasonId);
+                HttpContext.Session.SetObject("HostSeasonYear", hostSeasonYear);
             }
 
             if (!hostName.IsNullOrEmpty())
@@ -190,47 +192,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task SelectTeamSeasonYearGetTeamSeasonsAndSelectTeamName(IEnumerable<Season> seasons,
-            SessionKey teamSeasonYearSessionKey, SessionKey teamSeasonsSessionKey, SessionKey teamNameSessionKey)
-        {
-            int? teamSeasonYear = SelectTeamSeasonYear(seasons, teamSeasonYearSessionKey);
-            IEnumerable<TeamSeason> teamSeasons = await GetTeamSeasons(teamSeasonsSessionKey, teamSeasonYear);
-            SelectTeamName(teamNameSessionKey, teamSeasons);
-        }
-
-        private int? SelectTeamSeasonYear(IEnumerable<Season> seasons, SessionKey teamSeasonYearSessionKey)
-        {
-            var teamSeasonYear = HttpContext.Session.GetObject<int?>(teamSeasonYearSessionKey.ToString());
-            if (teamSeasonYear is null)
-            {
-                teamSeasonYear = seasons.First().Id;
-                SetTeamSeasonYear(teamSeasonYearSessionKey.ToString(), teamSeasonYear.Value);
-            }
-            var teamSeasonSelectList = new SelectList(seasons, "Id", "Id", teamSeasonYear);
-            switch (teamSeasonYearSessionKey)
-            {
-                case SessionKey.GuestSeasonId:
-                    ViewBag.GuestSeasons = teamSeasonSelectList;
-                    prediction.GuestSeasonId = teamSeasonYear.Value;
-                    break;
-                case SessionKey.HostSeasonId:
-                    ViewBag.HostSeasons = teamSeasonSelectList;
-                    prediction.HostSeasonId = teamSeasonYear.Value;
-                    break;
-                default:
-                    throw new InvalidOperationException($"Unexpected session key: {teamSeasonYearSessionKey}");
-            }
-
-            return teamSeasonYear;
-        }
-
-        private async Task<IEnumerable<TeamSeason>> GetTeamSeasons(SessionKey teamSeasonsSessionKey, int? teamSeasonYear)
-        {
-            var teamSeasons = await teamSeasonRepository.GetTeamSeasonsBySeasonAsync(teamSeasonYear.Value);
-            HttpContext.Session.SetObject(teamSeasonsSessionKey.ToString(), teamSeasons);
-            return teamSeasons;
-        }
-
         private void SelectTeamName(SessionKey teamNameSessionKey, IEnumerable<TeamSeason> teamSeasons)
         {
             var teamName = HttpContext.Session.GetObject<string>(teamNameSessionKey.ToString());
@@ -253,6 +214,49 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 default:
                     throw new InvalidOperationException($"Unexpected session key: {teamNameSessionKey}");
             }
+        }
+
+        private async Task SelectTeamSeasonYearGetTeamSeasonsAndSelectTeamName(IEnumerable<Season> seasons,
+            SessionKey teamSeasonYearSessionKey, SessionKey teamSeasonsSessionKey, SessionKey teamNameSessionKey)
+        {
+            int? teamSeasonYear = SelectTeamSeasonYear(seasons, teamSeasonYearSessionKey);
+            //var teamSeasonId = seasons.FirstOrDefault(s => s.Year == teamSeasonYear)?.Id;
+            IEnumerable<TeamSeason> teamSeasons = await GetTeamSeasons(teamSeasonsSessionKey, teamSeasonYear);
+            SelectTeamName(teamNameSessionKey, teamSeasons);
+        }
+
+        private int? SelectTeamSeasonYear(IEnumerable<Season> seasons, SessionKey teamSeasonYearSessionKey)
+        {
+            var teamSeasonYear = HttpContext.Session.GetObject<int?>(teamSeasonYearSessionKey.ToString());
+            var teamSeason = seasons.FirstOrDefault(s => s.Year == teamSeasonYear);
+            if (teamSeason is null)
+            {
+                teamSeason = seasons.First();
+                SetTeamSeasonYear(teamSeasonYearSessionKey.ToString(), teamSeason.Year);
+            }
+            var teamSeasonSelectList = new SelectList(seasons, "Year", "Year", teamSeason.Year);
+            switch (teamSeasonYearSessionKey)
+            {
+                case SessionKey.GuestSeasonYear:
+                    ViewBag.GuestSeasons = teamSeasonSelectList;
+                    prediction.GuestSeasonYear = teamSeason.Year;
+                    break;
+                case SessionKey.HostSeasonYear:
+                    ViewBag.HostSeasons = teamSeasonSelectList;
+                    prediction.HostSeasonYear = teamSeason.Year;
+                    break;
+                default:
+                    throw new InvalidOperationException($"Unexpected session key: {teamSeasonYearSessionKey}");
+            }
+
+            return teamSeason.Year;
+        }
+
+        private async Task<IEnumerable<TeamSeason>> GetTeamSeasons(SessionKey teamSeasonsSessionKey, int? teamSeasonId)
+        {
+            var teamSeasons = await teamSeasonRepository.GetTeamSeasonsBySeasonAsync(teamSeasonId.Value);
+            HttpContext.Session.SetObject(teamSeasonsSessionKey.ToString(), teamSeasons);
+            return teamSeasons;
         }
     }
 }

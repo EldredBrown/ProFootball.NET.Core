@@ -17,7 +17,7 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
 
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
         optionsBuilder.UseSqlServer(
-            configuration.GetConnectionString("ProFootballDb"));
+            configuration.GetConnectionString("ProFootballDb_Proposed"));
 
         return new ApplicationDbContext(optionsBuilder.Options);
     }

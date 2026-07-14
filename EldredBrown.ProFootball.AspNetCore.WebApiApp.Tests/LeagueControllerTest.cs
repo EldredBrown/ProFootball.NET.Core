@@ -24,17 +24,17 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task GetLeagues_WhenExceptionIsCaught_ShouldReturnInternalServerError()
         {
             // Arrange
-            var leagueRepository = A.Fake<ILeagueRepository>();
-            A.CallTo(() => leagueRepository.GetLeaguesAsync()).Throws<Exception>();
+            var associationRepository = A.Fake<IAssociationRepository>();
+            A.CallTo(() => associationRepository.GetAssociationsAsync()).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new AssociationController(associationRepository, sharedRepository, mapper, linkGenerator);
 
             // Act
-            var result = await testController.GetLeagues();
+            var result = await testController.GetAssociations();
 
             // Assert
             result.Result.ShouldBeOfType<ObjectResult>();
@@ -46,48 +46,48 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task GetLeagues_WhenNoExceptionIsCaught_ShouldGetLeagues()
         {
             // Arrange
-            var leagueRepository = A.Fake<ILeagueRepository>();
-            var leagues = new List<League>();
-            A.CallTo(() => leagueRepository.GetLeaguesAsync()).Returns(leagues);
+            var associationRepository = A.Fake<IAssociationRepository>();
+            var associations = new List<Association>();
+            A.CallTo(() => associationRepository.GetAssociationsAsync()).Returns(associations);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new AssociationController(associationRepository, sharedRepository, mapper, linkGenerator);
 
             // Act
-            var result = await testController.GetLeagues();
+            var result = await testController.GetAssociations();
 
             // Assert
-            A.CallTo(() => leagueRepository.GetLeaguesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => mapper.Map<LeagueModel[]>(leagues)).MustHaveHappenedOnceExactly();
-            result.ShouldBeOfType<ActionResult<LeagueModel[]>>();
-            result.Value.ShouldBe(mapper.Map<LeagueModel[]>(leagues));
+            A.CallTo(() => associationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => mapper.Map<AssociationModel[]>(associations)).MustHaveHappenedOnceExactly();
+            result.ShouldBeOfType<ActionResult<AssociationModel[]>>();
+            result.Value.ShouldBe(mapper.Map<AssociationModel[]>(associations));
         }
 
         [Fact]
-        public async Task GetLeague_WhenExceptionIsCaught_ShouldReturnInternalServerError()
+        public async Task GetAssociation_WhenExceptionIsCaught_ShouldReturnInternalServerError()
         {
             // Arrange
-            var leagueRepository = A.Fake<ILeagueRepository>();
-            League? league = new League();
-            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Throws<Exception>();
+            var associationRepository = A.Fake<IAssociationRepository>();
+            Association? association = new Association();
+            A.CallTo(() => associationRepository.GetAssociationAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
 
             var mapper = A.Fake<IMapper>();
-            LeagueModel? leagueModel = new LeagueModel();
-            A.CallTo(() => mapper.Map<LeagueModel>(A<League>.Ignored)).Returns(leagueModel);
+            AssociationModel? associationModel = new AssociationModel();
+            A.CallTo(() => mapper.Map<AssociationModel>(A<Association>.Ignored)).Returns(associationModel);
 
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new AssociationController(associationRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
             // Act
-            var result = await testController.GetLeague(id);
+            var result = await testController.GetAssociation(id);
 
             // Assert
             result.Result.ShouldBeOfType<ObjectResult>();
@@ -96,76 +96,76 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         }
 
         [Fact]
-        public async Task GetLeague_WhenLeagueIsNull_ShouldReturnNotFound()
+        public async Task GetAssociation_WhenAssociationIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var leagueRepository = A.Fake<ILeagueRepository>();
-            League? league = null;
-            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
+            var associationRepository = A.Fake<IAssociationRepository>();
+            Association? association = null;
+            A.CallTo(() => associationRepository.GetAssociationAsync(An<int>.Ignored)).Returns(association);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new AssociationController(associationRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
             // Act
-            var result = await testController.GetLeague(id);
+            var result = await testController.GetAssociation(id);
 
             // Assert
-            A.CallTo(() => leagueRepository.GetLeagueAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => associationRepository.GetAssociationAsync(id)).MustHaveHappenedOnceExactly();
             result.Result.ShouldBeOfType<NotFoundResult>();
         }
 
         [Fact]
-        public async Task GetLeague_WhenLeagueIsNotNull_ShouldReturnLeagueModelOfDesiredLeague()
+        public async Task GetAssociation_WhenAssociationIsNotNull_ShouldReturnAssociationModelOfDesiredAssociation()
         {
             // Arrange
-            var leagueRepository = A.Fake<ILeagueRepository>();
-            League? league = new League();
-            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
+            var associationRepository = A.Fake<IAssociationRepository>();
+            Association? association = new Association();
+            A.CallTo(() => associationRepository.GetAssociationAsync(An<int>.Ignored)).Returns(association);
 
             var sharedRepository = A.Fake<ISharedRepository>();
 
             var mapper = A.Fake<IMapper>();
-            LeagueModel? leagueModel = new LeagueModel();
-            A.CallTo(() => mapper.Map<LeagueModel>(A<League>.Ignored)).Returns(leagueModel);
+            AssociationModel? associationModel = new AssociationModel();
+            A.CallTo(() => mapper.Map<AssociationModel>(A<Association>.Ignored)).Returns(associationModel);
 
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new AssociationController(associationRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
             // Act
-            var result = await testController.GetLeague(id);
+            var result = await testController.GetAssociation(id);
 
             // Assert
-            A.CallTo(() => leagueRepository.GetLeagueAsync(id)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => mapper.Map<LeagueModel>(league)).MustHaveHappenedOnceExactly();
-            result.Value.ShouldBeOfType<LeagueModel>();
+            A.CallTo(() => associationRepository.GetAssociationAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => mapper.Map<AssociationModel>(association)).MustHaveHappenedOnceExactly();
+            result.Value.ShouldBeOfType<AssociationModel>();
         }
 
         [Fact]
-        public async Task PutLeague_WhenExceptionIsCaught_ShouldReturnInternalServerError()
+        public async Task PutAssociation_WhenExceptionIsCaught_ShouldReturnInternalServerError()
         {
             // Arrange
-            var leagueRepository = A.Fake<ILeagueRepository>();
-            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Throws<Exception>();
+            var associationRepository = A.Fake<IAssociationRepository>();
+            A.CallTo(() => associationRepository.GetAssociationAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new AssociationController(associationRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
-            var model = new LeagueModel();
+            var model = new AssociationModel();
 
             // Act
-            var result = await testController.PutLeague(id, model);
+            var result = await testController.PutAssociation(id, model);
 
             // Assert
             result.Result.ShouldBeOfType<ObjectResult>();
@@ -174,114 +174,114 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         }
 
         [Fact]
-        public async Task PutLeague_WhenLeagueIsNotFound_ShouldReturnNotFoundResult()
+        public async Task PutAssociation_WhenAssociationIsNotFound_ShouldReturnNotFoundResult()
         {
             // Arrange
-            var leagueRepository = A.Fake<ILeagueRepository>();
-            League? league = null;
-            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
+            var associationRepository = A.Fake<IAssociationRepository>();
+            Association? association = null;
+            A.CallTo(() => associationRepository.GetAssociationAsync(An<int>.Ignored)).Returns(association);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new AssociationController(associationRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
-            var model = new LeagueModel();
+            var model = new AssociationModel();
 
             // Act
-            var result = await testController.PutLeague(id, model);
+            var result = await testController.PutAssociation(id, model);
 
             // Assert
-            A.CallTo(() => leagueRepository.GetLeagueAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => associationRepository.GetAssociationAsync(id)).MustHaveHappenedOnceExactly();
             result.Result.ShouldBeOfType<NotFoundObjectResult>();
-            ((NotFoundObjectResult)result.Result).Value.ShouldBe($"Could not find league with Id of {id}");
+            ((NotFoundObjectResult)result.Result).Value.ShouldBe($"Could not find association with Id of {id}");
         }
 
         [Fact]
         public async Task PutLeague_WhenLeagueIsFoundAndSaved_ShouldReturnModelOfLeague()
         {
             // Arrange
-            var leagueRepository = A.Fake<ILeagueRepository>();
-            League? league = new League();
-            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
+            var associationRepository = A.Fake<IAssociationRepository>();
+            Association? association = new Association();
+            A.CallTo(() => associationRepository.GetAssociationAsync(An<int>.Ignored)).Returns(association);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(1);
 
             var mapper = A.Fake<IMapper>();
-            var returnModel = new LeagueModel();
-            A.CallTo(() => mapper.Map<LeagueModel>(league)).Returns(returnModel);
+            var returnModel = new AssociationModel();
+            A.CallTo(() => mapper.Map<AssociationModel>(association)).Returns(returnModel);
 
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new AssociationController(associationRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
-            var model = new LeagueModel();
+            var model = new AssociationModel();
 
             // Act
-            var result = await testController.PutLeague(id, model);
+            var result = await testController.PutAssociation(id, model);
 
             // Assert
-            A.CallTo(() => leagueRepository.GetLeagueAsync(id)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => mapper.Map(model, league)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => associationRepository.GetAssociationAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => mapper.Map(model, association)).MustHaveHappenedOnceExactly();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => mapper.Map<LeagueModel>(league)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => mapper.Map<AssociationModel>(association)).MustHaveHappenedOnceExactly();
             result.Value.ShouldBe(returnModel);
         }
 
         [Fact]
-        public async Task PutLeague_WhenLeagueIsFoundAndNotSaved_ShouldReturnBadRequestResult()
+        public async Task PutAssociation_WhenAssociationIsFoundAndNotSaved_ShouldReturnBadRequestResult()
         {
             // Arrange
-            var leagueRepository = A.Fake<ILeagueRepository>();
-            League? league = new League();
-            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
+            var associationRepository = A.Fake<IAssociationRepository>();
+            Association? association = new Association();
+            A.CallTo(() => associationRepository.GetAssociationAsync(An<int>.Ignored)).Returns(association);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(0);
 
             var mapper = A.Fake<IMapper>();
-            var returnModel = new LeagueModel();
-            A.CallTo(() => mapper.Map<LeagueModel>(league)).Returns(returnModel);
+            var returnModel = new AssociationModel();
+            A.CallTo(() => mapper.Map<AssociationModel>(association)).Returns(returnModel);
 
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new AssociationController(associationRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
-            var model = new LeagueModel();
+            var model = new AssociationModel();
 
             // Act
-            var result = await testController.PutLeague(id, model);
+            var result = await testController.PutAssociation(id, model);
 
             // Assert
-            A.CallTo(() => leagueRepository.GetLeagueAsync(id)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => mapper.Map(model, league)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => associationRepository.GetAssociationAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => mapper.Map(model, association)).MustHaveHappenedOnceExactly();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => mapper.Map<LeagueModel>(league)).MustNotHaveHappened();
+            A.CallTo(() => mapper.Map<AssociationModel>(association)).MustNotHaveHappened();
             result.Result.ShouldBeOfType<BadRequestResult>();
         }
 
         [Fact]
-        public async Task DeleteLeague_WhenExceptionIsCaught_ShouldReturnInternalServerError()
+        public async Task DeleteAssociation_WhenExceptionIsCaught_ShouldReturnInternalServerError()
         {
             // Arrange
-            var leagueRepository = A.Fake<ILeagueRepository>();
-            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Throws<Exception>();
+            var associationRepository = A.Fake<IAssociationRepository>();
+            A.CallTo(() => associationRepository.GetAssociationAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new AssociationController(associationRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
             // Act
-            var result = await testController.DeleteLeague(id);
+            var result = await testController.DeleteAssociation(id);
 
             // Assert
             result.Result.ShouldBeOfType<ObjectResult>();
@@ -290,37 +290,37 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         }
 
         [Fact]
-        public async Task DeleteLeague_WhenLeagueIsNotFound_ShouldReturnNotFoundResult()
+        public async Task DeleteAssociation_WhenAssociationIsNotFound_ShouldReturnNotFoundResult()
         {
             // Arrange
-            var leagueRepository = A.Fake<ILeagueRepository>();
-            League? league = null;
-            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
+            var associationRepository = A.Fake<IAssociationRepository>();
+            Association? association = null;
+            A.CallTo(() => associationRepository.GetAssociationAsync(An<int>.Ignored)).Returns(association);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new AssociationController(associationRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
             // Act
-            var result = await testController.DeleteLeague(id);
+            var result = await testController.DeleteAssociation(id);
 
             // Assert
-            A.CallTo(() => leagueRepository.GetLeagueAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => associationRepository.GetAssociationAsync(id)).MustHaveHappenedOnceExactly();
             result.Result.ShouldBeOfType<NotFoundObjectResult>();
-            ((NotFoundObjectResult)result.Result).Value.ShouldBe($"Could not find league with Id of {id}");
+            ((NotFoundObjectResult)result.Result).Value.ShouldBe($"Could not find association with Id of {id}");
         }
 
         [Fact]
-        public async Task DeleteLeague_WhenLeagueIsFoundAndDeleted_ShouldReturnOk()
+        public async Task DeleteAssociation_WhenAssociationIsFoundAndDeleted_ShouldReturnOk()
         {
             // Arrange
-            var leagueRepository = A.Fake<ILeagueRepository>();
-            League? league = new League();
-            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
+            var associationRepository = A.Fake<IAssociationRepository>();
+            Association? association = new Association();
+            A.CallTo(() => associationRepository.GetAssociationAsync(An<int>.Ignored)).Returns(association);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(1);
@@ -328,26 +328,26 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new AssociationController(associationRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
             // Act
-            var result = await testController.DeleteLeague(id);
+            var result = await testController.DeleteAssociation(id);
 
             // Assert
-            A.CallTo(() => leagueRepository.GetLeagueAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => associationRepository.GetAssociationAsync(id)).MustHaveHappenedOnceExactly();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.Result.ShouldBeOfType<OkResult>();
         }
 
         [Fact]
-        public async Task DeleteLeague_WhenLeagueIsFoundAndNotDeleted_ShouldReturnBadRequest()
+        public async Task DeleteAssociation_WhenAssociationIsFoundAndNotDeleted_ShouldReturnBadRequest()
         {
             // Arrange
-            var leagueRepository = A.Fake<ILeagueRepository>();
-            League? league = new League();
-            A.CallTo(() => leagueRepository.GetLeagueAsync(An<int>.Ignored)).Returns(league);
+            var associationRepository = A.Fake<IAssociationRepository>();
+            Association? association = new Association();
+            A.CallTo(() => associationRepository.GetAssociationAsync(An<int>.Ignored)).Returns(association);
 
             var sharedRepository = A.Fake<ISharedRepository>();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).Returns(0);
@@ -355,15 +355,15 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             var mapper = A.Fake<IMapper>();
             var linkGenerator = A.Fake<LinkGenerator>();
 
-            var testController = new LeagueController(leagueRepository, sharedRepository, mapper, linkGenerator);
+            var testController = new AssociationController(associationRepository, sharedRepository, mapper, linkGenerator);
 
             int id = 1;
 
             // Act
-            var result = await testController.DeleteLeague(id);
+            var result = await testController.DeleteAssociation(id);
 
             // Assert
-            A.CallTo(() => leagueRepository.GetLeagueAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => associationRepository.GetAssociationAsync(id)).MustHaveHappenedOnceExactly();
             A.CallTo(() => sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.Result.ShouldBeOfType<BadRequestResult>();
         }

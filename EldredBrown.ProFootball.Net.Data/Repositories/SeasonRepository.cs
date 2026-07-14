@@ -40,21 +40,21 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <summary>
         /// Gets a single <see cref="Season"/> entity from the data store by Id.
         /// </summary>
-        /// <param name="id">The Id of the <see cref="Season"/> entity to fetch.</param>
+        /// <param name="year">The Id of the <see cref="Season"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Season"/> entity.</returns>
-        public Season? GetSeason(int id)
+        public Season? GetSeason(int year)
         {
-            return GetSeasons()?.FirstOrDefault(s => s.Id == id);
+            return GetSeasons()?.FirstOrDefault(s => s.Year == year);
         }
 
         /// <summary>
         /// Gets a single <see cref="Season"/> entity from the data store asynchronously by Id.
         /// </summary>
-        /// <param name="id">The Id of the <see cref="Season"/> entity to fetch.</param>
+        /// <param name="year">The Id of the <see cref="Season"/> entity to fetch.</param>
         /// <returns>The fetched <see cref="Season"/> entity.</returns>
-        public async Task<Season?> GetSeasonAsync(int id)
+        public async Task<Season?> GetSeasonAsync(int year)
         {
-            return (await GetSeasonsAsync())?.FirstOrDefault(s => s.Id == id);
+            return (await GetSeasonsAsync())?.FirstOrDefault(s => s.Year == year);
         }
 
         /// <summary>
@@ -93,23 +93,8 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
             return season;
         }
 
-        /// <summary>
-        /// Updates a <see cref="Season"/> entity in the data store.
-        /// </summary>
-        /// <param name="season">The <see cref="Season"/> entity to update.</param>
-        /// <returns>The updated <see cref="Season"/> entity.</returns>
-        public Season Update(Season season)
-        {
-            ArgumentNullException.ThrowIfNull(season);
-
-            if (dbContext.Seasons is null)
-            {
-                return season;
-            }
-
-            dbContext.Update(season);
-            return season;
-        }
+        // Unlike most of my repositories, this repository does not have an Update action because the only property of a
+        // Season is the Year, which is the primary key. Therefore, there is no way to edit a Season.
 
         /// <summary>
         /// Deletes a <see cref="Season"/> entity from the data store.
@@ -158,13 +143,13 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <summary>
         /// Checks to verify whether a specific <see cref="Season"/> entity exists in the data store.
         /// </summary>
-        /// <param name="id">The Id of the <see cref="Season"/> entity to verify.</param>
+        /// <param name="year">The Id of the <see cref="Season"/> entity to verify.</param>
         /// <returns>
         /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
         /// </returns>
-        public bool SeasonExists(int id)
+        public bool SeasonExists(int year)
         {
-            return GetSeasons()?.Any(s => s.Id == id) ?? false;
+            return GetSeasons()?.Any(s => s.Year == year) ?? false;
         }
 
         /// <summary>
@@ -174,9 +159,9 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// <returns>
         /// <c>true</c> if the entity with the given Id exists in the data store; otherwise, <c>false</c>.
         /// </returns>
-        public async Task<bool> SeasonExistsAsync(int id)
+        public async Task<bool> SeasonExistsAsync(int year)
         {
-            return (await GetSeasonsAsync())?.Any(s => s.Id == id) ?? false;
+            return (await GetSeasonsAsync())?.Any(s => s.Year == year) ?? false;
         }
     }
 }

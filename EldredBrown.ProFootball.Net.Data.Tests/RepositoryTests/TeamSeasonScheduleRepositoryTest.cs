@@ -20,7 +20,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             // Arrange
             var teamId = 1;
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             var expected = new List<TeamSeasonOpponentProfile>
             {
@@ -30,13 +30,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             _testRepository.ProfileToReturn = expected;
 
             // Act
-            var result = _testRepository.GetTeamSeasonScheduleProfile(teamId, seasonId);
+            var result = _testRepository.GetTeamSeasonScheduleProfile(teamId, seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
             _testRepository.CapturedTeamId.ShouldBe(teamId);
-            _testRepository.CapturedSeasonId.ShouldBe(seasonId);
+            _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             // Arrange
             var teamId = 1;
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             var expected = new List<TeamSeasonOpponentProfile>
             {
@@ -54,13 +54,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             _testRepository.ProfileToReturn = expected;
 
             // Act
-            var result = await _testRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonId);
+            var result = await _testRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
             _testRepository.CapturedTeamId.ShouldBe(teamId);
-            _testRepository.CapturedSeasonId.ShouldBe(seasonId);
+            _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
         }
 
         [Fact]
@@ -68,20 +68,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             // Arrange
             var teamId = 1;
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             var expected = new TeamSeasonScheduleTotals { };
 
             _testRepository.TotalsToReturn = expected;
 
             // Act
-            var result = _testRepository.GetTeamSeasonScheduleTotals(teamId, seasonId);
+            var result = _testRepository.GetTeamSeasonScheduleTotals(teamId, seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
             _testRepository.CapturedTeamId.ShouldBe(teamId);
-            _testRepository.CapturedSeasonId.ShouldBe(seasonId);
+            _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
         }
 
         [Fact]
@@ -89,20 +89,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             // Arrange
             var teamId = 1;
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             var expected = new TeamSeasonScheduleTotals { };
 
             _testRepository.TotalsToReturn = expected;
 
             // Act
-            var result = await _testRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonId);
+            var result = await _testRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
             _testRepository.CapturedTeamId.ShouldBe(teamId);
-            _testRepository.CapturedSeasonId.ShouldBe(seasonId);
+            _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
         }
 
         [Fact]
@@ -110,20 +110,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             // Arrange
             var teamId = 1;
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             var expected = new TeamSeasonScheduleAverages { };
 
             _testRepository.AveragesToReturn = expected;
 
             // Act
-            var result = _testRepository.GetTeamSeasonScheduleAverages(teamId, seasonId);
+            var result = _testRepository.GetTeamSeasonScheduleAverages(teamId, seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
             _testRepository.CapturedTeamId.ShouldBe(teamId);
-            _testRepository.CapturedSeasonId.ShouldBe(seasonId);
+            _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
         }
 
         [Fact]
@@ -131,20 +131,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             // Arrange
             var teamId = 1;
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             var expected = new TeamSeasonScheduleAverages { };
 
             _testRepository.AveragesToReturn = expected;
 
             // Act
-            var result = await _testRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonId);
+            var result = await _testRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
             _testRepository.CapturedTeamId.ShouldBe(teamId);
-            _testRepository.CapturedSeasonId.ShouldBe(seasonId);
+            _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             public TestableTeamSeasonScheduleRepository() : base(null!) { }
 
             public int? CapturedTeamId { get; private set; }
-            public int CapturedSeasonId { get; private set; }
+            public int CapturedSeasonYear { get; private set; }
 
             public IEnumerable<TeamSeasonOpponentProfile> ProfileToReturn { get; set; }
                 = new List<TeamSeasonOpponentProfile>();
@@ -167,49 +167,49 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
                 = new TeamSeasonScheduleAverages { };
 
             protected override IEnumerable<TeamSeasonOpponentProfile> ExecuteGetTeamSeasonScheduleProfile(int teamId,
-                int seasonId)
+                int seasonYear)
             {
                 CapturedTeamId = teamId;
-                CapturedSeasonId = seasonId;
+                CapturedSeasonYear = seasonYear;
                 return ProfileToReturn;
             }
 
             protected override async Task<IEnumerable<TeamSeasonOpponentProfile>> ExecuteGetTeamSeasonScheduleProfileAsync(
-                int teamId, int seasonId)
+                int teamId, int seasonYear)
             {
                 CapturedTeamId = teamId;
-                CapturedSeasonId = seasonId;
+                CapturedSeasonYear = seasonYear;
                 return await Task.FromResult(ProfileToReturn);
             }
 
-            protected override TeamSeasonScheduleTotals ExecuteGetTeamSeasonScheduleTotals(int teamId, int seasonId)
+            protected override TeamSeasonScheduleTotals ExecuteGetTeamSeasonScheduleTotals(int teamId, int seasonYear)
             {
                 CapturedTeamId = teamId;
-                CapturedSeasonId = seasonId;
+                CapturedSeasonYear = seasonYear;
                 return TotalsToReturn;
             }
 
             protected override async Task<TeamSeasonScheduleTotals> ExecuteGetTeamSeasonScheduleTotalsAsync(int teamId,
-                int seasonId)
+                int seasonYear)
             {
                 CapturedTeamId = teamId;
-                CapturedSeasonId = seasonId;
+                CapturedSeasonYear = seasonYear;
                 return await Task.FromResult(TotalsToReturn);
             }
 
             protected override TeamSeasonScheduleAverages ExecuteGetTeamSeasonScheduleAverages(int teamId,
-                int seasonId)
+                int seasonYear)
             {
                 CapturedTeamId = teamId;
-                CapturedSeasonId = seasonId;
+                CapturedSeasonYear = seasonYear;
                 return AveragesToReturn;
             }
 
             protected override async Task<TeamSeasonScheduleAverages> ExecuteGetTeamSeasonScheduleAveragesAsync(
-                int teamId, int seasonId)
+                int teamId, int seasonYear)
             {
                 CapturedTeamId = teamId;
-                CapturedSeasonId = seasonId;
+                CapturedSeasonYear = seasonYear;
                 return await Task.FromResult(AveragesToReturn);
             }
         }

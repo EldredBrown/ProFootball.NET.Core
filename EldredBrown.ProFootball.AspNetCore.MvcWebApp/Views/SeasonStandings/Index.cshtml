@@ -14,43 +14,49 @@
                 asp-for="SelectedSeasonYear" asp-items="Model.Seasons">
         </select>
     </div>
+    <div class="form-group">
+        <label class="col-form-label">League</label>
+        <select onchange="document.location.href=`/SeasonStandings/SetSelectedLeagueName?LeagueName=${this.options[this.selectedIndex].value}`;"
+                asp-for="SelectedLeagueName" asp-items="Model.Leagues">
+        </select>
+    </div>
 </form>
 
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>
-                <label>Team</label>
+                <label asp-for="SeasonStandings.SingleOrDefault().Team"></label>
             </th>
             <th class="text-right">
-                <label>W</label>
+                <label asp-for="SeasonStandings.SingleOrDefault().Wins"></label>
             </th>
             <th class="text-right">
-                <label>L</label>
+                <label asp-for="SeasonStandings.SingleOrDefault().Losses"></label>
             </th>
             <th class="text-right">
-                <label>T</label>
+                <label asp-for="SeasonStandings.SingleOrDefault().Ties"></label>
             </th>
             <th class="text-right">
-                <label>Pct</label>
+                <label asp-for="SeasonStandings.SingleOrDefault().WinningPercentage"></label>
             </th>
             <th class="text-right">
-                <label>PF</label>
+                <label asp-for="SeasonStandings.SingleOrDefault().PointsFor"></label>
             </th>
             <th class="text-right">
-                <label>PA</label>
+                <label asp-for="SeasonStandings.SingleOrDefault().PointsAgainst"></label>
             </th>
             <th class="text-right">
-                <label>AvgPF</label>
+                <label asp-for="SeasonStandings.SingleOrDefault().AvgPointsFor"></label>
             </th>
             <th class="text-right">
-                <label>AvgPA</label>
+                <label asp-for="SeasonStandings.SingleOrDefault().AvgPointsAgainst"></label>
             </th>
             <th class="text-right">
-                <label>ExpW</label>
+                <label asp-for="SeasonStandings.SingleOrDefault().ExpectedWins"></label>
             </th>
             <th class="text-right">
-                <label>ExpL</label>
+                <label asp-for="SeasonStandings.SingleOrDefault().ExpectedLosses"></label>
             </th>
         </tr>
     </thead>

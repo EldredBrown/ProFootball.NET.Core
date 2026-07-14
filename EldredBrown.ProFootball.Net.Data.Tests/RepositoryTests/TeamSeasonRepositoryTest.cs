@@ -229,10 +229,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
 
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             // Act
-            var result = testRepository.GetTeamSeasonsBySeason(seasonId);
+            var result = testRepository.GetTeamSeasonsBySeason(seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
@@ -240,7 +240,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             foreach (var item in result)
             {
                 item.ShouldBeOfType<TeamSeason>();
-                item.SeasonId.ShouldBe(seasonId);
+                item.SeasonYear.ShouldBe(seasonYear);
             }
         }
 
@@ -249,10 +249,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             // Act
-            var result = testRepository.GetTeamSeasonsBySeason(seasonId);
+            var result = testRepository.GetTeamSeasonsBySeason(seasonYear);
 
             // Assert
             result.ShouldBeNull();
@@ -263,10 +263,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             // Act
-            var result = testRepository.GetTeamSeasonsBySeason(seasonId);
+            var result = testRepository.GetTeamSeasonsBySeason(seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
@@ -278,10 +278,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
 
-            var seasonId = -1;
+            var seasonYear = -1;
 
             // Act
-            var result = testRepository.GetTeamSeasonsBySeason(seasonId);
+            var result = testRepository.GetTeamSeasonsBySeason(seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
@@ -293,10 +293,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
 
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             // Act
-            var result = await testRepository.GetTeamSeasonsBySeasonAsync(seasonId);
+            var result = await testRepository.GetTeamSeasonsBySeasonAsync(seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
@@ -304,7 +304,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             foreach (var item in result)
             {
                 item.ShouldBeOfType<TeamSeason>();
-                item.SeasonId.ShouldBe(seasonId);
+                item.SeasonYear.ShouldBe(seasonYear);
             }
         }
 
@@ -313,10 +313,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             var testRepository = CreateTestRepositoryWithNullDbSet();
 
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             // Act
-            var result = await testRepository.GetTeamSeasonsBySeasonAsync(seasonId);
+            var result = await testRepository.GetTeamSeasonsBySeasonAsync(seasonYear);
 
             // Assert
             result.ShouldBeNull();
@@ -327,10 +327,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             // Act
-            var result = await testRepository.GetTeamSeasonsBySeasonAsync(seasonId);
+            var result = await testRepository.GetTeamSeasonsBySeasonAsync(seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
@@ -342,10 +342,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
 
-            var seasonId = -1;
+            var seasonYear = -1;
 
             // Act
-            var result = await testRepository.GetTeamSeasonsBySeasonAsync(seasonId);
+            var result = await testRepository.GetTeamSeasonsBySeasonAsync(seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
@@ -474,16 +474,16 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
 
             var teamId = 1;
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             // Act
-            var result = testRepository.GetTeamSeasonByTeamAndSeason(teamId, seasonId);
+            var result = testRepository.GetTeamSeasonByTeamAndSeason(teamId, seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBeOfType<TeamSeason>();
             result.TeamId.ShouldBe(teamId);
-            result.SeasonId.ShouldBe(seasonId);
+            result.SeasonYear.ShouldBe(seasonYear);
         }
 
         [Fact]
@@ -492,10 +492,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var testRepository = CreateTestRepositoryWithNullDbSet();
 
             var teamId = 1;
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             // Act
-            var result = testRepository.GetTeamSeasonByTeamAndSeason(teamId, seasonId);
+            var result = testRepository.GetTeamSeasonByTeamAndSeason(teamId, seasonYear);
 
             // Assert
             result.ShouldBeNull();
@@ -507,10 +507,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
             var teamId = 1;
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             // Act
-            var result = testRepository.GetTeamSeasonByTeamAndSeason(teamId, seasonId);
+            var result = testRepository.GetTeamSeasonByTeamAndSeason(teamId, seasonYear);
 
             // Assert
             result.ShouldBeNull();
@@ -520,12 +520,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [InlineData(1, -1)]
         [InlineData(-1, 1)]
         [InlineData(-1, -1)]
-        public void GetTeamSeasonByTeamAndSeason_WhenTeamSeasonIsNotFound_ShouldReturnNull(int teamId, int seasonId)
+        public void GetTeamSeasonByTeamAndSeason_WhenTeamSeasonIsNotFound_ShouldReturnNull(int teamId, int seasonYear)
         {
             var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
 
             // Act
-            var result = testRepository.GetTeamSeasonByTeamAndSeason(teamId, seasonId);
+            var result = testRepository.GetTeamSeasonByTeamAndSeason(teamId, seasonYear);
 
             // Assert
             result.ShouldBeNull();
@@ -537,16 +537,16 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
 
             var teamId = 1;
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             // Act
-            var result = await testRepository.GetTeamSeasonByTeamAndSeasonAsync(teamId, seasonId);
+            var result = await testRepository.GetTeamSeasonByTeamAndSeasonAsync(teamId, seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBeOfType<TeamSeason>();
             result.TeamId.ShouldBe(teamId);
-            result.SeasonId.ShouldBe(seasonId);
+            result.SeasonYear.ShouldBe(seasonYear);
         }
 
         [Fact]
@@ -555,10 +555,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var testRepository = CreateTestRepositoryWithNullDbSet();
 
             var teamId = 1;
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             // Act
-            var result = await testRepository.GetTeamSeasonByTeamAndSeasonAsync(teamId, seasonId);
+            var result = await testRepository.GetTeamSeasonByTeamAndSeasonAsync(teamId, seasonYear);
 
             // Assert
             result.ShouldBeNull();
@@ -570,10 +570,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var testRepository = CreateTestRepositoryWithEmptyDbSet();
 
             var teamId = 1;
-            var seasonId = 1920;
+            var seasonYear = 1920;
 
             // Act
-            var result = await testRepository.GetTeamSeasonByTeamAndSeasonAsync(teamId, seasonId);
+            var result = await testRepository.GetTeamSeasonByTeamAndSeasonAsync(teamId, seasonYear);
 
             // Assert
             result.ShouldBeNull();
@@ -583,12 +583,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [InlineData(1, -1)]
         [InlineData(-1, 1)]
         [InlineData(-1, -1)]
-        public async Task GetTeamSeasonByTeamAndSeasonAsync_WhenTeamSeasonIsNotFound_ShouldReturnNull(int teamId, int seasonId)
+        public async Task GetTeamSeasonByTeamAndSeasonAsync_WhenTeamSeasonIsNotFound_ShouldReturnNull(int teamId, int seasonYear)
         {
             var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
 
             // Act
-            var result = await testRepository.GetTeamSeasonByTeamAndSeasonAsync(teamId, seasonId);
+            var result = await testRepository.GetTeamSeasonByTeamAndSeasonAsync(teamId, seasonYear);
 
             // Assert
             result.ShouldBeNull();
@@ -693,20 +693,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         {
             using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
 
-            var seasonId = 1920;
-            var firstSeason = new Season { Id = seasonId };
+            var seasonYear = 1920;
+            var firstSeason = new Season { Year = seasonYear };
             fakeDbContext.Seasons.Add(firstSeason);
             fakeDbContext.SaveChanges();
 
             var leagueId = 1;
-            var league = new League
+            var league = new Association
             {
                 Id = leagueId,
                 LongName = "League",
                 ShortName = "L",
-                FirstSeasonId = seasonId
+                FirstSeasonYear = seasonYear
             };
-            fakeDbContext.Leagues.Add(league);
+            fakeDbContext.Associations.Add(league);
             fakeDbContext.SaveChanges();
 
             var teamId = 1;
@@ -714,7 +714,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             fakeDbContext.Teams.Add(team);
             fakeDbContext.SaveChanges();
 
-            var teamSeason = new TeamSeason { Id = 1, TeamId = teamId, SeasonId = seasonId, LeagueId = leagueId };
+            var teamSeason = new TeamSeason { Id = 1, TeamId = teamId, SeasonYear = seasonYear, LeagueId = leagueId };
             fakeDbContext.TeamSeasons.Add(teamSeason);
             fakeDbContext.SaveChanges();
 
@@ -779,20 +779,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
 
-            var seasonId = 1920;
-            var firstSeason = new Season { Id = seasonId };
+            var seasonYear = 1920;
+            var firstSeason = new Season { Year = seasonYear };
             fakeDbContext.Seasons.Add(firstSeason);
             fakeDbContext.SaveChanges();
 
             var leagueId = 1;
-            var league = new League
+            var league = new Association
             {
                 Id = leagueId,
                 LongName = "League",
                 ShortName = "L",
-                FirstSeasonId = seasonId
+                FirstSeasonYear = seasonYear
             };
-            fakeDbContext.Leagues.Add(league);
+            fakeDbContext.Associations.Add(league);
             fakeDbContext.SaveChanges();
 
             var teamId = 1;
@@ -800,7 +800,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             fakeDbContext.Teams.Add(team);
             fakeDbContext.SaveChanges();
 
-            var teamSeason = new TeamSeason { Id = 1, TeamId = teamId, SeasonId = seasonId, LeagueId = leagueId };
+            var teamSeason = new TeamSeason { Id = 1, TeamId = teamId, SeasonYear = seasonYear, LeagueId = leagueId };
             fakeDbContext.TeamSeasons.Add(teamSeason);
             fakeDbContext.SaveChanges();
 
@@ -853,20 +853,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
 
-            var seasonId = 1920;
-            var firstSeason = new Season { Id = seasonId };
+            var seasonYear = 1920;
+            var firstSeason = new Season { Year = seasonYear };
             fakeDbContext.Seasons.Add(firstSeason);
             fakeDbContext.SaveChanges();
 
             var leagueId = 1;
-            var league = new League
+            var league = new Association
             {
                 Id = leagueId,
                 LongName = "League",
                 ShortName = "L",
-                FirstSeasonId = seasonId
+                FirstSeasonYear = seasonYear
             };
-            fakeDbContext.Leagues.Add(league);
+            fakeDbContext.Associations.Add(league);
             fakeDbContext.SaveChanges();
 
             var teamId = 1;
@@ -874,7 +874,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             fakeDbContext.Teams.Add(team);
             fakeDbContext.SaveChanges();
 
-            var teamSeason = new TeamSeason { Id = 1, TeamId = teamId, SeasonId = seasonId, LeagueId = leagueId };
+            var teamSeason = new TeamSeason { Id = 1, TeamId = teamId, SeasonYear = seasonYear, LeagueId = leagueId };
             fakeDbContext.TeamSeasons.Add(teamSeason);
             fakeDbContext.SaveChanges();
 
@@ -897,20 +897,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
 
-            var seasonId = 1920;
-            var firstSeason = new Season { Id = seasonId };
+            var seasonYear = 1920;
+            var firstSeason = new Season { Year = seasonYear };
             fakeDbContext.Seasons.Add(firstSeason);
             fakeDbContext.SaveChanges();
 
             var leagueId = 1;
-            var league = new League
+            var league = new Association
             {
                 Id = leagueId,
                 LongName = "League",
                 ShortName = "L",
-                FirstSeasonId = seasonId
+                FirstSeasonYear = seasonYear
             };
-            fakeDbContext.Leagues.Add(league);
+            fakeDbContext.Associations.Add(league);
             fakeDbContext.SaveChanges();
 
             var teamId = 1;
@@ -918,7 +918,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             fakeDbContext.Teams.Add(team);
             fakeDbContext.SaveChanges();
 
-            var teamSeason = new TeamSeason { Id = 1, TeamId = teamId, SeasonId = seasonId, LeagueId = leagueId };
+            var teamSeason = new TeamSeason { Id = 1, TeamId = teamId, SeasonYear = seasonYear, LeagueId = leagueId };
             fakeDbContext.TeamSeasons.Add(teamSeason);
             fakeDbContext.SaveChanges();
 
@@ -971,20 +971,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             // Arrange
             using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
 
-            var seasonId = 1920;
-            var firstSeason = new Season { Id = seasonId };
+            var seasonYear = 1920;
+            var firstSeason = new Season { Year = seasonYear };
             fakeDbContext.Seasons.Add(firstSeason);
             fakeDbContext.SaveChanges();
 
             var leagueId = 1;
-            var league = new League
+            var league = new Association
             {
                 Id = leagueId,
                 LongName = "League",
                 ShortName = "L",
-                FirstSeasonId = seasonId
+                FirstSeasonYear = seasonYear
             };
-            fakeDbContext.Leagues.Add(league);
+            fakeDbContext.Associations.Add(league);
             fakeDbContext.SaveChanges();
 
             var teamId = 1;
@@ -992,7 +992,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             fakeDbContext.Teams.Add(team);
             fakeDbContext.SaveChanges();
 
-            var teamSeason = new TeamSeason { Id = 1, TeamId = teamId, SeasonId = seasonId, LeagueId = leagueId };
+            var teamSeason = new TeamSeason { Id = 1, TeamId = teamId, SeasonYear = seasonYear, LeagueId = leagueId };
             fakeDbContext.TeamSeasons.Add(teamSeason);
             fakeDbContext.SaveChanges();
 
@@ -1140,15 +1140,15 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             fakeDbContext.TeamSeasons = A.Fake<DbSet<TeamSeason>>();
             var teamSeasons = new List<TeamSeason>
             {
-                new() { Id = 1, TeamId = 1, SeasonId = 1920, LeagueId = 1 },
-                new() { Id = 2, TeamId = 1, SeasonId = 1921, LeagueId = 1 },
-                new() { Id = 3, TeamId = 1, SeasonId = 1922, LeagueId = 1 },
-                new() { Id = 4, TeamId = 2, SeasonId = 1920, LeagueId = 1 },
-                new() { Id = 5, TeamId = 2, SeasonId = 1921, LeagueId = 1 },
-                new() { Id = 6, TeamId = 2, SeasonId = 1922, LeagueId = 1 },
-                new() { Id = 7, TeamId = 3, SeasonId = 1920, LeagueId = 1 },
-                new() { Id = 8, TeamId = 3, SeasonId = 1921, LeagueId = 1 },
-                new() { Id = 9, TeamId = 3, SeasonId = 1922, LeagueId = 1 },
+                new() { Id = 1, TeamId = 1, SeasonYear = 1920, LeagueId = 1 },
+                new() { Id = 2, TeamId = 1, SeasonYear = 1921, LeagueId = 1 },
+                new() { Id = 3, TeamId = 1, SeasonYear = 1922, LeagueId = 1 },
+                new() { Id = 4, TeamId = 2, SeasonYear = 1920, LeagueId = 1 },
+                new() { Id = 5, TeamId = 2, SeasonYear = 1921, LeagueId = 1 },
+                new() { Id = 6, TeamId = 2, SeasonYear = 1922, LeagueId = 1 },
+                new() { Id = 7, TeamId = 3, SeasonYear = 1920, LeagueId = 1 },
+                new() { Id = 8, TeamId = 3, SeasonYear = 1921, LeagueId = 1 },
+                new() { Id = 9, TeamId = 3, SeasonYear = 1922, LeagueId = 1 },
             };
             var fakeDbSet = teamSeasons.BuildMockDbSet();
             A.CallTo(() => fakeDbContext.TeamSeasons).Returns(fakeDbSet);

@@ -9,7 +9,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp
     {
         public ProFootballProfile()
         {
-            CreateMap<TeamSeason, LeagueModel>().ReverseMap();
+            CreateMap<TeamSeason, AssociationModel>().ReverseMap();
             CreateMap<Team, TeamModel>().ReverseMap();
             CreateMap<Season, SeasonModel>().ReverseMap();
             CreateMap<LeagueSeason, LeagueSeasonModel>().ReverseMap();

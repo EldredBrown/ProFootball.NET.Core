@@ -8,6 +8,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game
     {
         SelectList Seasons { get; set; }
         int? SelectedSeasonYear { get; set; }
+        SelectList Leagues { get; set; }
+        string SelectedLeagueName { get; set; }
         SelectList Weeks { get; set; }
         int? SelectedWeek { get; set; }
         IEnumerable<GameViewModel> Games { get; set; }

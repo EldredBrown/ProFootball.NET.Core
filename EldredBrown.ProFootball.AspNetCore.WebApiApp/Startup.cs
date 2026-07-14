@@ -41,10 +41,10 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp
                 options.UseSqlServer(Configuration.GetConnectionString("ProFootballDb"));
             });
 
-            services.AddScoped<ILeagueRepository, LeagueRepository>();
+            services.AddScoped<IAssociationRepository, AssociationRepository>();
             services.AddScoped<ITeamRepository, TeamRepository>();
             services.AddScoped<IGameRepository, GameRepository>();
-            services.AddScoped<ISeasonRepository, SeasonRepository>();
+            services.AddScoped<IAssociationRepository, SeasonRepository>();
             services.AddScoped<ILeagueSeasonRepository, LeagueSeasonRepository>();
             services.AddScoped<ITeamSeasonRepository, TeamSeasonRepository>();
             services.AddScoped<ITeamSeasonScheduleRepository, TeamSeasonScheduleRepository>();

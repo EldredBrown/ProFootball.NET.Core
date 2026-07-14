@@ -25,15 +25,16 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             };
             _testRepository.SeasonStandingsToReturn = expected;
 
-            var seasonId = 1920;
+            var seasonYear = 1920;
+            var leagueId = 1;
 
             // Act
-            var result = _testRepository.GetSeasonStandings(seasonId);
+            var result = _testRepository.GetSeasonStandings(seasonYear, leagueId);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
-            _testRepository.CapturedSeasonYear.ShouldBe(seasonId);
+            _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
         }
 
         [Fact]
@@ -46,15 +47,16 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             };
             _testRepository.SeasonStandingsToReturn = expected;
 
-            var seasonId = 1920;
+            var seasonYear = 1920;
+            var leagueId = 1;
 
             // Act
-            var result = await _testRepository.GetSeasonStandingsAsync(seasonId);
+            var result = await _testRepository.GetSeasonStandingsAsync(seasonYear, leagueId);
 
             // Assert
             result.ShouldNotBeNull();
             result.ShouldBe(expected);
-            _testRepository.CapturedSeasonYear.ShouldBe(seasonId);
+            _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
         }
 
         /// <summary>
@@ -71,15 +73,15 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             public IEnumerable<StandingsTeamSeason> SeasonStandingsToReturn { get; set; }
                 = new List<StandingsTeamSeason>();
 
-            protected override IEnumerable<StandingsTeamSeason>
-                ExecuteGetSeasonStandings(int seasonYear)
+            protected override IEnumerable<StandingsTeamSeason>?
+                ExecuteGetSeasonStandings(int seasonYear, int leagueId)
             {
                 CapturedSeasonYear = seasonYear;
                 return SeasonStandingsToReturn;
             }
 
-            protected override async Task<IEnumerable<StandingsTeamSeason>>
-                ExecuteGetSeasonStandingsAsync(int seasonYear)
+            protected override async Task<IEnumerable<StandingsTeamSeason>?>
+                ExecuteGetSeasonStandingsAsync(int seasonYear, int leagueId)
             {
                 CapturedSeasonYear = seasonYear;
                 return await Task.FromResult(SeasonStandingsToReturn);

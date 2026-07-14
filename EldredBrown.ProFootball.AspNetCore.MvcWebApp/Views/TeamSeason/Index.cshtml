@@ -23,52 +23,52 @@
     <thead>
         <tr>
             <th>
-                <label>Name</label>
+                <label asp-for="TeamSeasons.SingleOrDefault().TeamName"></label>
             </th>
             <th>
-                <label>W</label>
+                <label asp-for="TeamSeasons.SingleOrDefault().Wins"></label>
             </th>
             <th>
-                <label>L</label>
+                <label asp-for="TeamSeasons.SingleOrDefault().Losses"></label>
             </th>
             <th>
-                <label>T</label>
+                <label asp-for="TeamSeasons.SingleOrDefault().Ties"></label>
             </th>
             <th>
-                <label>Pct</label>
+                <label asp-for="TeamSeasons.SingleOrDefault().WinningPercentage"></label>
             </th>
             <th>
-                <label>PF</label>
+                <label asp-for="TeamSeasons.SingleOrDefault().PointsFor"></label>
             </th>
             <th>
-                <label>PA</label>
+                <label asp-for="TeamSeasons.SingleOrDefault().PointsAgainst"></label>
             </th>
             <th>
-                <label>ExpW</label>
+                <label asp-for="TeamSeasons.SingleOrDefault().ExpectedWins"></label>
             </th>
             <th>
-                <label>ExpL</label>
+                <label asp-for="TeamSeasons.SingleOrDefault().ExpectedLosses"></label>
             </th>
             <th>
-                <label>OA</label>
+                <label asp-for="TeamSeasons.SingleOrDefault().OffensiveAverage"></label>
             </th>
             <th>
-                <label>OF</label>
+                <label asp-for="TeamSeasons.SingleOrDefault().OffensiveFactor"></label>
             </th>
             <th>
-                <label>OI</label>
+                <label asp-for="TeamSeasons.SingleOrDefault().OffensiveIndex"></label>
             </th>
             <th>
-                <label>DA</label>
+                <label asp-for="TeamSeasons.SingleOrDefault().DefensiveAverage"></label>
             </th>
             <th>
-                <label>DF</label>
+                <label asp-for="TeamSeasons.SingleOrDefault().DefensiveFactor"></label>
             </th>
             <th>
-                <label>DI</label>
+                <label asp-for="TeamSeasons.SingleOrDefault().DefensiveIndex"></label>
             </th>
             <th>
-                <label>FinExpPct</label>
+                <label asp-for="TeamSeasons.SingleOrDefault().FinalExpectedWinningPercentage"></label>
             </th>
             <th></th>
         </tr>

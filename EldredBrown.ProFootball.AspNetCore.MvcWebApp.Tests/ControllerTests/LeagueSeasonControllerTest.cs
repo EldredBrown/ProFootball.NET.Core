@@ -87,9 +87,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            int? id = 0;
-
             // Act
+            int? id = 0;
             var result = await testController.Details(id);
 
             // Assert
@@ -112,13 +111,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
+
             var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            int? id = null;
-
             // Act
+            int? id = null;
             var result = await testController.Details(id);
 
             // Assert
@@ -143,9 +142,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            int? id = 0;
-
             // Act
+            int? id = 0;
             var result = await testController.Details(id);
 
             // Assert
@@ -162,6 +160,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
+
             var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
@@ -192,9 +191,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
-
             // Act
+            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Create(leagueSeasonViewModel);
 
             // Assert
@@ -207,7 +205,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForPrimaryKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
+        public async Task CreatePost_WhenDbUpdateExceptionCaughtForPrimaryKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
             var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
@@ -234,9 +232,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
-
             // Act
+            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Create(leagueSeasonViewModel);
 
             // Assert
@@ -255,36 +252,39 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForUniqueKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
+        public async Task CreatePost_WhenDbUpdateExceptionCaughtForUniqueKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
             var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
             var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
 
             var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            var leagueSeason = new LeagueSeason { Id = 4, LeagueId = 2, SeasonId = 1920 };
+            var leagueSeason = new LeagueSeason { Id = 4, LeagueId = 2, SeasonYear = 1920 };
             A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(A<LeagueSeasonViewModel>.Ignored))
                 .Returns(Task.FromResult(leagueSeason));
 
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var leagueSeasons = new List<LeagueSeason>
             {
-                new() { Id = 1, LeagueId = 1, SeasonId = 1920 },
-                new() { Id = 2, LeagueId = 2, SeasonId = 1920 },
-                new() { Id = 3, LeagueId = 3, SeasonId = 1920 },
+                new() { Id = 1, LeagueId = 1, SeasonYear = 1920 },
+                new() { Id = 2, LeagueId = 2, SeasonYear = 1920 },
+                new() { Id = 3, LeagueId = 3, SeasonYear = 1920 },
             };
             A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonsAsync()).Returns(leagueSeasons);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
+            var ex = new DbUpdateException(
+                message: "DbUpdateException",
+                innerException: new Exception("Violation of UNIQUE KEY constraint UQ_LeagueSeason_League_Season")
+            );
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
-
             // Act
+            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Create(leagueSeasonViewModel);
 
             // Assert
@@ -297,15 +297,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
             testController.ModelState[string.Empty].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. A LeagueSeason with the same league name and season year already exists.");
+                .ShouldBe("Unable to save changes. Violation of UNIQUE KEY constraint.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(leagueSeasonViewModel);
         }
 
         [Theory]
         [InlineData("FK_LeagueSeason_League_LeagueId", "LeagueId")]
-        [InlineData("FK_LeagueSeason_Season_SeasonId", "SeasonId")]
-        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForForeignKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView(
+        [InlineData("FK_LeagueSeason_Season_SeasonYear", "SeasonYear")]
+        public async Task CreatePost_WhenDbUpdateExceptionCaughtForForeignKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView(
             string foreignKeyConstraintName, string modelStateKey)
         {
             // Arrange
@@ -330,9 +330,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
-
             // Act
+            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Create(leagueSeasonViewModel);
 
             // Assert
@@ -351,7 +350,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForSomethingElse_ShouldHandleExceptionAndReturnSeasonCreateView()
+        public async Task CreatePost_WhenDbUpdateExceptionCaughtForSomethingElse_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
             var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
@@ -375,9 +374,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
-
             // Act
+            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Create(leagueSeasonViewModel);
 
             // Assert
@@ -410,10 +408,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             testController.ModelState.AddModelError("Name", "Please enter a long name.");
 
+            // Act
             var leagueSeason = new LeagueSeason { };
             var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
-
-            // Act
             var result = await testController.Create(leagueSeasonViewModel);
 
             // Assert
@@ -443,9 +440,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            int? id = 0;
-
             // Act
+            int? id = 0;
             var result = await testController.Edit(id);
 
             // Assert
@@ -466,13 +462,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
+
             var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            int? id = null;
-
             // Act
+            int? id = null;
             var result = await testController.Edit(id);
 
             // Assert
@@ -497,9 +493,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            int? id = 0;
-
             // Act
+            int? id = 0;
             var result = await testController.Edit(id);
 
             // Assert
@@ -508,7 +503,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task EditPost_WhenIdEqualsLeagueSeasonIdAndModelStateIsValidAndNoExceptionCaught_ShouldUpdateLeagueSeasonInDataStoreAndRedirectToIndexView()
+        public async Task EditPost_WhenIdEqualsLeagueSeasonYearAndModelStateIsValidAndNoExceptionCaught_ShouldUpdateLeagueSeasonInDataStoreAndRedirectToIndexView()
         {
             // Arrange
             var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
@@ -527,9 +522,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
-
             // Act
+            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Edit(id, leagueSeasonViewModel);
 
             // Assert
@@ -542,7 +536,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task EditPost_WhenIdDoesNotEqualLeagueSeasonId_ShouldReturnNotFound()
+        public async Task EditPost_WhenIdDoesNotEqualLeagueSeasonYear_ShouldReturnNotFound()
         {
             // Arrange
             var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
@@ -550,15 +544,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
+
             var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
+            // Act
             int id = 0;
             var leagueSeason = new LeagueSeason { Id = 1 };
             var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
-
-            // Act
             var result = await testController.Edit(id, leagueSeasonViewModel);
 
             // Assert
@@ -588,9 +582,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
-
             // Act
+            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Edit(id, leagueSeasonViewModel);
 
             // Assert
@@ -624,9 +617,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
-
             // Act
+            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var func = new Func<Task<IActionResult>>(async () => await testController.Edit(id, leagueSeasonViewModel));
 
             // Assert
@@ -634,7 +626,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForUniqueKeyViolation_ShouldHandleExceptionAndReturnViewForSeason()
+        public async Task EditPost_WhenDbUpdateExceptionCaughtForUniqueKeyViolation_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
             var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
@@ -642,29 +634,32 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             int id = 2;
-            var leagueSeason = new LeagueSeason { Id = id, LeagueId = 3, SeasonId = 1921 };
+            var leagueSeason = new LeagueSeason { Id = id, LeagueId = 3, SeasonYear = 1921 };
             A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(A<LeagueSeasonViewModel>.Ignored))
                 .Returns(Task.FromResult(leagueSeason));
 
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var leagueSeasons = new List<LeagueSeason>
             {
-                new() { Id = 1, LeagueId = 1, SeasonId = 1920 },
-                new() { Id = 2, LeagueId = 3, SeasonId = 1921 },
-                new() { Id = 3, LeagueId = 3, SeasonId = 1921 },
+                new() { Id = 1, LeagueId = 1, SeasonYear = 1920 },
+                new() { Id = 2, LeagueId = 3, SeasonYear = 1921 },
+                new() { Id = 3, LeagueId = 3, SeasonYear = 1921 },
             };
             A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonsAsync()).Returns(leagueSeasons);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
+            var ex = new DbUpdateException(
+                message: "DbUpdateException",
+                innerException: new Exception("Violation of UNIQUE KEY constraint UQ_LeagueSeason_League_Season")
+            );
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
-
             // Act
+            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Edit(id, leagueSeasonViewModel);
 
             // Assert
@@ -676,15 +671,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
             testController.ModelState[string.Empty].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. A LeagueSeason with the same league name and season year already exists.");
+                .ShouldBe("Unable to save changes. Violation of UNIQUE KEY constraint.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(leagueSeasonViewModel);
         }
 
         [Theory]
         [InlineData("FK_LeagueSeason_League_LeagueId", "LeagueId")]
-        [InlineData("FK_LeagueSeason_Season_SeasonId", "SeasonId")]
-        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForForeignKeyConflict_ShouldHandleExceptionAndReturnViewForSeason(
+        [InlineData("FK_LeagueSeason_Season_SeasonYear", "SeasonYear")]
+        public async Task EditPost_WhenDbUpdateExceptionCaughtForForeignKeyConflict_ShouldHandleExceptionAndReturnViewForSeason(
             string foreignKeyConstraintName, string modelStateKey)
         {
             // Arrange
@@ -710,9 +705,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
-
             // Act
+            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Edit(id, leagueSeasonViewModel);
 
             // Assert
@@ -730,7 +724,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task EditPost_WhenDbUpdateExceptionIsCaughtForSomethingElse_ShouldHandleExceptionAndReturnViewForSeason()
+        public async Task EditPost_WhenDbUpdateExceptionCaughtForSomethingElse_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
             var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
@@ -755,9 +749,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
-
             // Act
+            var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Edit(id, leagueSeasonViewModel);
 
             // Assert
@@ -783,6 +776,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var fakeSharedRepository = A.Fake<ISharedRepository>();
+
             var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
@@ -827,9 +821,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            int? id = 0;
-
             // Act
+            int? id = 0;
             var result = await testController.Delete(id);
 
             // Assert
@@ -856,9 +849,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            int? id = null;
-
             // Act
+            int? id = null;
             var result = await testController.Delete(id);
 
             // Assert
@@ -883,9 +875,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            int? id = 0;
-
             // Act
+            int? id = 0;
             var result = await testController.Delete(id);
 
             // Assert
@@ -906,9 +897,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
                 fakeSharedRepository);
 
-            int id = 1;
-
             // Act
+            int id = 1;
             var result = await testController.DeleteConfirmed(id);
 
             // Assert

@@ -24,7 +24,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task GetSeasons_WhenExceptionIsCaught_ShouldReturnInternalServerError()
         {
             // Arrange
-            var seasonRepository = A.Fake<ISeasonRepository>();
+            var seasonRepository = A.Fake<IAssociationRepository>();
             A.CallTo(() => seasonRepository.GetSeasonsAsync()).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
@@ -46,7 +46,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task GetSeasons_WhenNoExceptionIsCaught_ShouldGetSeasons()
         {
             // Arrange
-            var seasonRepository = A.Fake<ISeasonRepository>();
+            var seasonRepository = A.Fake<IAssociationRepository>();
             var seasons = new List<Season>();
             A.CallTo(() => seasonRepository.GetSeasonsAsync()).Returns(seasons);
 
@@ -70,7 +70,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task GetSeason_WhenExceptionIsCaught_ShouldReturnInternalServerError()
         {
             // Arrange
-            var seasonRepository = A.Fake<ISeasonRepository>();
+            var seasonRepository = A.Fake<IAssociationRepository>();
             Season? season = new();
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Throws<Exception>();
 
@@ -99,7 +99,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task GetSeason_WhenSeasonIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var seasonRepository = A.Fake<ISeasonRepository>();
+            var seasonRepository = A.Fake<IAssociationRepository>();
             Season? season = null;
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
 
@@ -123,7 +123,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task GetSeason_WhenSeasonIsNotNull_ShouldReturnSeasonModelOfDesiredSeason()
         {
             // Arrange
-            var seasonRepository = A.Fake<ISeasonRepository>();
+            var seasonRepository = A.Fake<IAssociationRepository>();
             Season? season = new();
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
 
@@ -152,7 +152,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task PutSeason_WhenExceptionIsCaught_ShouldReturnInternalServerError()
         {
             // Arrange
-            var seasonRepository = A.Fake<ISeasonRepository>();
+            var seasonRepository = A.Fake<IAssociationRepository>();
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
@@ -177,7 +177,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task PutSeason_WhenSeasonIsNotFound_ShouldReturnNotFoundResult()
         {
             // Arrange
-            var seasonRepository = A.Fake<ISeasonRepository>();
+            var seasonRepository = A.Fake<IAssociationRepository>();
             Season? season = null;
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
 
@@ -203,7 +203,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task PutSeason_WhenSeasonIsFoundAndSaved_ShouldReturnModelOfSeason()
         {
             // Arrange
-            var seasonRepository = A.Fake<ISeasonRepository>();
+            var seasonRepository = A.Fake<IAssociationRepository>();
             Season? season = new();
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
 
@@ -236,7 +236,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task PutSeason_WhenSeasonIsFoundAndNotSaved_ShouldReturnBadRequestResult()
         {
             // Arrange
-            var seasonRepository = A.Fake<ISeasonRepository>();
+            var seasonRepository = A.Fake<IAssociationRepository>();
             Season? season = new();
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
 
@@ -269,7 +269,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task DeleteSeason_WhenExceptionIsCaught_ShouldReturnInternalServerError()
         {
             // Arrange
-            var seasonRepository = A.Fake<ISeasonRepository>();
+            var seasonRepository = A.Fake<IAssociationRepository>();
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Throws<Exception>();
 
             var sharedRepository = A.Fake<ISharedRepository>();
@@ -293,7 +293,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task DeleteSeason_WhenSeasonIsNotFound_ShouldReturnNotFoundResult()
         {
             // Arrange
-            var seasonRepository = A.Fake<ISeasonRepository>();
+            var seasonRepository = A.Fake<IAssociationRepository>();
             Season? season = null;
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
 
@@ -318,7 +318,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task DeleteSeason_WhenSeasonIsFoundAndDeleted_ShouldReturnOk()
         {
             // Arrange
-            var seasonRepository = A.Fake<ISeasonRepository>();
+            var seasonRepository = A.Fake<IAssociationRepository>();
             Season? season = new();
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
 
@@ -345,7 +345,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task DeleteSeason_WhenSeasonIsFoundAndNotDeleted_ShouldReturnBadRequest()
         {
             // Arrange
-            var seasonRepository = A.Fake<ISeasonRepository>();
+            var seasonRepository = A.Fake<IAssociationRepository>();
             Season? season = new();
             A.CallTo(() => seasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
 

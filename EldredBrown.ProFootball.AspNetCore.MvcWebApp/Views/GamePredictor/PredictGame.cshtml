@@ -13,11 +13,11 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
-                <label class="col-form-label" asp-for="GuestSeasonId"></label>
-                <select onchange="document.location.href=`/GamePredictor/ApplyFilter?GuestSeasonId=${this.options[this.selectedIndex].value}`;"
-                        class="form-control" asp-for="GuestSeasonId" asp-items="ViewBag.GuestSeasons">
+                <label class="col-form-label" asp-for="GuestSeasonYear"></label>
+                <select onchange="document.location.href=`/GamePredictor/ApplyFilter?GuestSeasonYear=${this.options[this.selectedIndex].value}`;"
+                        class="form-control" asp-for="GuestSeasonYear" asp-items="ViewBag.GuestSeasons">
                 </select>
-                <span class="text-danger field-validation-error" asp-validation-for="GuestSeasonId"></span>
+                <span class="text-danger field-validation-error" asp-validation-for="GuestSeasonYear"></span>
             </div>
             <div class="form-group">
                 <label class="col-form-label" asp-for="GuestName"></label>
@@ -31,11 +31,11 @@
             </div>
 
             <div class="form-group">
-                <label class="col-form-label" asp-for="HostSeasonId"></label>
+                <label class="col-form-label" asp-for="HostSeasonYear"></label>
                 <select onchange="document.location.href=`/GamePredictor/ApplyFilter?HostSeasonId=${this.options[this.selectedIndex].value}`;"
-                        class="form-control" asp-for="HostSeasonId" asp-items="ViewBag.HostSeasons">
+                        class="form-control" asp-for="HostSeasonYear" asp-items="ViewBag.HostSeasons">
                 </select>
-                <span class="text-danger field-validation-error" asp-validation-for="HostSeasonId"></span>
+                <span class="text-danger field-validation-error" asp-validation-for="HostSeasonYear"></span>
             </div>
             <div class="form-group">
                 <label class="col-form-label" asp-for="HostName"></label>

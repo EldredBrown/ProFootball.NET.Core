@@ -16,7 +16,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
         public void MapLeagueSeasonToViewModel_ShouldSucceed()
         {
             // Arrange
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
+            var fakeLeagueRepository = A.Fake<IAssociationRepository>();
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var testMapper = new LeagueSeasonViewModelMapper(fakeLeagueRepository, fakeSeasonRepository);
 
@@ -24,7 +24,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
             {
                 Id = 1,
                 LeagueId = 1,
-                SeasonId = 1920
+                SeasonYear = 1
             };
 
             // Act
@@ -36,16 +36,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
             result.LeagueSeason.ShouldBe(leagueSeason);
         }
 
-        public static TheoryData<League, int> LeagueCases => new()
+        public static TheoryData<Association, int> LeagueCases => new()
         {
-            { new League { Id = 1, ShortName = "NFL" }, 1 },
+            { new Association { Id = 1, ShortName = "NFL" }, 1 },
             { null!, -1 },
         };
 
         [Theory]
         [MemberData(nameof(LeagueCases))]
         public async Task MapViewModelToLeagueSeason_ShouldSetLeagueSeasonLeagueIdToLeagueIdOrMinusOne(
-            League league, int expectedLeagueId)
+            Association league, int expectedLeagueId)
         {
             // Arrange
             var leagueName = "NFL";
@@ -54,8 +54,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
                 LeagueName = leagueName
             };
 
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
-            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(A<string>.Ignored)).Returns(league);
+            var fakeLeagueRepository = A.Fake<IAssociationRepository>();
+            A.CallTo(() => fakeLeagueRepository.GetAssociationByShortNameAsync(A<string>.Ignored)).Returns(league);
 
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
 
@@ -65,7 +65,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
             var result = await testMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel);
 
             // Assert
-            A.CallTo(() => fakeLeagueRepository.GetLeagueByShortNameAsync(leagueName)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeLeagueRepository.GetAssociationByShortNameAsync(leagueName)).MustHaveHappenedOnceExactly();
             leagueSeasonViewModel.LeagueSeason.LeagueId.ShouldBe(expectedLeagueId);
             result.ShouldNotBeNull();
             result.ShouldBeOfType<LeagueSeason>();
@@ -74,14 +74,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
 
         public static TheoryData<Season, int> SeasonCases => new()
         {
-            { new Season { Id = 1920 }, 1920 },
+            { new Season { Year = 1920 }, 1920 },
             { null!, -1 },
         };
 
         [Theory]
         [MemberData(nameof(SeasonCases))]
-        public async Task MapViewModelToLeagueSeason_ShouldSetLeagueSeasonSeasonIdToSeasonIdOrMinusOne(
-            Season season, int expectedSeasonId)
+        public async Task MapViewModelToLeagueSeason_ShouldSetLeagueSeasonSeasonYearToSeasonYearOrMinusOne(
+            Season season, int expectedSeasonYear)
         {
             // Arrange
             var seasonYear = 1920;
@@ -90,7 +90,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
                 SeasonYear = seasonYear
             };
 
-            var fakeLeagueRepository = A.Fake<ILeagueRepository>();
+            var fakeLeagueRepository = A.Fake<IAssociationRepository>();
 
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
@@ -102,7 +102,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
 
             // Assert
             A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(seasonYear)).MustHaveHappenedOnceExactly();
-            leagueSeasonViewModel.LeagueSeason.SeasonId.ShouldBe(expectedSeasonId);
+            leagueSeasonViewModel.LeagueSeason.SeasonYear.ShouldBe(expectedSeasonYear);
             result.ShouldNotBeNull();
             result.ShouldBeOfType<LeagueSeason>();
             result.ShouldBe(leagueSeasonViewModel.LeagueSeason);

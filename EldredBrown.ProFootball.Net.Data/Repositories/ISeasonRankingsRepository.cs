@@ -11,61 +11,61 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// Gets an enumerable collection (<see cref="IEnumerable{RankingsOffensiveTeamSeason}"/>) from the data store
         /// by season year.
         /// </summary>
-        /// <param name="seasonId">
+        /// <param name="seasonYear">
         /// The season year of the <see cref="RankingsOffensiveTeamSeason"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="IEnumerable{RankingsOffensiveTeamSeason}"/> collection.</returns>
-        IEnumerable<RankingsOffensiveTeamSeason> GetOffensiveRankingsForSeason(int seasonId);
+        IEnumerable<RankingsOffensiveTeamSeason> GetOffensiveRankings(int seasonYear, int leagueId);
 
         /// <summary>
         /// Gets an enumerable collection (<see cref="IEnumerable{RankingsOffensiveTeamSeason}"/>) from the data store
         /// by season year.
         /// </summary>
-        /// <param name="seasonId">
+        /// <param name="seasonYear">
         /// The season year of the <see cref="RankingsOffensiveTeamSeason"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="IEnumerable{RankingsOffensiveTeamSeason}"/> collection.</returns>
-        Task<IEnumerable<RankingsOffensiveTeamSeason>> GetOffensiveRankingsForSeasonAsync(int seasonId);
+        Task<IEnumerable<RankingsOffensiveTeamSeason>> GetOffensiveRankingsAsync(int seasonYear, int leagueId);
 
         /// <summary>
         /// Gets an enumerable collection (<see cref="IEnumerable{RankingsDefensiveTeamSeason}"/>) from the data store
         /// by season year.
         /// </summary>
-        /// <param name="seasonId">
+        /// <param name="seasonYear">
         /// The season year of the <see cref="RankingsDefensiveTeamSeason"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="IEnumerable{RankingsDefensiveTeamSeason}"/> collection.</returns>
-        IEnumerable<RankingsDefensiveTeamSeason> GetDefensiveRankingsForSeason(int seasonId);
+        IEnumerable<RankingsDefensiveTeamSeason> GetDefensiveRankings(int seasonYear, int leagueId);
 
         /// <summary>
         /// Gets an enumerable collection (<see cref="IEnumerable{RankingsDefensiveTeamSeason}"/>) from the data store
         /// by season year.
         /// </summary>
-        /// <param name="seasonId">
+        /// <param name="seasonYear">
         /// The season year of the <see cref="RankingsDefensiveTeamSeason"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="IEnumerable{RankingsDefensiveTeamSeason}"/> collection.</returns>
-        Task<IEnumerable<RankingsDefensiveTeamSeason>> GetDefensiveRankingsForSeasonAsync(int seasonId);
+        Task<IEnumerable<RankingsDefensiveTeamSeason>> GetDefensiveRankingsAsync(int seasonYear, int leagueId);
 
         /// <summary>
         /// Gets an enumerable collection (<see cref="IEnumerable{RankingsTotalTeamSeason}"/>) from the data store
         /// by season year.
         /// </summary>
-        /// <param name="seasonId">
+        /// <param name="seasonYear">
         /// The season year of the <see cref="RankingsTotalTeamSeason"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="IEnumerable{RankingsTotalTeamSeason}"/> collection.</returns>
-        IEnumerable<RankingsTotalTeamSeason> GetTotalRankingsForSeason(int seasonId);
+        IEnumerable<RankingsTotalTeamSeason> GetTotalRankings(int seasonYear, int leagueId);
 
         /// <summary>
         /// Gets an enumerable collection (<see cref="IEnumerable{RankingsTotalTeamSeason}"/>) from the data store
         /// by season year.
         /// </summary>
-        /// <param name="seasonId">
+        /// <param name="seasonYear">
         /// The season year of the <see cref="RankingsTotalTeamSeason"/> entity to fetch.
         /// </param>
         /// <returns>The fetched <see cref="IEnumerable{RankingsTotalTeamSeason}"/> collection.</returns>
-        Task<IEnumerable<RankingsTotalTeamSeason>> GetTotalRankingsForSeasonAsync(int seasonId);
+        Task<IEnumerable<RankingsTotalTeamSeason>> GetTotalRankingsAsync(int seasonYear, int leagueId);
 
         /// <summary>
         /// Gets a dictionary of data for the weekly rankings update 

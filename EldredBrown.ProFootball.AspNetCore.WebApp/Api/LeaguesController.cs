@@ -21,16 +21,16 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Api
 
         // GET: api/Leagues
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<League>>> GetLeagues()
+        public async Task<ActionResult<IEnumerable<Association>>> GetLeagues()
         {
-            return await _context.Leagues.ToListAsync();
+            return await _context.Associations.ToListAsync();
         }
 
         // GET: api/Leagues/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<League>> GetLeague(int id)
+        public async Task<ActionResult<Association>> GetLeague(int id)
         {
-            var league = await _context.Leagues.FindAsync(id);
+            var league = await _context.Associations.FindAsync(id);
 
             if (league is null)
             {
@@ -44,9 +44,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Api
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<League>> CreateLeague(League league)
+        public async Task<ActionResult<Association>> CreateLeague(Association league)
         {
-            _context.Leagues.Add(league);
+            _context.Associations.Add(league);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetLeague", new { id = league.Id }, league);
@@ -56,7 +56,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Api
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateLeague(int id, League league)
+        public async Task<IActionResult> UpdateLeague(int id, Association league)
         {
             if (id != league.Id)
             {
@@ -86,15 +86,15 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Api
 
         // DELETE: api/Leagues/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<League>> DeleteLeague(int id)
+        public async Task<ActionResult<Association>> DeleteLeague(int id)
         {
-            var league = await _context.Leagues.FindAsync(id);
+            var league = await _context.Associations.FindAsync(id);
             if (league is null)
             {
                 return NotFound();
             }
 
-            _context.Leagues.Remove(league);
+            _context.Associations.Remove(league);
             await _context.SaveChangesAsync();
 
             return league;
@@ -102,7 +102,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Api
 
         private bool LeagueExists(int id)
         {
-            return _context.Leagues.Any(e => e.Id == id);
+            return _context.Associations.Any(e => e.Id == id);
         }
     }
 }

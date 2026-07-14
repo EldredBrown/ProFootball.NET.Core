@@ -1,17 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game
 {
-    public class GameViewModel
+    public class GameViewModel()
     {
-        private int _seasonYear;
+        private string _leagueName = string.Empty;
 
-        public GameViewModel()
-        {
-            Game = new EldredBrown.ProFootball.Net.Data.Models.Game();
-        }
-
-        public EldredBrown.ProFootball.Net.Data.Models.Game Game { get; set; }
+        public EldredBrown.ProFootball.Net.Data.Models.Game Game { get; set; } = new EldredBrown.ProFootball.Net.Data.Models.Game();
 
         public int Id
         {
@@ -20,20 +16,33 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game
         }
 
         [Required]
+        [DisplayName("Season")]
         public int SeasonYear
         {
-            get
-            {
-                if (Game.SeasonIdNavigation is null)
-                {
-                    return _seasonYear;
-                }
-                return Game.SeasonIdNavigation.Id;
-            }
-            set { _seasonYear = value; }
+            get { return Game.SeasonYear; }
+            set { Game.SeasonYear = value; }
         }
 
         [Required]
+        [DisplayName("League")]
+        public string LeagueName
+        {
+            get
+            {
+                if (Game.LeagueIdNavigation is null)
+                {
+                    return _leagueName;
+                }
+                return Game.LeagueIdNavigation.ShortName;
+            }
+            set
+            {
+                _leagueName = value;
+            }
+        }
+
+        [Required]
+        [DisplayName("Week")]
         public int Week
         {
             get { return Game.Week; }
@@ -41,6 +50,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game
         }
 
         [Required]
+        [DisplayName("Guest")]
         public string GuestName
         {
             get { return Game.GuestName; }
@@ -48,6 +58,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game
         }
 
         [Required]
+        [DisplayName("Guest Score")]
         public int GuestScore
         {
             get { return Game.GuestScore; }
@@ -55,6 +66,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game
         }
 
         [Required]
+        [DisplayName("Host")]
         public string HostName
         {
             get { return Game.HostName; }
@@ -62,18 +74,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game
         }
 
         [Required]
+        [DisplayName("Host Score")]
         public int HostScore
         {
             get { return Game.HostScore; }
             set { Game.HostScore = value; }
         }
 
+        [DisplayName("Playoff?")]
         public bool IsPlayoff
         {
             get { return Game.IsPlayoff; }
             set { Game.IsPlayoff = value; }
         }
 
+        [DisplayName("Notes")]
         public string Notes
         {
             get { return Game.Notes; }

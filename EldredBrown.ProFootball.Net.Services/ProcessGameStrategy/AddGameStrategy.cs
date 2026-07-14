@@ -11,7 +11,7 @@ namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
     public class AddGameStrategy(
         ITeamRepository teamRepository,
         ITeamSeasonRepository teamSeasonRepository
-        ) : ProcessGameStrategyBase(teamRepository, teamSeasonRepository)
+    ) : ProcessGameStrategyBase(teamRepository, teamSeasonRepository)
     {
         protected override void UpdateGamesForTeamSeasons(TeamSeason? guestSeason, TeamSeason? hostSeason)
         {

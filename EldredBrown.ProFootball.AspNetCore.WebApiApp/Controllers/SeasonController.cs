@@ -27,7 +27,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class SeasonController(
-        ISeasonRepository seasonRepository, ISharedRepository sharedRepository, IMapper mapper,
+        IAssociationRepository seasonRepository, ISharedRepository sharedRepository, IMapper mapper,
         LinkGenerator linkGenerator
         ) : ControllerBase
     {

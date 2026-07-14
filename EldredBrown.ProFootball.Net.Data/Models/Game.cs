@@ -4,9 +4,36 @@ namespace EldredBrown.ProFootball.Net.Data.Models;
 
 public partial class Game
 {
+    /// <summary>
+    /// Creates a new instance of the <see cref="Game"/> class.
+    /// </summary>
+    /// <summary>
+    public Game() { }
+
+    /// <summary>
+    /// Creates a copy of another instance of the <see cref="Game"/> class.
+    /// </summary>
+    /// <param name="game">The <see cref="Game"/> entity to copy.<</param>
+    /// <summary>
+    public Game(Game game)
+    {
+        Id = game.Id;
+        SeasonYear = game.SeasonYear;
+        LeagueId = game.LeagueId;
+        Week = game.Week;
+        GuestName = game.GuestName;
+        GuestScore = game.GuestScore;
+        HostName = game.HostName;
+        HostScore = game.HostScore;
+        IsPlayoff = game.IsPlayoff;
+        Notes = game.Notes;
+    }
+
     public int Id { get; set; }
 
-    public int SeasonId { get; set; }
+    public int SeasonYear { get; set; }
+
+    public int? LeagueId { get; set; }
 
     public int Week { get; set; }
 
@@ -23,5 +50,8 @@ public partial class Game
     public string? Notes { get; set; }
 
     [ValidateNever]
-    public virtual Season SeasonIdNavigation { get; set; } = null!;
+    public virtual Season SeasonYearNavigation { get; set; } = null!;
+
+    [ValidateNever]
+    public virtual Association LeagueIdNavigation { get; set; } = null!;
 }

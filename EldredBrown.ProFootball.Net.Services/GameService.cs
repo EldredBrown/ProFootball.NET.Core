@@ -60,13 +60,8 @@ namespace EldredBrown.ProFootball.Net.Services
 
             //await ValidateTeamsInNewGameAsync(newGame);
 
-            var selectedGame = gameRepository.GetGame(newGame.Id);
-            if (selectedGame is null)
-            {
-                throw new EntityNotFoundException(
+            var selectedGame = gameRepository.GetGame(newGame.Id) ?? throw new EntityNotFoundException(
                     $"{GetType()}.{nameof(EditGame)}: The selected Game entity could not be found.");
-            }
-
             selectedGame.Edit(newGame);
 
             gameRepository.Update(selectedGame);
@@ -87,13 +82,8 @@ namespace EldredBrown.ProFootball.Net.Services
 
             //await ValidateTeamsInNewGameAsync(newGame);
 
-            var selectedGame = await gameRepository.GetGameAsync(newGame.Id);
-            if (selectedGame is null)
-            {
-                throw new EntityNotFoundException(
+            var selectedGame = await gameRepository.GetGameAsync(newGame.Id) ?? throw new EntityNotFoundException(
                     $"{GetType()}.{nameof(EditGameAsync)}: The selected Game entity could not be found.");
-            }
-
             selectedGame.Edit(newGame);
 
             gameRepository.Update(selectedGame);
@@ -108,13 +98,8 @@ namespace EldredBrown.ProFootball.Net.Services
         /// <param name="id">The Id of the <see cref="Game"/> entity to delete.</param>
         public void DeleteGame(int id)
         {
-            var oldGame = gameRepository.GetGame(id);
-            if (oldGame is null)
-            {
-                throw new EntityNotFoundException(
+            var oldGame = gameRepository.GetGame(id) ?? throw new EntityNotFoundException(
                     $"{GetType()}.{nameof(DeleteGame)}: A Game entity with Id={id} could not be found.");
-            }
-
             EditTeamSeasons(Direction.Down, oldGame);
 
             gameRepository.Delete(id);
@@ -126,13 +111,8 @@ namespace EldredBrown.ProFootball.Net.Services
         /// <param name="id">The Id of the <see cref="Game"/> entity to delete.</param>
         public async Task DeleteGameAsync(int id)
         {
-            var oldGame = await gameRepository.GetGameAsync(id);
-            if (oldGame is null)
-            {
-                throw new EntityNotFoundException(
+            var oldGame = await gameRepository.GetGameAsync(id) ?? throw new EntityNotFoundException(
                     $"{GetType()}.{nameof(DeleteGameAsync)}: A Game entity with Id={id} could not be found.");
-            }
-
             await EditTeamSeasonsAsync(Direction.Down, oldGame);
             await gameRepository.DeleteAsync(id);
         }

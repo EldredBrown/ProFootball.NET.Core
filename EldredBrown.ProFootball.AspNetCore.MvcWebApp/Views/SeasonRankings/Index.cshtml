@@ -17,7 +17,7 @@
     <div class="form-group">
         <label class="col-form-label">League</label>
         <select onchange="document.location.href=`/SeasonRankings/SetSelectedLeague?LeagueName=${this.options[this.selectedIndex].value}`;"
-                asp-for="SelectedLeague" asp-items="Model.Leagues">
+                asp-for="SelectedLeagueName" asp-items="Model.Leagues">
         </select>
     </div>
     <div class="form-group">

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace EldredBrown.ProFootball.Net.Data.Models
 {
@@ -10,54 +11,64 @@ namespace EldredBrown.ProFootball.Net.Data.Models
         /// <summary>
         /// Gets or sets the total games played by a team.
         /// </summary>
+        [DisplayName("G")]
         public int? Games { get; set; }
 
         /// <summary>
         /// Gets or sets the total points scored by a team.
         /// </summary>
+        [DisplayName("PF")]
         public int? PointsFor { get; set; }
 
         /// <summary>
         /// Gets or sets the total points scored against a team.
         /// </summary>
+        [DisplayName("PA")]
         public int? PointsAgainst { get; set; }
 
         /// <summary>
         /// Gets or sets the total wins by all opponents on a team's season schedule.
         /// </summary>
+        [DisplayName("SchW")]
         public int? ScheduleWins { get; set; }
 
         /// <summary>
         /// Gets or sets the total losses by all opponents on a team's season schedule.
         /// </summary>
+        [DisplayName("SchL")]
         public int? ScheduleLosses { get; set; }
 
         /// <summary>
         /// Gets or sets the total ties by all opponents on a team's season schedule.
         /// </summary>
+        [DisplayName("SchT")]
         public int? ScheduleTies { get; set; }
 
         /// <summary>
         /// Gets or sets the winning percentage by all opponents on a team's season schedule.
         /// </summary>
+        [DisplayName("SchW%")]
         [DisplayFormat(DataFormatString = "{0:#.000}")]
         public decimal? ScheduleWinningPercentage { get; set; }
 
         /// <summary>
         /// Gets or sets the weighted total of games by all opponents on a team's season schedule.
         /// </summary>
+        [DisplayName("SchG")]
         [DisplayFormat(DataFormatString = "{0:N2}")]
         public decimal? ScheduleGames { get; set; }
 
         /// <summary>
         /// Gets or sets the weighted total of points scored by all opponents on a team's season schedule.
         /// </summary>
+        [DisplayName("SchPF")]
         [DisplayFormat(DataFormatString = "{0:N2}")]
         public decimal? SchedulePointsFor { get; set; }
 
         /// <summary>
         /// Gets or sets the weighted total of points allowed by all opponents on a team's season schedule.
         /// </summary>
+        [DisplayName("SchPA")]
         [DisplayFormat(DataFormatString = "{0:N2}")]
         public decimal? SchedulePointsAgainst { get; set; }
     }

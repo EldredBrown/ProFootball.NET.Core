@@ -20,6 +20,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game
         public int? SelectedSeasonYear { get; set; }
 
         /// <summary>
+        /// Gets or sets the list that lets users select a league.
+        /// </summary>
+        public SelectList Leagues { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the selected league for the current view model.
+        /// </summary>
+        public string SelectedLeagueName { get; set; }
+
+        /// <summary>
         /// Gets or sets the list that lets users select a week.
         /// </summary>
         public SelectList Weeks { get; set; }

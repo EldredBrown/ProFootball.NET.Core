@@ -207,7 +207,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForPrimaryKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
+        public async Task CreatePost_WhenDbUpdateExceptionCaughtForPrimaryKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
             var fakeTeamSeasonIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
@@ -249,34 +249,38 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey("Id");
             testController.ModelState["Id"].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. A teamSeason with the same Id already exists.");
+                .ShouldBe("Unable to save changes. A TeamSeason with the same Id already exists.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(teamSeasonViewModel);
         }
 
         [Fact]
-        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForUniqueKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
+        public async Task CreatePost_WhenDbUpdateExceptionCaughtForUniqueKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
             var fakeTeamSeasonIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
             var fakeTeamSeasonDetailsViewModel = A.Fake<ITeamSeasonDetailsViewModel>();
 
             var fakeTeamSeasonViewModelMapper = A.Fake<ITeamSeasonViewModelMapper>();
-            var teamSeason = new TeamSeason { Id = 4, TeamId = 2, SeasonId = 1920 };
+            var teamSeason = new TeamSeason { Id = 4, TeamId = 2, SeasonYear = 1 };
             A.CallTo(() => fakeTeamSeasonViewModelMapper.MapViewModelToTeamSeason(A<TeamSeasonViewModel>.Ignored))
                 .Returns(Task.FromResult(teamSeason));
 
             var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var teamSeasons = new List<TeamSeason>
             {
-                new() { Id = 1, TeamId = 1, SeasonId = 1920 },
-                new() { Id = 2, TeamId = 2, SeasonId = 1920 },
-                new() { Id = 3, TeamId = 3, SeasonId = 1920 },
+                new() { Id = 1, TeamId = 1, SeasonYear = 1 },
+                new() { Id = 2, TeamId = 2, SeasonYear = 1 },
+                new() { Id = 3, TeamId = 3, SeasonYear = 1 },
             };
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsAsync()).Returns(teamSeasons);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
+            var ex = new DbUpdateException(
+                message: "DbUpdateException",
+                innerException: new Exception("Violation of UNIQUE KEY constraint UQ_TeamSeason_Team_Season")
+            );
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new TeamSeasonAdminController(fakeTeamSeasonIndexViewModel,
                 fakeTeamSeasonDetailsViewModel, fakeTeamSeasonViewModelMapper, fakeTeamSeasonRepository,
@@ -297,16 +301,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
             testController.ModelState[string.Empty].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. A teamSeason with the same team name and season year already exists.");
+                .ShouldBe("Unable to save changes. Violation of UNIQUE KEY constraint.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(teamSeasonViewModel);
         }
 
         [Theory]
-        [InlineData("FK_TeamSeason_League_LeagueId", "LeagueId")]
-        [InlineData("FK_TeamSeason_Season_SeasonId", "SeasonId")]
+        [InlineData("FK_TeamSeason_Association_AssociationId", "AssociationId")]
+        [InlineData("FK_TeamSeason_Season_SeasonYear", "SeasonYear")]
         [InlineData("FK_TeamSeason_Team_TeamId", "TeamId")]
-        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForForeignKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView(
+        public async Task CreatePost_WhenDbUpdateExceptionCaughtForForeignKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView(
             string foreignKeyConstraintName, string modelStateKey
         )
         {
@@ -353,7 +357,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForSomethingElse_ShouldHandleExceptionAndReturnSeasonCreateView()
+        public async Task CreatePost_WhenDbUpdateExceptionCaughtForSomethingElse_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
             var fakeTeamSeasonIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
@@ -510,7 +514,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task EditPost_WhenIdEqualsTeamSeasonIdAndModelStateIsValidAndNoExceptionCaught_ShouldUpdateTeamSeasonInDataStoreAndRedirectToIndexView()
+        public async Task EditPost_WhenIdEqualsTeamSeasonYearAndModelStateIsValidAndNoExceptionCaught_ShouldUpdateTeamSeasonInDataStoreAndRedirectToIndexView()
         {
             // Arrange
             var fakeTeamSeasonIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
@@ -544,7 +548,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task EditPost_WhenIdDoesNotEqualTeamSeasonId_ShouldReturnNotFound()
+        public async Task EditPost_WhenIdDoesNotEqualTeamSeasonYear_ShouldReturnNotFound()
         {
             // Arrange
             var fakeTeamSeasonIndexViewModel = A.Fake<ITeamSeasonIndexViewModel>();
@@ -644,21 +648,25 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             var fakeTeamSeasonViewModelMapper = A.Fake<ITeamSeasonViewModelMapper>();
             int id = 2;
-            var teamSeason = new TeamSeason { Id = id, TeamId = 3, SeasonId = 1921 };
+            var teamSeason = new TeamSeason { Id = id, TeamId = 3, SeasonYear = 2 };
             A.CallTo(() => fakeTeamSeasonViewModelMapper.MapViewModelToTeamSeason(A<TeamSeasonViewModel>.Ignored))
                 .Returns(Task.FromResult(teamSeason));
 
             var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
             var teamSeasons = new List<TeamSeason>
             {
-                new() { Id = 1, TeamId = 1, SeasonId = 1920 },
-                new() { Id = 2, TeamId = 3, SeasonId = 1921 },
-                new() { Id = 3, TeamId = 3, SeasonId = 1921 },
+                new() { Id = 1, TeamId = 1, SeasonYear = 1 },
+                new() { Id = 2, TeamId = 3, SeasonYear = 2 },
+                new() { Id = 3, TeamId = 3, SeasonYear = 2 },
             };
             A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsAsync()).Returns(teamSeasons);
 
             var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
+            var ex = new DbUpdateException(
+                message: "DbUpdateException",
+                innerException: new Exception("Violation of UNIQUE KEY constraint UQ_TeamSeason_Team_Season")
+            );
+            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
             var testController = new TeamSeasonAdminController(fakeTeamSeasonIndexViewModel,
                 fakeTeamSeasonDetailsViewModel, fakeTeamSeasonViewModelMapper, fakeTeamSeasonRepository,
@@ -678,14 +686,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
             testController.ModelState[string.Empty].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. A teamSeason with the same team name and season year already exists.");
+                .ShouldBe("Unable to save changes. Violation of UNIQUE KEY constraint.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(teamSeasonViewModel);
         }
 
         [Theory]
         [InlineData("FK_TeamSeason_League_LeagueId", "LeagueId")]
-        [InlineData("FK_TeamSeason_Season_SeasonId", "SeasonId")]
+        [InlineData("FK_TeamSeason_Season_SeasonYear", "SeasonYear")]
         [InlineData("FK_TeamSeason_Team_TeamId", "TeamId")]
         public async Task EditPost_WhenDbUpdateExceptionIsCaughtForForeignKeyConflict_ShouldHandleExceptionAndReturnViewForSeason(
             string foreignKeyConstraintName, string modelStateKey

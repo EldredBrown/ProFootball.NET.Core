@@ -39,7 +39,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         ITeamSeasonViewModelMapper teamSeasonViewModelMapper,
         ITeamSeasonRepository teamSeasonRepository,
         ISharedRepository sharedRepository
-        ) : Controller
+    ) : Controller
     {
         // GET: TeamSeasons
         /// <summary>
@@ -50,9 +50,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         public async Task<IActionResult> Index()
         {
             var teamSeasons = await teamSeasonRepository.GetTeamSeasonsAsync();
-            teamSeasonIndexViewModel.TeamSeasons = teamSeasons
-                .Select(ts => teamSeasonViewModelMapper.MapTeamSeasonToViewModel(ts))
-                .ToList();
+            teamSeasonIndexViewModel.TeamSeasons = 
+                [.. teamSeasons.Select(ts => teamSeasonViewModelMapper.MapTeamSeasonToViewModel(ts))];
 
             return View(teamSeasonIndexViewModel);
         }
@@ -103,7 +102,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TeamName,SeasonYear,LeagueName")] TeamSeasonViewModel teamSeasonViewModel)
+        public async Task<IActionResult> Create(
+            [Bind("TeamName,SeasonYear,AssociationName")] TeamSeasonViewModel teamSeasonViewModel
+        )
         {
             if (ModelState.IsValid)
             {
@@ -159,7 +160,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         /// <returns>The rendered <see cref="ActionResult"/> object.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,TeamName,SeasonYear,LeagueName")] TeamSeasonViewModel teamSeasonViewModel)
+        public async Task<IActionResult> Edit(
+            int id, [Bind("Id,TeamName,SeasonYear,AssociationName")] TeamSeasonViewModel teamSeasonViewModel
+        )
         {
             if (id != teamSeasonViewModel.Id)
             {
@@ -188,7 +191,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 }
                 catch (DbUpdateException ex)
                 {
-                    await HandleDbUpdateExceptionOnEdit(ex, teamSeason);
+                    await HandleDbUpdateExceptionOnEdit(ex);
                     return View(teamSeasonViewModel);
                 }
 
@@ -240,60 +243,42 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         private async Task HandleDbUpdateExceptionOnCreate(DbUpdateException ex, TeamSeason teamSeason)
         {
             var teamSeasons = await teamSeasonRepository.GetTeamSeasonsAsync();
-            var errMsgIntro = "Unable to save changes.";
 
             if (PrimaryKeyViolationExists(teamSeasons, teamSeason))
             {
-                ModelState.AddModelError("Id", $"{errMsgIntro} A teamSeason with the same Id already exists.");
-            }
-            else if (UniqueKeyViolationExistsOnCreate(teamSeasons, teamSeason))
-            {
-                ModelState.AddModelError(string.Empty, $"{errMsgIntro} A teamSeason with the same team name and season year already exists.");
-            }
-            else if (ForeignKeyUtils.ForeignKeyConstraintConflictExistsOnCreate(ex.InnerException.Message))
-            {
-                ForeignKeyUtils.AddModelErrorForForeignKeyConstraintConflict(errMsgIntro, ex.InnerException.Message,
-                    ModelState);
+                ModelState.AddModelError("Id", $"{DbVerificationUtils.ErrMsgIntro} A TeamSeason with the same Id already exists.");
             }
             else
             {
-                ModelState.AddModelError(string.Empty, $"{errMsgIntro} An unexpected error occurred.");
+                await HandleDbUpdateExceptionOnEdit(ex, DbVerificationUtils.SqlOperation.INSERT);
             }
         }
 
-        private bool PrimaryKeyViolationExists(IEnumerable<TeamSeason> teamSeasons, TeamSeason teamSeason)
+        private async Task HandleDbUpdateExceptionOnEdit(
+            DbUpdateException ex, DbVerificationUtils.SqlOperation? sqlOperation = null
+        )
+        {
+            sqlOperation ??= DbVerificationUtils.SqlOperation.UPDATE;
+
+            if (DbVerificationUtils.UniqueKeyConstraintExists(ex.InnerException.Message))
+            {
+                DbVerificationUtils.AddModelErrorForUniqueKeyConstraintConflict(ModelState);
+            }
+            else if (
+                DbVerificationUtils.ForeignKeyConstraintConflictExists(sqlOperation.ToString(), ex.InnerException.Message)
+            )
+            {
+                DbVerificationUtils.AddModelErrorForForeignKeyConstraintConflict(ModelState, ex.InnerException.Message);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, $"{DbVerificationUtils.ErrMsgIntro} An unexpected error occurred.");
+            }
+        }
+
+        private static bool PrimaryKeyViolationExists(IEnumerable<TeamSeason> teamSeasons, TeamSeason teamSeason)
         {
             return teamSeasons.Any(ts => ts.Id == teamSeason.Id);
-        }
-
-        private bool UniqueKeyViolationExistsOnCreate(IEnumerable<TeamSeason> teamSeasons, TeamSeason teamSeason)
-        {
-            return teamSeasons.Any(ts => ts.TeamId == teamSeason.TeamId && ts.SeasonId == teamSeason.SeasonId);
-        }
-
-        private async Task HandleDbUpdateExceptionOnEdit(DbUpdateException ex, TeamSeason teamSeason)
-        {
-            var teamSeasons = await teamSeasonRepository.GetTeamSeasonsAsync();
-            var errMsgIntro = "Unable to save changes.";
-
-            if (UniqueKeyViolationExistsOnEdit(teamSeasons, teamSeason))
-            {
-                ModelState.AddModelError(string.Empty, $"{errMsgIntro} A teamSeason with the same team name and season year already exists.");
-            }
-            else if (ForeignKeyUtils.ForeignKeyConstraintConflictExistsOnEdit(ex.InnerException.Message))
-            {
-                ForeignKeyUtils.AddModelErrorForForeignKeyConstraintConflict(errMsgIntro, ex.InnerException.Message,
-                    ModelState);
-            }
-            else
-            {
-                ModelState.AddModelError(string.Empty, $"{errMsgIntro} An unexpected error occurred.");
-            }
-        }
-
-        private bool UniqueKeyViolationExistsOnEdit(IEnumerable<TeamSeason> teamSeasons, TeamSeason teamSeason)
-        {
-            return teamSeasons.Count(ts => ts.TeamId == teamSeason.TeamId && ts.SeasonId == teamSeason.SeasonId) > 1;
         }
     }
 }

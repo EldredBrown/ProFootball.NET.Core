@@ -27,8 +27,8 @@ namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
         {
             Guard.ThrowIfNull(game, $"{GetType()}.{nameof(ProcessGame)}: {nameof(game)}");
 
-            var seasonId = game.SeasonId;
-            var teamSeasons = _teamSeasonRepository.GetTeamSeasonsBySeason(seasonId);
+            var seasonYear = game.SeasonYear;
+            var teamSeasons = _teamSeasonRepository.GetTeamSeasonsBySeason(seasonYear);
 
             // I am starting this app with the 1920 season, in which the inaugural APFA allowed member teams to play 
             // opponents from outside the association. Eventually, after the APFA became the NFL, the league would 
@@ -42,7 +42,7 @@ namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
             //if (guestSeason is null)
             //{
             //    throw new EntityNotFoundException(
-            //        $"No TeamSeason entity found for team '{game.GuestName}' and season year {seasonId}.");
+            //        $"No TeamSeason entity found for team '{game.GuestName}' and season year {seasonYear}.");
             //}
 
             var hostSeason = teamSeasons.FirstOrDefault(
@@ -50,7 +50,7 @@ namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
             //if (hostSeason is null)
             //{
             //    throw new EntityNotFoundException(
-            //        $"No TeamSeason entity found for team '{game.HostName}' and season year {seasonId}.");
+            //        $"No TeamSeason entity found for team '{game.HostName}' and season year {seasonYear}.");
             //}
 
             EditWinLossData(guestSeason, hostSeason, game);
@@ -69,8 +69,8 @@ namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
         {
             Guard.ThrowIfNull(game, $"{GetType()}.{nameof(ProcessGameAsync)}: {nameof(game)}");
 
-            var seasonId = game.SeasonId;
-            var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonId);
+            var seasonYear = game.SeasonYear;
+            var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear);
 
             // I am starting this app with the 1920 season, in which the inaugural APFA allowed member teams to play 
             // opponents from outside the association. Eventually, after the APFA became the NFL, the league would 
@@ -84,7 +84,7 @@ namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
             //if (guestSeason is null)
             //{
             //    throw new EntityNotFoundException(
-            //        $"No TeamSeason entity found for team '{game.GuestName}' and season year {seasonId}.");
+            //        $"No TeamSeason entity found for team '{game.GuestName}' and season year {seasonYear}.");
             //}
 
             var hostSeason = teamSeasons.FirstOrDefault(
@@ -92,7 +92,7 @@ namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
             //if (hostSeason is null)
             //{
             //    throw new EntityNotFoundException(
-            //        $"No TeamSeason entity found for team '{game.HostName}' and season year {seasonId}.");
+            //        $"No TeamSeason entity found for team '{game.HostName}' and season year {seasonYear}.");
             //}
 
             EditWinLossData(guestSeason, hostSeason, game);

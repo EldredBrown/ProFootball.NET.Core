@@ -1,0 +1,61 @@
+﻿@using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Association
+@model AssociationIndexViewModel
+
+@{
+    ViewData["Title"] = "Associations";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <label asp-for="Associations.SingleOrDefault().LongName"></label>
+            </th>
+            <th>
+                <label asp-for="Associations.SingleOrDefault().ShortName"></label>
+            </th>
+            <th>
+                <label asp-for="Associations.SingleOrDefault().ParentName"></label>
+            </th>
+            <th>
+                <label asp-for="Associations.SingleOrDefault().FirstSeasonYear"></label>
+            </th>
+            <th>
+                <label asp-for="Associations.SingleOrDefault().LastSeasonYear"></label>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var association in Model.Associations)
+{
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => association.LongName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => association.ShortName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => association.ParentName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => association.FirstSeasonYear)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => association.LastSeasonYear)
+            </td>
+            <td>
+                <a class="btn btn-primary btn-sm" asp-action="Details" asp-route-id="@association.Id">Details</a>
+                <a class="btn btn-primary btn-sm" asp-action="Edit" asp-route-id="@association.Id">Edit</a>
+                <a class="btn btn-primary btn-sm" asp-action="Delete" asp-route-id="@association.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

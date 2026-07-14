@@ -51,7 +51,7 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             // Act
             var game = new Game
             {
-                SeasonId = 1920,
+                SeasonYear = 1920,
                 GuestName = "Guest",
                 GuestScore = 0,
                 HostName = "Host",
@@ -60,7 +60,7 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             _testStrategy.ProcessGame(game);
 
             // Assert
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(game.SeasonId))
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(game.SeasonYear))
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeTeamRepository.GetTeam(1)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeTeamRepository.GetTeam(2)).MustHaveHappenedOnceExactly();
@@ -99,7 +99,7 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             _testStrategy.ProcessGame(game);
 
             // Assert
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(game.SeasonId))
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(game.SeasonYear))
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeTeamRepository.GetTeam(1)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeTeamRepository.GetTeam(2)).MustHaveHappenedOnceExactly();

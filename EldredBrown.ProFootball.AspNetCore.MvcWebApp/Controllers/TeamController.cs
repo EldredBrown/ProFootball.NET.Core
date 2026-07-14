@@ -35,7 +35,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         ITeamDetailsViewModel teamDetailsViewModel,
         ITeamRepository teamRepository,
         ISharedRepository sharedRepository
-        ) : Controller
+    ) : Controller
     {
         // GET: Teams
         /// <summary>
@@ -178,7 +178,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 }
                 catch (DbUpdateException ex)
                 {
-                    await HandleDbUpdateExceptionOnEdit(ex, team);
+                    await HandleDbUpdateExceptionOnEdit(ex);
                     return View(team);
                 }
 
@@ -226,53 +226,52 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        private void AddModelErrorForStringTooLong(DbUpdateException ex)
+        {
+            string columnName = DbVerificationUtils.GetColumnNameFromDbUpdateException(ex);
+            switch (columnName)
+            {
+                case "'name'":
+                    DbVerificationUtils.AddModelErrorForStringTooLong(ModelState, "Name");
+                    break;
+                default:
+                    break;
+            }
+        }
+
         private async Task HandleDbUpdateExceptionOnCreate(DbUpdateException ex, Team team)
         {
             var teams = await teamRepository.GetTeamsAsync();
-            var errMsgIntro = "Unable to save changes.";
 
             if (PrimaryKeyViolationExists(teams, team))
             {
-                ModelState.AddModelError("Id", $"{errMsgIntro} A team with the same Id already exists.");
-            }
-            else if (UniqueKeyViolationExistsOnCreate(teams, team))
-            {
-                ModelState.AddModelError("Name", $"{errMsgIntro} A team with the same name already exists.");
+                ModelState.AddModelError("Id", $"{DbVerificationUtils.ErrMsgIntro} A team with the same Id already exists.");
             }
             else
             {
-                ModelState.AddModelError(string.Empty, $"{errMsgIntro} An unexpected error occurred.");
+                await HandleDbUpdateExceptionOnEdit(ex);
             }
         }
 
-        private bool PrimaryKeyViolationExists(IEnumerable<Team> teams, Team team)
+        private async Task HandleDbUpdateExceptionOnEdit(DbUpdateException ex)
+        {
+            if (DbVerificationUtils.StringTooLong(ex))
+            {
+                AddModelErrorForStringTooLong(ex);
+            }
+            else if (DbVerificationUtils.UniqueKeyConstraintExists(ex.InnerException.Message))
+            {
+                DbVerificationUtils.AddModelErrorForUniqueKeyConstraintConflict(ModelState, ex.InnerException.Message);
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, $"{DbVerificationUtils.ErrMsgIntro} An unexpected error occurred.");
+            }
+        }
+
+        private static bool PrimaryKeyViolationExists(IEnumerable<Team> teams, Team team)
         {
             return teams.Any(t => t.Id == team.Id);
-        }
-
-        private bool UniqueKeyViolationExistsOnCreate(IEnumerable<Team> teams, Team team)
-        {
-            return teams.Any(t => t.Name == team.Name);
-        }
-
-        private async Task HandleDbUpdateExceptionOnEdit(DbUpdateException ex, Team team)
-        {
-            var teams = await teamRepository.GetTeamsAsync();
-            var errMsgIntro = "Unable to save changes.";
-
-            if (UniqueKeyViolationExistsOnEdit(teams, team))
-            {
-                ModelState.AddModelError("Name", $"{errMsgIntro} A team with the same name already exists.");
-            }
-            else
-            {
-                ModelState.AddModelError(string.Empty, $"{errMsgIntro} An unexpected error occurred.");
-            }
-        }
-
-        private bool UniqueKeyViolationExistsOnEdit(IEnumerable<Team> teams, Team team)
-        {
-            return teams.Count(t => t.Name == team.Name) > 1;
         }
     }
 }

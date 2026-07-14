@@ -23,14 +23,13 @@ namespace EldredBrown.ProFootball.Net.Services
     /// <param name="leagueSeasonTotalsRepository">The repository by which <see cref="LeagueSeasonTotals"/> data will be accessed.</param>
     /// <param name="sharedRepository">The repository by which shared data resources will be accessed.</param>
     public class WeeklyUpdateService(
-        ISeasonRepository seasonRepository,
         IGameRepository gameRepository,
         ILeagueSeasonRepository leagueSeasonRepository,
         ITeamSeasonRepository teamSeasonRepository,
         ILeagueSeasonTotalsRepository leagueSeasonTotalsRepository,
         ISeasonRankingsRepository seasonRankingsRepository,
         ISharedRepository sharedRepository
-        ) : IWeeklyUpdateService
+    ) : IWeeklyUpdateService
     {
         private const int _firstYear = 1920;
         private const int _minWeekCountForRankingsUpdate = 3;
@@ -40,49 +39,52 @@ namespace EldredBrown.ProFootball.Net.Services
         /// Runs a weekly update of the data store.
         /// <param name="seasonYear">The year of the season within which a weekly update will be run.</param>
         /// </summary>
-        public async Task RunWeeklyUpdate(int leagueId, int seasonId)
+        public async Task RunWeeklyUpdate(int leagueId, int seasonYear)
         {
-            if (seasonId < _firstYear)
+            if (seasonYear < _firstYear)
             {
-                throw new ArgumentOutOfRangeException(nameof(seasonId), $"seasonId must be a positive integer; got {seasonId}");
+                throw new ArgumentOutOfRangeException(nameof(seasonYear), $"seasonYear must be an integer greater than or equal to {_firstYear}; got {seasonYear}");
             }
 
-            await UpdateLeagueSeason(leagueId, seasonId);
-            var srcWeekCount = await UpdateWeekCount(seasonId);
-            await sharedRepository.SaveChangesAsync();
-
-            if (srcWeekCount < _minWeekCountForRankingsUpdate)
-            {
-                return;
-            }
-
-            await UpdateRankings(seasonId);
-        }
-
-        private async Task UpdateLeagueSeason(int leagueId, int seasonId)
-        {
-            var data = await GetLeagueSeasonData(leagueId, seasonId);
+            var data = await GetLeagueSeasonData(leagueId, seasonYear);
             if (data is null)
             {
                 return;
             }
 
-            var leagueSeason = data.LeagueSeason;
-            var leagueSeasonTotals = data.LeagueSeasonTotals;
-            UpdateLeagueSeasonGamesAndPoints(leagueSeason, leagueSeasonTotals.TotalGames.Value,
-                leagueSeasonTotals.TotalPoints.Value);
-            leagueSeasonRepository.Update(leagueSeason);
+            var srcWeekCount = await UpdateLeagueSeason(data);
+            if (srcWeekCount < _minWeekCountForRankingsUpdate)
+            {
+                return;
+            }
+
+            await UpdateRankings(seasonYear);
         }
 
-        private async Task<LeagueSeasonData?> GetLeagueSeasonData(int leagueId, int seasonId)
+        private async Task<int> UpdateLeagueSeason(LeagueSeasonData data)
         {
-            var leagueSeason = await leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueId, seasonId);
+            var leagueSeason = data.LeagueSeason;
+            var leagueSeasonTotals = data.LeagueSeasonTotals;
+
+            var weekCount = await UpdateWeekCount(leagueSeason);
+            UpdateLeagueSeasonGamesAndPoints(leagueSeason, leagueSeasonTotals.TotalGames.Value,
+                leagueSeasonTotals.TotalPoints.Value);
+
+            leagueSeasonRepository.Update(leagueSeason);
+            await sharedRepository.SaveChangesAsync();
+
+            return weekCount;
+        }
+
+        private async Task<LeagueSeasonData?> GetLeagueSeasonData(int leagueId, int seasonYear)
+        {
+            var leagueSeason = await leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueId, seasonYear);
             if (leagueSeason is null)
             {
                 return null;
             }
 
-            var leagueSeasonTotals = await leagueSeasonTotalsRepository.GetLeagueSeasonTotalsAsync(leagueId, seasonId);
+            var leagueSeasonTotals = await leagueSeasonTotalsRepository.GetLeagueSeasonTotalsAsync(leagueId, seasonYear);
             if (
                 leagueSeasonTotals is null
                 || leagueSeasonTotals.TotalGames is null
@@ -95,7 +97,7 @@ namespace EldredBrown.ProFootball.Net.Services
                 new LeagueSeasonData(leagueSeason: leagueSeason, leagueSeasonTotals: leagueSeasonTotals));
         }
 
-        private void UpdateLeagueSeasonGamesAndPoints(LeagueSeason leagueSeason, int totalGames, int totalPoints)
+        private static void UpdateLeagueSeasonGamesAndPoints(LeagueSeason leagueSeason, int totalGames, int totalPoints)
         {
             leagueSeason.TotalGames = totalGames;
             leagueSeason.TotalPoints = totalPoints;
@@ -104,22 +106,16 @@ namespace EldredBrown.ProFootball.Net.Services
                 : null;
         }
 
-        private async Task<int> UpdateWeekCount(int seasonId)
+        private async Task<int> UpdateWeekCount(LeagueSeason leagueSeason)
         {
-            var srcWeekCount = await gameRepository.GetMaxWeekForSeasonAsync(seasonId);
-
-            var destSeason = await seasonRepository.GetSeasonAsync(seasonId);
-            if (destSeason is not null)
-            {
-                destSeason.NumOfWeeksCompleted = srcWeekCount;
-                seasonRepository.Update(destSeason);
-            }
+            var srcWeekCount = await gameRepository.GetMaxWeekForSeasonAsync(leagueSeason.SeasonYear);
+            leagueSeason?.NumOfWeeksCompleted = srcWeekCount;
             return srcWeekCount;
         }
 
-        private async Task UpdateRankings(int seasonId)
+        private async Task UpdateRankings(int seasonYear)
         {
-            var teamSeasons = await teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonId);
+            var teamSeasons = await teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear);
             if (teamSeasons.IsNullOrEmpty())
             {
                 return;
@@ -186,7 +182,7 @@ namespace EldredBrown.ProFootball.Net.Services
             return new RankingsData(averages: averages, leagueSeason: leagueSeason);
         }
 
-        private TeamSeasonRankingsData GetTeamSeasonRankingsData(int points, int games,
+        private static TeamSeasonRankingsData GetTeamSeasonRankingsData(int points, int games,
             decimal teamSeasonScheduleAveragePoints, decimal leagueSeasonAveragePoints)
         {
             if (games == 0)
@@ -203,7 +199,7 @@ namespace EldredBrown.ProFootball.Net.Services
             return new TeamSeasonRankingsData(average, factor, index);
         }
 
-        private void CalculateFinalExpectedWinningPercentage(TeamSeason teamSeason)
+        private static void CalculateFinalExpectedWinningPercentage(TeamSeason teamSeason)
         {
             if (teamSeason.OffensiveIndex is null || teamSeason.DefensiveIndex is null)
             {
@@ -215,42 +211,23 @@ namespace EldredBrown.ProFootball.Net.Services
                 teamSeason.OffensiveIndex.Value, teamSeason.DefensiveIndex.Value);
         }
 
-        private class LeagueSeasonData
+        private class LeagueSeasonData(LeagueSeason leagueSeason, LeagueSeasonTotals leagueSeasonTotals)
         {
-            public LeagueSeasonData(LeagueSeason leagueSeason, LeagueSeasonTotals leagueSeasonTotals)
-            {
-                LeagueSeason = leagueSeason;
-                LeagueSeasonTotals = leagueSeasonTotals;
-            }
-
-            public LeagueSeason LeagueSeason { get; }
-            public LeagueSeasonTotals LeagueSeasonTotals { get; }
+            public LeagueSeason LeagueSeason { get; } = leagueSeason;
+            public LeagueSeasonTotals LeagueSeasonTotals { get; } = leagueSeasonTotals;
         }
 
-        private class RankingsData
+        private class RankingsData(Dictionary<string, object> averages, Dictionary<string, object> leagueSeason)
         {
-            public RankingsData(Dictionary<string, object> averages, Dictionary<string, object> leagueSeason)
-            {
-                Averages = averages;
-                LeagueSeason = leagueSeason;
-            }
-
-            public Dictionary<string, object> Averages { get; }
-            public Dictionary<string, object> LeagueSeason { get; }
+            public Dictionary<string, object> Averages { get; } = averages;
+            public Dictionary<string, object> LeagueSeason { get; } = leagueSeason;
         }
 
-        private class TeamSeasonRankingsData
+        private class TeamSeasonRankingsData(decimal? average, decimal? factor, decimal? index)
         {
-            public TeamSeasonRankingsData(decimal? average, decimal? factor, decimal? index)
-            {
-                Average = average;
-                Factor = factor;
-                Index = index;
-            }
-
-            public decimal? Average { get; set; }
-            public decimal? Factor { get; set; }
-            public decimal? Index { get; set; }
+            public decimal? Average { get; set; } = average;
+            public decimal? Factor { get; set; } = factor;
+            public decimal? Index { get; set; } = index;
         }
     }
 }

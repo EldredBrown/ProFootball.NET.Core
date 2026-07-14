@@ -10,6 +10,7 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
 			CreateFnGetTeamSeasonScheduleData(migrationBuilder);
             CreateFnGetTeamSeasonScheduleProfile(migrationBuilder);
             CreateFnGetTeamSeasonScheduleTotals(migrationBuilder);
+
             CreateSpGetLeagueSeasonTotals(migrationBuilder);
             CreateSpGetTeamSeasonScheduleProfile(migrationBuilder);
             CreateSpGetTeamSeasonScheduleTotals(migrationBuilder);
@@ -29,7 +30,7 @@ namespace EldredBrown.ProFootball.Net.Data.Migrations
             migrationBuilder.Sql("DROP PROCEDURE sp_GetTeamSeasonScheduleAverages");
             migrationBuilder.Sql("DROP PROCEDURE sp_GetTeamSeasonScheduleTotals");
             migrationBuilder.Sql("DROP PROCEDURE sp_GetTeamSeasonScheduleProfile");
-            migrationBuilder.Sql("DROP PROCEDURE sp_SpGetLeagueSeasonTotals");
+            migrationBuilder.Sql("DROP PROCEDURE sp_GetLeagueSeasonTotals");
 
             migrationBuilder.Sql("DROP FUNCTION fn_GetTeamSeasonScheduleTotals");
 			migrationBuilder.Sql("DROP FUNCTION fn_GetTeamSeasonScheduleProfile");
@@ -44,34 +45,38 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+USE ProFootballDb_Proposed
+GO
 CREATE FUNCTION dbo.fn_GetTeamSeasonGames
 (	
-	@team_name varchar(50),
-	@season_year int
+	-- Add the parameters for the function here
+	@team_name varchar(100),
+	@season_id int
 )
 RETURNS TABLE 
 AS
 RETURN 
 (
+	-- Add the SELECT statement with parameter references here
 	SELECT
 		game.id,
-		season_year AS season,
+		season_id AS season,
 		host_name AS opponent,
 		guest_score AS points_for,
 		host_score AS points_against
 	FROM
 		dbo.Game as game
-	WHERE guest_name = @team_name AND season_year = @season_year
+	WHERE guest_name = @team_name AND season_id = @season_id
 	UNION
 	SELECT
 		game.id,
-		season_year AS season,
+		season_id AS season,
 		guest_name AS opponent,
 		host_score AS points_for,
 		guest_score AS points_against
 	FROM
 		dbo.Game as game
-	WHERE host_name = @team_name AND season_year = @season_year
+	WHERE host_name = @team_name AND season_id = @season_id
 )
 GO");
 		}
@@ -83,10 +88,13 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+USE ProFootballDb_Proposed
+GO
 CREATE FUNCTION dbo.fn_GetTeamSeasonScheduleData 
 (	
-	@team_name varchar(50),
-	@season_year int
+	-- Add the parameters for the function here
+	@team_id int,
+	@season_id int
 )
 RETURNS @tbl TABLE
 (
@@ -102,7 +110,11 @@ RETURNS @tbl TABLE
 )
 AS
 BEGIN
+	-- Add the SELECT statement with parameter references here
 	BEGIN
+		DECLARE @team_name varchar(50)
+		SET @team_name = (SELECT name FROM dbo.Team WHERE id = @team_id)
+
 		INSERT @tbl
 
 		SELECT
@@ -120,10 +132,10 @@ BEGIN
 			(ts.points_for - tsg.points_against) AS weighted_points_for,
 			(ts.points_against - tsg.points_for) AS weighted_points_against
 		FROM dbo.TeamSeason AS ts
-			INNER JOIN dbo.fn_GetTeamSeasonGames(@team_name, @season_year) AS tsg
-				ON team_name = tsg.opponent
+			INNER JOIN dbo.fn_GetTeamSeasonGames(@team_name, @season_id) AS tsg
+				ON @team_name = tsg.opponent
 		WHERE
-			ts.season_year = @season_year
+			ts.season_id = @season_id
 	END
 
 	RETURN
@@ -138,10 +150,13 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+USE ProFootballDb_Proposed
+GO
 CREATE FUNCTION dbo.fn_GetTeamSeasonScheduleProfile 
 (	
-	@team_name varchar(50),
-	@season_year int
+	-- Add the parameters for the function here
+	@team_id int,
+	@season_id int
 )
 RETURNS @tbl TABLE
 (
@@ -159,6 +174,9 @@ RETURNS @tbl TABLE
 )
 AS
 BEGIN
+	DECLARE @team_name varchar(50)
+	SET @team_name = (SELECT name FROM dbo.Team WHERE id = @team_id)
+
 	-- Add the SELECT statement with parameter references here
 	INSERT @tbl
 
@@ -174,8 +192,8 @@ BEGIN
 		tssd.weighted_games,
 		tssd.weighted_points_for,
 		tssd.weighted_points_against
-	FROM dbo.fn_GetTeamSeasonGames(@team_name, @season_year) AS tsg
-		INNER JOIN dbo.fn_GetTeamSeasonScheduleData(@team_name, @season_year) AS tssd
+	FROM dbo.fn_GetTeamSeasonGames(@team_name, @season_id) AS tsg
+		INNER JOIN dbo.fn_GetTeamSeasonScheduleData(@team_id, @season_id) AS tssd
 			ON tsg.id = tssd.id
 
 	RETURN
@@ -190,10 +208,13 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+USE ProFootballDb_Proposed
+GO
 CREATE FUNCTION dbo.fn_GetTeamSeasonScheduleTotals
 (	
-	@team_name varchar(50),
-	@season_year int
+	-- Add the parameters for the function here
+	@team_id int,
+	@season_id int
 )
 RETURNS @tbl TABLE
 (
@@ -210,6 +231,7 @@ RETURNS @tbl TABLE
 )
 AS
 BEGIN
+	-- Add the SELECT statement with parameter references here
 	BEGIN
 		INSERT @tbl
 
@@ -232,8 +254,8 @@ BEGIN
 			SUM(tssd.weighted_games) AS schedule_games,
 			SUM(tssd.weighted_points_for) AS schedule_points_for,
 			SUM(tssd.weighted_points_against) AS schedule_points_against
-		FROM dbo.fn_GetTeamSeasonScheduleProfile(@team_name, @season_year) AS tssp
-			INNER JOIN dbo.fn_GetTeamSeasonScheduleData(@team_name, @season_year) AS tssd
+		FROM dbo.fn_GetTeamSeasonScheduleProfile(@team_id, @season_id) AS tssp
+			INNER JOIN dbo.fn_GetTeamSeasonScheduleData(@team_id, @season_id) AS tssd
 				ON tssp.opponent = tssd.opponent
 	END
 
@@ -249,11 +271,16 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+USE ProFootballDb_Proposed
+GO
 CREATE PROCEDURE dbo.sp_GetLeagueSeasonTotals
-	@league_name varchar(50),
-	@season_year int
+	-- Add the parameters for the stored procedure here
+	@league_id int,
+	@season_id int
 AS
 BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
 
 	SELECT
@@ -268,9 +295,9 @@ BEGIN
 	FROM
 		dbo.TeamSeason
 	WHERE
-		league_name = @league_name
+		association_id = @league_id
 		AND
-		season_year = @season_year
+		season_id = @season_id
 END
 GO");
         }
@@ -282,20 +309,29 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+USE ProFootballDb_Proposed
+GO
 CREATE PROCEDURE dbo.sp_GetTeamSeasonScheduleProfile
-	@team_name varchar(50),
-	@season_year int
+	-- Add the parameters for the stored procedure here
+	@team_id int,
+	@season_id int
 AS
 BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
 
+	-- Validate arguments.
 	IF EXISTS (
-		SELECT name FROM dbo.Team WHERE name = @team_name
+		-- Verify that @team_id is the name of a valid team.
+		SELECT id FROM dbo.Team WHERE id = @team_id
 	)
 	AND EXISTS (
-		SELECT year FROM dbo.Season WHERE year = @season_year
+		-- Verify that @season_id is the year of a valid season.
+		SELECT id FROM dbo.Season WHERE id = @season_id
 	)
 	BEGIN
+		-- Insert statements for procedure here
 		SELECT
 			opponent,
 			game_points_for,
@@ -307,7 +343,7 @@ BEGIN
 			opponent_weighted_games,
 			opponent_weighted_points_for,
 			opponent_weighted_points_against
-		FROM dbo.fn_GetTeamSeasonScheduleProfile(@team_name, @season_year)
+		FROM dbo.fn_GetTeamSeasonScheduleProfile(@team_id, @season_id)
 	END
 END
 GO");
@@ -320,20 +356,29 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+USE ProFootballDb_Proposed
+GO
 CREATE PROCEDURE dbo.sp_GetTeamSeasonScheduleTotals
-	@team_name varchar(50),
-	@season_year int
+	-- Add the parameters for the stored procedure here
+	@team_id int,
+	@season_id int
 AS
 BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
 
+	-- Validate arguments.
 	IF EXISTS (
-		SELECT name FROM dbo.Team WHERE name = @team_name
+		-- Verify that @team_id is the id of a valid team.
+		SELECT id FROM dbo.Team WHERE id = @team_id
 	)
 	AND EXISTS (
-		SELECT year FROM dbo.Season WHERE year = @season_year
+		-- Verify that @season_id is the id of a valid season.
+		SELECT id FROM dbo.Season WHERE id = @season_id
 	)
 	BEGIN
+		-- Insert statements for procedure here
 		SELECT
 			games,
 			points_for,
@@ -345,7 +390,7 @@ BEGIN
 			schedule_games,
 			schedule_points_for,
 			schedule_points_against
-		FROM dbo.fn_GetTeamSeasonScheduleTotals(@team_name, @season_year)
+		FROM dbo.fn_GetTeamSeasonScheduleTotals(@team_id, @season_id)
 
 	END
 END
@@ -359,20 +404,29 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+USE ProFootballDb_Proposed
+GO
 CREATE PROCEDURE dbo.sp_GetTeamSeasonScheduleAverages
-	@team_name varchar(50),
-	@season_year int
+	-- Add the parameters for the stored procedure here
+	@team_id int,
+	@season_id int
 AS
 BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
 
+	-- Validate arguments.
 	IF EXISTS (
-		SELECT name FROM dbo.Team WHERE name = @team_name
+		-- Verify that @team_id is the id of a valid team.
+		SELECT id FROM dbo.Team WHERE id = @team_id
 	)
 	AND EXISTS (
-		SELECT year FROM dbo.Season WHERE year = @season_year
+		-- Verify that @season_id is the id of a valid season.
+		SELECT id FROM dbo.Season WHERE id = @season_id
 	)
 	BEGIN
+		-- Insert statements for procedure here
 		SELECT
 			avg_points_for = 
 				CASE
@@ -395,7 +449,7 @@ BEGIN
 					ELSE CAST(schedule_points_against as decimal(18,0)) / CAST(schedule_games as decimal(18,0))
 				END
 		FROM
-			dbo.fn_GetTeamSeasonScheduleTotals(@team_name, @season_year)
+			dbo.fn_GetTeamSeasonScheduleTotals(@team_id, @season_id)
 
 	END
 END
@@ -409,24 +463,34 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+USE ProFootballDb_Proposed
+GO
 CREATE PROCEDURE dbo.sp_GetRankingsOffensive
-	@season_year int
+	-- Add the parameters for the stored procedure here
+	@season_id int
 AS
 BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
 
+	-- Insert statements for procedure here
 	SELECT
-		team_name AS team,
+		(SELECT name FROM dbo.Team WHERE id = ts.team_id) AS team_name,
 		wins,
 		losses,
 		ties,
 		offensive_average,
 		offensive_factor,
-		offensive_index
+		offensive_index,
+		defensive_average = null,
+		defensive_factor = null,
+		defensive_index = null,
+		final_expected_winning_percentage = null
 	FROM
 		dbo.TeamSeason AS ts
 	WHERE
-		season_year = @season_year
+		season_id = @season_id
 	ORDER BY
 		offensive_index DESC
 END
@@ -440,24 +504,34 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+USE ProFootballDb_Proposed
+GO
 CREATE PROCEDURE dbo.sp_GetRankingsDefensive
-	@season_year int
+	-- Add the parameters for the stored procedure here
+	@season_id int
 AS
 BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
 
+	-- Insert statements for procedure here
 	SELECT
-		team_name AS team,
+		(SELECT name FROM dbo.Team WHERE id = ts.team_id) AS team_name,
 		wins,
 		losses,
 		ties,
+		offensive_average = null,
+		offensive_factor = null,
+		offensive_index = null,
 		defensive_average,
 		defensive_factor,
-		defensive_index
+		defensive_index,
+		final_expected_winning_percentage = null
 	FROM
 		dbo.TeamSeason AS ts
 	WHERE
-		season_year = @season_year
+		season_id = @season_id
 	ORDER BY
 		defensive_index ASC
 END
@@ -471,14 +545,20 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+USE ProFootballDb_Proposed
+GO
 CREATE PROCEDURE dbo.sp_GetRankingsTotal
-	@season_year int
+	-- Add the parameters for the stored procedure here
+	@season_id int
 AS
 BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
 
+	-- Insert statements for procedure here
 	SELECT
-		team_name AS team,
+		(SELECT name FROM dbo.Team WHERE id = ts.team_id) AS team_name,
 		wins,
 		losses,
 		ties,
@@ -492,10 +572,9 @@ BEGIN
 	FROM
 		dbo.TeamSeason AS ts
 	WHERE
-		season_year = @season_year
+		season_id = @season_id
 	ORDER BY
 		final_expected_winning_percentage DESC
-
 END
 GO");
         }
@@ -507,24 +586,34 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE PROCEDURE [dbo].[sp_GetDataForRankingsUpdate]
-	@team_name varchar(50),
-	@league_name varchar(50),
-	@season_year int
+USE ProFootballDb_Proposed
+GO
+CREATE PROCEDURE dbo.sp_GetDataForRankingsUpdate
+	-- Add the parameters for the stored procedure here.
+	@team_id int,
+	@association_id int,
+	@season_id int
 AS
 BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
 
+	-- Validate arguments.
 	IF EXISTS (
-		SELECT name FROM dbo.Team WHERE name = @team_name
+		-- Verify that @team_id is the id of a valid team.
+		SELECT id FROM dbo.Team WHERE id = @team_id
 	)
 	AND EXISTS (
-		SELECT short_name FROM dbo.League WHERE short_name = @league_name
+		-- Verify that @association_id is the id of a valid association.
+		SELECT id FROM dbo.Association WHERE id = @association_id
 	)
 	AND EXISTS (
-		SELECT year FROM dbo.Season WHERE year = @season_year
+		-- Verify that @season_id is the id of a valid season.
+		SELECT id FROM dbo.Season WHERE id = @season_id
 	)
 	BEGIN
+		-- Insert statements for procedure here
 		SELECT
 			games,
 			points_for,
@@ -536,7 +625,7 @@ BEGIN
 			schedule_games,
 			schedule_points_for,
 			schedule_points_against
-		FROM dbo.fn_GetTeamSeasonScheduleTotals(@team_name, @season_year)
+		FROM dbo.fn_GetTeamSeasonScheduleTotals(@team_id, @season_id)
 
 		SELECT
 			avg_points_for = 
@@ -560,17 +649,17 @@ BEGIN
 					ELSE CAST(schedule_points_against as decimal(18,0)) / CAST(schedule_games as decimal(18,0))
 				END
 		FROM
-			dbo.fn_GetTeamSeasonScheduleTotals(@team_name, @season_year)
+			dbo.fn_GetTeamSeasonScheduleTotals(@team_id, @season_id)
 
 		SELECT
 			id,
-			league_name,
-			season_year,
+			league_id,
+			season_id,
 			total_games,
 			total_points,
 			average_points
 		FROM dbo.LeagueSeason
-		WHERE league_name = @league_name AND season_year = @season_year
+		WHERE league_id = @association_id AND season_id = @season_id
 
 	END
 END

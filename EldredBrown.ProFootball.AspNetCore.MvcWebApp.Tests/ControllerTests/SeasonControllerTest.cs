@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -44,7 +43,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task Details_WhenIdIsNotNullAndSeasonFound_ShouldReturnSeasonDetailsView()
+        public async Task Details_WhenYearIsNotNullAndSeasonFound_ShouldReturnSeasonDetailsView()
         {
             // Arrange
             var fakeSeasonIndexViewModel = A.Fake<ISeasonIndexViewModel>();
@@ -59,19 +58,19 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeSeasonRepository, fakeSharedRepository);
 
             // Act
-            int? id = 1920;
-            var result = await testController.Details(id);
+            int? year = 1920;
+            var result = await testController.Details(year);
 
             // Assert
             fakeSeasonDetailsViewModel.Title.ShouldBe<string>("Season");
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(year.Value)).MustHaveHappenedOnceExactly();
             fakeSeasonDetailsViewModel.Season.ShouldBe(season);
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(fakeSeasonDetailsViewModel);
         }
 
         [Fact]
-        public async Task Details_WhenIdIsNull_ShouldReturnNotFound()
+        public async Task Details_WhenYearIsNull_ShouldReturnNotFound()
         {
             // Arrange
             var fakeSeasonIndexViewModel = A.Fake<ISeasonIndexViewModel>();
@@ -82,8 +81,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeSeasonRepository, fakeSharedRepository);
 
             // Act
-            int? id = null;
-            var result = await testController.Details(id);
+            int? year = null;
+            var result = await testController.Details(year);
 
             // Assert
             result.ShouldBeOfType<NotFoundResult>();
@@ -105,12 +104,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeSeasonRepository, fakeSharedRepository);
 
             // Act
-            int? id = 1920;
-            var result = await testController.Details(id);
+            int? year = 1920;
+            var result = await testController.Details(year);
 
             // Assert
             fakeSeasonDetailsViewModel.Title.ShouldBe<string>("Season");
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(year.Value)).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -164,9 +163,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>
             {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
             };
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
@@ -177,7 +176,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeSeasonRepository, fakeSharedRepository);
 
             // Act
-            var season = new Season { Id = 1921 };
+            var season = new Season { Year = 1921 };
             var result = await testController.Create(season);
 
             // Assert
@@ -186,9 +185,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
-            testController.ModelState.ShouldContainKey("Id");
-            testController.ModelState["Id"].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. A season with the same id already exists.");
+            testController.ModelState.ShouldContainKey("Year");
+            testController.ModelState["Year"].Errors[0].ErrorMessage
+                .ShouldBe("Unable to save changes. A season with the same year already exists.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(season);
         }
@@ -203,9 +202,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>
             {
-                new() { Id = 1920 },
-                new() { Id = 1921 },
-                new() { Id = 1922 },
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
             };
             A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
 
@@ -216,7 +215,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeSeasonRepository, fakeSharedRepository);
 
             // Act
-            var season = new Season { Id = 1923 };
+            var season = new Season { Year = 1923 };
             var result = await testController.Create(season);
 
             // Assert
@@ -257,221 +256,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task EditGet_WhenIdIsNotNullAndSeasonFound_ShouldReturnSeasonEditView()
-        {
-            // Arrange
-            var fakeSeasonIndexViewModel = A.Fake<ISeasonIndexViewModel>();
-            var fakeSeasonDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
-
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = new Season();
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonController(fakeSeasonIndexViewModel, fakeSeasonDetailsViewModel,
-                fakeSeasonRepository, fakeSharedRepository);
-
-            // Act
-            int? id = 1920;
-            var result = await testController.Edit(id);
-
-            // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(id.Value)).MustHaveHappenedOnceExactly();
-            result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(season);
-        }
-
-        [Fact]
-        public async Task EditGet_WhenIdIsNull_ShouldReturnNotFound()
-        {
-            // Arrange
-            var fakeSeasonIndexViewModel = A.Fake<ISeasonIndexViewModel>();
-            var fakeSeasonDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonController(fakeSeasonIndexViewModel, fakeSeasonDetailsViewModel,
-                fakeSeasonRepository, fakeSharedRepository);
-
-            // Act
-            int? year = null;
-            var result = await testController.Edit(year);
-
-            // Assert
-            result.ShouldBeOfType<NotFoundResult>();
-        }
-
-        [Fact]
-        public async Task EditGet_WhenIdIsNotNullAndSeasonNotFound_ShouldReturnNotFound()
-        {
-            // Arrange
-            var fakeSeasonIndexViewModel = A.Fake<ISeasonIndexViewModel>();
-            var fakeSeasonDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
-
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = null;
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonController(fakeSeasonIndexViewModel, fakeSeasonDetailsViewModel,
-                fakeSeasonRepository, fakeSharedRepository);
-
-            // Act
-            int? id = 1920;
-            var result = await testController.Edit(id);
-
-            // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(id.Value)).MustHaveHappenedOnceExactly();
-            result.ShouldBeOfType<NotFoundResult>();
-        }
-
-        [Fact]
-        public async Task EditPost_WhenIdEqualsSeasonIdAndModelStateIsValidAndNoExceptionCaught_ShouldUpdateSeasonInDataStoreAndRedirectToIndexView()
-        {
-            // Arrange
-            var fakeSeasonIndexViewModel = A.Fake<ISeasonIndexViewModel>();
-            var fakeSeasonDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonController(fakeSeasonIndexViewModel, fakeSeasonDetailsViewModel,
-                fakeSeasonRepository, fakeSharedRepository);
-
-            // Act
-            int id = 1920;
-            var season = new Season { Id = id };
-            var result = await testController.Edit(id, season);
-
-            // Assert
-            A.CallTo(() => fakeSeasonRepository.Update(season)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            result.ShouldBeOfType<RedirectToActionResult>();
-            ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
-        }
-
-        [Fact]
-        public async Task EditPost_WhenIdDoesNotEqualSeasonYear_ShouldReturnNotFound()
-        {
-            // Arrange
-            var fakeSeasonIndexViewModel = A.Fake<ISeasonIndexViewModel>();
-            var fakeSeasonDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new SeasonController(fakeSeasonIndexViewModel, fakeSeasonDetailsViewModel,
-                fakeSeasonRepository, fakeSharedRepository);
-
-            // Act
-            int id = 1920;
-            var season = new Season { Id = 1921 };
-            var result = await testController.Edit(id, season);
-
-            // Assert
-            result.ShouldBeOfType<NotFoundResult>();
-        }
-
-        [Fact]
-        public async Task EditPost_WhenDbUpdateConcurrencyExceptionIsCaughtAndSeasonWithIdDoesNotExist_ShouldReturnNotFound()
-        {
-            // Arrange
-            var fakeSeasonIndexViewModel = A.Fake<ISeasonIndexViewModel>();
-            var fakeSeasonDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
-
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            A.CallTo(() => fakeSeasonRepository.SeasonExistsAsync(An<int>.Ignored)).Returns(false);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateConcurrencyException>();
-
-            var testController = new SeasonController(fakeSeasonIndexViewModel, fakeSeasonDetailsViewModel,
-                fakeSeasonRepository, fakeSharedRepository);
-
-            // Act
-            int id = 1921;
-            var season = new Season { Id = id };
-            var result = await testController.Edit(id, season);
-
-            // Assert
-            result.ShouldBeOfType<NotFoundResult>();
-        }
-
-        [Fact]
-        public async Task EditPost_WhenDbUpdateConcurrencyExceptionIsCaughtAndSeasonWithIdExists_ShouldRethrowException()
-        {
-            // Arrange
-            var fakeSeasonIndexViewModel = A.Fake<ISeasonIndexViewModel>();
-            var fakeSeasonDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
-
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            A.CallTo(() => fakeSeasonRepository.SeasonExistsAsync(An<int>.Ignored)).Returns(true);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateConcurrencyException>();
-
-            var testController = new SeasonController(fakeSeasonIndexViewModel, fakeSeasonDetailsViewModel,
-                fakeSeasonRepository, fakeSharedRepository);
-
-            // Act
-            int id = 1921;
-            var season = new Season { Id = id };
-            var func = new Func<Task<IActionResult>>(async () => await testController.Edit(id, season));
-
-            // Assert
-            await func.ShouldThrowAsync<DbUpdateConcurrencyException>();
-        }
-
-        [Fact]
-        public async Task EditPost_WhenDbUpdateExceptionIsCaught_ShouldAddModelErrorToModelStateAndReturnViewForSeason()
-        {
-            // Arrange
-            var fakeSeasonIndexViewModel = A.Fake<ISeasonIndexViewModel>();
-            var fakeSeasonDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
-
-            var testController = new SeasonController(fakeSeasonIndexViewModel, fakeSeasonDetailsViewModel,
-                fakeSeasonRepository, fakeSharedRepository);
-
-            // Act
-            int id = 1920;
-            var season = new Season { Id = id };
-            var result = await testController.Edit(id, season);
-
-            // Assert
-            testController.ModelState.IsValid.ShouldBeFalse();
-            testController.ModelState.ErrorCount.ShouldBe(1);
-            testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. An unexpected error occurred.");
-            result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(season);
-        }
-
-        [Fact]
-        public async Task EditPost_WhenModelStateIsNotValid_ShouldReturnSeasonEditView()
-        {
-            // Arrange
-            var fakeSeasonIndexViewModel = A.Fake<ISeasonIndexViewModel>();
-            var fakeSeasonDetailsViewModel = A.Fake<ISeasonDetailsViewModel>();
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new SeasonController(fakeSeasonIndexViewModel, fakeSeasonDetailsViewModel,
-                fakeSeasonRepository, fakeSharedRepository);
-            testController.ModelState.AddModelError("LongName", "Please enter a long name.");
-
-            // Act
-            int id = 1920;
-            var season = new Season { Id = id };
-            var result = await testController.Edit(id, season);
-
-            // Assert
-            A.CallTo(() => fakeSeasonRepository.Update(A<Season>.Ignored)).MustNotHaveHappened();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustNotHaveHappened();
-            result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(season);
-        }
-
-        [Fact]
         public async Task Delete_WhenIdIsNotNullAndSeasonFound_ShouldReturnSeasonDeleteView()
         {
             // Arrange
@@ -487,11 +271,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeSeasonRepository, fakeSharedRepository);
 
             // Act
-            int? id = 1920;
-            var result = await testController.Delete(id);
+            int? year = 1920;
+            var result = await testController.Delete(year);
 
             // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(year.Value)).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(season);
         }
@@ -508,8 +292,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeSeasonRepository, fakeSharedRepository);
 
             // Act
-            int? id = null;
-            var result = await testController.Delete(id);
+            int? year = null;
+            var result = await testController.Delete(year);
 
             // Assert
             result.ShouldBeOfType<NotFoundResult>();
@@ -531,11 +315,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeSeasonRepository, fakeSharedRepository);
 
             // Act
-            int? id = 1920;
-            var result = await testController.Delete(id);
+            int? year = 1920;
+            var result = await testController.Delete(year);
 
             // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(year.Value)).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -551,11 +335,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 fakeSeasonRepository, fakeSharedRepository);
 
             // Act
-            int id = 1920;
-            var result = await testController.DeleteConfirmed(id);
+            int year = 1920;
+            var result = await testController.DeleteConfirmed(year);
 
             // Assert
-            A.CallTo(() => fakeSeasonRepository.DeleteAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => fakeSeasonRepository.DeleteAsync(year)).MustHaveHappenedOnceExactly();
             A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));

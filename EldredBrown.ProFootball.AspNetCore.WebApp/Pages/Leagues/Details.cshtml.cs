@@ -8,14 +8,14 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Pages.Leagues
 {
     public class DetailsModel : PageModel
     {
-        private readonly ILeagueRepository _leagueRepository;
+        private readonly IAssociationRepository _associationRepository;
 
-        public DetailsModel(ILeagueRepository leagueRepository)
+        public DetailsModel(IAssociationRepository associationRepository)
         {
-            _leagueRepository = leagueRepository;
+            _associationRepository = associationRepository;
         }
 
-        public League League { get; set; }
+        public Association League { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -24,7 +24,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Pages.Leagues
                 return NotFound();
             }
 
-            League = await _leagueRepository.GetLeagueAsync(id.Value);
+            League = await _associationRepository.GetAssociationAsync(id.Value);
 
             if (League is null)
             {

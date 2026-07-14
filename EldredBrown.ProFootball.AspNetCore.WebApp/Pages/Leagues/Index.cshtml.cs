@@ -8,18 +8,18 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApp.Pages.Leagues
 {
     public class IndexModel : PageModel
     {
-        private readonly ILeagueRepository _leagueRepository;
+        private readonly IAssociationRepository _associationRepository;
 
-        public IndexModel(ILeagueRepository leagueRepository)
+        public IndexModel(IAssociationRepository associationRepository)
         {
-            _leagueRepository = leagueRepository;
+            _associationRepository = associationRepository;
         }
 
-        public IEnumerable<League> Leagues { get;set; }
+        public IEnumerable<Association> Leagues { get;set; }
 
         public async Task OnGetAsync()
         {
-            Leagues = await _leagueRepository.GetLeaguesAsync();
+            Leagues = await _associationRepository.GetAssociationsAsync();
         }
     }
 }

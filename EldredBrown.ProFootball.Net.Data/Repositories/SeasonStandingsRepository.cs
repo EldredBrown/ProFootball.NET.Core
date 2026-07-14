@@ -22,9 +22,9 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="seasonYear">The season year of the <see cref="StandingsTeamSeason"/> entity to fetch.</param>
         /// <returns>An <see cref="IEnumerable{SeasonStanding}"/> of all fetched entities.</returns>
-        public IEnumerable<StandingsTeamSeason>? GetSeasonStandings(int seasonYear)
+        public IEnumerable<StandingsTeamSeason>? GetSeasonStandings(int seasonYear, int leagueId)
         {
-            return ExecuteGetSeasonStandings(seasonYear);
+            return ExecuteGetSeasonStandings(seasonYear, leagueId);
         }
 
         /// <summary>
@@ -32,30 +32,32 @@ namespace EldredBrown.ProFootball.Net.Data.Repositories
         /// </summary>
         /// <param name="seasonYear">The season year of the <see cref="StandingsTeamSeason"/> entity to fetch.</param>
         /// <returns>An <see cref="IEnumerable{SeasonStanding}"/> of all fetched entities.</returns>
-        public async Task<IEnumerable<StandingsTeamSeason>?> GetSeasonStandingsAsync(int seasonYear)
+        public async Task<IEnumerable<StandingsTeamSeason>?> GetSeasonStandingsAsync(int seasonYear, int leagueId)
         {
-            return await ExecuteGetSeasonStandingsAsync(seasonYear);
+            return await ExecuteGetSeasonStandingsAsync(seasonYear, leagueId);
         }
 
-        protected virtual IEnumerable<StandingsTeamSeason>? ExecuteGetSeasonStandings(int seasonId)
+        protected virtual IEnumerable<StandingsTeamSeason>? ExecuteGetSeasonStandings(int seasonYear, int leagueId)
         {
             if (dbContext.SeasonStandings is null)
             {
                 return null;
             }
             return dbContext.SeasonStandings
-                .FromSqlInterpolated($"EXEC sp_GetSeasonStandings @season_id = {seasonId}")
+                .FromSqlInterpolated($"EXEC sp_GetSeasonStandings @season_year = {seasonYear}, @league_id = {leagueId}")
                 .ToList();
         }
 
-        protected virtual async Task<IEnumerable<StandingsTeamSeason>?> ExecuteGetSeasonStandingsAsync(int seasonId)
+        protected virtual async Task<IEnumerable<StandingsTeamSeason>?> ExecuteGetSeasonStandingsAsync(
+            int seasonYear, int leagueId
+        )
         {
             if (dbContext.SeasonStandings is null)
             {
                 return null;
             }
             return await dbContext.SeasonStandings
-                .FromSqlInterpolated($"EXEC sp_GetSeasonStandings @season_id = {seasonId}")
+                .FromSqlInterpolated($"EXEC sp_GetSeasonStandings @season_year = {seasonYear}, @league_id = {leagueId}")
                 .ToListAsync();
         }
     }

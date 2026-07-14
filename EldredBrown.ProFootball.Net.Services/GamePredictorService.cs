@@ -1,4 +1,5 @@
 ﻿using System;
+
 using EldredBrown.ProFootball.Net.Data.Models;
 
 namespace EldredBrown.ProFootball.Net.Services
@@ -28,7 +29,7 @@ namespace EldredBrown.ProFootball.Net.Services
             };
         }
 
-        private int? PredictScore(TeamSeason offensiveTeam, TeamSeason defensiveTeam)
+        private static int? PredictScore(TeamSeason offensiveTeam, TeamSeason defensiveTeam)
         {
             return (int?)Math.Round((offensiveTeam.OffensiveFactor.Value * defensiveTeam.DefensiveAverage.Value +
                 defensiveTeam.DefensiveFactor.Value * offensiveTeam.OffensiveAverage.Value) / 2m, 0);
