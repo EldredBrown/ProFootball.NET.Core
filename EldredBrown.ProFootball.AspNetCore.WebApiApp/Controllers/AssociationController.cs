@@ -29,7 +29,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
     public class AssociationController(
         IAssociationRepository associationRepository, ISharedRepository sharedRepository, IMapper mapper,
         LinkGenerator linkGenerator
-        ) : ControllerBase
+    ) : ControllerBase
     {
         // GET: api/Associations
         /// <summary>

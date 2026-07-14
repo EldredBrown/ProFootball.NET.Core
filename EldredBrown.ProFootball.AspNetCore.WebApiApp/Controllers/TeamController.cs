@@ -28,7 +28,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
     [ApiController]
     public class TeamController(
         ITeamRepository teamRepository, ISharedRepository sharedRepository, IMapper mapper, LinkGenerator linkGenerator
-        ) : ControllerBase
+    ) : ControllerBase
     {
         // GET: api/Teams
         /// <summary>

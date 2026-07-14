@@ -27,9 +27,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class SeasonController(
-        IAssociationRepository seasonRepository, ISharedRepository sharedRepository, IMapper mapper,
+        ISeasonRepository seasonRepository, ISharedRepository sharedRepository, IMapper mapper,
         LinkGenerator linkGenerator
-        ) : ControllerBase
+    ) : ControllerBase
     {
         // GET: api/Seasons
         /// <summary>
@@ -55,14 +55,14 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         /// <summary>
         /// Gets a single season from the data store by Id.
         /// </summary>
-        /// <param name="id">The Id of the season to fetch.</param>
+        /// <param name="year">The Id of the season to fetch.</param>
         /// <returns>A response representing the result of the operation.</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<SeasonModel>> GetSeason(int id)
+        public async Task<ActionResult<SeasonModel>> GetSeason(int year)
         {
             try
             {
-                var season = await seasonRepository.GetSeasonAsync(id);
+                var season = await seasonRepository.GetSeasonAsync(year);
                 if (season is null)
                 {
                     return NotFound();
@@ -89,10 +89,10 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var location = linkGenerator.GetPathByAction("GetSeason", "Seasons", new { id = -1 });
+                var location = linkGenerator.GetPathByAction("GetSeason", "Seasons", new { year = -1 });
                 if (string.IsNullOrWhiteSpace(location))
                 {
-                    return BadRequest("Could not use Id");
+                    return BadRequest("Could not use Year");
                 }
 
                 var season = mapper.Map<Season>(model);
@@ -118,18 +118,18 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         /// <summary>
         /// Puts (updates) changes to a season in the data store.
         /// </summary>
-        /// <param name="id">The Id of the season to update.</param>
+        /// <param name="year">The Id of the season to update.</param>
         /// <param name="model">A <see cref="SeasonModel"/> representing the season to update.</param>
         /// <returns>A response representing the result of the operation.</returns>
         [HttpPut("{id}")]
-        public async Task<ActionResult<SeasonModel>> PutSeason(int id, SeasonModel model)
+        public async Task<ActionResult<SeasonModel>> PutSeason(int year, SeasonModel model)
         {
             try
             {
-                var season = await seasonRepository.GetSeasonAsync(id);
+                var season = await seasonRepository.GetSeasonAsync(year);
                 if (season is null)
                 {
-                    return NotFound($"Could not find season with Id of {id}");
+                    return NotFound($"Could not find season with Year of {year}");
                 }
 
                 mapper.Map(model, season);
@@ -151,20 +151,20 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         /// <summary>
         /// Deletes a season from the data store.
         /// </summary>
-        /// <param name="id">The Id of the season to delete.</param>
+        /// <param name="year">The Id of the season to delete.</param>
         /// <returns>A response representing the result of the operation.</returns>
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Season>> DeleteSeason(int id)
+        public async Task<ActionResult<Season>> DeleteSeason(int year)
         {
             try
             {
-                var season = await seasonRepository.GetSeasonAsync(id);
+                var season = await seasonRepository.GetSeasonAsync(year);
                 if (season is null)
                 {
-                    return NotFound($"Could not find season with Id of {id}");
+                    return NotFound($"Could not find season with Year of {year}");
                 }
 
-                await seasonRepository.DeleteAsync(id);
+                await seasonRepository.DeleteAsync(year);
 
                 if (await sharedRepository.SaveChangesAsync() > 0)
                 {

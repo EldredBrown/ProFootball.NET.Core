@@ -29,7 +29,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
     public class TeamSeasonController(
         ITeamSeasonRepository teamSeasonRepository, ISharedRepository sharedRepository, IMapper mapper,
         LinkGenerator linkGenerator
-        ) : ControllerBase
+    ) : ControllerBase
     {
         // GET: api/TeamSeasons
         /// <summary>

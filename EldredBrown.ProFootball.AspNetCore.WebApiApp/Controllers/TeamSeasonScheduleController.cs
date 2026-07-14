@@ -26,22 +26,22 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
     [ApiController]
     public class TeamSeasonScheduleController(
         ITeamSeasonScheduleRepository teamSeasonScheduleRepository, IMapper mapper
-        ) : ControllerBase
+    ) : ControllerBase
     {
         /// <summary>
         /// Gets a collection of all team opponent profiles from the data store by team name and season year.
         /// </summary>
         /// <param name="teamId">The name of the team for which team season schedule profile data will be fetched.</param>
-        /// <param name="seasonId">The year of the season for which team season schedule profile data will be fetched.</param>
+        /// <param name="seasonYear">The year of the season for which team season schedule profile data will be fetched.</param>
         /// <returns>A response representing the result of the operation.</returns>
-        [HttpGet("profile/{teamId}/{seasonId}")]
+        [HttpGet("profile/{teamId}/{seasonYear}")]
         public async Task<ActionResult<TeamSeasonOpponentProfileModel[]>> GetTeamSeasonScheduleProfile(int teamId,
-            int seasonId)
+            int seasonYear)
         {
             try
             {
                 var teamSeasonScheduleProfile = 
-                    await teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonId);
+                    await teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonYear);
 
                 if (!teamSeasonScheduleProfile.Any())
                 {
@@ -60,16 +60,17 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         /// Gets a single team season schedule totals entity from the data store by team name and season year.
         /// </summary>
         /// <param name="teamId">The name of the team for which team season schedule totals data will be fetched.</param>
-        /// <param name="seasonId">The year of the season for which team season schedule totals data will be fetched.</param>
+        /// <param name="seasonYear">The year of the season for which team season schedule totals data will be fetched.</param>
         /// <returns>A response representing the result of the operation.</returns>
-        [HttpGet("totals/{teamId}/{seasonId}")]
-        public async Task<ActionResult<TeamSeasonScheduleTotalsModel>> GetTeamSeasonScheduleTotals(int teamId,
-            int seasonId)
+        [HttpGet("totals/{teamId}/{seasonYear}")]
+        public async Task<ActionResult<TeamSeasonScheduleTotalsModel>> GetTeamSeasonScheduleTotals(
+            int teamId, int seasonYear
+        )
         {
             try
             {
                 var teamSeasonScheduleTotals =
-                    await teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonId);
+                    await teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonYear);
 
                 return mapper.Map<TeamSeasonScheduleTotalsModel>(teamSeasonScheduleTotals);
             }
@@ -83,16 +84,17 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         /// Gets a single team season schedule averages entity from the data store by team name and season year.
         /// </summary>
         /// <param name="teamId">The name of the team for which team season schedule averages data will be fetched.</param>
-        /// <param name="seasonId">The year of the season for which team season schedule averages data will be fetched.</param>
+        /// <param name="seasonYear">The year of the season for which team season schedule averages data will be fetched.</param>
         /// <returns>A response representing the result of the operation.</returns>
-        [HttpGet("averages/{teamId}/{seasonId}")]
-        public async Task<ActionResult<TeamSeasonScheduleAveragesModel>> GetTeamSeasonScheduleAverages(int teamId,
-            int seasonId)
+        [HttpGet("averages/{teamId}/{seasonYear}")]
+        public async Task<ActionResult<TeamSeasonScheduleAveragesModel>> GetTeamSeasonScheduleAverages(
+            int teamId, int seasonYear
+        )
         {
             try
             {
                 var teamSeasonScheduleAverages =
-                    await teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonId);
+                    await teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonYear);
 
                 return mapper.Map<TeamSeasonScheduleAveragesModel>(teamSeasonScheduleAverages);
             }

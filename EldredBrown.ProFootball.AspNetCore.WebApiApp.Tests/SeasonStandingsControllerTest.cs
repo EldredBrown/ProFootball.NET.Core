@@ -20,17 +20,19 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task GetSeasonStandings_WhenExceptionIsCaught_ShouldReturnInternalServerError()
         {
             // Arrange
-            var seasonStandingsRepository = A.Fake<ISeasonStandingsRepository>();
-            A.CallTo(() => seasonStandingsRepository.GetSeasonStandingsAsync(An<int>.Ignored)).Throws<Exception>();
+            var fakeSeasonStandingsRepository = A.Fake<ISeasonStandingsRepository>();
+            A.CallTo(() => fakeSeasonStandingsRepository.GetSeasonStandingsAsync(An<int>.Ignored, An<int>.Ignored))
+                .Throws<Exception>();
 
             var mapper = A.Fake<IMapper>();
 
-            var testController = new SeasonStandingsController(seasonStandingsRepository, mapper);
+            var testController = new SeasonStandingsController(fakeSeasonStandingsRepository, mapper);
 
             int seasonYear = 1920;
+            int leagueId = 1;
 
             // Act
-            var result = await testController.GetSeasonStandings(seasonYear);
+            var result = await testController.GetSeasonStandings(seasonYear, leagueId);
 
             // Assert
             result.Result.ShouldBeOfType<ObjectResult>();
@@ -42,21 +44,23 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task GetSeasonStandings_WhenNoExceptionIsCaught_ShouldGetSeasonStandings()
         {
             // Arrange
-            var seasonStandingsRepository = A.Fake<ISeasonStandingsRepository>();
+            var fakeSeasonStandingsRepository = A.Fake<ISeasonStandingsRepository>();
             var seasonStandings = new List<StandingsTeamSeason>();
-            A.CallTo(() => seasonStandingsRepository.GetSeasonStandingsAsync(An<int>.Ignored)).Returns(seasonStandings);
+            A.CallTo(() => fakeSeasonStandingsRepository.GetSeasonStandingsAsync(An<int>.Ignored, An<int>.Ignored))
+                .Returns(seasonStandings);
 
             var mapper = A.Fake<IMapper>();
 
-            var testController = new SeasonStandingsController(seasonStandingsRepository, mapper);
+            var testController = new SeasonStandingsController(fakeSeasonStandingsRepository, mapper);
 
             int seasonYear = 1920;
+            int leagueId = 1;
 
             // Act
-            var result = await testController.GetSeasonStandings(seasonYear);
+            var result = await testController.GetSeasonStandings(seasonYear, leagueId);
 
             // Assert
-            A.CallTo(() => seasonStandingsRepository.GetSeasonStandingsAsync(seasonYear))
+            A.CallTo(() => fakeSeasonStandingsRepository.GetSeasonStandingsAsync(seasonYear, leagueId))
                 .MustHaveHappenedOnceExactly();
             A.CallTo(() => mapper.Map<StandingsTeamSeasonModel[]>(seasonStandings)).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<ActionResult<StandingsTeamSeasonModel[]>>();

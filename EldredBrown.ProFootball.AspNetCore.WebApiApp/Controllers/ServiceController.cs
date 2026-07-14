@@ -20,15 +20,15 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         /// <summary>
         /// Runs the Weekly Update service.
         /// </summary>
-        /// <param name="seasonId">The year for which the weekly update will be run.</param>
+        /// <param name="seasonYear">The year for which the weekly update will be run.</param>
         /// <returns>A response representing the result of the operation.</returns>
         [HttpPost]
-        [Route("RunWeeklyUpdate/{leagueId}/{seasonId}")]
-        public async Task<ActionResult> RunWeeklyUpdate(int leagueId, int seasonId)
+        [Route("RunWeeklyUpdate/{leagueId}/{seasonYear}")]
+        public async Task<ActionResult> RunWeeklyUpdate(int leagueId, int seasonYear)
         {
             try
             {
-                await weeklyUpdateService.RunWeeklyUpdate(leagueId, seasonId);
+                await weeklyUpdateService.RunWeeklyUpdate(leagueId, seasonYear);
 
                 return Ok();
             }

@@ -42,7 +42,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
     public class GameController(
         IGameRepository gameRepository, ISharedRepository sharedRepository, IMapper mapper,
         LinkGenerator linkGenerator, IGameService gameService
-        ) : ControllerBase
+    ) : ControllerBase
     {
         // GET: api/Games
         /// <summary>

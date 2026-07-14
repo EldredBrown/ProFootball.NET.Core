@@ -32,12 +32,12 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         /// </summary>
         /// <param name="seasonYear">The year of the season for which season standings data will be fetched.</param>
         /// <returns>A response representing the result of the operation.</returns>
-        [HttpGet("{seasonYear}")]
-        public async Task<ActionResult<StandingsTeamSeasonModel[]>> GetSeasonStandings(int seasonYear)
+        [HttpGet("{seasonYear}/{leagueId}")]
+        public async Task<ActionResult<StandingsTeamSeasonModel[]>> GetSeasonStandings(int seasonYear, int leagueId)
         {
             try
             {
-                var seasonStandings = await seasonStandingsRepository.GetSeasonStandingsAsync(seasonYear);
+                var seasonStandings = await seasonStandingsRepository.GetSeasonStandingsAsync(seasonYear, leagueId);
 
                 return mapper.Map<StandingsTeamSeasonModel[]>(seasonStandings);
             }
