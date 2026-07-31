@@ -35,6 +35,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         ISeasonStandingsRepository seasonStandingsRepository
     ) : Controller
     {
+        internal readonly ISeasonStandingsIndexViewModel _seasonStandingsIndexViewModel = seasonStandingsIndexViewModel;
+        internal readonly ISeasonRepository _seasonRepository = seasonRepository;
+        internal readonly IAssociationRepository _associationRepository = associationRepository;
+        internal readonly ISeasonStandingsRepository _seasonStandingsRepository = seasonStandingsRepository;
+
         private int? _selectedSeasonYear = null;
         private string _selectedLeagueName = null;
 
@@ -49,11 +54,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             await LoadSeasonsAndSelectedSeasonYearIntoIndexViewModel();
             await LoadLeaguesAndSelectedLeagueNameIntoIndexViewModel();
 
-            var selectedLeague = await associationRepository.GetAssociationByShortNameAsync(_selectedLeagueName);
-            seasonStandingsIndexViewModel.SeasonStandings =
-                await seasonStandingsRepository.GetSeasonStandingsAsync(_selectedSeasonYear.Value, selectedLeague.Id);
+            var selectedLeague = await _associationRepository.GetAssociationByShortNameAsync(_selectedLeagueName);
+            _seasonStandingsIndexViewModel.SeasonStandings =
+                await _seasonStandingsRepository.GetSeasonStandingsAsync(_selectedSeasonYear.Value, selectedLeague.Id);
 
-            return View(seasonStandingsIndexViewModel);
+            return View(_seasonStandingsIndexViewModel);
         }
 
         /// <summary>
@@ -109,7 +114,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task<IEnumerable<Association>> GetLeagues()
         {
-            return [.. (await associationRepository.GetAssociationsAsync())
+            return [.. (await _associationRepository.GetAssociationsAsync())
                 .Where(a => a.ParentId is null)
                 .Where(
                     l => l.FirstSeasonYearNavigation.Year <= _selectedSeasonYear
@@ -120,7 +125,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task<IEnumerable<Season>> GetSeasons()
         {
-            return [.. (await seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Year)];
+            return [.. (await _seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Year)];
         }
 
         private async Task LoadLeaguesAndSelectedLeagueNameIntoIndexViewModel()
@@ -132,8 +137,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             {
                 SetSelectedLeagueName(leagues.First().ShortName);
             }
-            seasonStandingsIndexViewModel.Leagues = new SelectList(leagues, "ShortName", "ShortName", _selectedLeagueName);
-            seasonStandingsIndexViewModel.SelectedLeagueName = _selectedLeagueName;
+            _seasonStandingsIndexViewModel.Leagues = new SelectList(leagues, "ShortName", "ShortName", _selectedLeagueName);
+            _seasonStandingsIndexViewModel.SelectedLeagueName = _selectedLeagueName;
         }
 
         private async Task LoadSeasonsAndSelectedSeasonYearIntoIndexViewModel()
@@ -145,8 +150,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             {
                 SetSelectedSeasonYear(seasons.First().Year);
             }
-            seasonStandingsIndexViewModel.Seasons = new SelectList(seasons, "Year", "Year", _selectedSeasonYear);
-            seasonStandingsIndexViewModel.SelectedSeasonYear = _selectedSeasonYear;
+            _seasonStandingsIndexViewModel.Seasons = new SelectList(seasons, "Year", "Year", _selectedSeasonYear);
+            _seasonStandingsIndexViewModel.SelectedSeasonYear = _selectedSeasonYear;
         }
     }
 }

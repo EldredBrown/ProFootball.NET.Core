@@ -21,28 +21,28 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     /// <remarks>
     /// Initializes a new instance of the <see cref="GamesController"/> class.
     /// </remarks>
-    /// <param name="gameIndexViewModel">
+    /// <param name="_gameIndexViewModel">
     /// The <see cref="IGameIndexViewModel"/> that will provide ViewModel data to the Index view.
     /// </param>
-    /// <param name="gameDetailsViewModel">
+    /// <param name="_gameDetailsViewModel">
     /// The <see cref="IGameDetailsViewModel"/> that will provide ViewModel data to the Details view.
     /// </param>
-    /// <param name="gameViewModelMapper">
+    /// <param name="_gameViewModelMapper">
     /// The <see cref="ITeamSeasonViewModelMapper"/> by which game data will be mapped to view models.
     /// </param>
-    /// <param name="gameService">
+    /// <param name="_gameService">
     /// The <see cref="IGameService"/> for processing Game data.
     /// </param>
-    /// <param name="gameRepository">
+    /// <param name="_gameRepository">
     /// The <see cref="IGameRepository"/> by which game data will be accessed.
     /// </param>
-    /// <param name="teamRepository">
+    /// <param name="_teamRepository">
     /// The <see cref="ITeamRepository"/> by which team data will be accessed.
     /// </param>
-    /// <param name="seasonRepository">
+    /// <param name="_seasonRepository">
     /// The <see cref="IAssociationRepository"/> by which season data will be accessed.
     /// </param>
-    /// <param name="sharedRepository">
+    /// <param name="_sharedRepository">
     /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
     /// </param>
     public class GameController(
@@ -58,6 +58,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         ISharedRepository sharedRepository
     ) : Controller
     {
+        internal readonly IGameIndexViewModel _gameIndexViewModel = gameIndexViewModel;
+        internal readonly IGameDetailsViewModel _gameDetailsViewModel = gameDetailsViewModel;
+        internal readonly IGameViewModelMapper _gameViewModelMapper = gameViewModelMapper;
+        internal readonly IGameService _gameService = gameService;
+        internal readonly ISeasonRepository _seasonRepository = seasonRepository;
+        internal readonly IAssociationRepository _associationRepository = associationRepository;
+        internal readonly ITeamRepository _teamRepository = teamRepository;
+        internal readonly IGameRepository _gameRepository = gameRepository;
+        internal readonly ILeagueSeasonRepository _leagueSeasonRepository = leagueSeasonRepository;
+        internal readonly ISharedRepository _sharedRepository = sharedRepository;
+
         private int? _selectedSeasonYear = null;
         private string _selectedLeagueName = string.Empty;
         private int? _selectedWeek = null;
@@ -72,9 +83,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         {
             await LoadSeasonsAndSelectedSeasonYearIntoIndexViewModel();
             await LoadLeaguesAndSelectedLeagueNameIntoIndexViewModel();
-            await LoadWeeksAndSelectedWeekIntoIndexViewModel(firstIndex: 0);
+            await LoadWeeksAndSelectedWeekIntoIndexViewModel();
             await SetIndexViewModelGames();
-            return View(gameIndexViewModel);
+            return View(_gameIndexViewModel);
         }
 
         // GET: Games/Details/5
@@ -91,14 +102,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var game = await gameRepository.GetGameAsync(id.Value);
+            var game = await _gameRepository.GetGameAsync(id.Value);
             if (game is null)
             {
                 return NotFound();
             }
 
-            gameDetailsViewModel.Game = gameViewModelMapper.MapGameToViewModel(game);
-            return View(gameDetailsViewModel);
+            _gameDetailsViewModel.Game = _gameViewModelMapper.MapGameToViewModel(game);
+            return View(_gameDetailsViewModel);
         }
 
         // GET: Games/Create
@@ -118,7 +129,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             await LoadWeeksIntoViewBag();
 
             // TODO: Uncomment this when the slate of teams is finalized.
-            //var teams = await _teamRepository.GetTeams();
+            //var teams = await __teamRepository.GetTeams();
             //ViewBag.GuestName = new SelectList(teams, "Name", "Name");
             //ViewBag.HostName = new SelectList(teams, "Name", "Name");
 
@@ -145,12 +156,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
             if (ModelState.IsValid)
             {
-                var game = await gameViewModelMapper.MapViewModelToGame(gameViewModel);
-                await gameService.AddGameAsync(game);
+                var game = await _gameViewModelMapper.MapViewModelToGame(gameViewModel);
+                await _gameService.AddGameAsync(game);
 
                 try
                 {
-                    await sharedRepository.SaveChangesAsync();
+                    await _sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateException ex)
                 {
@@ -180,13 +191,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var game = await gameRepository.GetGameAsync(id.Value);
+            var game = await _gameRepository.GetGameAsync(id.Value);
             if (game is null)
             {
                 return NotFound();
             }
 
-            var gameViewModel = gameViewModelMapper.MapGameToViewModel(game);
+            var gameViewModel = _gameViewModelMapper.MapGameToViewModel(game);
 
             _selectedSeasonYear = gameViewModel.SeasonYear;
             _selectedLeagueName = gameViewModel.LeagueName;
@@ -197,7 +208,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             await LoadWeeksIntoViewBag();
 
             // TODO: Uncomment this when the slate of teams is finalized.
-            //var teams = await _teamRepository.GetTeams();
+            //var teams = await __teamRepository.GetTeams();
             //ViewBag.GuestName = new SelectList(teams, "Name", "Name");
             //ViewBag.HostName = new SelectList(teams, "Name", "Name");
 
@@ -232,18 +243,18 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
             if (ModelState.IsValid)
             {
-                var game = await gameViewModelMapper.MapViewModelToGame(gameViewModel);
-                gameRepository.Update(game);
+                var game = await _gameViewModelMapper.MapViewModelToGame(gameViewModel);
+                _gameRepository.Update(game);
 
                 try
                 {
                     var oldGame = HttpContext.Session.GetObject<Game>("OldGame");
-                    await gameService.EditGameAsync(game, oldGame!);
-                    await sharedRepository.SaveChangesAsync();
+                    await _gameService.EditGameAsync(game, oldGame!);
+                    await _sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!(await gameRepository.GameExistsAsync(game.Id)))
+                    if (!(await _gameRepository.GameExistsAsync(game.Id)))
                     {
                         return NotFound();
                     }
@@ -279,13 +290,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var game = await gameRepository.GetGameAsync(id.Value);
+            var game = await _gameRepository.GetGameAsync(id.Value);
             if (game is null)
             {
                 return NotFound();
             }
 
-            var gameViewModel = gameViewModelMapper.MapGameToViewModel(game);
+            var gameViewModel = _gameViewModelMapper.MapGameToViewModel(game);
             return View(gameViewModel);
         }
 
@@ -299,8 +310,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await gameService.DeleteGameAsync(id);
-            await sharedRepository.SaveChangesAsync();
+            await _gameService.DeleteGameAsync(id);
+            await _sharedRepository.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
@@ -308,7 +319,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         private async Task SetIndexViewModelGames()
         {
             var games = await GetGames();
-            gameIndexViewModel.Games = [.. games.Select(g => gameViewModelMapper.MapGameToViewModel(g))];
+            _gameIndexViewModel.Games = [.. games.Select(g => _gameViewModelMapper.MapGameToViewModel(g))];
         }
 
         /// <summary>
@@ -387,38 +398,38 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task<IEnumerable<Game>> GetGames()
         {
-            var selectedLeague = await associationRepository.GetAssociationByShortNameAsync(_selectedLeagueName);
-            var games = await gameRepository.GetGamesBySeasonLeagueAndWeekAsync(_selectedSeasonYear.Value, 
-                selectedLeague?.Id, _selectedWeek);
-            return [.. games];
+            var selectedLeague = await _associationRepository.GetAssociationByShortNameAsync(_selectedLeagueName);
+            var games = (await _gameRepository.GetGamesBySeasonLeagueAndWeekAsync(_selectedSeasonYear.Value, 
+                selectedLeague?.Id, _selectedWeek)).ToList();
+            return games;
         }
 
         private async Task<IEnumerable<Association>> GetLeagues()
         {
-            return [.. (await associationRepository.GetAssociationsAsync())
+            return [.. (await _associationRepository.GetAssociationsAsync())
                 .Where(a => a.ParentId is null)
                 .Where(
                     l => l.FirstSeasonYearNavigation.Year <= _selectedSeasonYear
                     && (l.LastSeasonYearNavigation is null || _selectedSeasonYear <= l.LastSeasonYearNavigation.Year)
                 )
-                .OrderByDescending(a => a.ShortName)];
+                .OrderByDescending(a => a.Id)];
         }
 
         private async Task<IEnumerable<Season>> GetSeasons()
         {
-            return [.. (await seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Year)];
+            return [.. (await _seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Year)];
         }
 
         private async Task<List<int?>> GetWeeks(int firstIndex)
         {
-            var weeks = new List<int?>();
-
             //_selectedLeagueName = HttpContext.Session.GetObject<string>("SelectedLeagueName");
-            var selectedLeague = await associationRepository.GetAssociationByShortNameAsync(_selectedLeagueName);
+            var selectedLeague = await _associationRepository.GetAssociationByShortNameAsync(_selectedLeagueName);
             var selectedLeagueId = (selectedLeague?.Id) ?? 
                 throw new KeyNotFoundException("A league with the specified short name was not found.");
             var selectedLeagueSeason = 
-                await leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(selectedLeagueId, _selectedSeasonYear.Value);
+                await _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(selectedLeagueId, _selectedSeasonYear.Value);
+
+            var weeks = new List<int?>();
             if (selectedLeagueSeason is not null)
             {
                 for (int i = firstIndex; i <= selectedLeagueSeason.NumOfWeeksScheduled; i++)
@@ -432,7 +443,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task HandleDbUpdateExceptionOnCreate(DbUpdateException ex, Game game)
         {
-            var games = await gameRepository.GetGamesAsync();
+            var games = await _gameRepository.GetGamesAsync();
 
             if (PrimaryKeyViolationExists(games, game))
             {
@@ -472,15 +483,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task LoadLeaguesAndSelectedLeagueNameIntoIndexViewModel()
         {
-            _selectedLeagueName = HttpContext.Session.GetObject<string>("SelectedLeagueName");
-
             var leagues = await GetLeagues();
+
+            _selectedLeagueName = HttpContext.Session.GetObject<string>("SelectedLeagueName");
             if (_selectedLeagueName.IsNullOrEmpty())
             {
                 SetSelectedLeagueName(leagues.First().ShortName);
             }
-            gameIndexViewModel.Leagues = new SelectList(leagues, "ShortName", "ShortName", _selectedLeagueName);
-            gameIndexViewModel.SelectedLeagueName = _selectedLeagueName;
+            _gameIndexViewModel.Leagues = new SelectList(leagues, "ShortName", "ShortName", _selectedLeagueName);
+            _gameIndexViewModel.SelectedLeagueName = _selectedLeagueName;
         }
 
         private async Task LoadLeaguesIntoViewBag()
@@ -491,15 +502,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task LoadSeasonsAndSelectedSeasonYearIntoIndexViewModel()
         {
-            _selectedSeasonYear = HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
-
             var seasons = await GetSeasons();
+
+            _selectedSeasonYear = HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
             if (_selectedSeasonYear is null)
             {
                 SetSelectedSeasonYear(seasons.First().Year);
             }
-            gameIndexViewModel.Seasons = new SelectList(seasons, "Year", "Year", _selectedSeasonYear);
-            gameIndexViewModel.SelectedSeasonYear = _selectedSeasonYear;
+            _gameIndexViewModel.Seasons = new SelectList(seasons, "Year", "Year", _selectedSeasonYear);
+            _gameIndexViewModel.SelectedSeasonYear = _selectedSeasonYear;
         }
 
         private async Task LoadSeasonsIntoViewBag()
@@ -508,13 +519,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             ViewBag.Seasons = new SelectList(seasons, "Year", "Year", _selectedSeasonYear);
         }
 
-        private async Task LoadWeeksAndSelectedWeekIntoIndexViewModel(int firstIndex)
+        private async Task LoadWeeksAndSelectedWeekIntoIndexViewModel()
         {
-            _selectedWeek = HttpContext.Session.GetObject<int?>("SelectedWeek");
+            var weeks = await GetWeeks(firstIndex: 0);
 
-            var weeks = await GetWeeks(firstIndex: firstIndex);
-            gameIndexViewModel.Weeks = new SelectList(weeks, _selectedWeek);
-            gameIndexViewModel.SelectedWeek = _selectedWeek;
+            _selectedWeek = HttpContext.Session.GetObject<int?>("SelectedWeek");
+            _gameIndexViewModel.Weeks = new SelectList(weeks, _selectedWeek);
+            _gameIndexViewModel.SelectedWeek = _selectedWeek;
         }
 
         private async Task LoadWeeksIntoViewBag()

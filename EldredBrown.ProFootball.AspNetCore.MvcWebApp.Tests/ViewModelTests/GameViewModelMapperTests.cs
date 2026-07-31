@@ -16,9 +16,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
         public void MapGameToViewModel_ShouldSucceed()
         {
             // Arrange
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            var testMapper = new GameViewModelMapper(fakeAssociationRepository);
+            GameViewModelMapper testMapper = SetUp();
 
+            // Act
             var game = new EldredBrown.ProFootball.Net.Data.Models.Game
             {
                 Id = 1,
@@ -32,7 +32,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
                 Notes = "Notes"
             };
 
-            // Act
             var result = testMapper.MapGameToViewModel(game);
 
             // Assert
@@ -45,6 +44,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
         public async Task MapViewModelToGame_WhenLeagueNameIsNeitherNullNorEmptyAndLeagueIsNull_ShouldSetGameLeagueIdToMinusOne()
         {
             // Arrange
+            Association league = null!;
+            GameViewModelMapper testMapper = SetUp(league: league);
+
+            // Act
             var gameViewModel = new GameViewModel
             {
                 Id = 1,
@@ -59,17 +62,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
                 Notes = "Notes"
             };
 
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(A<string>.Ignored))
-                .Returns<Association?>(null);
-
-            var testMapper = new GameViewModelMapper(fakeAssociationRepository);
-
-            // Act
             var result = await testMapper.MapViewModelToGame(gameViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(gameViewModel.LeagueName))
+            A.CallTo(() => testMapper._associationRepository.GetAssociationByShortNameAsync(gameViewModel.LeagueName))
                 .MustHaveHappenedOnceExactly();
             gameViewModel.Game.LeagueId.ShouldBe(-1);
             result.ShouldNotBeNull();
@@ -78,11 +74,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
         }
 
         [Theory]
-        [InlineData("")]
         [InlineData(null)]
+        [InlineData("")]
         public async Task MapViewModelToGame_WhenLeagueNameIsNullOrEmpty_ShouldSetGameLeagueIdToNull(string? leagueName)
         {
             // Arrange
+            GameViewModelMapper testMapper = SetUp();
+
+            // Act
             var gameViewModel = new GameViewModel
             {
                 Id = 1,
@@ -97,17 +96,10 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
                 Notes = "Notes"
             };
 
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(A<string>.Ignored))
-                .Returns<Association?>(null);
-
-            var testMapper = new GameViewModelMapper(fakeAssociationRepository);
-
-            // Act
             var result = await testMapper.MapViewModelToGame(gameViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(gameViewModel.LeagueName))
+            A.CallTo(() => testMapper._associationRepository.GetAssociationByShortNameAsync(gameViewModel.LeagueName))
                 .MustHaveHappenedOnceExactly();
             gameViewModel.Game.LeagueId.ShouldBeNull();
             result.ShouldNotBeNull();
@@ -119,6 +111,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
         public async Task MapViewModelToGame_WhenLeagueIsNotNull_ShouldSetGameLeagueIdToLeagueId()
         {
             // Arrange
+            Association league = new()
+            {
+                Id = 1,
+                LongName = "National Footbal League",
+                ShortName = "NFL"
+            };
+            GameViewModelMapper testMapper = SetUp(league: league);
+
+            // Act
             var gameViewModel = new GameViewModel
             {
                 Id = 1,
@@ -133,27 +134,23 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
                 Notes = "Notes"
             };
 
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            var league = new Association
-            {
-                Id = 1,
-                LongName = "National Footbal League",
-                ShortName = "NFL"
-            };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(A<string>.Ignored)).Returns(league);
-
-            var testMapper = new GameViewModelMapper(fakeAssociationRepository);
-
-            // Act
             var result = await testMapper.MapViewModelToGame(gameViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(gameViewModel.LeagueName))
+            A.CallTo(() => testMapper._associationRepository.GetAssociationByShortNameAsync(gameViewModel.LeagueName))
                 .MustHaveHappenedOnceExactly();
             gameViewModel.Game.LeagueId.ShouldBe(league.Id);
             result.ShouldNotBeNull();
             result.ShouldBeOfType<Game>();
             result.ShouldBe(gameViewModel.Game);
+        }
+
+        private static GameViewModelMapper SetUp(Association? league = null)
+        {
+            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
+            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(A<string>.Ignored)).Returns(league);
+
+            return new GameViewModelMapper(fakeAssociationRepository);
         }
     }
 }

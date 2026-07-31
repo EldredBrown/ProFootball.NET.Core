@@ -16,18 +16,32 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
     public class ServiceControllerTest
     {
         [Fact]
+        public async Task RunWeeklyUpdate_WhenNoExceptionIsCaught_ShouldReturnOkResult()
+        {
+            // Arrange
+            ServiceController testController = SetUp();
+
+            // Act
+            var leagueId = 1;
+            var seasonId = 1920;
+            var result = await testController.RunWeeklyUpdate(leagueId, seasonId);
+
+            // Assert
+            A.CallTo(() => testController._weeklyUpdateService.RunWeeklyUpdate(leagueId, seasonId))
+                .MustHaveHappenedOnceExactly();
+            result.ShouldBeOfType<OkResult>();
+        }
+
+        [Fact]
         public async Task RunWeeklyUpdate_WhenExceptionIsCaught_ShouldReturnInternalServerError()
         {
             // Arrange
-            var weeklyUpdateService = A.Fake<IWeeklyUpdateService>();
-            A.CallTo(() => weeklyUpdateService.RunWeeklyUpdate(An<int>.Ignored, An<int>.Ignored)).Throws<Exception>();
-
-            var testController = new ServiceController(weeklyUpdateService);
-
-            var leagueId = 1;
-            var seasonId = 1920;
+            var ex = new Exception();
+            ServiceController testController = SetUp(ex: ex);
 
             // Act
+            var leagueId = 1;
+            var seasonId = 1920;
             var result = await testController.RunWeeklyUpdate(leagueId, seasonId);
 
             // Assert
@@ -36,23 +50,22 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             ((ObjectResult)result).Value.ShouldBe("Database failure");
         }
 
-        [Fact]
-        public async Task RunWeeklyUpdate_WhenNoExceptionIsCaught_ShouldReturnOkResult()
+        private static ServiceController SetUp(Exception? ex = null)
         {
-            // Arrange
-            var weeklyUpdateService = A.Fake<IWeeklyUpdateService>();
+            IWeeklyUpdateService fakeWeeklyUpdateService = SetUpFakeWeeklyUpdateService(ex);
 
-            var testController = new ServiceController(weeklyUpdateService);
+            return new ServiceController(fakeWeeklyUpdateService);
+        }
 
-            var leagueId = 1;
-            var seasonId = 1920;
+        private static IWeeklyUpdateService SetUpFakeWeeklyUpdateService(Exception? ex)
+        {
+            var fakeWeeklyUpdateService = A.Fake<IWeeklyUpdateService>();
+            if (ex is not null)
+            {
+                A.CallTo(() => fakeWeeklyUpdateService.RunWeeklyUpdate(An<int>.Ignored, An<int>.Ignored)).Throws(ex);
+            }
 
-            // Act
-            var result = await testController.RunWeeklyUpdate(leagueId, seasonId);
-
-            // Assert
-            A.CallTo(() => weeklyUpdateService.RunWeeklyUpdate(leagueId, seasonId)).MustHaveHappenedOnceExactly();
-            result.ShouldBeOfType<OkResult>();
+            return fakeWeeklyUpdateService;
         }
     }
 }

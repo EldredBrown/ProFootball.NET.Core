@@ -43,6 +43,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         IWeeklyUpdateService weeklyUpdateService
     ) : Controller
     {
+        internal readonly ITeamSeasonIndexViewModel _teamSeasonIndexViewModel = teamSeasonIndexViewModel;
+        internal readonly ITeamSeasonDetailsViewModel _teamSeasonDetailsViewModel = teamSeasonDetailsViewModel;
+        internal readonly ITeamSeasonViewModelMapper _teamSeasonViewModelMapper = teamSeasonViewModelMapper;
+        internal readonly ISeasonRepository _seasonRepository = seasonRepository;
+        internal readonly ITeamSeasonRepository _teamSeasonRepository = teamSeasonRepository;
+        internal readonly ITeamSeasonScheduleRepository _teamSeasonScheduleRepository = teamSeasonScheduleRepository;
+        internal readonly IWeeklyUpdateService _weeklyUpdateService = weeklyUpdateService;
+
         private int? _selectedSeasonYear = null;
 
         // GET: TeamSeasons
@@ -56,7 +64,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             await LoadSeasonsAndSelectedSeasonYearIntoIndexViewModel();
             await SetIndexViewModelTeamSeasons();
 
-            return View(teamSeasonIndexViewModel);
+            return View(_teamSeasonIndexViewModel);
         }
 
         // GET: TeamSeasons/Details/5
@@ -73,16 +81,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var teamSeason = await teamSeasonRepository.GetTeamSeasonAsync(id.Value);
+            var teamSeason = await _teamSeasonRepository.GetTeamSeasonAsync(id.Value);
             if (teamSeason is null)
             {
                 return NotFound();
             }
-            teamSeasonDetailsViewModel.TeamSeason = teamSeasonViewModelMapper.MapTeamSeasonToViewModel(teamSeason);
+            _teamSeasonDetailsViewModel.TeamSeason = _teamSeasonViewModelMapper.MapTeamSeasonToViewModel(teamSeason);
 
             await GetTeamSeasonScheduleData(teamSeason);
 
-            return View(teamSeasonDetailsViewModel);
+            return View(_teamSeasonDetailsViewModel);
         }
 
         // TeamSeasons/RunWeeklyUpdate
@@ -101,7 +109,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             var leagueName = "APFA";
             var leagueId = (await leagueRepository.GetAssociationByShortNameAsync(leagueName)).Id;
 
-            await weeklyUpdateService.RunWeeklyUpdate(leagueId, _selectedSeasonYear.Value);
+            await _weeklyUpdateService.RunWeeklyUpdate(leagueId, _selectedSeasonYear.Value);
 
             return RedirectToAction(nameof(Index));
         }
@@ -128,32 +136,32 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         {
             var teamId = teamSeason.TeamId;
             var seasonYear = teamSeason.SeasonYear;
-            teamSeasonDetailsViewModel.TeamSeasonScheduleProfile =
-                await teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonYear);
-            teamSeasonDetailsViewModel.TeamSeasonScheduleTotals =
-                await teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonYear);
-            teamSeasonDetailsViewModel.TeamSeasonScheduleAverages =
-                await teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonYear);
+            _teamSeasonDetailsViewModel.TeamSeasonScheduleProfile =
+                await _teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonYear);
+            _teamSeasonDetailsViewModel.TeamSeasonScheduleTotals =
+                await _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonYear);
+            _teamSeasonDetailsViewModel.TeamSeasonScheduleAverages =
+                await _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonYear);
         }
 
         private async Task LoadSeasonsAndSelectedSeasonYearIntoIndexViewModel()
         {
             _selectedSeasonYear = HttpContext.Session.GetObject<int?>("SelectedSeasonYear");
 
-            var seasons = (await seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Year);
+            var seasons = (await _seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Year);
             if (_selectedSeasonYear is null)
             {
                 SetSelectedSeasonYear(seasons.First().Year);
             }
-            teamSeasonIndexViewModel.Seasons = new SelectList(seasons, "Year", "Year", _selectedSeasonYear);
-            teamSeasonIndexViewModel.SelectedSeasonYear = _selectedSeasonYear;
+            _teamSeasonIndexViewModel.Seasons = new SelectList(seasons, "Year", "Year", _selectedSeasonYear);
+            _teamSeasonIndexViewModel.SelectedSeasonYear = _selectedSeasonYear;
         }
 
         private async Task SetIndexViewModelTeamSeasons()
         {
-            var teamSeasons = await teamSeasonRepository.GetTeamSeasonsBySeasonAsync(_selectedSeasonYear.Value);
-            teamSeasonIndexViewModel.TeamSeasons =
-                [.. teamSeasons.Select(ts => teamSeasonViewModelMapper.MapTeamSeasonToViewModel(ts))];
+            var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(_selectedSeasonYear.Value);
+            _teamSeasonIndexViewModel.TeamSeasons =
+                [.. teamSeasons.Select(ts => _teamSeasonViewModelMapper.MapTeamSeasonToViewModel(ts))];
         }
     }
 }

@@ -30,6 +30,11 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         ITeamRepository teamRepository, ISharedRepository sharedRepository, IMapper mapper, LinkGenerator linkGenerator
     ) : ControllerBase
     {
+        internal readonly ITeamRepository _teamRepository = teamRepository;
+        internal readonly ISharedRepository _sharedRepository = sharedRepository;
+        internal readonly IMapper _mapper = mapper;
+        internal readonly LinkGenerator _linkGenerator = linkGenerator;
+
         // GET: api/Teams
         /// <summary>
         /// Gets a collection of all teams from the data store.
@@ -40,9 +45,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var teams = await teamRepository.GetTeamsAsync();
+                var teams = await _teamRepository.GetTeamsAsync();
 
-                return mapper.Map<TeamModel[]>(teams);
+                return _mapper.Map<TeamModel[]>(teams);
             }
             catch (Exception)
             {
@@ -61,13 +66,13 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var team = await teamRepository.GetTeamAsync(id);
+                var team = await _teamRepository.GetTeamAsync(id);
                 if (team is null)
                 {
                     return NotFound();
                 }
 
-                return mapper.Map<TeamModel>(team);
+                return _mapper.Map<TeamModel>(team);
             }
             catch (Exception)
             {
@@ -88,19 +93,19 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var location = linkGenerator.GetPathByAction("GetTeam", "Teams", new { id = -1 });
+                var location = _linkGenerator.GetPathByAction("GetTeam", "Teams", new { id = -1 });
                 if (string.IsNullOrWhiteSpace(location))
                 {
                     return BadRequest("Could not use Id");
                 }
 
-                var team = mapper.Map<Team>(model);
+                var team = _mapper.Map<Team>(model);
 
-                await teamRepository.AddAsync(team);
+                await _teamRepository.AddAsync(team);
 
-                if (await sharedRepository.SaveChangesAsync() > 0)
+                if (await _sharedRepository.SaveChangesAsync() > 0)
                 {
-                    return Created(location, mapper.Map<TeamModel>(team));
+                    return Created(location, _mapper.Map<TeamModel>(team));
                 }
 
                 return BadRequest();
@@ -125,17 +130,17 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var team = await teamRepository.GetTeamAsync(id);
+                var team = await _teamRepository.GetTeamAsync(id);
                 if (team is null)
                 {
                     return NotFound($"Could not find team with Id of {id}");
                 }
 
-                mapper.Map(model, team);
+                _mapper.Map(model, team);
 
-                if (await sharedRepository.SaveChangesAsync() > 0)
+                if (await _sharedRepository.SaveChangesAsync() > 0)
                 {
-                    return mapper.Map<TeamModel>(team);
+                    return _mapper.Map<TeamModel>(team);
                 }
 
                 return BadRequest();
@@ -157,15 +162,15 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var team = await teamRepository.GetTeamAsync(id);
+                var team = await _teamRepository.GetTeamAsync(id);
                 if (team is null)
                 {
                     return NotFound($"Could not find team with Id of {id}");
                 }
 
-                await teamRepository.DeleteAsync(id);
+                await _teamRepository.DeleteAsync(id);
 
-                if (await sharedRepository.SaveChangesAsync() > 0)
+                if (await _sharedRepository.SaveChangesAsync() > 0)
                 {
                     return Ok();
                 }

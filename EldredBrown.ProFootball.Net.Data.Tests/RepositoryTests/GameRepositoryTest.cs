@@ -15,14 +15,16 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGames_WhenDbSetIsNeitherNullNorEmpty_ShouldReturnGames()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = testRepository.GetGames();
 
             // Assert
             result.ShouldNotBeNull();
-            result.Count().ShouldBe(81);
+            result.Count().ShouldBe(games.Count);
             foreach (var item in result)
             {
                 item.ShouldBeOfType<Game>();
@@ -32,7 +34,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGames_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            // Arrange
+            List<Game> games = null!;
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = testRepository.GetGames();
@@ -44,7 +48,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGames_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            // Arrange
+            var games = new List<Game>();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = testRepository.GetGames();
@@ -57,14 +63,16 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGamesAsync_WhenDbSetIsNeitherNullNorEmpty_ShouldReturnGames()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = await testRepository.GetGamesAsync();
 
             // Assert
             result.ShouldNotBeNull();
-            result.Count().ShouldBe(81);
+            result.Count().ShouldBe(games.Count);
             foreach (var item in result)
             {
                 item.ShouldBeOfType<Game>();
@@ -74,7 +82,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGamesAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            // Arrange
+            List<Game> games = null!;
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = await testRepository.GetGamesAsync();
@@ -86,7 +96,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGamesAsync_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            // Arrange
+            var games = new List<Game>();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = await testRepository.GetGamesAsync();
@@ -99,16 +111,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGamesBySeason_WhenDbSetIsNeitherNullNorEmptyAndGamesAreFound_ShouldReturnGames()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var seasonYear = 1920;
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var seasonYear = 1920;
             var result = testRepository.GetGamesBySeason(seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
-            result.Count().ShouldBe(27);
+
+            var gameCount = games.Count(g => g.SeasonYear == seasonYear);
+            result.Count().ShouldBe(gameCount);
+
             foreach (var item in result)
             {
                 item.ShouldBeOfType<Game>();
@@ -119,11 +135,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGamesBySeason_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var seasonYear = 1920;
+            // Arrange
+            List<Game> games = null!;
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var seasonYear = 1920;
             var result = testRepository.GetGamesBySeason(seasonYear);
 
             // Assert
@@ -133,11 +150,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGamesBySeason_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var seasonYear = 1920;
+            // Arrange
+            var games = new List<Game>();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var seasonYear = 1920;
             var result = testRepository.GetGamesBySeason(seasonYear);
 
             // Assert
@@ -148,11 +166,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGamesBySeason_WhenGamesAreNotFound_ShouldReturnEmptyCollection()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var seasonYear = -1;
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var seasonYear = -1;
             var result = testRepository.GetGamesBySeason(seasonYear);
 
             // Assert
@@ -163,16 +182,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGamesBySeasonAsync_WhenDbSetIsNeitherNullNorEmptyAndGamesAreFound_ShouldReturnGames()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var seasonYear = 1920;
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var seasonYear = 1920;
             var result = await testRepository.GetGamesBySeasonAsync(seasonYear);
 
             // Assert
             result.ShouldNotBeNull();
-            result.Count().ShouldBe(27);
+
+            var gameCount = games.Count(g => g.SeasonYear == seasonYear);
+            result.Count().ShouldBe(gameCount);
+
             foreach (var item in result)
             {
                 item.ShouldBeOfType<Game>();
@@ -183,11 +206,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGamesBySeasonAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var seasonYear = 1920;
+            // Arrange
+            List<Game> games = null!;
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var seasonYear = 1920;
             var result = await testRepository.GetGamesBySeasonAsync(seasonYear);
 
             // Assert
@@ -197,11 +221,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGamesBySeasonAsync_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var seasonYear = 1920;
+            // Arrange
+            var games = new List<Game>();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var seasonYear = 1920;
             var result = await testRepository.GetGamesBySeasonAsync(seasonYear);
 
             // Assert
@@ -212,11 +237,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGamesBySeasonAsync_WhenGamesAreNotFound_ShouldReturnEmptyCollection()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var seasonYear = -1;
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var seasonYear = -1;
             var result = await testRepository.GetGamesBySeasonAsync(seasonYear);
 
             // Assert
@@ -227,7 +253,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGamesBySeasonLeagueAndWeek_WhenDbSetIsNeitherNullNorEmptyAndGamesAreFound_ShouldReturnGames()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var seasonYear = 1920;
@@ -237,7 +265,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             // Assert
             result.ShouldNotBeNull();
-            result.Count().ShouldBe(3);
+
+            var gameCount = games.Count(g => g.SeasonYear == seasonYear && g.LeagueId == leagueId && g.Week == week);
+            result.Count().ShouldBe(gameCount);
+
             foreach (var item in result)
             {
                 item.ShouldBeOfType<Game>();
@@ -250,7 +281,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGamesBySeasonLeagueAndWeek_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            // Arrange
+            List<Game> games = null!;
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var seasonYear = 1920;
@@ -265,7 +298,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGamesBySeasonLeagueAndWeek_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            // Arrange
+            var games = new List<Game>();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var seasonYear = 1920;
@@ -279,15 +314,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Theory]
-        [InlineData(1920, -1, -1)]
-        [InlineData(-1, 1, -1)]
-        [InlineData(-1, -1, 1)]
         [InlineData(-1, -1, -1)]
+        [InlineData(-1, -1, 1)]
+        [InlineData(-1, 1, -1)]
+        [InlineData(1920, -1, -1)]
         public void GetGamesBySeasonLeagueAndWeek_WhenGamesAreNotFound_ShouldReturnEmptyCollection(
             int seasonYear, int leagueId, int week
         )
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = testRepository.GetGamesBySeasonLeagueAndWeek(seasonYear, leagueId, week);
@@ -300,7 +337,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGamesBySeasonLeagueAndWeekAsync_WhenDbSetIsNeitherNullNorEmptyAndGamesAreFound_ShouldReturnGames()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var seasonYear = 1920;
@@ -310,7 +349,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
 
             // Assert
             result.ShouldNotBeNull();
-            result.Count().ShouldBe(3);
+
+            var gameCount = games.Count(g => g.SeasonYear == seasonYear && g.LeagueId == leagueId && g.Week == week);
+            result.Count().ShouldBe(gameCount);
+
             foreach (var item in result)
             {
                 item.ShouldBeOfType<Game>();
@@ -323,7 +365,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGamesBySeasonLeagueAndWeekAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            // Arrange
+            List<Game> games = null!;
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var seasonYear = 1920;
@@ -338,7 +382,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGamesBySeasonLeagueAndWeekAsync_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            // Arrange
+            var games = new List<Game>();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var seasonYear = 1920;
@@ -352,15 +398,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Theory]
-        [InlineData(1920, -1, -1)]
-        [InlineData(-1, 1, -1)]
-        [InlineData(-1, -1, 1)]
         [InlineData(-1, -1, -1)]
+        [InlineData(-1, -1, 1)]
+        [InlineData(-1, 1, -1)]
+        [InlineData(1920, -1, -1)]
         public async Task GetGamesBySeasonLeagueAndWeekAsync_WhenGamesAreNotFound_ShouldReturnEmptyCollection(
             int seasonYear, int leagueId, int week
         )
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = await testRepository.GetGamesBySeasonLeagueAndWeekAsync(seasonYear, leagueId, week);
@@ -373,11 +421,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGame_WhenDbSetIsNeitherNullNorEmptyAndGameIsFound_ShouldReturnGame()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var id = 1;
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var id = 1;
             var result = testRepository.GetGame(id);
 
             // Assert
@@ -389,11 +438,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGame_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var id = 1;
+            // Arrange
+            List<Game> games = null!;
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var id = 1;
             var result = testRepository.GetGame(id);
 
             // Assert
@@ -403,11 +453,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGame_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var id = 1;
+            // Arrange
+            var games = new List<Game>();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var id = 1;
             var result = testRepository.GetGame(id);
 
             // Assert
@@ -417,11 +468,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGame_WhenGameIsNotFound_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var id = -1;
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var id = -1;
             var result = testRepository.GetGame(id);
 
             // Assert
@@ -431,11 +483,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGameAsync_WhenDbSetIsNeitherNullNorEmptyAndGameIsFound_ShouldReturnGame()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var id = 1;
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var id = 1;
             var result = await testRepository.GetGameAsync(id);
 
             // Assert
@@ -447,11 +500,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGameAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var id = 1;
+            // Arrange
+            List<Game> games = null!;
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var id = 1;
             var result = await testRepository.GetGameAsync(id);
 
             // Assert
@@ -461,11 +515,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGameAsync_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var id = 1;
+            // Arrange
+            var games = new List<Game>();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var id = 1;
             var result = await testRepository.GetGameAsync(id);
 
             // Assert
@@ -475,11 +530,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGameAsync_WhenGameIsNotFound_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var id = -1;
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var id = -1;
             var result = await testRepository.GetGameAsync(id);
 
             // Assert
@@ -489,14 +545,15 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGameBySeasonWeekGuestAndHost_WhenDbSetIsNeitherNullNorEmptyAndGameIsFound_ShouldReturnGame()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
+            // Act
             var seasonYear = 1920;
             var week = 1;
             var guestName = "Guest 1";
             var hostName = "Host 1";
-
-            // Act
             var result = testRepository.GetGameBySeasonWeekGuestAndHost(seasonYear, week, guestName, hostName);
 
             // Assert
@@ -511,14 +568,15 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGameBySeasonWeekGuestAndHost_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            // Arrange
+            List<Game> games = null!;
+            GameRepository testRepository = CreateTestRepository(games);
 
+            // Act
             var seasonYear = 1920;
             var week = 1;
             var guestName = "Guest";
             var hostName = "Host";
-
-            // Act
             var result = testRepository.GetGameBySeasonWeekGuestAndHost(seasonYear, week, guestName, hostName);
 
             // Assert
@@ -528,14 +586,15 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetGameBySeasonWeekGuestAndHost_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            // Arrange
+            var games = new List<Game>();
+            GameRepository testRepository = CreateTestRepository(games);
 
+            // Act
             var seasonYear = 1920;
             var week = 1;
             var guestName = "Guest";
             var hostName = "Host";
-
-            // Act
             var result = testRepository.GetGameBySeasonWeekGuestAndHost(seasonYear, week, guestName, hostName);
 
             // Assert
@@ -543,15 +602,18 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Theory]
-        [InlineData(1920, 1, "Guest 1", "")]
-        [InlineData(1920, 1, "", "Host 1")]
-        [InlineData(1920, -1, "Guest 1", "Host 1")]
-        [InlineData(-1, 1, "Guest 1", "Host 1")]
         [InlineData(-1, -1, "", "")]
+        [InlineData(-1, 1, "Guest 1", "Host 1")]
+        [InlineData(1920, -1, "Guest 1", "Host 1")]
+        [InlineData(1920, 1, "", "Host 1")]
+        [InlineData(1920, 1, "Guest 1", "")]
         public void GetGameBySeasonWeekGuestAndHost_WhenGameIsNotFound_ShouldReturnNull(
-            int seasonYear, int week, string guestName, string hostName)
+            int seasonYear, int week, string guestName, string hostName
+        )
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = testRepository.GetGameBySeasonWeekGuestAndHost(seasonYear, week, guestName, hostName);
@@ -563,14 +625,15 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGameBySeasonWeekGuestAndHostAsync_WhenDbSetIsNeitherNullNorEmptyAndGameIsFound_ShouldReturnGame()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
+            // Act
             var seasonYear = 1920;
             var week = 1;
             var guestName = "Guest 1";
             var hostName = "Host 1";
-
-            // Act
             var result = await testRepository.GetGameBySeasonWeekGuestAndHostAsync(seasonYear, week, guestName, hostName);
 
             // Assert
@@ -585,14 +648,15 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGameBySeasonWeekGuestAndHostAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            // Arrange
+            List<Game> games = null!;
+            GameRepository testRepository = CreateTestRepository(games);
 
+            // Act
             var seasonYear = 1920;
             var week = 1;
             var guestName = "Guest";
             var hostName = "Host";
-
-            // Act
             var result = await testRepository.GetGameBySeasonWeekGuestAndHostAsync(seasonYear, week, guestName, hostName);
 
             // Assert
@@ -602,14 +666,15 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetGameBySeasonWeekGuestAndHostAsync_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            // Arrange
+            var games = new List<Game>();
+            GameRepository testRepository = CreateTestRepository(games);
 
+            // Act
             var seasonYear = 1920;
             var week = 1;
             var guestName = "Guest";
             var hostName = "Host";
-
-            // Act
             var result = await testRepository.GetGameBySeasonWeekGuestAndHostAsync(seasonYear, week, guestName, hostName);
 
             // Assert
@@ -617,15 +682,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         }
 
         [Theory]
-        [InlineData(1920, 1, "Guest 1", "")]
-        [InlineData(1920, 1, "", "Host 1")]
-        [InlineData(1920, -1, "Guest 1", "Host 1")]
-        [InlineData(-1, 1, "Guest 1", "Host 1")]
         [InlineData(-1, -1, "", "")]
+        [InlineData(-1, 1, "Guest 1", "Host 1")]
+        [InlineData(1920, -1, "Guest 1", "Host 1")]
+        [InlineData(1920, 1, "", "Host 1")]
+        [InlineData(1920, 1, "Guest 1", "")]
         public async Task GetGameBySeasonWeekGuestAndHostAsync_WhenGameIsNotFound_ShouldReturnNull(
             int seasonYear, int week, string guestName, string hostName)
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            // Arrange
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = await testRepository.GetGameBySeasonWeekGuestAndHostAsync(seasonYear, week, guestName, hostName);
@@ -641,9 +708,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Game>>());
             var testRepository = new GameRepository(fakeDbContext);
 
-            var game = new Game { Id = 1 };
-
             // Act
+            var game = new Game { Id = 1 };
             var result = testRepository.Add(game);
 
             // Assert
@@ -658,9 +724,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Game>>());
             var testRepository = new GameRepository(fakeDbContext);
 
-            Game? game = null!;
-
             // Act & Assert
+            Game? game = null!;
             Assert.Throws<ArgumentNullException>(() => testRepository.Add(game));
         }
 
@@ -671,9 +736,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var fakeDbContext = CreateFakeDbContextForAddOperations(null!);
             var testRepository = new GameRepository(fakeDbContext);
 
-            var game = new Game { Id = 1 };
-
             // Act
+            var game = new Game { Id = 1 };
             var result = testRepository.Add(game);
 
             // Assert
@@ -688,9 +752,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Game>>());
             var testRepository = new GameRepository(fakeDbContext);
 
-            var game = new Game { Id = 1 };
-
             // Act
+            var game = new Game { Id = 1 };
             var result = await testRepository.AddAsync(game);
 
             // Assert
@@ -705,9 +768,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Game>>());
             var testRepository = new GameRepository(fakeDbContext);
 
-            Game? game = null!;
-
             // Act & Assert
+            Game? game = null!;
             await Assert.ThrowsAsync<ArgumentNullException>(async () => await testRepository.AddAsync(game));
         }
 
@@ -718,9 +780,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var fakeDbContext = CreateFakeDbContextForAddOperations(null!);
             var testRepository = new GameRepository(fakeDbContext);
 
-            var game = new Game { Id = 1 };
-
             // Act
+            var game = new Game { Id = 1 };
             var result = await testRepository.AddAsync(game);
 
             // Assert
@@ -764,11 +825,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Update_WhenArgIsNull_ShouldThrowException()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            Game? game = null!;
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act & Assert
+            Game? game = null!;
             Assert.Throws<ArgumentNullException>(() => testRepository.Update(game));
         }
 
@@ -776,11 +837,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Update_WhenDbSetIsNull_ShouldReturnGame()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            Game? game = new() { };
+            List<Game> games = null!;
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            Game? game = new();
             var updated = testRepository.Update(game);
 
             // Assert
@@ -792,11 +853,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Update_WhenDbSetIsEmpty_ShouldReturnGame()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            Game? game = new() { };
+            var games = new List<Game>();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            Game? game = new();
             var updated = testRepository.Update(game);
 
             // Assert
@@ -843,11 +904,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Delete_WhenDbSetIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var game = new Game { Id = 1 };
+            List<Game> games = null!;
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var game = new Game { Id = 1 };
             var result = testRepository.Delete(game.Id);
 
             // Assert
@@ -858,11 +919,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Delete_WhenDbSetIsEmpty_ShouldFailAndReturnNull()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var game = new Game { Id = 1 };
+            var games = new List<Game>();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var game = new Game { Id = 1 };
             var result = testRepository.Delete(game.Id);
 
             // Assert
@@ -943,11 +1004,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task DeleteAsync_WhenDbSetIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var game = new Game { Id = 1 };
+            List<Game> games = null!;
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var game = new Game { Id = 1 };
             var result = await testRepository.DeleteAsync(game.Id);
 
             // Assert
@@ -958,11 +1019,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task DeleteAsync_WhenDbSetIsEmpty_ShouldFailAndReturnNull()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var game = new Game { Id = 1 };
+            var games = new List<Game>();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
+            var game = new Game { Id = 1 };
             var result = await testRepository.DeleteAsync(game.Id);
 
             // Assert
@@ -1008,7 +1069,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GameExists_WhenDbSetIsNotNullAndSelectedGameExists_ShouldReturnTrue()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = testRepository.GameExists(1);
@@ -1021,7 +1083,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GameExists_WhenDbSetIsNull_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            List<Game> games = null!;
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = testRepository.GameExists(1);
@@ -1034,7 +1097,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GameExists_WhenDbSetIsEmpty_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            var games = new List<Game>();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = testRepository.GameExists(1);
@@ -1047,7 +1111,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GameExists_WhenSelectedGameDoesNotExist_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = testRepository.GameExists(-1);
@@ -1060,7 +1125,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task GameExistsAsync_WhenDbSetIsNotNullAndSelectedGameExists_ShouldReturnTrue()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = await testRepository.GameExistsAsync(1);
@@ -1073,7 +1139,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task GameExistsAsync_WhenDbSetIsNull_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            List<Game> games = null!;
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = await testRepository.GameExistsAsync(1);
@@ -1086,7 +1153,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task GameExistsAsync_WhenDbSetIsEmpty_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            var games = new List<Game>();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = await testRepository.GameExistsAsync(1);
@@ -1099,7 +1167,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task GameExistsAsync_WhenSelectedGameDoesNotExist_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            List<Game> games = GetGames();
+            GameRepository testRepository = CreateTestRepository(games);
 
             // Act
             var result = await testRepository.GameExistsAsync(-1);
@@ -1108,96 +1177,21 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             result.ShouldBeFalse();
         }
 
-        private ProFootballDbContext CreateFakeDbContextForAddOperations(DbSet<Game> games)
-        {
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Games = games;
-            return fakeDbContext;
-        }
-
-        private static IGameRepository CreateTestRepositoryWithEmptyDbSet()
-        {
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-
-            fakeDbContext.Games = A.Fake<DbSet<Game>>();
-            var games = new List<Game>();
-            var fakeDbSet = games.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Games).Returns(fakeDbSet);
-
-            var testRepository = new GameRepository(fakeDbContext);
-            return testRepository;
-        }
-
-        private static IGameRepository CreateTestRepositoryWithNotEmptyDbSet()
-        {
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-
-            fakeDbContext.Games = A.Fake<DbSet<Game>>();
-            var games = new List<Game>();
-            for (int y = 1920; y <= 1922; y++)
-            {
-                for (int l = 1; l <= 3; l++)
-                {
-                    for (int w = 1; w <= 3; w++)
-                    {
-                        for (int t = 1; t <= 3; t++)
-                        {
-                            var game = new Game
-                            {
-                                Id = (y - 1920) * 9 + (l - 1) * 3 + w,
-                                SeasonYear = y,
-                                LeagueId = l,
-                                Week = w,
-                                GuestName = $"Guest {t}",
-                                HostName = $"Host {t}"
-                            };
-                            games.Add(game);
-                        }
-                    }
-                }
-            }
-            var fakeDbSet = games.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Games).Returns(fakeDbSet);
-
-            var testRepository = new GameRepository(fakeDbContext);
-            return testRepository;
-        }
-
-        private static IGameRepository CreateTestRepositoryWithNullDbSet()
-        {
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-
-            fakeDbContext.Games = A.Fake<DbSet<Game>>();
-            DbSet<Game> fakeDbSet = null!;
-            A.CallTo(() => fakeDbContext.Games).Returns(fakeDbSet);
-
-            var testRepository = new GameRepository(fakeDbContext);
-            return testRepository;
-        }
-
         [Fact]
         public async Task GetMaxWeekForSeasonAsync_WhenWeeksExistForSeason_ShouldReturnMaxWeek()
         {
             // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
-
             var seasonYear = 1920;
-            var season = new Season { Year = seasonYear };
-            fakeDbContext.Seasons.Add(season);
-
-            var game1 = new Game { Id = 1, SeasonYear = seasonYear, Week = 1, GuestName = "Guest", HostName = "Host" };
-            var game2 = new Game { Id = 2, SeasonYear = seasonYear, Week = 2, GuestName = "Guest", HostName = "Host" };
-            var game3 = new Game { Id = 3, SeasonYear = seasonYear, Week = 3, GuestName = "Guest", HostName = "Host" };
-            fakeDbContext.Games.AddRange(game1, game2, game3);
-            fakeDbContext.SaveChanges();
-
-            var testRepository = new GameRepository(fakeDbContext);
+            var games = new List<Game>
+            {
+                new() { Id = 1, SeasonYear = seasonYear, Week = 1, GuestName = "Guest", HostName = "Host" },
+                new() { Id = 2, SeasonYear = seasonYear, Week = 2, GuestName = "Guest", HostName = "Host" },
+                new() { Id = 3, SeasonYear = seasonYear, Week = 3, GuestName = "Guest", HostName = "Host" },
+            };
+            GameRepository testRepository = SetUpGetMaxWeeksForSeason(seasonYear, games);
 
             // Act
-            var result = await testRepository.GetMaxWeekForSeasonAsync(1920);
+            var result = await testRepository.GetMaxWeekForSeasonAsync(seasonYear);
 
             // Assert
             result.ShouldBe(3);
@@ -1207,22 +1201,85 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task GetMaxWeekForSeasonAsync_WhenWeeksDoNotExistForSeason_ShouldReturnZero()
         {
             // Arrange
-            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
-                .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                .Options;
-            using var fakeDbContext = new ProFootballDbContext(options);
-
             var seasonYear = 1920;
-            var season = new Season { Year = seasonYear };
-            fakeDbContext.Seasons.Add(season);
-
-            var testRepository = new GameRepository(fakeDbContext);
+            GameRepository testRepository = SetUpGetMaxWeeksForSeason(seasonYear);
 
             // Act
-            var result = await testRepository.GetMaxWeekForSeasonAsync(1920);
+            var result = await testRepository.GetMaxWeekForSeasonAsync(seasonYear);
 
             // Assert
             result.ShouldBe(0);
+        }
+
+        private static ProFootballDbContext CreateFakeDbContextForAddOperations(DbSet<Game> games)
+        {
+            var fakeDbContext = A.Fake<ProFootballDbContext>();
+            fakeDbContext.Games = games;
+            return fakeDbContext;
+        }
+
+        private static GameRepository CreateTestRepository(List<Game>? games)
+        {
+            var fakeDbContext = A.Fake<ProFootballDbContext>();
+            fakeDbContext.Games = A.Fake<DbSet<Game>>();
+            DbSet<Game> fakeDbSet = games is not null ? games.BuildMockDbSet() : null!;
+            A.CallTo(() => fakeDbContext.Games).Returns(fakeDbSet);
+
+            return new GameRepository(fakeDbContext);
+        }
+
+        private static List<Game> GetGames()
+        {
+            var counter = 1;
+
+            var games = new List<Game>();
+            for (int y = 1920; y < 1923; y++)
+            {
+                for (int l = 1; l < 4; l++)
+                {
+                    for (int w = 1; w < 4; w++)
+                    {
+                        for (int t = 1; t < 4; t++)
+                        {
+                            games.Add(
+                                new Game
+                                {
+                                    Id = counter++,
+                                    SeasonYear = y,
+                                    LeagueId = l,
+                                    Week = w,
+                                    GuestName = $"Guest {t}",
+                                    GuestScore = 0,
+                                    HostName = $"Host {t}",
+                                    HostScore = 0,
+                                    IsPlayoff = false,
+                                    Notes = string.Empty
+                                }
+                            );
+                        }
+                    }
+                }
+            }
+
+            return games;
+        }
+
+        private static GameRepository SetUpGetMaxWeeksForSeason(int seasonYear, List<Game>? games = null)
+        {
+            var options = new DbContextOptionsBuilder<ProFootballDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .Options;
+            var fakeDbContext = new ProFootballDbContext(options);
+            var season = new Season { Year = seasonYear };
+            fakeDbContext.Seasons.Add(season);
+
+            if (games is not null)
+            {
+                fakeDbContext.Games.AddRange(games);
+                fakeDbContext.SaveChanges();
+            }
+
+            return new GameRepository(fakeDbContext);
         }
     }
 }

@@ -18,6 +18,7 @@ using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.SeasonStandings;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Team;
 using EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.TeamSeason;
 using EldredBrown.ProFootball.Net.Data;
+using EldredBrown.ProFootball.Net.Data.Models;
 using EldredBrown.ProFootball.Net.Data.Repositories;
 using EldredBrown.ProFootball.Net.Services;
 using EldredBrown.ProFootball.Net.Services.ProcessGameStrategy;
@@ -92,6 +93,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp
             services.AddScoped<ITeamSeasonViewModelMapper, TeamSeasonViewModelMapper>();
             services.AddScoped<ISeasonStandingsIndexViewModel, SeasonStandingsIndexViewModel>();
             services.AddScoped<ISeasonRankingsIndexViewModel, SeasonRankingsIndexViewModel>();
+            services.AddScoped<IGamePrediction, GamePrediction>();
 
             services.AddServiceLibrary();
 

@@ -31,6 +31,11 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         LinkGenerator linkGenerator
     ) : ControllerBase
     {
+        internal readonly ITeamSeasonRepository _teamSeasonRepository = teamSeasonRepository;
+        internal readonly ISharedRepository _sharedRepository = sharedRepository;
+        internal readonly IMapper _mapper = mapper;
+        internal readonly LinkGenerator _linkGenerator = linkGenerator;
+
         // GET: api/TeamSeasons
         /// <summary>
         /// Gets a collection of all team seasons from the data store.
@@ -41,9 +46,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var teamSeasons = await teamSeasonRepository.GetTeamSeasonsAsync();
+                var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsAsync();
 
-                return mapper.Map<TeamSeasonModel[]>(teamSeasons);
+                return _mapper.Map<TeamSeasonModel[]>(teamSeasons);
             }
             catch (Exception)
             {
@@ -62,13 +67,13 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var teamSeason = await teamSeasonRepository.GetTeamSeasonAsync(id);
+                var teamSeason = await _teamSeasonRepository.GetTeamSeasonAsync(id);
                 if (teamSeason is null)
                 {
                     return NotFound();
                 }
 
-                return mapper.Map<TeamSeasonModel>(teamSeason);
+                return _mapper.Map<TeamSeasonModel>(teamSeason);
             }
             catch (Exception)
             {
@@ -89,19 +94,19 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var location = linkGenerator.GetPathByAction("GetTeamSeason", "TeamSeasons", new { id = -1 });
+                var location = _linkGenerator.GetPathByAction("GetTeamSeason", "TeamSeasons", new { id = -1 });
                 if (string.IsNullOrWhiteSpace(location))
                 {
                     return BadRequest("Could not use Id");
                 }
 
-                var teamSeason = mapper.Map<TeamSeason>(model);
+                var teamSeason = _mapper.Map<TeamSeason>(model);
 
-                await teamSeasonRepository.AddAsync(teamSeason);
+                await _teamSeasonRepository.AddAsync(teamSeason);
 
-                if (await sharedRepository.SaveChangesAsync() > 0)
+                if (await _sharedRepository.SaveChangesAsync() > 0)
                 {
-                    return Created(location, mapper.Map<TeamSeasonModel>(teamSeason));
+                    return Created(location, _mapper.Map<TeamSeasonModel>(teamSeason));
                 }
 
                 return BadRequest();
@@ -126,17 +131,17 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var teamSeason = await teamSeasonRepository.GetTeamSeasonAsync(id);
+                var teamSeason = await _teamSeasonRepository.GetTeamSeasonAsync(id);
                 if (teamSeason is null)
                 {
                     return NotFound($"Could not find teamSeason with Id of {id}");
                 }
 
-                mapper.Map(model, teamSeason);
+                _mapper.Map(model, teamSeason);
 
-                if (await sharedRepository.SaveChangesAsync() > 0)
+                if (await _sharedRepository.SaveChangesAsync() > 0)
                 {
-                    return mapper.Map<TeamSeasonModel>(teamSeason);
+                    return _mapper.Map<TeamSeasonModel>(teamSeason);
                 }
 
                 return BadRequest();
@@ -158,15 +163,15 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var teamSeason = await teamSeasonRepository.GetTeamSeasonAsync(id);
+                var teamSeason = await _teamSeasonRepository.GetTeamSeasonAsync(id);
                 if (teamSeason is null)
                 {
                     return NotFound($"Could not find teamSeason with Id of {id}");
                 }
 
-                await teamSeasonRepository.DeleteAsync(id);
+                await _teamSeasonRepository.DeleteAsync(id);
 
-                if (await sharedRepository.SaveChangesAsync() > 0)
+                if (await _sharedRepository.SaveChangesAsync() > 0)
                 {
                     return Ok();
                 }

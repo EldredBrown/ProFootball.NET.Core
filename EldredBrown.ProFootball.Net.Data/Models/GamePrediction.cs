@@ -6,12 +6,12 @@ namespace EldredBrown.ProFootball.Net.Data.Models
     /// <summary>
     /// Represents a game prediction.
     /// </summary>
-    public class GamePrediction
+    public class GamePrediction: IGamePrediction
     {
         /// <summary>
         /// Gets or sets the guest season year of the current <see cref="GamePrediction"/> entity.
         /// </summary>
-        public int GuestSeasonYear { get; set; }
+        public int? GuestSeasonYear { get; set; }
 
         /// <summary>
         /// Gets or sets the guest name of the current <see cref="GamePrediction"/> entity.
@@ -26,7 +26,7 @@ namespace EldredBrown.ProFootball.Net.Data.Models
         /// <summary>
         /// Gets or sets the host season year of the current <see cref="GamePrediction"/> entity.
         /// </summary>
-        public int HostSeasonYear { get; set; }
+        public int? HostSeasonYear { get; set; }
 
         /// <summary>
         /// Gets or sets the host name of the current <see cref="GamePrediction"/> entity.

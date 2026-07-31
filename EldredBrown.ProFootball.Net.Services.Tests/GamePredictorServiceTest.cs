@@ -15,6 +15,7 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             // Arrange
             var testService = new GamePredictorService();
 
+            // Act
             var guestSeason = new TeamSeason
             {
                 OffensiveAverage = 7.00m,
@@ -30,7 +31,6 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
                 DefensiveFactor = 1.000m
             };
 
-            // Act
             var predictedGameScore = testService.PredictGameScore(guestSeason, hostSeason);
 
             // Assert
@@ -48,6 +48,7 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             // Arrange
             var testService = new GamePredictorService();
 
+            // Act
             var guestSeason = new TeamSeason
             {
                 OffensiveAverage = null,
@@ -63,7 +64,6 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
                 DefensiveFactor = null
             };
 
-            // Act
             var exception = Record.Exception(() => testService.PredictGameScore(guestSeason, hostSeason));
 
             // Assert

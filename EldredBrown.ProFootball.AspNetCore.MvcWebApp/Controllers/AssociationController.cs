@@ -42,6 +42,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         ISharedRepository sharedRepository
     ) : Controller
     {
+        internal readonly IAssociationIndexViewModel _associationIndexViewModel = associationIndexViewModel;
+        internal readonly IAssociationDetailsViewModel _associationDetailsViewModel = associationDetailsViewModel;
+        internal readonly IAssociationViewModelMapper _associationViewModelMapper = associationViewModelMapper;
+        internal readonly IAssociationRepository _associationRepository = associationRepository;
+        internal readonly ISharedRepository _sharedRepository = sharedRepository;
+
         // GET: Associations
         /// <summary>
         /// Renders a view of the Associations list.
@@ -50,12 +56,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var associations = await associationRepository.GetAssociationsAsync();
-            associationIndexViewModel.Associations = [.. associations
-                .Select(a => associationViewModelMapper.MapAssociationToViewModel(a))
+            var associations = await _associationRepository.GetAssociationsAsync();
+            _associationIndexViewModel.Associations = [.. associations
+                .Select(a => _associationViewModelMapper.MapAssociationToViewModel(a))
                 .OrderBy(a => a.ParentName)];
 
-            return View(associationIndexViewModel);
+            return View(_associationIndexViewModel);
         }
 
         // GET: Associations/Details/5
@@ -72,15 +78,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var association = await associationRepository.GetAssociationAsync(id.Value);
+            var association = await _associationRepository.GetAssociationAsync(id.Value);
             if (association is null)
             {
                 return NotFound();
             }
 
-            associationDetailsViewModel.Association = associationViewModelMapper.MapAssociationToViewModel(association);
+            _associationDetailsViewModel.Association = _associationViewModelMapper.MapAssociationToViewModel(association);
 
-            return View(associationDetailsViewModel);
+            return View(_associationDetailsViewModel);
         }
 
         // GET: Associations/Create
@@ -110,12 +116,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                var association = await associationViewModelMapper.MapViewModelToAssociation(associationViewModel);
-                await associationRepository.AddAsync(association);
+                var association = await _associationViewModelMapper.MapViewModelToAssociation(associationViewModel);
+                await _associationRepository.AddAsync(association);
 
                 try
                 {
-                    await sharedRepository.SaveChangesAsync();
+                    await _sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateException ex)
                 {
@@ -142,7 +148,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var association = await associationRepository.GetAssociationAsync(id.Value);
+            var association = await _associationRepository.GetAssociationAsync(id.Value);
             if (association is null)
             {
                 return NotFound();
@@ -174,16 +180,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
             if (ModelState.IsValid)
             {
-                var association = await associationViewModelMapper.MapViewModelToAssociation(associationViewModel);
-                associationRepository.Update(association);
+                var association = await _associationViewModelMapper.MapViewModelToAssociation(associationViewModel);
+                _associationRepository.Update(association);
 
                 try
                 {
-                    await sharedRepository.SaveChangesAsync();
+                    await _sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!(await associationRepository.AssociationExistsAsync(association.Id)))
+                    if (!(await _associationRepository.AssociationExistsAsync(association.Id)))
                     {
                         return NotFound();
                     }
@@ -217,13 +223,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var association = await associationRepository.GetAssociationAsync(id.Value);
+            var association = await _associationRepository.GetAssociationAsync(id.Value);
             if (association is null)
             {
                 return NotFound();
             }
 
-            var associationViewModel = associationViewModelMapper.MapAssociationToViewModel(association);
+            var associationViewModel = _associationViewModelMapper.MapAssociationToViewModel(association);
             return View(associationViewModel);
         }
 
@@ -237,8 +243,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await associationRepository.DeleteAsync(id);
-            await sharedRepository.SaveChangesAsync();
+            await _associationRepository.DeleteAsync(id);
+            await _sharedRepository.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
@@ -261,7 +267,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task HandleDbUpdateExceptionOnCreate(DbUpdateException ex, Association association)
         {
-            var associations = await associationRepository.GetAssociationsAsync();
+            var associations = await _associationRepository.GetAssociationsAsync();
 
             if (PrimaryKeyViolationExists(associations, association))
             {

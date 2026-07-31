@@ -21,73 +21,31 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
     public class SeasonControllerTest
     {
         [Fact]
-        public async Task GetSeasons_WhenExceptionIsCaught_ShouldReturnInternalServerError()
-        {
-            // Arrange
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Throws<Exception>();
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var mapper = A.Fake<IMapper>();
-            var linkGenerator = A.Fake<LinkGenerator>();
-
-            var testController = new SeasonController(fakeSeasonRepository, fakeSharedRepository, mapper, linkGenerator);
-
-            // Act
-            var result = await testController.GetSeasons();
-
-            // Assert
-            result.Result.ShouldBeOfType<ObjectResult>();
-            ((ObjectResult)result.Result).StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
-            ((ObjectResult)result.Result).Value.ShouldBe("Database failure");
-        }
-
-        [Fact]
         public async Task GetSeasons_WhenNoExceptionIsCaught_ShouldGetSeasons()
         {
             // Arrange
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
             var seasons = new List<Season>();
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var mapper = A.Fake<IMapper>();
-            var linkGenerator = A.Fake<LinkGenerator>();
-
-            var testController = new SeasonController(fakeSeasonRepository, fakeSharedRepository, mapper, linkGenerator);
+            SeasonController testController = SetUp(seasons: seasons);
 
             // Act
             var result = await testController.GetSeasons();
 
             // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => mapper.Map<SeasonModel[]>(seasons)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._seasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._mapper.Map<SeasonModel[]>(seasons)).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<ActionResult<SeasonModel[]>>();
-            result.Value.ShouldBe(mapper.Map<SeasonModel[]>(seasons));
+            result.Value.ShouldBe(testController._mapper.Map<SeasonModel[]>(seasons));
         }
 
         [Fact]
-        public async Task GetSeason_WhenExceptionIsCaught_ShouldReturnInternalServerError()
+        public async Task GetSeasons_WhenExceptionIsCaught_ShouldReturnInternalServerError()
         {
             // Arrange
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = new();
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Throws<Exception>();
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var mapper = A.Fake<IMapper>();
-            SeasonModel? seasonModel = new();
-            A.CallTo(() => mapper.Map<SeasonModel>(A<Season>.Ignored)).Returns(seasonModel);
-
-            var linkGenerator = A.Fake<LinkGenerator>();
-
-            var testController = new SeasonController(fakeSeasonRepository, fakeSharedRepository, mapper, linkGenerator);
-
-            int id = 1;
+            var ex = new Exception();
+            SeasonController testController = SetUp(ex: ex);
 
             // Act
-            var result = await testController.GetSeason(id);
+            var result = await testController.GetSeasons();
 
             // Assert
             result.Result.ShouldBeOfType<ObjectResult>();
@@ -99,23 +57,15 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task GetSeason_WhenSeasonIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = null;
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var mapper = A.Fake<IMapper>();
-            var linkGenerator = A.Fake<LinkGenerator>();
-
-            var testController = new SeasonController(fakeSeasonRepository, fakeSharedRepository, mapper, linkGenerator);
-
-            int id = 1;
+            Season season = null!;
+            SeasonController testController = SetUp(season: season);
 
             // Act
+            int id = 1;
             var result = await testController.GetSeason(id);
 
             // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._seasonRepository.GetSeasonAsync(id)).MustHaveHappenedOnceExactly();
             result.Result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -123,49 +73,31 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task GetSeason_WhenSeasonIsNotNull_ShouldReturnSeasonModelOfDesiredSeason()
         {
             // Arrange
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = new();
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var mapper = A.Fake<IMapper>();
-            SeasonModel? seasonModel = new SeasonModel();
-            A.CallTo(() => mapper.Map<SeasonModel>(A<Season>.Ignored)).Returns(seasonModel);
-
-            var linkGenerator = A.Fake<LinkGenerator>();
-
-            var testController = new SeasonController(fakeSeasonRepository, fakeSharedRepository, mapper, linkGenerator);
-
-            int id = 1;
+            Season season = new();
+            SeasonModel? seasonModel = new();
+            SeasonController testController = SetUp(season: season, seasonModel: seasonModel);
 
             // Act
+            int id = 1;
             var result = await testController.GetSeason(id);
 
             // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(id)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => mapper.Map<SeasonModel>(season)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._seasonRepository.GetSeasonAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._mapper.Map<SeasonModel>(season)).MustHaveHappenedOnceExactly();
             result.Value.ShouldBeOfType<SeasonModel>();
         }
 
         [Fact]
-        public async Task PutSeason_WhenExceptionIsCaught_ShouldReturnInternalServerError()
+        public async Task GetSeason_WhenExceptionIsCaught_ShouldReturnInternalServerError()
         {
             // Arrange
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Throws<Exception>();
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var mapper = A.Fake<IMapper>();
-            var linkGenerator = A.Fake<LinkGenerator>();
-
-            var testController = new SeasonController(fakeSeasonRepository, fakeSharedRepository, mapper, linkGenerator);
-
-            int id = 1;
-            var model = new SeasonModel();
+            var seasonModel = new SeasonModel();
+            var ex = new Exception();
+            SeasonController testController = SetUp(seasonModel: seasonModel, ex: ex);
 
             // Act
-            var result = await testController.PutSeason(id, model);
+            int id = 1;
+            var result = await testController.GetSeason(id);
 
             // Assert
             result.Result.ShouldBeOfType<ObjectResult>();
@@ -173,28 +105,37 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             ((ObjectResult)result.Result).Value.ShouldBe("Database failure");
         }
 
+        [Theory(Skip = "Will explore how to set up fake link generator.")]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData(" ")]
+        public async Task PostSeason_WhenLocationIsNullEmptyOrWhiteSpace_ShouldReturnBadRequest(string? location)
+        {
+            // Arrange
+            SeasonController testController = SetUp(location: location);
+
+            // Act
+            var model = new SeasonModel();
+            var result = await testController.PostSeason(model);
+
+            // Assert
+            result.Result.ShouldBeOfType<BadRequestObjectResult>();
+        }
+
         [Fact]
         public async Task PutSeason_WhenSeasonIsNotFound_ShouldReturnNotFoundResult()
         {
             // Arrange
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = null;
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var mapper = A.Fake<IMapper>();
-            var linkGenerator = A.Fake<LinkGenerator>();
-
-            var testController = new SeasonController(fakeSeasonRepository, fakeSharedRepository, mapper, linkGenerator);
-
-            int year = 1919;
-            var model = new SeasonModel();
+            Season season = null!;
+            SeasonController testController = SetUp(season: season);
 
             // Act
+            int year = 1919;
+            var model = new SeasonModel();
             var result = await testController.PutSeason(year, model);
 
             // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(year)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._seasonRepository.GetSeasonAsync(year)).MustHaveHappenedOnceExactly();
             result.Result.ShouldBeOfType<NotFoundObjectResult>();
             ((NotFoundObjectResult)result.Result).Value.ShouldBe($"Could not find season with Year of {year}");
         }
@@ -203,32 +144,23 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task PutSeason_WhenSeasonIsFoundAndSaved_ShouldReturnModelOfSeason()
         {
             // Arrange
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = new();
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Returns(1);
-
-            var mapper = A.Fake<IMapper>();
-            var returnModel = new SeasonModel();
-            A.CallTo(() => mapper.Map<SeasonModel>(season)).Returns(returnModel);
-
-            var linkGenerator = A.Fake<LinkGenerator>();
-
-            var testController = new SeasonController(fakeSeasonRepository, fakeSharedRepository, mapper, linkGenerator);
-
-            int id = 1;
-            var model = new SeasonModel();
+            Season season = new();
+            int numRecordsChanged = 1;
+            SeasonModel returnModel = new();
+            SeasonController testController = SetUp(
+                season: season, numRecordsChanged: numRecordsChanged, seasonModel: returnModel
+            );
 
             // Act
+            int id = 1;
+            var model = new SeasonModel();
             var result = await testController.PutSeason(id, model);
 
             // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(id)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => mapper.Map(model, season)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => mapper.Map<SeasonModel>(season)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._seasonRepository.GetSeasonAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._mapper.Map(model, season)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._mapper.Map<SeasonModel>(season)).MustHaveHappenedOnceExactly();
             result.Value.ShouldBe(returnModel);
         }
 
@@ -236,52 +168,35 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task PutSeason_WhenSeasonIsFoundAndNotSaved_ShouldReturnBadRequestResult()
         {
             // Arrange
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = new();
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Returns(0);
-
-            var mapper = A.Fake<IMapper>();
+            Season season = new();
+            int numRecordsChanged = 0;
             var returnModel = new SeasonModel();
-            A.CallTo(() => mapper.Map<SeasonModel>(season)).Returns(returnModel);
-
-            var linkGenerator = A.Fake<LinkGenerator>();
-
-            var testController = new SeasonController(fakeSeasonRepository, fakeSharedRepository, mapper, linkGenerator);
-
-            int id = 1;
-            var model = new SeasonModel();
+            SeasonController testController = SetUp(season: season, numRecordsChanged: numRecordsChanged, seasonModel: returnModel);
 
             // Act
+            int id = 1;
+            var model = new SeasonModel();
             var result = await testController.PutSeason(id, model);
 
             // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(id)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => mapper.Map(model, season)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => mapper.Map<SeasonModel>(season)).MustNotHaveHappened();
+            A.CallTo(() => testController._seasonRepository.GetSeasonAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._mapper.Map(model, season)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._mapper.Map<SeasonModel>(season)).MustNotHaveHappened();
             result.Result.ShouldBeOfType<BadRequestResult>();
         }
 
         [Fact]
-        public async Task DeleteSeason_WhenExceptionIsCaught_ShouldReturnInternalServerError()
+        public async Task PutSeason_WhenExceptionIsCaught_ShouldReturnInternalServerError()
         {
             // Arrange
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Throws<Exception>();
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var mapper = A.Fake<IMapper>();
-            var linkGenerator = A.Fake<LinkGenerator>();
-
-            var testController = new SeasonController(fakeSeasonRepository, fakeSharedRepository, mapper, linkGenerator);
-
-            int id = 1;
+            var ex = new Exception();
+            SeasonController testController = SetUp(ex: ex);
 
             // Act
-            var result = await testController.DeleteSeason(id);
+            int id = 1;
+            var model = new SeasonModel();
+            var result = await testController.PutSeason(id, model);
 
             // Assert
             result.Result.ShouldBeOfType<ObjectResult>();
@@ -293,23 +208,15 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task DeleteSeason_WhenSeasonIsNotFound_ShouldReturnNotFoundResult()
         {
             // Arrange
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = null;
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var mapper = A.Fake<IMapper>();
-            var linkGenerator = A.Fake<LinkGenerator>();
-
-            var testController = new SeasonController(fakeSeasonRepository, fakeSharedRepository, mapper, linkGenerator);
-
-            int year = 1919;
+            Season season = null!;
+            SeasonController testController = SetUp(season: season);
 
             // Act
+            int year = 1919;
             var result = await testController.DeleteSeason(year);
 
             // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(year)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._seasonRepository.GetSeasonAsync(year)).MustHaveHappenedOnceExactly();
             result.Result.ShouldBeOfType<NotFoundObjectResult>();
             ((NotFoundObjectResult)result.Result).Value.ShouldBe($"Could not find season with Year of {year}");
         }
@@ -318,26 +225,17 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task DeleteSeason_WhenSeasonIsFoundAndDeleted_ShouldReturnOk()
         {
             // Arrange
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = new();
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Returns(1);
-
-            var mapper = A.Fake<IMapper>();
-            var linkGenerator = A.Fake<LinkGenerator>();
-
-            var testController = new SeasonController(fakeSeasonRepository, fakeSharedRepository, mapper, linkGenerator);
-
-            int id = 1;
+            Season season = new();
+            int numRecordsChanged = 1;
+            SeasonController testController = SetUp(season: season, numRecordsChanged: numRecordsChanged);
 
             // Act
+            int id = 1;
             var result = await testController.DeleteSeason(id);
 
             // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(id)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._seasonRepository.GetSeasonAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.Result.ShouldBeOfType<OkResult>();
         }
 
@@ -345,27 +243,101 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task DeleteSeason_WhenSeasonIsFoundAndNotDeleted_ShouldReturnBadRequest()
         {
             // Arrange
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            Season? season = new();
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Returns(0);
-
-            var mapper = A.Fake<IMapper>();
-            var linkGenerator = A.Fake<LinkGenerator>();
-
-            var testController = new SeasonController(fakeSeasonRepository, fakeSharedRepository, mapper, linkGenerator);
-
-            int id = 1;
+            Season season = new();
+            SeasonController testController = SetUp(season: season);
 
             // Act
+            int id = 1;
             var result = await testController.DeleteSeason(id);
 
             // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(id)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._seasonRepository.GetSeasonAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.Result.ShouldBeOfType<BadRequestResult>();
+        }
+
+        [Fact]
+        public async Task DeleteSeason_WhenExceptionIsCaught_ShouldReturnInternalServerError()
+        {
+            // Arrange
+            var ex = new Exception();
+            SeasonController testController = SetUp(ex: ex);
+
+            // Act
+            int id = 1;
+            var result = await testController.DeleteSeason(id);
+
+            // Assert
+            result.Result.ShouldBeOfType<ObjectResult>();
+            ((ObjectResult)result.Result).StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
+            ((ObjectResult)result.Result).Value.ShouldBe("Database failure");
+        }
+
+        private static SeasonController SetUp(
+            List<Season>? seasons = null, Season? season = null,
+            int? numRecordsChanged = null, SeasonModel? seasonModel = null, string? location = null,
+            Exception? ex = null
+        )
+        {
+            ISeasonRepository fakeSeasonRepository = SetUpFakeSeasonRepository(seasons, season, ex);
+            ISharedRepository fakeSharedRepository = SetUpFakeSharedRepository(numRecordsChanged);
+            IMapper fakeMapper = SetUpFakeMapper(seasonModel);
+            LinkGenerator fakeLinkGenerator = SetUpFakeLinkGenerator(location);
+
+            return new SeasonController(fakeSeasonRepository, fakeSharedRepository, fakeMapper, fakeLinkGenerator);
+        }
+
+        private static ISeasonRepository SetUpFakeSeasonRepository(List<Season>? seasons, Season? season, Exception? ex)
+        {
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            if (ex is null)
+            {
+                if (seasons is not null)
+                {
+                    A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns([.. seasons]);
+                }
+                A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
+            }
+            else
+            {
+                A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Throws(ex);
+                A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Throws(ex);
+            }
+
+            return fakeSeasonRepository;
+        }
+
+        private static ISharedRepository SetUpFakeSharedRepository(int? numRecordsChanged)
+        {
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            if (numRecordsChanged.HasValue)
+            {
+                A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Returns(numRecordsChanged.Value);
+            }
+
+            return fakeSharedRepository;
+        }
+
+        private static IMapper SetUpFakeMapper(SeasonModel? seasonModel)
+        {
+            var fakeMapper = A.Fake<IMapper>();
+            if (seasonModel is not null)
+            {
+                A.CallTo(() => fakeMapper.Map<SeasonModel>(A<Season>.Ignored)).Returns(seasonModel);
+            }
+
+            return fakeMapper;
+        }
+
+        private static LinkGenerator SetUpFakeLinkGenerator(string? location)
+        {
+            var fakeLinkGenerator = A.Fake<LinkGenerator>();
+            // TODO - 2026.08.01 - Figure out how to intercept GetPathByAction.
+            //
+            //A.CallTo(() => fakeLinkGenerator.GetPathByAction("GetSeason", "Seasons", new { year = -1 }))
+            //    .Returns(location);
+
+            return fakeLinkGenerator;
         }
     }
 }

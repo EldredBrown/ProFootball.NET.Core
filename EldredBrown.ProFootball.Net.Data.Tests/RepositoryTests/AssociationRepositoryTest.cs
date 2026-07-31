@@ -15,7 +15,14 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetAssociations_WhenDbSetIsNeitherNullNorEmpty_ShouldReturnAssociations()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            // Arrange
+            var associations = new List<Association>
+            {
+                new() { Id = 1, LongName = "Association 1", ShortName = "A1", ParentId = null },
+                new() { Id = 2, LongName = "Association 2", ShortName = "A2", ParentId = 1 },
+                new() { Id = 3, LongName = "Association 3", ShortName = "A3", ParentId = 1 },
+            };
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
             var result = testRepository.GetAssociations();
@@ -32,7 +39,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetAssociations_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            // Arrange
+            List<Association> associations = null!;
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
             var result = testRepository.GetAssociations();
@@ -44,7 +53,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetAssociations_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            // Arrange
+            var associations = new List<Association>();
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
             var result = testRepository.GetAssociations();
@@ -57,7 +68,14 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetAssociationsAsync_WhenDbSetIsNeitherNullNorEmpty_ShouldReturnAssociations()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            // Arrange
+            var associations = new List<Association>
+            {
+                new() { Id = 1, LongName = "Association 1", ShortName = "A1", ParentId = null },
+                new() { Id = 2, LongName = "Association 2", ShortName = "A2", ParentId = 1 },
+                new() { Id = 3, LongName = "Association 3", ShortName = "A3", ParentId = 1 },
+            };
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
             var result = await testRepository.GetAssociationsAsync();
@@ -74,7 +92,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetAssociationsAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            // Arrange
+            List<Association> associations = null!;
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
             var result = await testRepository.GetAssociationsAsync();
@@ -86,7 +106,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetAssociationsAsync_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            // Arrange
+            var associations = new List<Association>();
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
             var result = await testRepository.GetAssociationsAsync();
@@ -99,11 +121,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetAssociation_WhenDbSetIsNeitherNullNorEmptyAndAssociationIsFound_ShouldReturnAssociation()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var id = 1;
+            // Arrange
+            var associations = new List<Association>
+            {
+                new() { Id = 1, LongName = "Association 1", ShortName = "A1", ParentId = null },
+                new() { Id = 2, LongName = "Association 2", ShortName = "A2", ParentId = 1 },
+                new() { Id = 3, LongName = "Association 3", ShortName = "A3", ParentId = 1 },
+            };
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var id = 1;
             var result = testRepository.GetAssociation(id);
 
             // Assert
@@ -115,11 +143,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetAssociation_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var id = 1;
+            // Arrange
+            List<Association> associations = null!;
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var id = 1;
             var result = testRepository.GetAssociation(id);
 
             // Assert
@@ -129,11 +158,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetAssociation_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var id = 1;
+            // Arrange
+            var associations = new List<Association>();
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var id = 1;
             var result = testRepository.GetAssociation(id);
 
             // Assert
@@ -143,11 +173,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetAssociation_WhenAssociationIsNotFound_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var id = -1;
+            // Arrange
+            var associations = new List<Association>
+            {
+                new() { Id = 1, LongName = "Association 1", ShortName = "A1", ParentId = null },
+                new() { Id = 2, LongName = "Association 2", ShortName = "A2", ParentId = 1 },
+                new() { Id = 3, LongName = "Association 3", ShortName = "A3", ParentId = 1 },
+            };
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var id = -1;
             var result = testRepository.GetAssociation(id);
 
             // Assert
@@ -157,11 +193,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetAssociationAsync_WhenDbSetIsNeitherNullNorEmptyAndAssociationIsFound_ShouldReturnAssociation()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var id = 1;
+            // Arrange
+            var associations = new List<Association>
+            {
+                new() { Id = 1, LongName = "Association 1", ShortName = "A1", ParentId = null },
+                new() { Id = 2, LongName = "Association 2", ShortName = "A2", ParentId = 1 },
+                new() { Id = 3, LongName = "Association 3", ShortName = "A3", ParentId = 1 },
+            };
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var id = 1;
             var result = await testRepository.GetAssociationAsync(id);
 
             // Assert
@@ -173,11 +215,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetAssociationAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var id = 1;
+            // Arrange
+            List<Association> associations = null!;
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var id = 1;
             var result = await testRepository.GetAssociationAsync(id);
 
             // Assert
@@ -187,11 +230,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetAssociationAsync_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var id = 1;
+            // Arrange
+            var associations = new List<Association>();
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var id = 1;
             var result = await testRepository.GetAssociationAsync(id);
 
             // Assert
@@ -201,11 +245,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetAssociationAsync_WhenAssociationIsNotFound_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var id = -1;
+            // Arrange
+            var associations = new List<Association>
+            {
+                new() { Id = 1, LongName = "Association 1", ShortName = "A1", ParentId = null },
+                new() { Id = 2, LongName = "Association 2", ShortName = "A2", ParentId = 1 },
+                new() { Id = 3, LongName = "Association 3", ShortName = "A3", ParentId = 1 },
+            };
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var id = -1;
             var result = await testRepository.GetAssociationAsync(id);
 
             // Assert
@@ -215,11 +265,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetAssociationByShortName_WhenDbSetIsNeitherNullNorEmptyAndAssociationIsFound_ShouldReturnAssociation()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var shortName = "A1";
+            // Arrange
+            var associations = new List<Association>
+            {
+                new() { Id = 1, LongName = "Association 1", ShortName = "A1", ParentId = null },
+                new() { Id = 2, LongName = "Association 2", ShortName = "A2", ParentId = 1 },
+                new() { Id = 3, LongName = "Association 3", ShortName = "A3", ParentId = 1 },
+            };
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var shortName = "A1";
             var result = testRepository.GetAssociationByShortName(shortName);
 
             // Assert
@@ -231,11 +287,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetAssociationByShortName_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var shortName = "A1";
+            // Arrange
+            List<Association> associations = null!;
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var shortName = "A1";
             var result = testRepository.GetAssociationByShortName(shortName);
 
             // Assert
@@ -245,11 +302,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetAssociationByShortName_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var shortName = "A1";
+            // Arrange
+            var associations = new List<Association>();
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var shortName = "A1";
             var result = testRepository.GetAssociationByShortName(shortName);
 
             // Assert
@@ -259,11 +317,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetAssociationByShortName_WhenAssociationIsNotFound_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var shortName = "A99";
+            // Arrange
+            var associations = new List<Association>
+            {
+                new() { Id = 1, LongName = "Association 1", ShortName = "A1", ParentId = null },
+                new() { Id = 2, LongName = "Association 2", ShortName = "A2", ParentId = 1 },
+                new() { Id = 3, LongName = "Association 3", ShortName = "A3", ParentId = 1 },
+            };
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var shortName = "A99";
             var result = testRepository.GetAssociationByShortName(shortName);
 
             // Assert
@@ -273,11 +337,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetAssociationByShortNameAsync_WhenDbSetIsNeitherNullNorEmptyAndAssociationIsFound_ShouldReturnAssociation()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var shortName = "A1";
+            // Arrange
+            var associations = new List<Association>
+            {
+                new() { Id = 1, LongName = "Association 1", ShortName = "A1", ParentId = null },
+                new() { Id = 2, LongName = "Association 2", ShortName = "A2", ParentId = 1 },
+                new() { Id = 3, LongName = "Association 3", ShortName = "A3", ParentId = 1 },
+            };
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var shortName = "A1";
             var result = await testRepository.GetAssociationByShortNameAsync(shortName);
 
             // Assert
@@ -289,11 +359,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetAssociationByShortNameAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var shortName = "A1";
+            // Arrange
+            List<Association> associations = null!;
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var shortName = "A1";
             var result = await testRepository.GetAssociationByShortNameAsync(shortName);
 
             // Assert
@@ -303,11 +374,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetAssociationByShortNameAsync_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var shortName = "A1";
+            // Arrange
+            var associations = new List<Association>();
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var shortName = "A1";
             var result = await testRepository.GetAssociationByShortNameAsync(shortName);
 
             // Assert
@@ -317,11 +389,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetAssociationByShortNameAsync_WhenAssociationIsNotFound_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var shortName = "A99";
+            // Arrange
+            var associations = new List<Association>
+            {
+                new() { Id = 1, LongName = "Association 1", ShortName = "A1", ParentId = null },
+                new() { Id = 2, LongName = "Association 2", ShortName = "A2", ParentId = 1 },
+                new() { Id = 3, LongName = "Association 3", ShortName = "A3", ParentId = 1 },
+            };
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var shortName = "A99";
             var result = await testRepository.GetAssociationByShortNameAsync(shortName);
 
             // Assert
@@ -425,6 +503,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void Update_WhenArgIsNotNullAndDbSetIsNotNull_ShouldSucceed_WithInMemoryDb()
         {
+            // Arrange
             using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
 
             var firstSeasonYear = 1;
@@ -451,11 +530,16 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Update_WhenArgIsNull_ShouldThrowException()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            Association? association = null!;
+            var associations = new List<Association>
+            {
+                new() { Id = 1, LongName = "Association 1", ShortName = "A1", ParentId = null },
+                new() { Id = 2, LongName = "Association 2", ShortName = "A2", ParentId = 1 },
+                new() { Id = 3, LongName = "Association 3", ShortName = "A3", ParentId = 1 },
+            };
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act & Assert
+            Association? association = null!;
             Assert.Throws<ArgumentNullException>(() => testRepository.Update(association));
         }
 
@@ -463,11 +547,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Update_WhenDbSetIsNull_ShouldReturnAssociation()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            Association? association = new() { };
+            List<Association> associations = null!;
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            Association? association = new();
             var updated = testRepository.Update(association);
 
             // Assert
@@ -479,11 +563,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Update_WhenDbSetIsEmpty_ShouldReturnAssociation()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            Association? association = new() { };
+            var associations = new List<Association>();
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            Association? association = new();
             var updated = testRepository.Update(association);
 
             // Assert
@@ -530,7 +614,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Delete_WhenDbSetIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            List<Association> associations = null!;
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             var association = new Association { Id = 1 };
 
@@ -545,11 +630,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Delete_WhenDbSetIsEmpty_ShouldFailAndReturnNull()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var association = new Association { Id = 1 };
+            var associations = new List<Association>();
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var association = new Association { Id = 1 };
             var result = testRepository.Delete(association.Id);
 
             // Assert
@@ -618,11 +703,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task DeleteAsync_WhenDbSetIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var association = new Association { Id = 1 };
+            List<Association> associations = null!;
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var association = new Association { Id = 1 };
             var result = await testRepository.DeleteAsync(association.Id);
 
             // Assert
@@ -633,11 +718,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task DeleteAsync_WhenDbSetIsEmpty_ShouldFailAndReturnNull()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var association = new Association { Id = 1 };
+            var associations = new List<Association>();
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
+            var association = new Association { Id = 1 };
             var result = await testRepository.DeleteAsync(association.Id);
 
             // Assert
@@ -671,7 +756,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void AssociationExists_WhenDbSetIsNotNullAndSelectedAssociationExists_ShouldReturnTrue()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            var associations = new List<Association>
+            {
+                new() { Id = 1, LongName = "Association 1", ShortName = "A1", ParentId = null },
+                new() { Id = 2, LongName = "Association 2", ShortName = "A2", ParentId = 1 },
+                new() { Id = 3, LongName = "Association 3", ShortName = "A3", ParentId = 1 },
+            };
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
             var result = testRepository.AssociationExists(1);
@@ -684,7 +775,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void AssociationExists_WhenDbSetIsNull_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            List<Association> associations = null!;
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
             var result = testRepository.AssociationExists(1);
@@ -697,7 +789,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void AssociationExists_WhenDbSetIsEmpty_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            var associations = new List<Association>();
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
             var result = testRepository.AssociationExists(1);
@@ -710,7 +803,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void AssociationExists_WhenSelectedAssociationDoesNotExist_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            var associations = new List<Association>
+            {
+                new() { Id = 1, LongName = "Association 1", ShortName = "A1", ParentId = null },
+                new() { Id = 2, LongName = "Association 2", ShortName = "A2", ParentId = 1 },
+                new() { Id = 3, LongName = "Association 3", ShortName = "A3", ParentId = 1 },
+            };
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
             var result = testRepository.AssociationExists(-1);
@@ -723,7 +822,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task AssociationExistsAsync_WhenDbSetIsNotNullAndSelectedAssociationExists_ShouldReturnTrue()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            var associations = new List<Association>
+            {
+                new() { Id = 1, LongName = "Association 1", ShortName = "A1", ParentId = null },
+                new() { Id = 2, LongName = "Association 2", ShortName = "A2", ParentId = 1 },
+                new() { Id = 3, LongName = "Association 3", ShortName = "A3", ParentId = 1 },
+            };
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
             var result = await testRepository.AssociationExistsAsync(1);
@@ -736,7 +841,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task AssociationExistsAsync_WhenDbSetIsNull_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            List<Association> associations = null!;
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
             var result = await testRepository.AssociationExistsAsync(1);
@@ -749,7 +855,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task AssociationExistsAsync_WhenDbSetIsEmpty_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            var associations = new List<Association>();
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
             var result = await testRepository.AssociationExistsAsync(1);
@@ -762,7 +869,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task AssociationExistsAsync_WhenSelectedAssociationDoesNotExist_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            var associations = new List<Association>
+            {
+                new() { Id = 1, LongName = "Association 1", ShortName = "A1", ParentId = null },
+                new() { Id = 2, LongName = "Association 2", ShortName = "A2", ParentId = 1 },
+                new() { Id = 3, LongName = "Association 3", ShortName = "A3", ParentId = 1 },
+            };
+            AssociationRepository testRepository = CreateTestRepository(associations);
 
             // Act
             var result = await testRepository.AssociationExistsAsync(-1);
@@ -771,54 +884,21 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             result.ShouldBeFalse();
         }
 
-        private ProFootballDbContext CreateFakeDbContextForAddOperations(DbSet<Association> associations)
+        private static ProFootballDbContext CreateFakeDbContextForAddOperations(DbSet<Association> associations)
         {
             var fakeDbContext = A.Fake<ProFootballDbContext>();
             fakeDbContext.Associations = associations;
             return fakeDbContext;
         }
 
-        private IAssociationRepository CreateTestRepositoryWithEmptyDbSet()
+        private static AssociationRepository CreateTestRepository(List<Association> associations)
         {
             var fakeDbContext = A.Fake<ProFootballDbContext>();
-
             fakeDbContext.Associations = A.Fake<DbSet<Association>>();
-            var associations = new List<Association>();
-            var fakeDbSet = associations.BuildMockDbSet();
+            DbSet<Association> fakeDbSet = associations is not null ? associations.BuildMockDbSet() : null!;
             A.CallTo(() => fakeDbContext.Associations).Returns(fakeDbSet);
 
-            var testRepository = new AssociationRepository(fakeDbContext);
-            return testRepository;
-        }
-
-        private IAssociationRepository CreateTestRepositoryWithNotEmptyDbSet()
-        {
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-
-            fakeDbContext.Associations = A.Fake<DbSet<Association>>();
-            var associations = new List<Association>
-            {
-                new() { Id = 1, LongName = "Association 1", ShortName = "A1", FirstSeasonYear = 1 },
-                new() { Id = 2, LongName = "Association 2", ShortName = "A2", FirstSeasonYear = 1 },
-                new() { Id = 3, LongName = "Association 3", ShortName = "A3", FirstSeasonYear = 1 },
-            };
-            var fakeDbSet = associations.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Associations).Returns(fakeDbSet);
-
-            var testRepository = new AssociationRepository(fakeDbContext);
-            return testRepository;
-        }
-
-        private IAssociationRepository CreateTestRepositoryWithNullDbSet()
-        {
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-
-            fakeDbContext.Associations = A.Fake<DbSet<Association>>();
-            DbSet<Association> fakeDbSet = null!;
-            A.CallTo(() => fakeDbContext.Associations).Returns(fakeDbSet);
-
-            var testRepository = new AssociationRepository(fakeDbContext);
-            return testRepository;
+            return new AssociationRepository(fakeDbContext);
         }
     }
 }

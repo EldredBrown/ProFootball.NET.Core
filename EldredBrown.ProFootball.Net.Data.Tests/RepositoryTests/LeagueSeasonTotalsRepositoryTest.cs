@@ -19,14 +19,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GetLeagueSeasonTotals_ShouldReturnLeagueSeasonTotals()
         {
             // Arrange
-            var leagueId = 1;
-            var seasonYear = 1920;
-
-            var expected = new LeagueSeasonTotals { };
-
-            _testRepository.TotalsToReturn = expected;
+            LeagueSeasonTotals expected = SetUpLeagueSeasonTotals();
 
             // Act
+            var leagueId = 1;
+            var seasonYear = 1920;
             var result = _testRepository.GetLeagueSeasonTotals(leagueId, seasonYear);
 
             // Assert
@@ -40,14 +37,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task GetLeagueSeasonTotalsAsync_ShouldReturnLeagueSeasonTotals()
         {
             // Arrange
-            var leagueId = 1;
-            var seasonYear = 1920;
-
-            var expected = new LeagueSeasonTotals { };
-
-            _testRepository.TotalsToReturn = expected;
+            LeagueSeasonTotals expected = SetUpLeagueSeasonTotals();
 
             // Act
+            var leagueId = 1;
+            var seasonYear = 1920;
             var result = await _testRepository.GetLeagueSeasonTotalsAsync(leagueId, seasonYear);
 
             // Assert
@@ -55,6 +49,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             result.ShouldBe(expected);
             _testRepository.CapturedLeagueId.ShouldBe(leagueId);
             _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
+        }
+
+        private LeagueSeasonTotals SetUpLeagueSeasonTotals()
+        {
+            var expected = new LeagueSeasonTotals();
+            _testRepository.TotalsToReturn = expected;
+            return expected;
         }
 
         /// <summary>

@@ -23,17 +23,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GetOffensiveRankings_ShouldReturnOffensiveRankings()
         {
             // Arrange
-            var seasonYear = 1920;
-            var leagueId = 1;
-
-            var expected = new List<RankingsOffensiveTeamSeason>
-            {
-                new()
-            };
-
-            _testRepository.OffensiveRankingsToReturn = expected;
+            List<RankingsOffensiveTeamSeason> expected = SetUpOffensiveRankings();
 
             // Act
+            var seasonYear = 1920;
+            var leagueId = 1;
             var result = _testRepository.GetOffensiveRankings(seasonYear, leagueId);
 
             // Assert
@@ -46,17 +40,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task GetOffensiveRankingsAsync_ShouldReturnOffensiveRankings()
         {
             // Arrange
-            var seasonYear = 1920;
-            var leagueId = 1;
-
-            var expected = new List<RankingsOffensiveTeamSeason>
-            {
-                new()
-            };
-
-            _testRepository.OffensiveRankingsToReturn = expected;
+            List<RankingsOffensiveTeamSeason> expected = SetUpOffensiveRankings();
 
             // Act
+            var seasonYear = 1920;
+            var leagueId = 1;
             var result = await _testRepository.GetOffensiveRankingsAsync(seasonYear, leagueId);
 
             // Assert
@@ -65,21 +53,22 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             _testRepository.CapturedseasonYear.ShouldBe(seasonYear);
         }
 
+        private List<RankingsOffensiveTeamSeason> SetUpOffensiveRankings()
+        {
+            var expected = new List<RankingsOffensiveTeamSeason>();
+            _testRepository.OffensiveRankingsToReturn = expected;
+            return expected;
+        }
+
         [Fact]
         public void GetDefensiveRankings_ShouldReturnDefensiveRankings()
         {
             // Arrange
-            var seasonYear = 1920;
-            var leagueId = 1;
-
-            var expected = new List<RankingsDefensiveTeamSeason>
-            {
-                new()
-            };
-
-            _testRepository.DefensiveRankingsToReturn = expected;
+            List<RankingsDefensiveTeamSeason> expected = SetUpDefensiveRankings();
 
             // Act
+            var seasonYear = 1920;
+            var leagueId = 1;
             var result = _testRepository.GetDefensiveRankings(seasonYear, leagueId);
 
             // Assert
@@ -92,17 +81,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task GetDefensiveRankingsAsync_ShouldReturnDefensiveRankings()
         {
             // Arrange
-            var seasonYear = 1920;
-            var leagueId = 1;
-
-            var expected = new List<RankingsDefensiveTeamSeason>
-            {
-                new()
-            };
-
-            _testRepository.DefensiveRankingsToReturn = expected;
+            List<RankingsDefensiveTeamSeason> expected = SetUpDefensiveRankings();
 
             // Act
+            var seasonYear = 1920;
+            var leagueId = 1;
             var result = await _testRepository.GetDefensiveRankingsAsync(seasonYear, leagueId);
 
             // Assert
@@ -111,21 +94,22 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             _testRepository.CapturedseasonYear.ShouldBe(seasonYear);
         }
 
+        private List<RankingsDefensiveTeamSeason> SetUpDefensiveRankings()
+        {
+            var expected = new List<RankingsDefensiveTeamSeason>();
+            _testRepository.DefensiveRankingsToReturn = expected;
+            return expected;
+        }
+
         [Fact]
         public void GetTotalRankings_ShouldReturnTotalRankings()
         {
             // Arrange
-            var seasonYear = 1920;
-            var leagueId = 1;
-
-            var expected = new List<RankingsTotalTeamSeason>
-            {
-                new()
-            };
-
-            _testRepository.TotalRankingsToReturn = expected;
+            List<RankingsTotalTeamSeason> expected = SetUpTotalRankings();
 
             // Act
+            var seasonYear = 1920;
+            var leagueId = 1;
             var result = _testRepository.GetTotalRankings(seasonYear, leagueId);
 
             // Assert
@@ -138,17 +122,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task GetTotalRankingsAsync_ShouldReturnTotalRankings()
         {
             // Arrange
-            var seasonYear = 1920;
-            var leagueId = 1;
-
-            var expected = new List<RankingsTotalTeamSeason>
-            {
-                new()
-            };
-
-            _testRepository.TotalRankingsToReturn = expected;
+            List<RankingsTotalTeamSeason> expected = SetUpTotalRankings();
 
             // Act
+            var seasonYear = 1920;
+            var leagueId = 1;
             var result = await _testRepository.GetTotalRankingsAsync(seasonYear, leagueId);
 
             // Assert
@@ -157,20 +135,90 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             _testRepository.CapturedseasonYear.ShouldBe(seasonYear);
         }
 
+        private List<RankingsTotalTeamSeason> SetUpTotalRankings()
+        {
+            var expected = new List<RankingsTotalTeamSeason>();
+            _testRepository.TotalRankingsToReturn = expected;
+            return expected;
+        }
+
         [Fact]
         public void GetDataForRankingsUpdate_ReturnsMappedResultSets()
         {
             // Arrange
-            // Fake the connection string
-            var fakeDbConnection = A.Fake<DbConnection>();
-            A.CallTo(() => fakeDbConnection.ConnectionString).Returns("Server=fake;");
+            SeasonRankingsRepository testRepository = CreateTestRepositoryForRankingsUpdate();
 
-            // Fake the connection string provider.
+            // Act
+            var teamSeason = new TeamSeason { TeamId = 1, SeasonYear = 1, LeagueId = 1 };
+            var result = testRepository.GetDataForRankingsUpdate(teamSeason);
+
+            // Assert
+            result.ShouldContainKey("TeamSeasonScheduleTotals");
+            result.ShouldContainKey("TeamSeasonScheduleAverages");
+            result.ShouldContainKey("LeagueSeason");
+
+            result["TeamSeasonScheduleTotals"]["Col1"].ShouldBe("Value1");
+            result["TeamSeasonScheduleTotals"]["Col2"].ShouldBe(42);
+        }
+
+        private static SeasonRankingsRepository CreateTestRepositoryForRankingsUpdate()
+        {
+            IConnectionStringProvider fakeConnectionStringProvider = FakeConnectionStringProvider();
+            IDbConnectionFactory fakeFactory = FakeConnectionFactory();
+
+            return new SeasonRankingsRepository(null!, fakeConnectionStringProvider, fakeFactory);
+        }
+
+        private static IConnectionStringProvider FakeConnectionStringProvider()
+        {
+            FakeConnectionString();
+
             var fakeConnectionStringProvider = A.Fake<IConnectionStringProvider>();
             A.CallTo(() => fakeConnectionStringProvider.GetConnectionString())
                 .Returns("Server=fake;Database=test;");
 
-            // Fake the reader
+            return fakeConnectionStringProvider;
+        }
+
+        private static void FakeConnectionString()
+        {
+            var fakeDbConnection = A.Fake<DbConnection>();
+            A.CallTo(() => fakeDbConnection.ConnectionString).Returns("Server=fake;");
+        }
+
+        private static IDbConnectionFactory FakeConnectionFactory()
+        {
+            IDbConnection fakeConnection = FakeConnection();
+
+            var fakeFactory = A.Fake<IDbConnectionFactory>();
+            A.CallTo(() => fakeFactory.CreateConnection(A<string>.Ignored)).Returns(fakeConnection);
+
+            return fakeFactory;
+        }
+
+        private static IDbConnection FakeConnection()
+        {
+            IDbCommand fakeCommand = FakeCommand();
+
+            var fakeConnection = A.Fake<IDbConnection>();
+            A.CallTo(() => fakeConnection.CreateCommand()).Returns(fakeCommand);
+
+            return fakeConnection;
+        }
+
+        private static IDbCommand FakeCommand()
+        {
+            DbDataReader fakeReader = FakeReader();
+
+            var fakeCommand = A.Fake<IDbCommand>();
+            A.CallTo(() => fakeCommand.ExecuteReader()).Returns(fakeReader);
+            A.CallTo(() => fakeCommand.Parameters).Returns(A.Fake<DbParameterCollection>());
+
+            return fakeCommand;
+        }
+
+        private static DbDataReader FakeReader()
+        {
             var fakeReader = A.Fake<DbDataReader>();
 
             int readCallCount = 0;
@@ -185,33 +233,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             A.CallTo(() => fakeReader.GetValue(0)).Returns("Value1");
             A.CallTo(() => fakeReader.GetValue(1)).Returns(42);
 
-            // Fake the command
-            var fakeCommand = A.Fake<IDbCommand>();
-            A.CallTo(() => fakeCommand.ExecuteReader()).Returns(fakeReader);
-            A.CallTo(() => fakeCommand.Parameters).Returns(A.Fake<DbParameterCollection>());
-
-            // Fake the connection
-            var fakeConnection = A.Fake<IDbConnection>();
-            A.CallTo(() => fakeConnection.CreateCommand()).Returns(fakeCommand);
-
-            // Fake the connection factory
-            var fakeFactory = A.Fake<IDbConnectionFactory>();
-            A.CallTo(() => fakeFactory.CreateConnection(A<string>.Ignored)).Returns(fakeConnection);
-
-            var testRepository = new SeasonRankingsRepository(null!, fakeConnectionStringProvider, fakeFactory);
-
-            var teamSeason = new TeamSeason { TeamId = 1, SeasonYear = 1, LeagueId = 1 };
-
-            // Act
-            var result = testRepository.GetDataForRankingsUpdate(teamSeason);
-
-            // Assert
-            result.ShouldContainKey("TeamSeasonScheduleTotals");
-            result.ShouldContainKey("TeamSeasonScheduleAverages");
-            result.ShouldContainKey("LeagueSeason");
-
-            result["TeamSeasonScheduleTotals"]["Col1"].ShouldBe("Value1");
-            result["TeamSeasonScheduleTotals"]["Col2"].ShouldBe(42);
+            return fakeReader;
         }
 
         /// <summary>

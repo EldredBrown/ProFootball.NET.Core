@@ -15,8 +15,8 @@ namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
     /// <param name="teamSeasonRepository">The repository by which team season data will be accessed.</param>
     public class ProcessGameStrategyBase(ITeamRepository teamRepository, ITeamSeasonRepository teamSeasonRepository)
     {
-        protected readonly ITeamRepository _teamRepository = teamRepository;
-        protected readonly ITeamSeasonRepository _teamSeasonRepository = teamSeasonRepository;
+        protected internal readonly ITeamRepository _teamRepository = teamRepository;
+        protected internal readonly ITeamSeasonRepository _teamSeasonRepository = teamSeasonRepository;
 
         /// <summary>
         /// Processes a <see cref="Game"/> entity into the Teams data store.
@@ -37,7 +37,7 @@ namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
             // blocks. Until then, I need to keep the following blocks of code commented out so that non-member 
             // opponents are permitted.
 
-            var guestSeason = teamSeasons.FirstOrDefault(
+            var guestSeason = teamSeasons?.FirstOrDefault(
                 ts => _teamRepository.GetTeam(ts.TeamId)?.Name == game.GuestName);
             //if (guestSeason is null)
             //{
@@ -45,7 +45,7 @@ namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
             //        $"No TeamSeason entity found for team '{game.GuestName}' and season year {seasonYear}.");
             //}
 
-            var hostSeason = teamSeasons.FirstOrDefault(
+            var hostSeason = teamSeasons?.FirstOrDefault(
                 ts => _teamRepository.GetTeam(ts.TeamId)?.Name == game.HostName);
             //if (hostSeason is null)
             //{
@@ -67,7 +67,7 @@ namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
         /// <returns></returns>
         public virtual async Task ProcessGameAsync(Game game)
         {
-            Guard.ThrowIfNull(game, $"{GetType()}.{nameof(ProcessGameAsync)}: {nameof(game)}");
+            Guard.ThrowIfNull(game, $"{GetType()}.{nameof(ProcessGame)}: {nameof(game)}");
 
             var seasonYear = game.SeasonYear;
             var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear);
@@ -79,7 +79,7 @@ namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
             // blocks. Until then, I need to keep the following blocks of code commented out so that non-member 
             // opponents are permitted.
 
-            var guestSeason = teamSeasons.FirstOrDefault(
+            var guestSeason = teamSeasons?.FirstOrDefault(
                 ts => _teamRepository.GetTeamAsync(ts.TeamId).Result?.Name == game.GuestName);
             //if (guestSeason is null)
             //{
@@ -87,7 +87,7 @@ namespace EldredBrown.ProFootball.Net.Services.ProcessGameStrategy
             //        $"No TeamSeason entity found for team '{game.GuestName}' and season year {seasonYear}.");
             //}
 
-            var hostSeason = teamSeasons.FirstOrDefault(
+            var hostSeason = teamSeasons?.FirstOrDefault(
                 ts => _teamRepository.GetTeamAsync(ts.TeamId).Result?.Name == game.HostName);
             //if (hostSeason is null)
             //{

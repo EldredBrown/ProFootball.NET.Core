@@ -8,7 +8,7 @@
         /// <summary>
         /// Gets or sets the guest season year of the current <see cref="GamePrediction"/> entity.
         /// </summary>
-        int GuestSeasonId { get; set; }
+        int? GuestSeasonYear { get; set; }
 
         /// <summary>
         /// Gets or sets the guest name of the current <see cref="GamePrediction"/> entity.
@@ -23,7 +23,7 @@
         /// <summary>
         /// Gets or sets the host season year of the current <see cref="GamePrediction"/> entity.
         /// </summary>
-        int HostSeasonId { get; set; }
+        int? HostSeasonYear { get; set; }
 
         /// <summary>
         /// Gets or sets the host name of the current <see cref="GamePrediction"/> entity.

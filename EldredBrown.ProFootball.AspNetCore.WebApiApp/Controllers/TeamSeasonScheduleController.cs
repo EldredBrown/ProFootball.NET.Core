@@ -11,6 +11,7 @@ using AutoMapper;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Models;
 using EldredBrown.ProFootball.AspNetCore.WebApiApp.Properties;
 using EldredBrown.ProFootball.Net.Data.Repositories;
+using System.Collections.Generic;
 
 namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
 {
@@ -28,6 +29,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         ITeamSeasonScheduleRepository teamSeasonScheduleRepository, IMapper mapper
     ) : ControllerBase
     {
+        internal readonly ITeamSeasonScheduleRepository _teamSeasonScheduleRepository = teamSeasonScheduleRepository;
+        internal readonly IMapper _mapper = mapper;
+
         /// <summary>
         /// Gets a collection of all team opponent profiles from the data store by team name and season year.
         /// </summary>
@@ -35,20 +39,21 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         /// <param name="seasonYear">The year of the season for which team season schedule profile data will be fetched.</param>
         /// <returns>A response representing the result of the operation.</returns>
         [HttpGet("profile/{teamId}/{seasonYear}")]
-        public async Task<ActionResult<TeamSeasonOpponentProfileModel[]>> GetTeamSeasonScheduleProfile(int teamId,
-            int seasonYear)
+        public async Task<ActionResult<List<TeamSeasonOpponentProfileModel>>> GetTeamSeasonScheduleProfile(
+            int teamId, int seasonYear
+        )
         {
             try
             {
                 var teamSeasonScheduleProfile = 
-                    await teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonYear);
+                    await _teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonYear);
 
                 if (!teamSeasonScheduleProfile.Any())
                 {
                     return NotFound();
                 }
 
-                return mapper.Map<TeamSeasonOpponentProfileModel[]>(teamSeasonScheduleProfile);
+                return _mapper.Map<List<TeamSeasonOpponentProfileModel>>(teamSeasonScheduleProfile);
             }
             catch (Exception)
             {
@@ -70,9 +75,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
             try
             {
                 var teamSeasonScheduleTotals =
-                    await teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonYear);
+                    await _teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonYear);
 
-                return mapper.Map<TeamSeasonScheduleTotalsModel>(teamSeasonScheduleTotals);
+                return _mapper.Map<TeamSeasonScheduleTotalsModel>(teamSeasonScheduleTotals);
             }
             catch (Exception)
             {
@@ -94,9 +99,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
             try
             {
                 var teamSeasonScheduleAverages =
-                    await teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonYear);
+                    await _teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonYear);
 
-                return mapper.Map<TeamSeasonScheduleAveragesModel>(teamSeasonScheduleAverages);
+                return _mapper.Map<TeamSeasonScheduleAveragesModel>(teamSeasonScheduleAverages);
             }
             catch (Exception)
             {

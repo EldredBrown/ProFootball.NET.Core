@@ -19,17 +19,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GetTeamSeasonScheduleProfile_ShouldReturnOpponentProfiles()
         {
             // Arrange
-            var teamId = 1;
-            var seasonYear = 1920;
-
-            var expected = new List<TeamSeasonOpponentProfile>
-            {
-                new()
-            };
-
-            _testRepository.ProfileToReturn = expected;
+            List<TeamSeasonOpponentProfile> expected = SetUpTeamSeasonScheduleProfile();
 
             // Act
+            var teamId = 1;
+            var seasonYear = 1920;
             var result = _testRepository.GetTeamSeasonScheduleProfile(teamId, seasonYear);
 
             // Assert
@@ -43,17 +37,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task GetTeamSeasonScheduleProfileAsync_ShouldReturnOpponentProfiles()
         {
             // Arrange
-            var teamId = 1;
-            var seasonYear = 1920;
-
-            var expected = new List<TeamSeasonOpponentProfile>
-            {
-                new()
-            };
-
-            _testRepository.ProfileToReturn = expected;
+            List<TeamSeasonOpponentProfile> expected = SetUpTeamSeasonScheduleProfile();
 
             // Act
+            var teamId = 1;
+            var seasonYear = 1920;
             var result = await _testRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonYear);
 
             // Assert
@@ -63,18 +51,27 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
         }
 
+        private List<TeamSeasonOpponentProfile> SetUpTeamSeasonScheduleProfile()
+        {
+            var expected = new List<TeamSeasonOpponentProfile>
+            {
+                new(),
+                new(),
+                new(),
+            };
+            _testRepository.ProfileToReturn = expected;
+            return expected;
+        }
+
         [Fact]
         public void GetTeamSeasonScheduleTotals_ShouldReturnScheduleTotals()
         {
             // Arrange
-            var teamId = 1;
-            var seasonYear = 1920;
-
-            var expected = new TeamSeasonScheduleTotals { };
-
-            _testRepository.TotalsToReturn = expected;
+            TeamSeasonScheduleTotals expected = SetUpTeamSeasonScheduleTotals();
 
             // Act
+            var teamId = 1;
+            var seasonYear = 1920;
             var result = _testRepository.GetTeamSeasonScheduleTotals(teamId, seasonYear);
 
             // Assert
@@ -88,14 +85,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task GetTeamSeasonScheduleTotalsAsync_ShouldReturnScheduleTotals()
         {
             // Arrange
-            var teamId = 1;
-            var seasonYear = 1920;
-
-            var expected = new TeamSeasonScheduleTotals { };
-
-            _testRepository.TotalsToReturn = expected;
+            TeamSeasonScheduleTotals expected = SetUpTeamSeasonScheduleTotals();
 
             // Act
+            var teamId = 1;
+            var seasonYear = 1920;
             var result = await _testRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonYear);
 
             // Assert
@@ -105,18 +99,23 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
         }
 
+        private TeamSeasonScheduleTotals SetUpTeamSeasonScheduleTotals()
+        {
+            var expected = new TeamSeasonScheduleTotals();
+
+            _testRepository.TotalsToReturn = expected;
+            return expected;
+        }
+
         [Fact]
         public void GetTeamSeasonScheduleAverages_ShouldReturnScheduleAverages()
         {
             // Arrange
-            var teamId = 1;
-            var seasonYear = 1920;
-
-            var expected = new TeamSeasonScheduleAverages { };
-
-            _testRepository.AveragesToReturn = expected;
+            TeamSeasonScheduleAverages expected = SetUpTeamSeasonScheduleAverages();
 
             // Act
+            var teamId = 1;
+            var seasonYear = 1920;
             var result = _testRepository.GetTeamSeasonScheduleAverages(teamId, seasonYear);
 
             // Assert
@@ -130,14 +129,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task GetTeamSeasonScheduleAveragesAsync_ShouldReturnScheduleAverages()
         {
             // Arrange
-            var teamId = 1;
-            var seasonYear = 1920;
-
-            var expected = new TeamSeasonScheduleAverages { };
-
-            _testRepository.AveragesToReturn = expected;
+            TeamSeasonScheduleAverages expected = SetUpTeamSeasonScheduleAverages();
 
             // Act
+            var teamId = 1;
+            var seasonYear = 1920;
             var result = await _testRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonYear);
 
             // Assert
@@ -145,6 +141,14 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             result.ShouldBe(expected);
             _testRepository.CapturedTeamId.ShouldBe(teamId);
             _testRepository.CapturedSeasonYear.ShouldBe(seasonYear);
+        }
+
+        private TeamSeasonScheduleAverages SetUpTeamSeasonScheduleAverages()
+        {
+            var expected = new TeamSeasonScheduleAverages();
+
+            _testRepository.AveragesToReturn = expected;
+            return expected;
         }
 
         /// <summary>

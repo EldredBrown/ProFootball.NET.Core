@@ -17,16 +17,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     /// <remarks>
     /// Initializes a new instance of the <see cref="SeasonController"/> class.
     /// </remarks>
-    /// <param name="seasonIndexViewModel">
+    /// <param name="_seasonIndexViewModel">
     /// The <see cref="ISeasonIndexViewModel"/> that will provide ViewModel data to the Index view.
     /// </param>
-    /// <param name="seasonDetailsViewModel">
+    /// <param name="_seasonDetailsViewModel">
     /// The <see cref="ISeasonDetailsViewModel"/> that will provide ViewModel data to the Details view.
     /// </param>
-    /// <param name="seasonRepository">
+    /// <param name="_seasonRepository">
     /// The <see cref="ISeasonRepository"/> by which season data will be accessed.
     /// </param>
-    /// <param name="sharedRepository">
+    /// <param name="_sharedRepository">
     /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
     /// </param>
     //[Authorize(Roles = "Admin")]
@@ -37,6 +37,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         ISharedRepository sharedRepository
     ) : Controller
     {
+        internal readonly ISeasonIndexViewModel _seasonIndexViewModel = seasonIndexViewModel;
+        internal readonly ISeasonDetailsViewModel _seasonDetailsViewModel = seasonDetailsViewModel;
+        internal readonly ISeasonRepository _seasonRepository = seasonRepository;
+        internal readonly ISharedRepository _sharedRepository = sharedRepository;
+
         // GET: Seasons
         /// <summary>
         /// Renders a view of the Seasons list.
@@ -45,8 +50,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            seasonIndexViewModel.Seasons = await seasonRepository.GetSeasonsAsync();
-            return View(seasonIndexViewModel);
+            _seasonIndexViewModel.Seasons = await _seasonRepository.GetSeasonsAsync();
+            return View(_seasonIndexViewModel);
         }
 
         // GET: Seasons/Details/5
@@ -63,16 +68,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            seasonDetailsViewModel.Title = "Season";
+            _seasonDetailsViewModel.Title = "Season";
 
-            var season = await seasonRepository.GetSeasonAsync(year.Value);
+            var season = await _seasonRepository.GetSeasonAsync(year.Value);
             if (season is null)
             {
                 return NotFound();
             }
-            seasonDetailsViewModel.Season = season;
+            _seasonDetailsViewModel.Season = season;
 
-            return View(seasonDetailsViewModel);
+            return View(_seasonDetailsViewModel);
         }
 
         // GET: Seasons/Create
@@ -100,11 +105,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                await seasonRepository.AddAsync(season);
+                await _seasonRepository.AddAsync(season);
 
                 try
                 {
-                    await sharedRepository.SaveChangesAsync();
+                    await _sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateException)
                 {
@@ -134,7 +139,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var season = await seasonRepository.GetSeasonAsync(year.Value);
+            var season = await _seasonRepository.GetSeasonAsync(year.Value);
             if (season is null)
             {
                 return NotFound();
@@ -153,15 +158,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int year)
         {
-            var season = await seasonRepository.DeleteAsync(year);
-            await sharedRepository.SaveChangesAsync();
+            var season = await _seasonRepository.DeleteAsync(year);
+            await _sharedRepository.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
 
         private async Task HandleDbUpdateExceptionOnCreate(Season season)
         {
-            var seasons = await seasonRepository.GetSeasonsAsync();
+            var seasons = await _seasonRepository.GetSeasonsAsync();
 
             if (PrimaryKeyViolationExists(seasons, season))
             {

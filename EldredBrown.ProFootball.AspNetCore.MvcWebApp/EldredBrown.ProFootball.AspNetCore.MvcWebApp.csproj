@@ -34,7 +34,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EldredBrown.ProFootball.Net.Data\EldredBrown.ProFootball.Net.Data.csproj" />
+	<InternalsVisibleTo Include="EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests"/>
+	<ProjectReference Include="..\EldredBrown.ProFootball.Net.Data\EldredBrown.ProFootball.Net.Data.csproj" />
     <ProjectReference Include="..\EldredBrown.ProFootball.Net.Services\EldredBrown.ProFootball.Net.Services.csproj" />
   </ItemGroup>
 

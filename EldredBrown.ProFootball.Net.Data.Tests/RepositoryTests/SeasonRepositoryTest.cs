@@ -16,14 +16,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GetSeasons_WhenDbSetIsNeitherNullNorEmpty_ShouldReturnSeasons()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            var seasons = new List<Season>
+            {
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
+            };
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
             var result = testRepository.GetSeasons();
 
             // Assert
             result.ShouldNotBeNull();
-            result.Count().ShouldBe(3);
+            result.Count().ShouldBe(seasons.Count);
             foreach (var item in result)
             {
                 item.ShouldBeOfType<Season>();
@@ -33,7 +39,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetSeasons_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            // Arrange
+            List<Season> seasons = null!;
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
             var result = testRepository.GetSeasons();
@@ -45,7 +53,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetSeasons_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            var seasons = new List<Season>();
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
             var result = testRepository.GetSeasons();
@@ -58,14 +67,20 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetSeasonsAsync_WhenDbSetIsNeitherNullNorEmpty_ShouldReturnSeasons()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            var seasons = new List<Season>
+            {
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
+            };
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
             var result = await testRepository.GetSeasonsAsync();
 
             // Assert
             result.ShouldNotBeNull();
-            result.Count().ShouldBe(3);
+            result.Count().ShouldBe(seasons.Count);
             foreach (var item in result)
             {
                 item.ShouldBeOfType<Season>();
@@ -75,7 +90,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetSeasonsAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            // Arrange
+            List<Season> seasons = null!;
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
             var result = await testRepository.GetSeasonsAsync();
@@ -87,7 +104,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetSeasonsAsync_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            var seasons = new List<Season>();
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
             var result = await testRepository.GetSeasonsAsync();
@@ -101,11 +119,16 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void GetSeason_WhenDbSetIsNeitherNullNorEmptyAndSeasonIsFound_ShouldReturnSeason()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var year = 1920;
+            var seasons = new List<Season>
+            {
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
+            };
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
+            var year = 1920;
             var result = testRepository.GetSeason(year);
 
             // Assert
@@ -117,11 +140,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetSeason_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var year = 1920;
+            // Arrange
+            List<Season> seasons = null!;
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
+            var year = 1920;
             var result = testRepository.GetSeason(year);
 
             // Assert
@@ -131,11 +155,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetSeason_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var year = 1920;
+            var seasons = new List<Season>();
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
+            var year = 1920;
             var result = testRepository.GetSeason(year);
 
             // Assert
@@ -145,11 +169,16 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetSeason_WhenSeasonIsNotFound_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var year = -1;
+            var seasons = new List<Season>
+            {
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
+            };
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
+            var year = -1;
             var result = testRepository.GetSeason(year);
 
             // Assert
@@ -159,11 +188,16 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetSeasonAsync_WhenDbSetIsNeitherNullNorEmptyAndSeasonIsFound_ShouldReturnSeason()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var year = 1920;
+            var seasons = new List<Season>
+            {
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
+            };
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
+            var year = 1920;
             var result = await testRepository.GetSeasonAsync(year);
 
             // Assert
@@ -175,11 +209,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetSeasonAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var year = 1920;
+            // Arrange
+            List<Season> seasons = null!;
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
+            var year = 1920;
             var result = await testRepository.GetSeasonAsync(year);
 
             // Assert
@@ -189,11 +224,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetSeasonAsync_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var year = 1920;
+            var seasons = new List<Season>();
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
+            var year = 1920;
             var result = await testRepository.GetSeasonAsync(year);
 
             // Assert
@@ -203,11 +238,16 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetSeasonAsync_WhenSeasonIsNotFound_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var year = -1;
+            var seasons = new List<Season>
+            {
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
+            };
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
+            var year = -1;
             var result = await testRepository.GetSeasonAsync(year);
 
             // Assert
@@ -218,12 +258,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Add_WhenArgIsNotNullAndDbSetIsNotNull_ShouldAddSeason()
         {
             // Arrange
-            var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Season>>());
-            var testRepository = new SeasonRepository(fakeDbContext);
-
-            var season = new Season { Year = 1920 };
+            var (testRepository, fakeDbContext) = CreateFakeDbContextForAddOperations();
 
             // Act
+            var season = new Season { Year = 1920 };
             var result = testRepository.Add(season);
 
             // Assert
@@ -235,12 +273,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Add_WhenArgIsNull_ShouldThrowException()
         {
             // Arrange
-            var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Season>>());
-            var testRepository = new SeasonRepository(fakeDbContext);
-
-            Season? season = null!;
+            List<Season>? seasons = [];
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act & Assert
+            Season? season = null!;
             Assert.Throws<ArgumentNullException>(() => testRepository.Add(season));
         }
 
@@ -248,12 +285,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Add_WhenDbSetIsNull_ShouldReturnSeasonWithoutAddingIt()
         {
             // Arrange
-            var fakeDbContext = CreateFakeDbContextForAddOperations(null!);
-            var testRepository = new SeasonRepository(fakeDbContext);
-
-            var season = new Season { Year = 1920 };
+            List<Season> seasons = null!;
+            (SeasonRepository testRepository, ProFootballDbContext fakeDbContext) = CreateTestRepository(seasons);
 
             // Act
+            var season = new Season { Year = 1920 };
             var result = testRepository.Add(season);
 
             // Assert
@@ -265,12 +301,10 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task AddAsync_WhenArgIsNotNullAndDbSetIsNotNull_ShouldAddSeason()
         {
             // Arrange
-            var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Season>>());
-            var testRepository = new SeasonRepository(fakeDbContext);
-
-            var season = new Season { Year = 1920 };
+            var (testRepository, fakeDbContext) = CreateFakeDbContextForAddOperations();
 
             // Act
+            var season = new Season { Year = 1920 };
             var result = await testRepository.AddAsync(season);
 
             // Assert
@@ -282,8 +316,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task AddAsync_WhenArgIsNull_ShouldThrowException()
         {
             // Arrange
-            var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Season>>());
-            var testRepository = new SeasonRepository(fakeDbContext);
+            List<Season> seasons = [];
+            (SeasonRepository testRepository, ProFootballDbContext fakeDbContext) = CreateTestRepository(seasons);
 
             Season? season = null!;
 
@@ -295,39 +329,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task AddAsync_WhenDbSetIsNull_ShouldReturnSeasonWithoutAddingIt()
         {
             // Arrange
-            var fakeDbContext = CreateFakeDbContextForAddOperations(null!);
-            var testRepository = new SeasonRepository(fakeDbContext);
-
-            var season = new Season { Year = 1920 };
+            List<Season> seasons = null!;
+            (SeasonRepository testRepository, ProFootballDbContext fakeDbContext) = 
+                CreateTestRepository(seasons!);
 
             // Act
+            var season = new Season { Year = 1920 };
             var result = await testRepository.AddAsync(season);
 
             // Assert
             A.CallTo(() => fakeDbContext.AddAsync(season)).MustNotHaveHappened();
             result.ShouldBe(season);
-        }
-
-        [Fact(Skip = "This test will be moved to the LeagueSeasonTest class.")]
-        public void Update_WhenArgIsNotNullAndDbSetIsNotNull_ShouldSucceed_WithInMemoryDb()
-        {
-            //using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
-
-            //var season = new Season { Year = 1920 };
-            //fakeDbContext.Seasons.Add(season);
-            //fakeDbContext.SaveChanges();
-
-            //var testRepository = new SeasonRepository(fakeDbContext);
-
-            //season.NumOfWeeksScheduled = 8;
-
-            //// Act
-            //testRepository.Update(season);
-            //fakeDbContext.SaveChanges();
-
-            //// Assert
-            //var updated = fakeDbContext.Seasons.FirstOrDefault(s => s.Year == season.Year);
-            //updated.ShouldNotBeNull();
         }
 
         [Fact]
@@ -357,12 +369,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Delete_WhenDbSetIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var season = new Season { Year = 1920 };
+            List<Season> seasons = null!;
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
-            var result = testRepository.Delete(season.Year);
+            var seasonYear = 1920;
+            var result = testRepository.Delete(seasonYear);
 
             // Assert
             result.ShouldBeNull();
@@ -372,12 +384,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Delete_WhenDbSetIsEmpty_ShouldFailAndReturnNull()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var season = new Season { Year = 1920 };
+            var seasons = new List<Season>();
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
-            var result = testRepository.Delete(season.Year);
+            var seasonYear = 1920;
+            var result = testRepository.Delete(seasonYear);
 
             // Assert
             result.ShouldBeNull();
@@ -433,12 +445,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task DeleteAsync_WhenDbSetIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var season = new Season { Year = 1920 };
+            List<Season> seasons = null!;
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
-            var result = await testRepository.DeleteAsync(season.Year);
+            var seasonYear = 1920;
+            var result = await testRepository.DeleteAsync(seasonYear);
 
             // Assert
             result.ShouldBeNull();
@@ -448,12 +460,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task DeleteAsync_WhenDbSetIsEmpty_ShouldFailAndReturnNull()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var season = new Season { Year = 1920 };
+            var seasons = new List<Season>();
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
-            var result = await testRepository.DeleteAsync(season.Year);
+            var seasonYear = 1920;
+            var result = await testRepository.DeleteAsync(seasonYear);
 
             // Assert
             result.ShouldBeNull();
@@ -486,7 +498,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void SeasonExists_WhenDbSetIsNotNullAndSelectedSeasonExists_ShouldReturnTrue()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            var seasons = new List<Season>
+            {
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
+            };
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
             var result = testRepository.SeasonExists(1920);
@@ -499,7 +517,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void SeasonExists_WhenDbSetIsNull_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            List<Season> seasons = null!;
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
             var result = testRepository.SeasonExists(1920);
@@ -512,7 +531,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void SeasonExists_WhenDbSetIsEmpty_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            var seasons = new List<Season>();
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
             var result = testRepository.SeasonExists(1920);
@@ -525,7 +545,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void SeasonExists_WhenSelectedSeasonDoesNotExist_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            var seasons = new List<Season>
+            {
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
+            };
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
             var result = testRepository.SeasonExists(-1);
@@ -538,7 +564,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task SeasonExistsAsync_WhenDbSetIsNotNullAndSelectedSeasonExists_ShouldReturnTrue()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            var seasons = new List<Season>
+            {
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
+            };
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
             var result = await testRepository.SeasonExistsAsync(1920);
@@ -551,7 +583,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task SeasonExistsAsync_WhenDbSetIsNull_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            List<Season> seasons = null!;
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
             var result = await testRepository.SeasonExistsAsync(1920);
@@ -564,7 +597,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task SeasonExistsAsync_WhenDbSetIsEmpty_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            var seasons = new List<Season>();
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
             var result = await testRepository.SeasonExistsAsync(1920);
@@ -577,7 +611,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task SeasonExistsAsync_WhenSelectedSeasonDoesNotExist_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            var seasons = new List<Season>
+            {
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
+            };
+            (SeasonRepository testRepository, _) = CreateTestRepository(seasons);
 
             // Act
             var result = await testRepository.SeasonExistsAsync(-1);
@@ -586,54 +626,23 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             result.ShouldBeFalse();
         }
 
-        private ProFootballDbContext CreateFakeDbContextForAddOperations(DbSet<Season> seasons)
+        private static (SeasonRepository, ProFootballDbContext) CreateFakeDbContextForAddOperations()
         {
             var fakeDbContext = A.Fake<ProFootballDbContext>();
-            fakeDbContext.Seasons = seasons;
-            return fakeDbContext;
+            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
+            var testRepository = new SeasonRepository(fakeDbContext);
+
+            return (testRepository, fakeDbContext);
         }
 
-        private ISeasonRepository CreateTestRepositoryWithEmptyDbSet()
+        private static (SeasonRepository, ProFootballDbContext) CreateTestRepository(List<Season>? seasons)
         {
             var fakeDbContext = A.Fake<ProFootballDbContext>();
-
             fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
-            var seasons = new List<Season>();
-            var fakeDbSet = seasons.BuildMockDbSet();
+            DbSet<Season> fakeDbSet = seasons is not null ? seasons.BuildMockDbSet() : null!;
             A.CallTo(() => fakeDbContext.Seasons).Returns(fakeDbSet);
 
-            var testRepository = new SeasonRepository(fakeDbContext);
-            return testRepository;
-        }
-
-        private ISeasonRepository CreateTestRepositoryWithNotEmptyDbSet()
-        {
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-
-            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
-            var seasons = new List<Season>
-            {
-                new() { Year = 1920 },
-                new() { Year = 1921 },
-                new() { Year = 1922 },
-            };
-            var fakeDbSet = seasons.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Seasons).Returns(fakeDbSet);
-
-            var testRepository = new SeasonRepository(fakeDbContext);
-            return testRepository;
-        }
-
-        private ISeasonRepository CreateTestRepositoryWithNullDbSet()
-        {
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-
-            fakeDbContext.Seasons = A.Fake<DbSet<Season>>();
-            DbSet<Season> fakeDbSet = null!;
-            A.CallTo(() => fakeDbContext.Seasons).Returns(fakeDbSet);
-
-            var testRepository = new SeasonRepository(fakeDbContext);
-            return testRepository;
+            return (new SeasonRepository(fakeDbContext), fakeDbContext);
         }
     }
 }

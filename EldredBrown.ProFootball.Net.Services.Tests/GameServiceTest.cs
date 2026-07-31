@@ -14,32 +14,20 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
 {
     public class GameServiceTest
     {
-        private readonly IGameRepository _gameRepository;
-        private readonly IProcessGameStrategyFactory _processGameStrategyFactory;
-        private readonly GameService _testService;
-
-        public GameServiceTest()
-        {
-            _gameRepository = A.Fake<IGameRepository>();
-            _processGameStrategyFactory = A.Fake<IProcessGameStrategyFactory>();
-            _testService = new GameService(_gameRepository, _processGameStrategyFactory);
-        }
-
         [Fact]
         public void AddGame_WhenNewGameArgIsNotNull_ShouldAddGameToRepository()
         {
             // Arrange
             var strategy = A.Fake<ProcessGameStrategyBase>();
-            A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Up)).Returns(strategy);
-
-            var newGame = new Game();
+            GameService testService = SetUp(upStrategy: strategy);
 
             // Act
-            _testService.AddGame(newGame);
+            var newGame = new Game();
+            testService.AddGame(newGame);
 
             // Assert
-            A.CallTo(() => _gameRepository.Add(newGame)).MustHaveHappened();
-            A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Up)).MustHaveHappened();
+            A.CallTo(() => testService._gameRepository.Add(newGame)).MustHaveHappened();
+            A.CallTo(() => testService._processGameStrategyFactory.CreateStrategy(Direction.Up)).MustHaveHappened();
             A.CallTo(() => strategy.ProcessGame(A<Game>.Ignored)).MustHaveHappenedOnceExactly();
         }
 
@@ -47,14 +35,15 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
         public void AddGame_WhenNewGameArgIsNull_ShouldThrowArgumentNullException()
         {
             // Arrange
-            Game? newGame = null;
+            var testService = SetUp();
 
             // Act
-            var action = new Action(() => _testService.AddGame(newGame!));
+            Game? newGame = null;
+            var action = new Action(() => testService.AddGame(newGame!));
 
             // Assert
             var ex = action.ShouldThrow<ArgumentNullException>();
-            ex.ParamName.ShouldBe<string>($"{_testService.GetType()}.AddGame: newGame");
+            ex.ParamName.ShouldBe<string>($"{testService.GetType()}.AddGame: newGame");
         }
 
         [Fact]
@@ -62,16 +51,15 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
         {
             // Arrange
             var strategy = A.Fake<ProcessGameStrategyBase>();
-            A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Up)).Returns(strategy);
-
-            var newGame = new Game();
+            var testService = SetUp(upStrategy: strategy);
 
             // Act
-            await _testService.AddGameAsync(newGame);
+            var newGame = new Game();
+            await testService.AddGameAsync(newGame);
 
             // Assert
-            A.CallTo(() => _gameRepository.AddAsync(newGame)).MustHaveHappened();
-            A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Up)).MustHaveHappened();
+            A.CallTo(() => testService._gameRepository.AddAsync(newGame)).MustHaveHappened();
+            A.CallTo(() => testService._processGameStrategyFactory.CreateStrategy(Direction.Up)).MustHaveHappened();
             A.CallTo(() => strategy.ProcessGameAsync(A<Game>.Ignored)).MustHaveHappenedOnceExactly();
         }
 
@@ -79,14 +67,15 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
         public async Task AddGameAsync_WhenNewGameArgIsNull_ShouldThrowArgumentNullException()
         {
             // Arrange
-            Game? newGame = null;
+            GameService testService = SetUp();
 
             // Act
-            var func = new Func<Task>(async () => await _testService.AddGameAsync(newGame!));
+            Game? newGame = null;
+            var func = new Func<Task>(async () => await testService.AddGameAsync(newGame!));
 
             // Assert
             var ex = await func.ShouldThrowAsync<ArgumentNullException>();
-            ex.ParamName.ShouldBe<string>($"{_testService.GetType()}.AddGameAsync: newGame");
+            ex.ParamName.ShouldBe<string>($"{testService.GetType()}.AddGameAsync: newGame");
         }
 
         [Fact]
@@ -94,23 +83,22 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
         {
             // Arrange
             var selectedGame = new Game();
-            A.CallTo(() => _gameRepository.GetGame(An<int>.Ignored)).Returns(selectedGame);
 
             var downStrategy = A.Fake<ProcessGameStrategyBase>();
-            A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Down)).Returns(downStrategy);
             var upStrategy = A.Fake<ProcessGameStrategyBase>();
-            A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Up)).Returns(upStrategy);
+
+            GameService testService = SetUp(selectedGame: selectedGame, downStrategy: downStrategy, upStrategy: upStrategy);
 
             // Act
             var newGame = new Game();
             var oldGame = new Game();
-            _testService.EditGame(newGame, oldGame);
+            testService.EditGame(newGame, oldGame);
 
             // Assert
-            A.CallTo(() => _gameRepository.GetGame(newGame.Id)).MustHaveHappened();
-            A.CallTo(() => _gameRepository.Update(selectedGame)).MustHaveHappened();
-            A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Down)).MustHaveHappened();
-            A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Up)).MustHaveHappened();
+            A.CallTo(() => testService._gameRepository.GetGame(newGame.Id)).MustHaveHappened();
+            A.CallTo(() => testService._gameRepository.Update(selectedGame)).MustHaveHappened();
+            A.CallTo(() => testService._processGameStrategyFactory.CreateStrategy(Direction.Down)).MustHaveHappened();
+            A.CallTo(() => testService._processGameStrategyFactory.CreateStrategy(Direction.Up)).MustHaveHappened();
             A.CallTo(() => downStrategy.ProcessGame(A<Game>.Ignored)).MustHaveHappenedOnceExactly();
             A.CallTo(() => upStrategy.ProcessGame(A<Game>.Ignored)).MustHaveHappenedOnceExactly();
         }
@@ -119,46 +107,48 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
         public void EditGame_WhenOldGameArgIsNull_ShouldThrowArgumentNullException()
         {
             // Arrange
-            var newGame = new Game();
-            Game? oldGame = null;
+            var testService = SetUp();
 
             // Act
-            var func = new Action(() => _testService.EditGame(newGame, oldGame!));
+            var newGame = new Game();
+            Game? oldGame = null;
+            var func = new Action(() => testService.EditGame(newGame, oldGame!));
 
             // Assert
             var ex = func.ShouldThrow<ArgumentNullException>();
-            ex.ParamName.ShouldBe<string>($"{_testService.GetType()}.EditGame: oldGame");
+            ex.ParamName.ShouldBe<string>($"{testService.GetType()}.EditGame: oldGame");
         }
 
         [Fact]
         public void EditGame_WhenNewGameArgIsNull_ShouldThrowArgumentNullException()
         {
             // Arrange
-            Game? newGame = null;
-            Game? oldGame = null;
+            var testService = SetUp();
 
             // Act
-            var action = new Action(() => _testService.EditGame(newGame!, oldGame!));
+            Game? newGame = null;
+            Game? oldGame = null;
+            var action = new Action(() => testService.EditGame(newGame!, oldGame!));
 
             // Assert
             var ex = action.ShouldThrow<ArgumentNullException>();
-            ex.ParamName.ShouldBe<string>($"{_testService.GetType()}.EditGame: newGame");
+            ex.ParamName.ShouldBe<string>($"{testService.GetType()}.EditGame: newGame");
         }
 
         [Fact]
         public void EditGame_WhenSelectedGameIsNotFound_ShouldThrowEntityNotFoundException()
         {
             // Arrange
-            A.CallTo(() => _gameRepository.GetGame(An<int>.Ignored)).Returns<Game?>(null);
+            var testService = SetUp();
 
             // Act
             var newGame = new Game();
             var oldGame = new Game();
-            var func = new Action(() => _testService.EditGame(newGame, oldGame));
+            var func = new Action(() => testService.EditGame(newGame, oldGame));
 
             // Assert
             var ex = func.ShouldThrow<EntityNotFoundException>();
-            ex.Message.ShouldBe<string>($"{_testService.GetType()}.EditGame: The selected Game entity could not be found.");
+            ex.Message.ShouldBe<string>($"{testService.GetType()}.EditGame: The selected Game entity could not be found.");
         }
 
         [Fact]
@@ -166,24 +156,21 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
         {
             // Arrange
             var selectedGame = new Game();
-            A.CallTo(() => _gameRepository.GetGameAsync(An<int>.Ignored)).Returns(selectedGame);
-
             var downStrategy = A.Fake<ProcessGameStrategyBase>();
-            A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Down)).Returns(downStrategy);
             var upStrategy = A.Fake<ProcessGameStrategyBase>();
-            A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Up)).Returns(upStrategy);
 
-            var newGame = new Game();
-            var oldGame = new Game();
+            GameService testService = SetUp(selectedGame: selectedGame, downStrategy: downStrategy, upStrategy: upStrategy);
 
             // Act
-            await _testService.EditGameAsync(newGame, oldGame);
+            var newGame = new Game();
+            var oldGame = new Game();
+            await testService.EditGameAsync(newGame, oldGame);
 
             // Assert
-            A.CallTo(() => _gameRepository.GetGameAsync(newGame.Id)).MustHaveHappened();
-            A.CallTo(() => _gameRepository.Update(selectedGame)).MustHaveHappened();
-            A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Down)).MustHaveHappened();
-            A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Up)).MustHaveHappened();
+            A.CallTo(() => testService._gameRepository.GetGameAsync(newGame.Id)).MustHaveHappened();
+            A.CallTo(() => testService._gameRepository.Update(selectedGame)).MustHaveHappened();
+            A.CallTo(() => testService._processGameStrategyFactory.CreateStrategy(Direction.Down)).MustHaveHappened();
+            A.CallTo(() => testService._processGameStrategyFactory.CreateStrategy(Direction.Up)).MustHaveHappened();
             A.CallTo(() => downStrategy.ProcessGameAsync(A<Game>.Ignored)).MustHaveHappenedOnceExactly();
             A.CallTo(() => upStrategy.ProcessGameAsync(A<Game>.Ignored)).MustHaveHappenedOnceExactly();
         }
@@ -192,116 +179,158 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
         public async Task EditGameAsync_WhenNewGameArgIsNull_ShouldThrowArgumentNullException()
         {
             // Arrange
-            Game? newGame = null;
-            Game? oldGame = null;
+            GameService testService = SetUp();
 
             // Act
-            var func = new Func<Task>(async () => await _testService.EditGameAsync(newGame!, oldGame!));
+            Game? newGame = null;
+            Game? oldGame = null;
+            var func = new Func<Task>(async () => await testService.EditGameAsync(newGame!, oldGame!));
 
             // Assert
             var ex = await func.ShouldThrowAsync<ArgumentNullException>();
-            ex.ParamName.ShouldBe<string>($"{_testService.GetType()}.EditGameAsync: newGame");
+            ex.ParamName.ShouldBe<string>($"{testService.GetType()}.EditGameAsync: newGame");
         }
 
         [Fact]
         public async Task EditGameAsync_WhenOldGameArgIsNull_ShouldThrowArgumentNullException()
         {
             // Arrange
-            var newGame = new Game();
-            Game? oldGame = null;
+            GameService testService = SetUp();
 
             // Act
-            var func = new Func<Task>(async () => await _testService.EditGameAsync(newGame, oldGame!));
+            var newGame = new Game();
+            Game? oldGame = null;
+            var func = new Func<Task>(async () => await testService.EditGameAsync(newGame, oldGame!));
 
             // Assert
             var ex = await func.ShouldThrowAsync<ArgumentNullException>();
-            ex.ParamName.ShouldBe<string>($"{_testService.GetType()}.EditGameAsync: oldGame");
+            ex.ParamName.ShouldBe<string>($"{testService.GetType()}.EditGameAsync: oldGame");
         }
 
         [Fact]
         public async Task EditGameAsync_WhenSelectedGameIsNotFound_ShouldThrowEntityNotFoundException()
         {
             // Arrange
-            A.CallTo(() => _gameRepository.GetGameAsync(An<int>.Ignored)).Returns<Game?>(null);
-
-            var newGame = new Game();
-            var oldGame = new Game();
+            GameService testService = SetUp();
 
             // Act
-            var func = new Func<Task>(async () => await _testService.EditGameAsync(newGame, oldGame));
+            var newGame = new Game();
+            var oldGame = new Game();
+            var func = new Func<Task>(async () => await testService.EditGameAsync(newGame, oldGame));
 
             // Assert
             var ex = await func.ShouldThrowAsync<EntityNotFoundException>();
-            ex.Message.ShouldBe<string>($"{_testService.GetType()}.EditGameAsync: The selected Game entity could not be found.");
+            ex.Message.ShouldBe<string>($"{testService.GetType()}.EditGameAsync: The selected Game entity could not be found.");
         }
 
         [Fact]
         public void DeleteGame_WhenGameWithIdIsFoundInRepository_ShouldDeleteGameFromRepository()
         {
             // Arrange
-            var id = 1;
-
+            var selectedGame = new Game
+            {
+                Id = 1
+            };
             var strategy = A.Fake<ProcessGameStrategyBase>();
-            A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Down)).Returns(strategy);
+            GameService testService = SetUp(selectedGame: selectedGame, downStrategy: strategy);
 
             // Act
-            _testService.DeleteGame(id);
+            var id = 1;
+            testService.DeleteGame(id);
 
             // Assert
-            A.CallTo(() => _gameRepository.GetGame(id)).MustHaveHappened();
-            A.CallTo(() => _gameRepository.Delete(id)).MustHaveHappened();
-            A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Down)).MustHaveHappened();
+            A.CallTo(() => testService._gameRepository.GetGame(id)).MustHaveHappened();
+            A.CallTo(() => testService._gameRepository.Delete(id)).MustHaveHappened();
+            A.CallTo(() => testService._processGameStrategyFactory.CreateStrategy(Direction.Down)).MustHaveHappened();
         }
 
         [Fact]
         public void DeleteGame_WhenGameWithIdIsNotFoundInRepository_ShouldThrowEntityNotFoundException()
         {
             // Arrange
-            var id = 1;
-            A.CallTo(() => _gameRepository.GetGame(id)).Returns<Game?>(null);
+            var testService = SetUp();
 
             // Act
-            var action = new Action(() => _testService.DeleteGame(id));
+            var id = 1;
+            var action = new Action(() => testService.DeleteGame(id));
 
             // Assert
             var ex = action.ShouldThrow<EntityNotFoundException>();
             ex.Message.ShouldBe<string>(
-                $"{_testService.GetType()}.DeleteGame: A Game entity with Id={id} could not be found.");
+                $"{testService.GetType()}.DeleteGame: A Game entity with Id={id} could not be found.");
         }
 
         [Fact]
         public async Task DeleteGameAsync_WhenGameWithIdIsFoundInRepository_ShouldDeleteGameFromRepository()
         {
             // Arrange
-            var id = 1;
-
+            var selectedGame = new Game
+            {
+                Id = 1
+            };
             var strategy = A.Fake<ProcessGameStrategyBase>();
-            A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Down)).Returns(strategy);
+            GameService testService = SetUp(selectedGame: selectedGame, downStrategy: strategy);
 
             // Act
-            await _testService.DeleteGameAsync(id);
+            var id = 1;
+            await testService.DeleteGameAsync(id);
 
             // Assert
-            A.CallTo(() => _gameRepository.GetGameAsync(id)).MustHaveHappened();
-            A.CallTo(() => _gameRepository.DeleteAsync(id)).MustHaveHappened();
-            A.CallTo(() => _processGameStrategyFactory.CreateStrategy(Direction.Down)).MustHaveHappened();
+            A.CallTo(() => testService._gameRepository.GetGameAsync(id)).MustHaveHappened();
+            A.CallTo(() => testService._gameRepository.DeleteAsync(id)).MustHaveHappened();
+            A.CallTo(() => testService._processGameStrategyFactory.CreateStrategy(Direction.Down)).MustHaveHappened();
         }
 
         [Fact]
         public async Task DeleteGameAsync_WhenGameWithIdIsNotFoundInRepository_ShouldThrowEntityNotFoundException()
         {
             // Arrange
-            var id = 1;
-
-            A.CallTo(() => _gameRepository.GetGameAsync(id)).Returns<Game?>(null);
+            var testService = SetUp();
 
             // Act
-            var func = new Func<Task>(async () => await _testService.DeleteGameAsync(id));
+            var id = 1;
+            var func = new Func<Task>(async () => await testService.DeleteGameAsync(id));
 
             // Assert
             var ex = await func.ShouldThrowAsync<EntityNotFoundException>();
             ex.Message.ShouldBe<string>(
-                $"{_testService.GetType()}.DeleteGameAsync: A Game entity with Id={id} could not be found.");
+                $"{testService.GetType()}.DeleteGameAsync: A Game entity with Id={id} could not be found.");
+        }
+
+        private GameService SetUp(
+            Game? selectedGame = null,
+            ProcessGameStrategyBase? downStrategy = null, ProcessGameStrategyBase? upStrategy = null
+        )
+        {
+            IGameRepository fakeGameRepository = SetUpFakeGameRepository(selectedGame);
+            IProcessGameStrategyFactory fakeProcessGameStrategyFactory = 
+                SetUpFakeProcessGameStrategyFactory(downStrategy, upStrategy);
+
+            return new GameService(fakeGameRepository, fakeProcessGameStrategyFactory);
+        }
+
+        private static IGameRepository SetUpFakeGameRepository(Game? selectedGame)
+        {
+            var fakeGameRepository = A.Fake<IGameRepository>();
+            A.CallTo(() => fakeGameRepository.GetGame(An<int>.Ignored)).Returns(selectedGame);
+            A.CallTo(() => fakeGameRepository.GetGameAsync(An<int>.Ignored)).Returns(selectedGame);
+
+            return fakeGameRepository;
+        }
+
+        private static IProcessGameStrategyFactory SetUpFakeProcessGameStrategyFactory(ProcessGameStrategyBase? downStrategy, ProcessGameStrategyBase? upStrategy)
+        {
+            var fakeProcessGameStrategyFactory = A.Fake<IProcessGameStrategyFactory>();
+            if (downStrategy is not null)
+            {
+                A.CallTo(() => fakeProcessGameStrategyFactory.CreateStrategy(Direction.Down)).Returns(downStrategy);
+            }
+            if (upStrategy is not null)
+            {
+                A.CallTo(() => fakeProcessGameStrategyFactory.CreateStrategy(Direction.Up)).Returns(upStrategy);
+            }
+
+            return fakeProcessGameStrategyFactory;
         }
     }
 }

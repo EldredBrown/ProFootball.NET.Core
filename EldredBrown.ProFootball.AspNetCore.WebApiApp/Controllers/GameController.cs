@@ -44,6 +44,12 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         LinkGenerator linkGenerator, IGameService gameService
     ) : ControllerBase
     {
+        internal readonly IGameRepository _gameRepository = gameRepository;
+        internal readonly ISharedRepository _sharedRepository = sharedRepository;
+        internal readonly IMapper _mapper = mapper;
+        internal readonly LinkGenerator _linkGenerator = linkGenerator;
+        internal readonly IGameService _gameService = gameService;
+
         // GET: api/Games
         /// <summary>
         /// Gets a collection of all games from the data store.
@@ -54,9 +60,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var games = await gameRepository.GetGamesAsync();
+                var games = await _gameRepository.GetGamesAsync();
 
-                return mapper.Map<GameModel[]>(games);
+                return _mapper.Map<GameModel[]>(games);
             }
             catch (Exception)
             {
@@ -75,13 +81,13 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var game = await gameRepository.GetGameAsync(id);
+                var game = await _gameRepository.GetGameAsync(id);
                 if (game is null)
                 {
                     return NotFound();
                 }
 
-                return mapper.Map<GameModel>(game);
+                return _mapper.Map<GameModel>(game);
             }
             catch (Exception)
             {
@@ -102,19 +108,19 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var location = linkGenerator.GetPathByAction("GetGame", "Games", new { id = -1 });
+                var location = _linkGenerator.GetPathByAction("GetGame", "Games", new { id = -1 });
                 if (string.IsNullOrWhiteSpace(location))
                 {
                     return BadRequest("Could not use Id");
                 }
 
-                var game = mapper.Map<Game>(model);
+                var game = _mapper.Map<Game>(model);
 
-                await gameService.AddGameAsync(game);
+                await _gameService.AddGameAsync(game);
 
-                if (await sharedRepository.SaveChangesAsync() > 0)
+                if (await _sharedRepository.SaveChangesAsync() > 0)
                 {
-                    return Created(location, mapper.Map<GameModel>(game));
+                    return Created(location, _mapper.Map<GameModel>(game));
                 }
 
                 return BadRequest();
@@ -139,21 +145,21 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var oldGame = mapper.Map<Game>(models["oldGame"]);
+                var oldGame = _mapper.Map<Game>(models["oldGame"]);
 
-                var currentGame = await gameRepository.GetGameAsync(id);
+                var currentGame = await _gameRepository.GetGameAsync(id);
                 if (currentGame is null)
                 {
                     return NotFound($"Could not find game with Id of {id}");
                 }
 
-                mapper.Map(models["newGame"], currentGame);
+                _mapper.Map(models["newGame"], currentGame);
 
-                await gameService.EditGameAsync(currentGame, oldGame);
+                await _gameService.EditGameAsync(currentGame, oldGame);
 
-                if (await sharedRepository.SaveChangesAsync() > 0)
+                if (await _sharedRepository.SaveChangesAsync() > 0)
                 {
-                    return mapper.Map<GameModel>(currentGame);
+                    return _mapper.Map<GameModel>(currentGame);
                 }
 
                 return BadRequest();
@@ -175,15 +181,15 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var game = await gameRepository.GetGameAsync(id);
+                var game = await _gameRepository.GetGameAsync(id);
                 if (game is null)
                 {
                     return NotFound($"Could not find game with Id of {id}");
                 }
 
-                await gameService.DeleteGameAsync(id);
+                await _gameService.DeleteGameAsync(id);
 
-                if (await sharedRepository.SaveChangesAsync() > 0)
+                if (await _sharedRepository.SaveChangesAsync() > 0)
                 {
                     return Ok();
                 }

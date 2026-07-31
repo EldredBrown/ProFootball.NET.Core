@@ -26,71 +26,33 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         [InlineData(null, null, 1922, "Guest1")]
         [InlineData(null, "Guest", 1922, "Guest")]
         [InlineData(1920, "Guest", 1920, "Guest")]
-        public async Task PredictGameGet_GuestValues_ShouldReturnTemplateFormView(int? guestSeasonYear, string? guestName,
-            int expGuestSeasonYear, string expGuestName)
+        public async Task PredictGameGet_GuestValues_ShouldReturnTemplateFormView(
+            int? guestSeasonYear, string? guestName, int expGuestSeasonYear, string expGuestName
+        )
         {
-            // Arrange
-            var prediction = new GamePrediction();
-
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var seasons = new List<Season>
-            {
-                new() { Year = 1920 },
-                new() { Year = 1921 },
-                new() { Year = 1922 },
-            };
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
-
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            var guestTeamSeasons = new List<TeamSeason>
-            {
-                new() { Id = 1, TeamIdNavigation = new Team { Id = 1, Name = "Guest1" } },
-                new() { Id = 2, TeamIdNavigation = new Team { Id = 2, Name = "Guest2" } },
-                new() { Id = 3, TeamIdNavigation = new Team { Id = 3, Name = "Guest3" } },
-            };
-            var hostTeamSeasons = new List<TeamSeason>
-            {
-                new() { Id = 4, TeamIdNavigation = new Team { Id = 4, Name = "Host1" } },
-                new() { Id = 5, TeamIdNavigation = new Team { Id = 5, Name = "Host2" } },
-                new() { Id = 6, TeamIdNavigation = new Team { Id = 6, Name = "Host3" } },
-            };
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
-                .ReturnsNextFromSequence(guestTeamSeasons, hostTeamSeasons);
-
-            var fakeGamePredictorService = A.Fake<IGamePredictorService>();
-
-            var fakeSession = new MockHttpSession();
-
-            fakeSession.SetObject("GuestSeasonYear", guestSeasonYear);
-            fakeSession.SetObject("GuestName", guestName);
-
-            int? hostSeasonYear = 1921;
-            fakeSession.SetObject("HostSeasonYear", hostSeasonYear);
-
+            int hostSeasonYear = 1921;
             string hostName = "Host";
-            fakeSession.SetObject("HostName", hostName);
 
-            var fakeHttpContext = new Mock<HttpContext>();
-            fakeHttpContext.Setup(x => x.Session).Returns(fakeSession);
-
-            var testController = new GamePredictorController(prediction, fakeSeasonRepository,
-                fakeTeamSeasonRepository, fakeGamePredictorService)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = fakeHttpContext.Object
-                }
-            };
+            (
+                GamePredictorController testController, GamePrediction prediction,
+                List<TeamSeason> guestTeamSeasons, List<TeamSeason> hostTeamSeasons
+            ) = SetUp(
+                guestSeasonYear: guestSeasonYear, guestName: guestName,
+                hostSeasonYear: hostSeasonYear, hostName: hostName
+            );
 
             // Act
             var result = await testController.PredictGame();
 
             // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._seasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
 
             var seasonsFromSession = testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons");
             var orderedSeasons = seasonsFromSession.OrderByDescending(s => s.Year).ToList();
             seasonsFromSession.ShouldBe(orderedSeasons);
+
+            var guestSeasonYearFromSession = testController.HttpContext.Session.GetObject<int>("GuestSeasonYear");
+            guestSeasonYearFromSession.ShouldBe(expGuestSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.GuestSeasons);
             var viewBagGuestSeasons = (SelectList)testController.ViewBag.GuestSeasons;
@@ -101,11 +63,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             prediction.GuestSeasonYear.ShouldBe(expGuestSeasonYear);
 
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(expGuestSeasonYear))
+            A.CallTo(() => testController._teamSeasonRepository.GetTeamSeasonsBySeasonAsync(expGuestSeasonYear))
                 .MustHaveHappenedOnceExactly();
             var guestTeamSeasonsFromSession = testController.HttpContext.Session
                 .GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons");
             guestTeamSeasonsFromSession.ShouldBeEquivalentTo(guestTeamSeasons);
+
+            var guestNameFromSession = testController.HttpContext.Session.GetObject<string>("GuestName");
+            guestNameFromSession.ShouldBe(expGuestName);
 
             Assert.IsType<SelectList>(testController.ViewBag.Guests);
             var viewBagGuests = (SelectList)testController.ViewBag.Guests;
@@ -114,126 +79,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             prediction.GuestName.ShouldBe(expGuestName);
 
-            Assert.IsType<SelectList>(testController.ViewBag.HostSeasons);
-            var viewBagHostSeasons = (SelectList)testController.ViewBag.HostSeasons;
-            viewBagHostSeasons.Items.ShouldBeEquivalentTo(orderedSeasons);
-            viewBagHostSeasons.DataValueField.ShouldBe<string>("Year");
-            viewBagHostSeasons.DataTextField.ShouldBe<string>("Year");
-            viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonYear);
-
-            prediction.HostSeasonYear.ShouldBe(hostSeasonYear.Value);
-
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(hostSeasonYear.Value))
-                .MustHaveHappenedOnceExactly();
-            var hostTeamSeasonsFromSession = testController.HttpContext.Session
-                .GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons");
-            hostTeamSeasonsFromSession.ShouldBeEquivalentTo(hostTeamSeasons);
-
-            Assert.IsType<SelectList>(testController.ViewBag.Hosts);
-            var viewBagHosts = (SelectList)testController.ViewBag.Hosts;
-            viewBagHosts.Items.ShouldBeEquivalentTo(hostTeamSeasons.Select(ts => ts.TeamIdNavigation.Name).ToList());
-            viewBagHosts.SelectedValue.ShouldBe(hostName);
-
-            prediction.HostName.ShouldBe(hostName);
-
-            result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(prediction);
-        }
-
-        [Fact]
-        public async Task PredictGameGet_WhenHostSeasonYearIsNotNullAndHostNameIsNeitherNullNorEmpty_ShouldReturnTemplateFormView()
-        {
-            // Arrange
-            var prediction = new GamePrediction();
-
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var seasons = new List<Season>
-            {
-                new() { Year = 1920 },
-                new() { Year = 1921 },
-                new() { Year = 1922 },
-            };
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
-
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            var guestTeamSeasons = new List<TeamSeason>
-            {
-                new() { Id = 1, TeamIdNavigation = new Team { Id = 1, Name = "Guest1" } },
-                new() { Id = 2, TeamIdNavigation = new Team { Id = 2, Name = "Guest2" } },
-                new() { Id = 3, TeamIdNavigation = new Team { Id = 3, Name = "Guest3" } },
-            };
-            var hostTeamSeasons = new List<TeamSeason>
-            {
-                new() { Id = 4, TeamIdNavigation = new Team { Id = 4, Name = "Host1" } },
-                new() { Id = 5, TeamIdNavigation = new Team { Id = 5, Name = "Host2" } },
-                new() { Id = 6, TeamIdNavigation = new Team { Id = 6, Name = "Host3" } },
-            };
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
-                .ReturnsNextFromSequence(guestTeamSeasons, hostTeamSeasons);
-
-            var fakeGamePredictorService = A.Fake<IGamePredictorService>();
-
-            var fakeSession = new MockHttpSession();
-
-            int? guestSeasonYear = null;
-            fakeSession.SetObject("GuestSeasonYear", guestSeasonYear);
-
-            string guestName = string.Empty;
-            fakeSession.SetObject("GuestName", guestName);
-
-            int? hostSeasonYear = 1921;
-            fakeSession.SetObject("HostSeasonYear", hostSeasonYear);
-
-            string hostName = "Host";
-            fakeSession.SetObject("HostName", hostName);
-
-            var fakeHttpContext = new Mock<HttpContext>();
-            fakeHttpContext.Setup(x => x.Session).Returns(fakeSession);
-
-            var testController = new GamePredictorController(prediction, fakeSeasonRepository,
-                fakeTeamSeasonRepository, fakeGamePredictorService)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = fakeHttpContext.Object
-                }
-            };
-
-            // Act
-            var result = await testController.PredictGame();
-
-            // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
-
-            var seasonsFromSession = testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons");
-            var orderedSeasons = seasonsFromSession.OrderByDescending(s => s.Year).ToList();
-            seasonsFromSession.ShouldBe(orderedSeasons);
-
-            var defaultSeasonYear = 1922;
-
-            Assert.IsType<SelectList>(testController.ViewBag.GuestSeasons);
-            var viewBagGuestSeasons = (SelectList)testController.ViewBag.GuestSeasons;
-            viewBagGuestSeasons.Items.ShouldBeEquivalentTo(orderedSeasons);
-            viewBagGuestSeasons.DataValueField.ShouldBe<string>("Year");
-            viewBagGuestSeasons.DataTextField.ShouldBe<string>("Year");
-            viewBagGuestSeasons.SelectedValue.ShouldBe(defaultSeasonYear);
-
-            prediction.GuestSeasonYear.ShouldBe(defaultSeasonYear);
-
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(defaultSeasonYear))
-                .MustHaveHappenedOnceExactly();
-            var guestTeamSeasonsFromSession = testController.HttpContext.Session
-                .GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons");
-            guestTeamSeasonsFromSession.ShouldBeEquivalentTo(guestTeamSeasons);
-
-            var defaultGuestName = guestTeamSeasons.First().TeamIdNavigation.Name;
-
-            Assert.IsType<SelectList>(testController.ViewBag.Guests);
-            var viewBagGuests = (SelectList)testController.ViewBag.Guests;
-            viewBagGuests.Items.ShouldBeEquivalentTo(guestTeamSeasons.Select(ts => ts.TeamIdNavigation.Name).ToList());
-            viewBagGuests.SelectedValue.ShouldBe(defaultGuestName);
-
-            prediction.GuestName.ShouldBe(defaultGuestName);
+            var hostSeasonYearFromSession = testController.HttpContext.Session.GetObject<int>("HostSeasonYear");
+            hostSeasonYearFromSession.ShouldBe(hostSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.HostSeasons);
             var viewBagHostSeasons = (SelectList)testController.ViewBag.HostSeasons;
@@ -242,13 +89,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             viewBagHostSeasons.DataTextField.ShouldBe<string>("Year");
             viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonYear);
 
-            prediction.HostSeasonYear.ShouldBe(hostSeasonYear.Value);
+            prediction.HostSeasonYear.ShouldBe(hostSeasonYear);
 
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(hostSeasonYear.Value))
+            A.CallTo(() => testController._teamSeasonRepository.GetTeamSeasonsBySeasonAsync(hostSeasonYear))
                 .MustHaveHappenedOnceExactly();
             var hostTeamSeasonsFromSession = testController.HttpContext.Session
                 .GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons");
             hostTeamSeasonsFromSession.ShouldBeEquivalentTo(hostTeamSeasons);
+
+            var hostNameFromSession = testController.HttpContext.Session.GetObject<string>("HostName");
+            hostNameFromSession.ShouldBe(hostName);
 
             Assert.IsType<SelectList>(testController.ViewBag.Hosts);
             var viewBagHosts = (SelectList)testController.ViewBag.Hosts;
@@ -265,95 +115,62 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         [InlineData(null, "", 1922, "Host1")]
         [InlineData(null, null, 1922, "Host1")]
         [InlineData(null, "Host", 1922, "Host")]
-        public async Task PredictGameGet_HostValues_ShouldReturnTemplateFormView(int? hostSeasonYear, string? hostName,
-            int expHostSeasonYear, string expHostName)
+        [InlineData(1920, "Host", 1920, "Host")]
+        public async Task PredictGameGet_HostValues_ShouldReturnTemplateFormView(
+            int? hostSeasonYear, string? hostName, int expHostSeasonYear, string expHostName
+        )
         {
-            // Arrange
-            var prediction = new GamePrediction();
+            int guestSeasonYear = 1921;
+            string guestName = "Guest";
 
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var seasons = new List<Season>
-            {
-                new() { Year = 1920 },
-                new() { Year = 1921 },
-                new() { Year = 1922 },
-            };
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
-
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            var guestTeamSeasons = new List<TeamSeason>
-            {
-                new() { Id = 1, TeamIdNavigation = new Team { Id = 1, Name = "Guest1" } },
-                new() { Id = 2, TeamIdNavigation = new Team { Id = 2, Name = "Guest2" } },
-                new() { Id = 3, TeamIdNavigation = new Team { Id = 3, Name = "Guest3" } },
-            };
-            var hostTeamSeasons = new List<TeamSeason>
-            {
-                new() { Id = 4, TeamIdNavigation = new Team { Id = 4, Name = "Host1" } },
-                new() { Id = 5, TeamIdNavigation = new Team { Id = 5, Name = "Host2" } },
-                new() { Id = 6, TeamIdNavigation = new Team { Id = 6, Name = "Host3" } },
-            };
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
-                .ReturnsNextFromSequence(guestTeamSeasons, hostTeamSeasons);
-
-            var fakeGamePredictorService = A.Fake<IGamePredictorService>();
-
-            var fakeSession = new MockHttpSession();
-
-            int? guestSeasonYear = null;
-            fakeSession.SetObject("GuestSeasonYear", guestSeasonYear);
-
-            string guestName = string.Empty;
-            fakeSession.SetObject("GuestName", guestName);
-
-            fakeSession.SetObject("HostSeasonYear", hostSeasonYear);
-            fakeSession.SetObject("HostName", hostName);
-
-            var fakeHttpContext = new Mock<HttpContext>();
-            fakeHttpContext.Setup(x => x.Session).Returns(fakeSession);
-
-            var testController = new GamePredictorController(prediction, fakeSeasonRepository,
-                fakeTeamSeasonRepository, fakeGamePredictorService)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = fakeHttpContext.Object
-                }
-            };
+            (
+                GamePredictorController testController, GamePrediction prediction,
+                List<TeamSeason> guestTeamSeasons, List<TeamSeason> hostTeamSeasons
+            ) = SetUp(
+                guestSeasonYear: guestSeasonYear, guestName: guestName,
+                hostSeasonYear: hostSeasonYear, hostName: hostName
+            );
 
             // Act
             var result = await testController.PredictGame();
 
             // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._seasonRepository.GetSeasonsAsync()).MustHaveHappenedOnceExactly();
 
             var seasonsFromSession = testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons");
             var orderedSeasons = seasonsFromSession.OrderByDescending(s => s.Year).ToList();
             seasonsFromSession.ShouldBe(orderedSeasons);
 
-            var defaultSeasonYear = 1922;
+            var guestSeasonYearFromSession = testController.HttpContext.Session.GetObject<int>("GuestSeasonYear");
+            guestSeasonYearFromSession.ShouldBe(guestSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.GuestSeasons);
             var viewBagGuestSeasons = (SelectList)testController.ViewBag.GuestSeasons;
             viewBagGuestSeasons.Items.ShouldBeEquivalentTo(orderedSeasons);
             viewBagGuestSeasons.DataValueField.ShouldBe<string>("Year");
             viewBagGuestSeasons.DataTextField.ShouldBe<string>("Year");
-            viewBagGuestSeasons.SelectedValue.ShouldBe(defaultSeasonYear);
+            viewBagGuestSeasons.SelectedValue.ShouldBe(guestSeasonYear);
 
-            prediction.GuestSeasonYear.ShouldBe(defaultSeasonYear);
+            prediction.GuestSeasonYear.ShouldBe(guestSeasonYear);
 
+            A.CallTo(() => testController._teamSeasonRepository.GetTeamSeasonsBySeasonAsync(guestSeasonYear))
+                .MustHaveHappenedOnceExactly();
             var guestTeamSeasonsFromSession = testController.HttpContext.Session
                 .GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons");
             guestTeamSeasonsFromSession.ShouldBeEquivalentTo(guestTeamSeasons);
 
-            var defaultGuestName = guestTeamSeasons.First().TeamIdNavigation.Name;
+            var guestNameFromSession = testController.HttpContext.Session.GetObject<string>("GuestName");
+            guestNameFromSession.ShouldBe(guestName);
 
             Assert.IsType<SelectList>(testController.ViewBag.Guests);
             var viewBagGuests = (SelectList)testController.ViewBag.Guests;
             viewBagGuests.Items.ShouldBeEquivalentTo(guestTeamSeasons.Select(ts => ts.TeamIdNavigation.Name).ToList());
-            viewBagGuests.SelectedValue.ShouldBe(defaultGuestName);
+            viewBagGuests.SelectedValue.ShouldBe(guestName);
 
-            prediction.GuestName.ShouldBe(defaultGuestName);
+            prediction.GuestName.ShouldBe(guestName);
+
+            var hostSeasonYearFromSession = testController.HttpContext.Session.GetObject<int>("HostSeasonYear");
+            hostSeasonYearFromSession.ShouldBe(expHostSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.HostSeasons);
             var viewBagHostSeasons = (SelectList)testController.ViewBag.HostSeasons;
@@ -364,9 +181,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
 
             prediction.HostSeasonYear.ShouldBe(expHostSeasonYear);
 
+            A.CallTo(() => testController._teamSeasonRepository.GetTeamSeasonsBySeasonAsync(expHostSeasonYear))
+                .MustHaveHappenedOnceExactly();
             var hostTeamSeasonsFromSession = testController.HttpContext.Session
                 .GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons");
             hostTeamSeasonsFromSession.ShouldBeEquivalentTo(hostTeamSeasons);
+
+            var hostNameFromSession = testController.HttpContext.Session.GetObject<string>("HostName");
+            hostNameFromSession.ShouldBe(expHostName);
 
             Assert.IsType<SelectList>(testController.ViewBag.Hosts);
             var viewBagHosts = (SelectList)testController.ViewBag.Hosts;
@@ -374,9 +196,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             viewBagHosts.SelectedValue.ShouldBe(expHostName);
 
             prediction.HostName.ShouldBe(expHostName);
-
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(defaultSeasonYear))
-                .MustHaveHappenedTwiceExactly();
 
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(prediction);
@@ -386,65 +205,41 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task PredictGamePost_WhenGuestAndHostTeamSeasonsBothFound_ShouldPredictGameAndReturnFilledFormView()
         {
             // Arrange
-            TeamSeason? guestTeamSeason = new() { Id = 1, TeamIdNavigation = new Team { Name = "Guest" } };
-            var guestSeasonYear = 1920;
-            TeamSeason? hostTeamSeason = new() { Id = 2, TeamIdNavigation = new Team { Name = "Host" } };
-            var hostSeasonYear = 1921;
-            var prediction = new GamePrediction
+            var guestTeamSeason = new TeamSeason
             {
-                GuestName = guestTeamSeason.TeamIdNavigation.Name,
-                GuestSeasonYear = guestSeasonYear,
-                HostName = hostTeamSeason.TeamIdNavigation.Name,
-                HostSeasonYear = hostSeasonYear,
-            };
-
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-
-            var fakeGamePredictorService = A.Fake<IGamePredictorService>();
-            var gameScorePrediction = new GameScorePrediction
-            {
-                GuestScore = 0,
-                HostScore = 0,
-            };
-            A.CallTo(() => fakeGamePredictorService.PredictGameScore(A<TeamSeason>.Ignored, A<TeamSeason>.Ignored))
-                .Returns(gameScorePrediction);
-
-            var fakeSession = new MockHttpSession();
-
-            var seasons = new List<Season>
-            {
-                new() { Year = 1920 },
-                new() { Year = 1921 },
-                new() { Year = 1922 },
-            };
-            fakeSession.SetObject("Seasons", seasons);
-
-            var guestTeamSeasons = new List<TeamSeason> { guestTeamSeason };
-            fakeSession.SetObject("GuestTeamSeasons", guestTeamSeasons);
-
-            var hostTeamSeasons = new List<TeamSeason> { hostTeamSeason };
-            fakeSession.SetObject("HostTeamSeasons", hostTeamSeasons);
-
-            var fakeHttpContext = new Mock<HttpContext>();
-            fakeHttpContext.Setup(x => x.Session).Returns(fakeSession);
-
-            var testController = new GamePredictorController(prediction, fakeSeasonRepository,
-                fakeTeamSeasonRepository, fakeGamePredictorService)
-            {
-                ControllerContext = new ControllerContext
+                Id = 1,
+                TeamIdNavigation = new Team
                 {
-                    HttpContext = fakeHttpContext.Object
+                    Name = "Guest"
                 }
             };
+            var guestSeasonYear = 1920;
+
+            var hostTeamSeason = new TeamSeason
+            {
+                Id = 2,
+                TeamIdNavigation = new Team
+                {
+                    Name = "Host"
+                }
+            };
+            var hostSeasonYear = 1920;
+
+            (
+                GamePredictorController testController, GamePrediction prediction, List<Season> seasons,
+                List<TeamSeason> guestTeamSeasons, List<TeamSeason> hostTeamSeasons,
+                GameScorePrediction gameScorePrediction
+            ) = SetUpPredictGamePost(
+                guestTeamSeason: guestTeamSeason, guestSeasonYear: guestSeasonYear,
+                hostTeamSeason: hostTeamSeason, hostSeasonYear: hostSeasonYear
+            );
 
             // Act
             var result = await testController.PredictGame(prediction);
 
             // Assert
-            fakeSession.GetObject<IEnumerable<Season>>("Seasons").ShouldBeEquivalentTo(seasons);
-
-            fakeSession.GetObject<int>("GuestSeasonYear").ShouldBe(guestSeasonYear);
+            testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons").ShouldBeEquivalentTo(seasons);
+            testController.HttpContext.Session.GetObject<int>("GuestSeasonYear").ShouldBe(guestSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.GuestSeasons);
             var viewBagGuestSeasons = (SelectList)testController.ViewBag.GuestSeasons;
@@ -453,14 +248,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             viewBagGuestSeasons.DataTextField.ShouldBe("Year");
             viewBagGuestSeasons.SelectedValue.ShouldBe(guestSeasonYear);
 
-            fakeSession.GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons").ShouldBeEquivalentTo(guestTeamSeasons);
+            testController.HttpContext.Session.GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons")
+                .ShouldBeEquivalentTo(guestTeamSeasons);
 
             Assert.IsType<SelectList>(testController.ViewBag.Guests);
             var viewBagGuests = ((SelectList)testController.ViewBag.Guests);
             viewBagGuests.Items.ShouldBeEquivalentTo(guestTeamSeasons.Select(ts => ts.TeamIdNavigation.Name).ToList());
             viewBagGuests.SelectedValue.ShouldBe(guestTeamSeason.TeamIdNavigation.Name);
 
-            fakeSession.GetObject<int>("HostSeasonYear").ShouldBe(hostSeasonYear);
+            testController.HttpContext.Session.GetObject<int>("HostSeasonYear").ShouldBe(hostSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.HostSeasons);
             var viewBagHostSeasons = (SelectList)testController.ViewBag.HostSeasons;
@@ -469,14 +265,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             viewBagHostSeasons.DataTextField.ShouldBe("Year");
             viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonYear);
 
-            fakeSession.GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons").ShouldBeEquivalentTo(hostTeamSeasons);
+            testController.HttpContext.Session.GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons")
+                .ShouldBeEquivalentTo(hostTeamSeasons);
 
             Assert.IsType<SelectList>(testController.ViewBag.Hosts);
             var viewBagHosts = ((SelectList)testController.ViewBag.Hosts);
             viewBagHosts.Items.ShouldBeEquivalentTo(hostTeamSeasons.Select(ts => ts.TeamIdNavigation.Name).ToList());
             viewBagHosts.SelectedValue.ShouldBe(hostTeamSeason.TeamIdNavigation.Name);
 
-            A.CallTo(() => fakeGamePredictorService.PredictGameScore(A<TeamSeason>.Ignored, A<TeamSeason>.Ignored))
+            A.CallTo(() => testController._gamePredictorService.PredictGameScore(A<TeamSeason>.Ignored, A<TeamSeason>.Ignored))
                 .MustHaveHappenedOnceExactly();
             prediction.GuestScore.ShouldBe(gameScorePrediction.GuestScore.Value);
             prediction.HostScore.ShouldBe(gameScorePrediction.HostScore.Value);
@@ -488,81 +285,47 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task PredictGamePost_WhenGuestTeamSeasonNotFound_ShouldPredictGameAndReturnFilledFormView()
         {
             // Arrange
-            TeamSeason? guestTeamSeason = new() { Id = 1, TeamIdNavigation = new Team { Name = "Guest" } };
-            var guestSeasonYear = 1920;
-            TeamSeason? hostTeamSeason = new() { Id = 2, TeamIdNavigation = new Team { Name = "Host" } };
-            var hostSeasonYear = 1921;
-            var prediction = new GamePrediction
+            var hostTeamSeason = new TeamSeason
             {
-                GuestName = guestTeamSeason.TeamIdNavigation.Name,
-                GuestSeasonYear = guestSeasonYear,
-                HostName = hostTeamSeason.TeamIdNavigation.Name,
-                HostSeasonYear = hostSeasonYear,
-            };
-
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-
-            var fakeGamePredictorService = A.Fake<IGamePredictorService>();
-            var gameScorePrediction = new GameScorePrediction
-            {
-                GuestScore = 0,
-                HostScore = 0,
-            };
-            A.CallTo(() => fakeGamePredictorService.PredictGameScore(A<TeamSeason>.Ignored, A<TeamSeason>.Ignored))
-                .Returns(gameScorePrediction);
-
-            var fakeSession = new MockHttpSession();
-
-            var seasons = new List<Season>
-            {
-                new() { Year = 1920 },
-                new() { Year = 1921 },
-                new() { Year = 1922 },
-            };
-            fakeSession.SetObject("Seasons", seasons);
-
-            var guestTeamSeasons = new List<TeamSeason> { };
-            fakeSession.SetObject("GuestTeamSeasons", guestTeamSeasons);
-
-            var hostTeamSeasons = new List<TeamSeason> { hostTeamSeason };
-            fakeSession.SetObject("HostTeamSeasons", hostTeamSeasons);
-
-            var fakeHttpContext = new Mock<HttpContext>();
-            fakeHttpContext.Setup(x => x.Session).Returns(fakeSession);
-
-            var testController = new GamePredictorController(prediction, fakeSeasonRepository,
-                fakeTeamSeasonRepository, fakeGamePredictorService)
-            {
-                ControllerContext = new ControllerContext
+                Id = 2,
+                TeamIdNavigation = new Team
                 {
-                    HttpContext = fakeHttpContext.Object
+                    Name = "Host"
                 }
             };
+            var hostSeasonYear = 1920;
+
+            (
+                GamePredictorController testController, GamePrediction prediction, List<Season> seasons,
+                List<TeamSeason> guestTeamSeasons, List<TeamSeason> hostTeamSeasons,
+                GameScorePrediction gameScorePrediction
+            ) = SetUpPredictGamePost(hostTeamSeason: hostTeamSeason, hostSeasonYear: hostSeasonYear);
 
             // Act
             var result = await testController.PredictGame(prediction);
 
             // Assert
-            fakeSession.GetObject<IEnumerable<Season>>("Seasons").ShouldBeEquivalentTo(seasons);
+            testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons").ShouldBeEquivalentTo(seasons);
 
-            fakeSession.GetObject<int>("GuestSeasonYear").ShouldBe(guestSeasonYear);
+            var defaultSeasonYear = 1922;
+            testController.HttpContext.Session.GetObject<int>("GuestSeasonYear").ShouldBe(defaultSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.GuestSeasons);
             var viewBagGuestSeasons = (SelectList)testController.ViewBag.GuestSeasons;
             viewBagGuestSeasons.Items.ShouldBeEquivalentTo(seasons);
             viewBagGuestSeasons.DataValueField.ShouldBe("Year");
             viewBagGuestSeasons.DataTextField.ShouldBe("Year");
-            viewBagGuestSeasons.SelectedValue.ShouldBe(guestSeasonYear);
+            viewBagGuestSeasons.SelectedValue.ShouldBe(defaultSeasonYear);
 
-            fakeSession.GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons").ShouldBeEquivalentTo(guestTeamSeasons);
+            testController.HttpContext.Session.GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons")
+                .ShouldBeEquivalentTo(guestTeamSeasons);
 
             Assert.IsType<SelectList>(testController.ViewBag.Guests);
             var viewBagGuests = ((SelectList)testController.ViewBag.Guests);
             viewBagGuests.Items.ShouldBeEquivalentTo(guestTeamSeasons.Select(ts => ts.TeamIdNavigation.Name).ToList());
             viewBagGuests.SelectedValue.ShouldBe(prediction.GuestName);
 
-            fakeSession.GetObject<int>("HostSeasonYear").ShouldBe(hostSeasonYear);
+            testController.HttpContext.Session.GetObject<int>("HostSeasonYear").ShouldBe(hostSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.HostSeasons);
             var viewBagHostSeasons = (SelectList)testController.ViewBag.HostSeasons;
@@ -571,14 +334,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             viewBagHostSeasons.DataTextField.ShouldBe("Year");
             viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonYear);
 
-            fakeSession.GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons").ShouldBeEquivalentTo(hostTeamSeasons);
+            testController.HttpContext.Session.GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons")
+                .ShouldBeEquivalentTo(hostTeamSeasons);
 
             Assert.IsType<SelectList>(testController.ViewBag.Hosts);
             var viewBagHosts = ((SelectList)testController.ViewBag.Hosts);
             viewBagHosts.Items.ShouldBeEquivalentTo(hostTeamSeasons.Select(ts => ts.TeamIdNavigation.Name).ToList());
             viewBagHosts.SelectedValue.ShouldBe(hostTeamSeason.TeamIdNavigation.Name);
 
-            A.CallTo(() => fakeGamePredictorService.PredictGameScore(A<TeamSeason>.Ignored, A<TeamSeason>.Ignored))
+            A.CallTo(() => testController._gamePredictorService.PredictGameScore(A<TeamSeason>.Ignored, A<TeamSeason>.Ignored))
                 .MustHaveHappenedOnceExactly();
             prediction.GuestScore.ShouldBe(gameScorePrediction.GuestScore.Value);
             prediction.HostScore.ShouldBe(gameScorePrediction.HostScore.Value);
@@ -590,65 +354,29 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task PredictGamePost_WhenHostTeamSeasonNotFound_ShouldPredictGameAndReturnFilledFormView()
         {
             // Arrange
-            TeamSeason? guestTeamSeason = new() { Id = 1, TeamIdNavigation = new Team { Name = "Guest" } };
-            var guestSeasonYear = 1920;
-            TeamSeason? hostTeamSeason = new() { Id = 2, TeamIdNavigation = new Team { Name = "Host" } };
-            var hostSeasonYear = 1921;
-            var prediction = new GamePrediction
+            var guestTeamSeason = new TeamSeason
             {
-                GuestName = guestTeamSeason.TeamIdNavigation.Name,
-                GuestSeasonYear = guestSeasonYear,
-                HostName = hostTeamSeason.TeamIdNavigation.Name,
-                HostSeasonYear = hostSeasonYear,
-            };
-
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-
-            var fakeGamePredictorService = A.Fake<IGamePredictorService>();
-            var gameScorePrediction = new GameScorePrediction
-            {
-                GuestScore = 0,
-                HostScore = 0,
-            };
-            A.CallTo(() => fakeGamePredictorService.PredictGameScore(A<TeamSeason>.Ignored, A<TeamSeason>.Ignored))
-                .Returns(gameScorePrediction);
-
-            var fakeSession = new MockHttpSession();
-
-            var seasons = new List<Season>
-            {
-                new() { Year = 1920 },
-                new() { Year = 1921 },
-                new() { Year = 1922 },
-            };
-            fakeSession.SetObject("Seasons", seasons);
-
-            var guestTeamSeasons = new List<TeamSeason> { };
-            fakeSession.SetObject("GuestTeamSeasons", guestTeamSeasons);
-
-            var hostTeamSeasons = new List<TeamSeason> { };
-            fakeSession.SetObject("HostTeamSeasons", hostTeamSeasons);
-
-            var fakeHttpContext = new Mock<HttpContext>();
-            fakeHttpContext.Setup(x => x.Session).Returns(fakeSession);
-
-            var testController = new GamePredictorController(prediction, fakeSeasonRepository,
-                fakeTeamSeasonRepository, fakeGamePredictorService)
-            {
-                ControllerContext = new ControllerContext
+                Id = 1,
+                TeamIdNavigation = new Team
                 {
-                    HttpContext = fakeHttpContext.Object
+                    Name = "Guest"
                 }
             };
+            var guestSeasonYear = 1920;
+
+            (
+                GamePredictorController testController, GamePrediction prediction, List<Season> seasons,
+                List<TeamSeason> guestTeamSeasons, List<TeamSeason> hostTeamSeasons,
+                GameScorePrediction gameScorePrediction
+            ) = SetUpPredictGamePost(guestTeamSeason: guestTeamSeason, guestSeasonYear: guestSeasonYear);
 
             // Act
             var result = await testController.PredictGame(prediction);
 
             // Assert
-            fakeSession.GetObject<IEnumerable<Season>>("Seasons").ShouldBeEquivalentTo(seasons);
+            testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons").ShouldBeEquivalentTo(seasons);
 
-            fakeSession.GetObject<int>("GuestSeasonYear").ShouldBe(guestSeasonYear);
+            testController.HttpContext.Session.GetObject<int>("GuestSeasonYear").ShouldBe(guestSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.GuestSeasons);
             var viewBagGuestSeasons = (SelectList)testController.ViewBag.GuestSeasons;
@@ -657,30 +385,33 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             viewBagGuestSeasons.DataTextField.ShouldBe("Year");
             viewBagGuestSeasons.SelectedValue.ShouldBe(guestSeasonYear);
 
-            fakeSession.GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons").ShouldBeEquivalentTo(guestTeamSeasons);
+            testController.HttpContext.Session.GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons")
+                .ShouldBeEquivalentTo(guestTeamSeasons);
 
             Assert.IsType<SelectList>(testController.ViewBag.Guests);
             var viewBagGuests = ((SelectList)testController.ViewBag.Guests);
             viewBagGuests.Items.ShouldBeEquivalentTo(guestTeamSeasons.Select(ts => ts.TeamIdNavigation.Name).ToList());
             viewBagGuests.SelectedValue.ShouldBe(prediction.GuestName);
 
-            fakeSession.GetObject<int>("HostSeasonYear").ShouldBe(hostSeasonYear);
+            var defaultSeasonYear = 1922;
+            testController.HttpContext.Session.GetObject<int>("HostSeasonYear").ShouldBe(defaultSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.HostSeasons);
             var viewBagHostSeasons = (SelectList)testController.ViewBag.HostSeasons;
             viewBagHostSeasons.Items.ShouldBeEquivalentTo(seasons);
             viewBagHostSeasons.DataValueField.ShouldBe("Year");
             viewBagHostSeasons.DataTextField.ShouldBe("Year");
-            viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonYear);
+            viewBagHostSeasons.SelectedValue.ShouldBe(defaultSeasonYear);
 
-            fakeSession.GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons").ShouldBeEquivalentTo(hostTeamSeasons);
+            testController.HttpContext.Session.GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons")
+                .ShouldBeEquivalentTo(hostTeamSeasons);
 
             Assert.IsType<SelectList>(testController.ViewBag.Hosts);
             var viewBagHosts = ((SelectList)testController.ViewBag.Hosts);
             viewBagHosts.Items.ShouldBeEquivalentTo(hostTeamSeasons.Select(ts => ts.TeamIdNavigation.Name).ToList());
             viewBagHosts.SelectedValue.ShouldBe(prediction.HostName);
 
-            A.CallTo(() => fakeGamePredictorService.PredictGameScore(A<TeamSeason>.Ignored, A<TeamSeason>.Ignored))
+            A.CallTo(() => testController._gamePredictorService.PredictGameScore(A<TeamSeason>.Ignored, A<TeamSeason>.Ignored))
                 .MustHaveHappenedOnceExactly();
             prediction.GuestScore.ShouldBe(gameScorePrediction.GuestScore.Value);
             prediction.HostScore.ShouldBe(gameScorePrediction.HostScore.Value);
@@ -692,65 +423,45 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task PredictGamePost_WhenPredictGameScoreThrowsException_ShouldPredictGameAndReturnFilledFormView()
         {
             // Arrange
-            TeamSeason? guestTeamSeason = new() { Id = 1, TeamIdNavigation = new Team { Name = "Guest" } };
-            var guestSeasonYear = 1920;
-            TeamSeason? hostTeamSeason = new() { Id = 2, TeamIdNavigation = new Team { Name = "Host" } };
-            var hostSeasonYear = 1921;
-            var prediction = new GamePrediction
+            var guestTeamSeason = new TeamSeason
             {
-                GuestName = guestTeamSeason.TeamIdNavigation.Name,
-                GuestSeasonYear = guestSeasonYear,
-                HostName = hostTeamSeason.TeamIdNavigation.Name,
-                HostSeasonYear = hostSeasonYear,
-            };
-
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-
-            var fakeGamePredictorService = A.Fake<IGamePredictorService>();
-            var gameScorePrediction = new GameScorePrediction
-            {
-                GuestScore = 0,
-                HostScore = 0,
-            };
-            A.CallTo(() => fakeGamePredictorService.PredictGameScore(A<TeamSeason>.Ignored, A<TeamSeason>.Ignored))
-                .Throws<Exception>();
-
-            var fakeSession = new MockHttpSession();
-
-            var seasons = new List<Season>
-            {
-                new() { Year = 1920 },
-                new() { Year = 1921 },
-                new() { Year = 1922 },
-            };
-            fakeSession.SetObject("Seasons", seasons);
-
-            var guestTeamSeasons = new List<TeamSeason> { };
-            fakeSession.SetObject("GuestTeamSeasons", guestTeamSeasons);
-
-            var hostTeamSeasons = new List<TeamSeason> { };
-            fakeSession.SetObject("HostTeamSeasons", hostTeamSeasons);
-
-            var fakeHttpContext = new Mock<HttpContext>();
-            fakeHttpContext.Setup(x => x.Session).Returns(fakeSession);
-
-            var testController = new GamePredictorController(prediction, fakeSeasonRepository,
-                fakeTeamSeasonRepository, fakeGamePredictorService)
-            {
-                ControllerContext = new ControllerContext
+                Id = 1,
+                TeamIdNavigation = new Team
                 {
-                    HttpContext = fakeHttpContext.Object
+                    Name = "Guest"
                 }
             };
+            var guestSeasonYear = 1920;
+
+            var hostTeamSeason = new TeamSeason
+            {
+                Id = 2,
+                TeamIdNavigation = new Team
+                {
+                    Name = "Host"
+                }
+            };
+            var hostSeasonYear = 1920;
+
+            var ex = new Exception();
+
+            (
+                GamePredictorController testController, GamePrediction prediction, List<Season> seasons,
+                List<TeamSeason> guestTeamSeasons, List<TeamSeason> hostTeamSeasons,
+                GameScorePrediction gameScorePrediction
+            ) = SetUpPredictGamePost(
+                guestTeamSeason: guestTeamSeason, guestSeasonYear: guestSeasonYear,
+                hostTeamSeason: hostTeamSeason, hostSeasonYear: hostSeasonYear,
+                ex: ex
+            );
 
             // Act
             var result = await testController.PredictGame(prediction);
 
             // Assert
-            fakeSession.GetObject<IEnumerable<Season>>("Seasons").ShouldBeEquivalentTo(seasons);
+            testController.HttpContext.Session.GetObject<IEnumerable<Season>>("Seasons").ShouldBeEquivalentTo(seasons);
 
-            fakeSession.GetObject<int>("GuestSeasonYear").ShouldBe(guestSeasonYear);
+            testController.HttpContext.Session.GetObject<int>("GuestSeasonYear").ShouldBe(guestSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.GuestSeasons);
             var viewBagGuestSeasons = (SelectList)testController.ViewBag.GuestSeasons;
@@ -759,14 +470,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             viewBagGuestSeasons.DataTextField.ShouldBe("Year");
             viewBagGuestSeasons.SelectedValue.ShouldBe(guestSeasonYear);
 
-            fakeSession.GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons").ShouldBeEquivalentTo(guestTeamSeasons);
+            testController.HttpContext.Session.GetObject<IEnumerable<TeamSeason>>("GuestTeamSeasons")
+                .ShouldBeEquivalentTo(guestTeamSeasons);
 
             Assert.IsType<SelectList>(testController.ViewBag.Guests);
             var viewBagGuests = ((SelectList)testController.ViewBag.Guests);
             viewBagGuests.Items.ShouldBeEquivalentTo(guestTeamSeasons.Select(ts => ts.TeamIdNavigation.Name).ToList());
             viewBagGuests.SelectedValue.ShouldBe(prediction.GuestName);
 
-            fakeSession.GetObject<int>("HostSeasonYear").ShouldBe(hostSeasonYear);
+            testController.HttpContext.Session.GetObject<int>("HostSeasonYear").ShouldBe(hostSeasonYear);
 
             Assert.IsType<SelectList>(testController.ViewBag.HostSeasons);
             var viewBagHostSeasons = (SelectList)testController.ViewBag.HostSeasons;
@@ -775,20 +487,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             viewBagHostSeasons.DataTextField.ShouldBe("Year");
             viewBagHostSeasons.SelectedValue.ShouldBe(hostSeasonYear);
 
-            fakeSession.GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons").ShouldBeEquivalentTo(hostTeamSeasons);
+            testController.HttpContext.Session.GetObject<IEnumerable<TeamSeason>>("HostTeamSeasons")
+                .ShouldBeEquivalentTo(hostTeamSeasons);
 
             Assert.IsType<SelectList>(testController.ViewBag.Hosts);
             var viewBagHosts = ((SelectList)testController.ViewBag.Hosts);
             viewBagHosts.Items.ShouldBeEquivalentTo(hostTeamSeasons.Select(ts => ts.TeamIdNavigation.Name).ToList());
             viewBagHosts.SelectedValue.ShouldBe(prediction.HostName);
 
-            A.CallTo(() => fakeGamePredictorService.PredictGameScore(A<TeamSeason>.Ignored, A<TeamSeason>.Ignored))
+            A.CallTo(() => testController._gamePredictorService.PredictGameScore(A<TeamSeason>.Ignored, A<TeamSeason>.Ignored))
                 .MustHaveHappenedOnceExactly();
-            // Test code here.
+
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("A prediction could not be calculated for the selected teams.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(prediction);
@@ -853,7 +566,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var fakeGamePredictorService = A.Fake<IGamePredictorService>();
 
             var fakeSession = new MockHttpSession();
-
             fakeSession.SetObject("GuestSeasonYear", startingFilter.GuestSeasonYear);
             fakeSession.SetObject("GuestName", startingFilter.GuestName);
             fakeSession.SetObject("HostSeasonYear", startingFilter.HostSeasonYear);
@@ -889,63 +601,29 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public void SetTeamSeasonName_WhenTeamNameIsNeitherNullNorEmpty_ShouldSetSessionVariableAndRedirectToIndex()
         {
             // Arrange
-            var prediction = new GamePrediction();
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            var fakeGamePredictorService = A.Fake<IGamePredictorService>();
-
-            var fakeSession = new MockHttpSession();
-            var fakeHttpContext = new Mock<HttpContext>();
-            fakeHttpContext.Setup(x => x.Session).Returns(fakeSession);
-
-            var testController = new GamePredictorController(prediction, fakeSeasonRepository,
-                fakeTeamSeasonRepository, fakeGamePredictorService)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = fakeHttpContext.Object
-                }
-            };
-
-            var sessionKey = "Key";
-            var teamName = "Team";
+            GamePredictorController testController = SetUpSetters();
 
             // Act
+            var sessionKey = "Key";
+            var teamName = "Team";
             var result = testController.SetTeamSeasonName(sessionKey, teamName);
 
             // Assert
-            fakeSession.GetObject<string?>(sessionKey).ShouldBe(teamName);
+            testController.HttpContext.Session.GetObject<string?>(sessionKey).ShouldBe(teamName);
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(Index));
         }
 
         [Theory]
-        [InlineData("")]
         [InlineData(null)]
+        [InlineData("")]
         public void SetTeamSeasonName_WhenTeamNameIsNullOrEmpty_ShouldReturnBadRequest(string? teamName)
         {
             // Arrange
-            var prediction = new GamePrediction();
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            var fakeGamePredictorService = A.Fake<IGamePredictorService>();
-
-            var fakeSession = new MockHttpSession();
-            var fakeHttpContext = new Mock<HttpContext>();
-            fakeHttpContext.Setup(x => x.Session).Returns(fakeSession);
-
-            var testController = new GamePredictorController(prediction, fakeSeasonRepository,
-                fakeTeamSeasonRepository, fakeGamePredictorService)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = fakeHttpContext.Object
-                }
-            };
-
-            var sessionKey = "Key";
+            GamePredictorController testController = SetUpSetters();
 
             // Act
+            var sessionKey = "Key";
             var result = testController.SetTeamSeasonName(sessionKey, teamName);
 
             // Assert
@@ -956,32 +634,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public void SetTeamSeasonYear_WhenSeasonYearIsNeitherNullNorEmpty_ShouldSetSessionVariableAndRedirectToIndex()
         {
             // Arrange
-            var prediction = new GamePrediction();
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            var fakeGamePredictorService = A.Fake<IGamePredictorService>();
-
-            var fakeSession = new MockHttpSession();
-            var fakeHttpContext = new Mock<HttpContext>();
-            fakeHttpContext.Setup(x => x.Session).Returns(fakeSession);
-
-            var testController = new GamePredictorController(prediction, fakeSeasonRepository,
-                fakeTeamSeasonRepository, fakeGamePredictorService)
-            {
-                ControllerContext = new ControllerContext
-                {
-                    HttpContext = fakeHttpContext.Object
-                }
-            };
-
-            var sessionKey = "Key";
-            int? seasonYear = 1920;
+            GamePredictorController testController = SetUpSetters();
 
             // Act
+            var sessionKey = "Key";
+            int? seasonYear = 1920;
             var result = testController.SetTeamSeasonYear(sessionKey, seasonYear);
 
             // Assert
-            fakeSession.GetObject<int?>(sessionKey).ShouldBe(seasonYear);
+            testController.HttpContext.Session.GetObject<int?>(sessionKey).ShouldBe(seasonYear);
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(Index));
         }
@@ -990,14 +651,30 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public void SetTeamSeasonYear_WhenSeasonYearIsNull_ShouldReturnBadRequest()
         {
             // Arrange
-            var prediction = new GamePrediction();
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            var fakeGamePredictorService = A.Fake<IGamePredictorService>();
+            GamePredictorController testController = SetUpSetters();
 
-            var fakeSession = new MockHttpSession();
-            var fakeHttpContext = new Mock<HttpContext>();
-            fakeHttpContext.Setup(x => x.Session).Returns(fakeSession);
+            // Act
+            var sessionKey = "Key";
+            int? seasonYear = null;
+            var result = testController.SetTeamSeasonYear(sessionKey, seasonYear);
+
+            // Assert
+            result.ShouldBeOfType<BadRequestResult>();
+        }
+
+        private static (GamePredictorController, GamePrediction, List<TeamSeason>, List<TeamSeason>)
+            SetUp(
+                int? guestSeasonYear = null, string? guestName = null,
+                int? hostSeasonYear = null, string? hostName = null
+            )
+        {
+            // Arrange
+            var prediction = new GamePrediction();
+            ISeasonRepository fakeSeasonRepository = SetUpFakeSeasonRepository();
+            (ITeamSeasonRepository fakeTeamSeasonRepository, List<TeamSeason> guestTeamSeasons, List<TeamSeason> hostTeamSeasons) =
+                SetUpFakeTeamSeasonRepository();
+            var fakeGamePredictorService = A.Fake<IGamePredictorService>();
+            Mock<HttpContext> fakeHttpContext = SetUpHttpContext(guestSeasonYear, guestName, hostSeasonYear, hostName);
 
             var testController = new GamePredictorController(prediction, fakeSeasonRepository,
                 fakeTeamSeasonRepository, fakeGamePredictorService)
@@ -1008,14 +685,173 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 }
             };
 
-            var sessionKey = "Key";
-            int? seasonYear = null;
+            return (testController, prediction, guestTeamSeasons, hostTeamSeasons);
+        }
 
-            // Act
-            var result = testController.SetTeamSeasonYear(sessionKey, seasonYear);
+        private static (
+            GamePredictorController, GamePrediction, List<Season>,
+            List<TeamSeason>, List<TeamSeason>, GameScorePrediction
+        ) SetUpPredictGamePost(
+            TeamSeason? guestTeamSeason = null, int? guestSeasonYear = null,
+            TeamSeason? hostTeamSeason = null, int? hostSeasonYear = null,
+            Exception? ex = null
+        )
+        {
+            var defaultSeasonYear = 1922;
 
-            // Assert
-            result.ShouldBeOfType<BadRequestResult>();
+            var prediction = new GamePrediction
+            {
+                GuestName = guestTeamSeason is null ? string.Empty : guestTeamSeason.TeamIdNavigation.Name,
+                GuestSeasonYear = guestSeasonYear is null ? defaultSeasonYear : guestSeasonYear,
+                HostName = hostTeamSeason is null ? string.Empty : hostTeamSeason.TeamIdNavigation.Name,
+                HostSeasonYear = hostSeasonYear is null ? defaultSeasonYear : hostSeasonYear,
+            };
+
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            (IGamePredictorService fakeGamePredictorService, GameScorePrediction gameScorePrediction) =
+                SetUpFakeGamePredictorService(ex);
+            (
+                List<Season> seasons, List<TeamSeason> guestTeamSeasons, List<TeamSeason> hostTeamSeasons,
+                Mock<HttpContext> fakeHttpContext
+            ) = SetUpHttpContext(ref guestTeamSeason, ref hostTeamSeason);
+
+            var testController = new GamePredictorController(
+                prediction, fakeSeasonRepository, fakeTeamSeasonRepository, fakeGamePredictorService
+            )
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = fakeHttpContext.Object
+                }
+            };
+
+            return (testController, prediction, seasons, guestTeamSeasons, hostTeamSeasons, gameScorePrediction);
+        }
+
+        private static (
+            List<Season> seasons, List<TeamSeason> guestTeamSeasons, List<TeamSeason> hostTeamSeasons, Mock<HttpContext> fakeHttpContext
+        ) SetUpHttpContext(ref TeamSeason? guestTeamSeason, ref TeamSeason? hostTeamSeason)
+        {
+            var fakeSession = new MockHttpSession();
+            var seasons = new List<Season>
+            {
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
+            };
+            fakeSession.SetObject("Seasons", seasons);
+
+            guestTeamSeason = guestTeamSeason is null
+                ? new TeamSeason { Id = 1, TeamIdNavigation = new Team { Name = "Guest" } }
+                : guestTeamSeason;
+            var guestTeamSeasons = new List<TeamSeason> { guestTeamSeason };
+            fakeSession.SetObject("GuestTeamSeasons", guestTeamSeasons);
+
+            hostTeamSeason = hostTeamSeason is null
+                ? new TeamSeason { Id = 1, TeamIdNavigation = new Team { Name = "Host" } }
+                : hostTeamSeason;
+            var hostTeamSeasons = new List<TeamSeason> { hostTeamSeason };
+            fakeSession.SetObject("HostTeamSeasons", hostTeamSeasons);
+
+            var fakeHttpContext = new Mock<HttpContext>();
+            fakeHttpContext.Setup(x => x.Session).Returns(fakeSession);
+
+            return (seasons, guestTeamSeasons, hostTeamSeasons, fakeHttpContext);
+        }
+
+        private static (IGamePredictorService fakeGamePredictorService, GameScorePrediction gameScorePrediction)
+            SetUpFakeGamePredictorService(Exception? ex)
+        {
+            var fakeGamePredictorService = A.Fake<IGamePredictorService>();
+            var gameScorePrediction = new GameScorePrediction
+            {
+                GuestScore = 0,
+                HostScore = 0,
+            };
+            if (ex is null)
+            {
+                A.CallTo(() => fakeGamePredictorService.PredictGameScore(A<TeamSeason>.Ignored, A<TeamSeason>.Ignored))
+                    .Returns(gameScorePrediction);
+            }
+            else
+            {
+                A.CallTo(() => fakeGamePredictorService.PredictGameScore(A<TeamSeason>.Ignored, A<TeamSeason>.Ignored))
+                    .Throws(ex);
+            }
+
+            return (fakeGamePredictorService, gameScorePrediction);
+        }
+
+        private static ISeasonRepository SetUpFakeSeasonRepository()
+        {
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var seasons = new List<Season>
+            {
+                new() { Year = 1920 },
+                new() { Year = 1921 },
+                new() { Year = 1922 },
+            };
+            A.CallTo(() => fakeSeasonRepository.GetSeasonsAsync()).Returns(seasons);
+            return fakeSeasonRepository;
+        }
+
+        private static (ITeamSeasonRepository, List<TeamSeason>, List<TeamSeason>) SetUpFakeTeamSeasonRepository()
+        {
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var guestTeamSeasons = new List<TeamSeason>
+            {
+                new() { Id = 1, TeamIdNavigation = new Team { Id = 1, Name = "Guest1" } },
+                new() { Id = 2, TeamIdNavigation = new Team { Id = 2, Name = "Guest2" } },
+                new() { Id = 3, TeamIdNavigation = new Team { Id = 3, Name = "Guest3" } },
+            };
+            var hostTeamSeasons = new List<TeamSeason>
+            {
+                new() { Id = 4, TeamIdNavigation = new Team { Id = 4, Name = "Host1" } },
+                new() { Id = 5, TeamIdNavigation = new Team { Id = 5, Name = "Host2" } },
+                new() { Id = 6, TeamIdNavigation = new Team { Id = 6, Name = "Host3" } },
+            };
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .ReturnsNextFromSequence(guestTeamSeasons, hostTeamSeasons);
+
+            return (fakeTeamSeasonRepository, guestTeamSeasons, hostTeamSeasons);
+        }
+
+        private static Mock<HttpContext> SetUpHttpContext(int? guestSeasonYear, string? guestName, int? hostSeasonYear, string? hostName)
+        {
+            var fakeSession = new MockHttpSession();
+            fakeSession.SetObject("GuestSeasonYear", guestSeasonYear);
+            fakeSession.SetObject("GuestName", guestName);
+            fakeSession.SetObject("HostSeasonYear", hostSeasonYear);
+            fakeSession.SetObject("HostName", hostName);
+
+            var fakeHttpContext = new Mock<HttpContext>();
+            fakeHttpContext.Setup(x => x.Session).Returns(fakeSession);
+
+            return fakeHttpContext;
+        }
+
+        private static GamePredictorController SetUpSetters()
+        {
+            var prediction = new GamePrediction();
+            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var fakeGamePredictorService = A.Fake<IGamePredictorService>();
+            var fakeSession = new MockHttpSession();
+            var fakeHttpContext = new Mock<HttpContext>();
+            fakeHttpContext.Setup(x => x.Session).Returns(fakeSession);
+
+            var testController = new GamePredictorController(
+                prediction, fakeSeasonRepository, fakeTeamSeasonRepository, fakeGamePredictorService
+            )
+            {
+                ControllerContext = new ControllerContext
+                {
+                    HttpContext = fakeHttpContext.Object
+                }
+            };
+
+            return testController;
         }
     }
 }

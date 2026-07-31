@@ -31,6 +31,11 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         LinkGenerator linkGenerator
     ) : ControllerBase
     {
+        internal readonly IAssociationRepository _associationRepository = associationRepository;
+        internal readonly ISharedRepository _sharedRepository = sharedRepository;
+        internal readonly IMapper _mapper = mapper;
+        internal readonly LinkGenerator _linkGenerator = linkGenerator;
+
         // GET: api/Associations
         /// <summary>
         /// Gets a collection of all associations from the data store.
@@ -41,9 +46,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var associations = await associationRepository.GetAssociationsAsync();
+                var associations = await _associationRepository.GetAssociationsAsync();
 
-                return mapper.Map<AssociationModel[]>(associations);
+                return _mapper.Map<AssociationModel[]>(associations);
             }
             catch (Exception)
             {
@@ -62,13 +67,13 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var association = await associationRepository.GetAssociationAsync(id);
+                var association = await _associationRepository.GetAssociationAsync(id);
                 if (association is null)
                 {
                     return NotFound();
                 }
 
-                return mapper.Map<AssociationModel>(association);
+                return _mapper.Map<AssociationModel>(association);
             }
             catch (Exception)
             {
@@ -89,19 +94,19 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var location = linkGenerator.GetPathByAction("GetAssociation", "Associations", new { id = -1 });
+                var location = _linkGenerator.GetPathByAction("GetAssociation", "Associations", new { id = -1 });
                 if (string.IsNullOrWhiteSpace(location))
                 {
                     return BadRequest("Could not use Id");
                 }
 
-                var association = mapper.Map<Association>(model);
+                var association = _mapper.Map<Association>(model);
 
-                await associationRepository.AddAsync(association);
+                await _associationRepository.AddAsync(association);
 
-                if (await sharedRepository.SaveChangesAsync() > 0)
+                if (await _sharedRepository.SaveChangesAsync() > 0)
                 {
-                    return Created(location, mapper.Map<AssociationModel>(association));
+                    return Created(location, _mapper.Map<AssociationModel>(association));
                 }
 
                 return BadRequest();
@@ -126,17 +131,17 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var association = await associationRepository.GetAssociationAsync(id);
+                var association = await _associationRepository.GetAssociationAsync(id);
                 if (association is null)
                 {
                     return NotFound($"Could not find association with Id of {id}");
                 }
 
-                mapper.Map(model, association);
+                _mapper.Map(model, association);
 
-                if (await sharedRepository.SaveChangesAsync() > 0)
+                if (await _sharedRepository.SaveChangesAsync() > 0)
                 {
-                    return mapper.Map<AssociationModel>(association);
+                    return _mapper.Map<AssociationModel>(association);
                 }
 
                 return BadRequest();
@@ -158,15 +163,15 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var association = await associationRepository.GetAssociationAsync(id);
+                var association = await _associationRepository.GetAssociationAsync(id);
                 if (association is null)
                 {
                     return NotFound($"Could not find association with Id of {id}");
                 }
 
-                await associationRepository.DeleteAsync(id);
+                await _associationRepository.DeleteAsync(id);
 
-                if (await sharedRepository.SaveChangesAsync() > 0)
+                if (await _sharedRepository.SaveChangesAsync() > 0)
                 {
                     return Ok();
                 }

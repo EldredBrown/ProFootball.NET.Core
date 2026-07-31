@@ -44,6 +44,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         ISeasonRankingsRepository seasonRankingsRepository
     ) : Controller
     {
+        internal readonly ISeasonRankingsIndexViewModel _seasonRankingsIndexViewModel = seasonRankingsIndexViewModel;
+        internal readonly ISeasonRepository _seasonRepository = seasonRepository;
+        internal readonly IAssociationRepository _associationRepository = associationRepository;
+        internal readonly ISeasonRankingsRepository _seasonRankingsRepository = seasonRankingsRepository;
+
         private int? _selectedSeasonYear = null;
         private string _selectedLeagueName = null;
         private SeasonRankingType? _selectedRankingType = SeasonRankingType.None;
@@ -61,7 +66,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             LoadRankingTypesAndSelectedRankingTypeIntoIndexViewModel();
             await GetSelectedRankings();
 
-            return View(seasonRankingsIndexViewModel);
+            return View(_seasonRankingsIndexViewModel);
         }
 
         /// <summary>
@@ -115,7 +120,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task<IEnumerable<Association>> GetLeagues()
         {
-            return [.. (await associationRepository.GetAssociationsAsync())
+            return [.. (await _associationRepository.GetAssociationsAsync())
                 .Where(a => a.ParentId is null)
                 .Where(
                     l => l.FirstSeasonYearNavigation.Year <= _selectedSeasonYear
@@ -126,29 +131,29 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task<IEnumerable<Season>> GetSeasons()
         {
-            return [.. (await seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Year)];
+            return [.. (await _seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Year)];
         }
 
         private async Task GetSelectedRankings()
         {
-            var selectedLeague = await associationRepository.GetAssociationByShortNameAsync(_selectedLeagueName);
+            var selectedLeague = await _associationRepository.GetAssociationByShortNameAsync(_selectedLeagueName);
 
             switch (_selectedRankingType)
             {
                 case SeasonRankingType.Offensive:
-                    seasonRankingsIndexViewModel.SeasonRankings =
-                        await seasonRankingsRepository.GetOffensiveRankingsAsync(_selectedSeasonYear.Value, selectedLeague.Id);
+                    _seasonRankingsIndexViewModel.SeasonRankings =
+                        await _seasonRankingsRepository.GetOffensiveRankingsAsync(_selectedSeasonYear.Value, selectedLeague.Id);
                     break;
                 case SeasonRankingType.Defensive:
-                    seasonRankingsIndexViewModel.SeasonRankings =
-                        await seasonRankingsRepository.GetDefensiveRankingsAsync(_selectedSeasonYear.Value, selectedLeague.Id);
+                    _seasonRankingsIndexViewModel.SeasonRankings =
+                        await _seasonRankingsRepository.GetDefensiveRankingsAsync(_selectedSeasonYear.Value, selectedLeague.Id);
                     break;
                 case SeasonRankingType.Total:
-                    seasonRankingsIndexViewModel.SeasonRankings =
-                        await seasonRankingsRepository.GetTotalRankingsAsync(_selectedSeasonYear.Value, selectedLeague.Id);
+                    _seasonRankingsIndexViewModel.SeasonRankings =
+                        await _seasonRankingsRepository.GetTotalRankingsAsync(_selectedSeasonYear.Value, selectedLeague.Id);
                     break;
                 case SeasonRankingType.None:
-                    seasonRankingsIndexViewModel.SeasonRankings = [];
+                    _seasonRankingsIndexViewModel.SeasonRankings = [];
                     break;
             }
         }
@@ -162,8 +167,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             {
                 SetSelectedLeagueName(leagues.First().ShortName);
             }
-            seasonRankingsIndexViewModel.Leagues = new SelectList(leagues, "ShortName", "ShortName", _selectedLeagueName);
-            seasonRankingsIndexViewModel.SelectedLeagueName = _selectedLeagueName;
+            _seasonRankingsIndexViewModel.Leagues = new SelectList(leagues, "ShortName", "ShortName", _selectedLeagueName);
+            _seasonRankingsIndexViewModel.SelectedLeagueName = _selectedLeagueName;
         }
 
         private SeasonRankingType LoadRankingTypesAndSelectedRankingTypeIntoIndexViewModel()
@@ -176,7 +181,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 SetSelectedRankingType(_selectedRankingType.Value);
             }
 
-            seasonRankingsIndexViewModel.RankingTypes = new SelectList(
+            _seasonRankingsIndexViewModel.RankingTypes = new SelectList(
                 Enum.GetValues<SeasonRankingType>()
                     .Select(e => new { Value = (int)e, Text = e.ToString() }),
                 "Value",
@@ -184,7 +189,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 _selectedRankingType.Value
             );
 
-            seasonRankingsIndexViewModel.SelectedRankingType = _selectedRankingType.Value;
+            _seasonRankingsIndexViewModel.SelectedRankingType = _selectedRankingType.Value;
             return _selectedRankingType.Value;
         }
 
@@ -197,8 +202,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             {
                 SetSelectedSeasonYear(seasons.First().Year);
             }
-            seasonRankingsIndexViewModel.Seasons = new SelectList(seasons, "Year", "Year", _selectedSeasonYear);
-            seasonRankingsIndexViewModel.SelectedSeasonYear = _selectedSeasonYear;
+            _seasonRankingsIndexViewModel.Seasons = new SelectList(seasons, "Year", "Year", _selectedSeasonYear);
+            _seasonRankingsIndexViewModel.SelectedSeasonYear = _selectedSeasonYear;
         }
     }
 }

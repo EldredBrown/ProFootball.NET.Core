@@ -16,6 +16,8 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
     [ApiController]
     public class ServiceController(IWeeklyUpdateService weeklyUpdateService) : ControllerBase
     {
+        internal readonly IWeeklyUpdateService _weeklyUpdateService = weeklyUpdateService;
+
         // POST: api/Services/RunWeeklyUpdate/1920
         /// <summary>
         /// Runs the Weekly Update service.
@@ -28,7 +30,7 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                await weeklyUpdateService.RunWeeklyUpdate(leagueId, seasonYear);
+                await _weeklyUpdateService.RunWeeklyUpdate(leagueId, seasonYear);
 
                 return Ok();
             }

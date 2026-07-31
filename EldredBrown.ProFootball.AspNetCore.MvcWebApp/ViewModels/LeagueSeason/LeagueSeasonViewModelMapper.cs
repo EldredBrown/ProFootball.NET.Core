@@ -10,6 +10,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.LeagueSeason
     public class LeagueSeasonViewModelMapper(IAssociationRepository leagueRepository, ISeasonRepository seasonRepository)
         : ILeagueSeasonViewModelMapper
     {
+        internal readonly IAssociationRepository _leagueRepository = leagueRepository;
+        internal readonly ISeasonRepository _seasonRepository = seasonRepository;
+
         public LeagueSeasonViewModel MapLeagueSeasonToViewModel(EldredBrown.ProFootball.Net.Data.Models.LeagueSeason LeagueSeason)
         {
             return new LeagueSeasonViewModel { LeagueSeason = LeagueSeason };
@@ -20,11 +23,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.LeagueSeason
         {
             var LeagueSeason = LeagueSeasonViewModel.LeagueSeason;
 
-            var league = await leagueRepository.GetAssociationByShortNameAsync(LeagueSeasonViewModel.LeagueName);
-            LeagueSeason.LeagueId = league is not null ? league.Id : -1;
-
-            var season = await seasonRepository.GetSeasonAsync(LeagueSeasonViewModel.SeasonYear);
-            LeagueSeason.SeasonYear = season is not null ? season.Year : -1;
+            var league = await _leagueRepository.GetAssociationByShortNameAsync(LeagueSeasonViewModel.LeagueName);
+            LeagueSeason.LeagueId = league is null ? -1 : league.Id;
 
             return LeagueSeason;
         }

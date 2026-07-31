@@ -11,6 +11,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game
     /// </summary>
     public class GameViewModelMapper(IAssociationRepository associationRepository) : IGameViewModelMapper
     {
+        internal readonly IAssociationRepository _associationRepository = associationRepository;
+
         public GameViewModel MapGameToViewModel(EldredBrown.ProFootball.Net.Data.Models.Game game)
         {
             return new GameViewModel { Game = game };
@@ -20,7 +22,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.ViewModels.Game
         {
             var game = gameViewModel.Game;
 
-            var league = await associationRepository.GetAssociationByShortNameAsync(gameViewModel.LeagueName);
+            var league = await _associationRepository.GetAssociationByShortNameAsync(gameViewModel.LeagueName);
             game.LeagueId = !gameViewModel.LeagueName.IsNullOrEmpty() && league is null ? -1 : league?.Id;
 
             return game;

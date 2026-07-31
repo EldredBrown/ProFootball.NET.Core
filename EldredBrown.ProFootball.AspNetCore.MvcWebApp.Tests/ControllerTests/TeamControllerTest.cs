@@ -23,69 +23,47 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Index_ShouldReturnTeamIndexView()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            var teams = new List<Team> { };
-            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).Returns(teams);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            var teams = new List<Team>();
+            TeamController testController = SetUp(teams: teams);
 
             // Act
             var result = await testController.Index();
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.GetTeamsAsync()).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(fakeTeamIndexViewModel);
+            ((ViewResult)result).Model.ShouldBe(testController._teamIndexViewModel);
         }
 
         [Fact]
         public async Task Details_WhenIdIsNotNullAndTeamFound_ShouldReturnTeamDetailsView()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            var team = new Team { };
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            var team = new Team();
+            TeamController testController = SetUp(team: team);
 
             // Act
             int? id = 0;
             var result = await testController.Details(id);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(id.Value)).MustHaveHappenedOnceExactly();
-            fakeTeamDetailsViewModel.Team.ShouldNotBeNull();
-            fakeTeamDetailsViewModel.Team.ShouldBeOfType<Team>();
-            fakeTeamDetailsViewModel.Team.ShouldBe(team);
+            A.CallTo(() => testController._teamRepository.GetTeamAsync(id.Value)).MustHaveHappenedOnceExactly();
+            testController._teamDetailsViewModel.Team.ShouldNotBeNull();
+            testController._teamDetailsViewModel.Team.ShouldBeOfType<Team>();
+            testController._teamDetailsViewModel.Team.ShouldBe(team);
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(fakeTeamDetailsViewModel);
+            ((ViewResult)result).Model.ShouldBe(testController._teamDetailsViewModel);
         }
 
         [Fact]
         public async Task Details_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp();
 
             // Act
-            var result = await testController.Details(null);
+            int? id = null;
+            var result = await testController.Details(id);
 
             // Assert
             result.ShouldBeOfType<NotFoundResult>();
@@ -95,24 +73,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenTeamNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            Team? team = null;
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp();
 
             // Act
             int? id = 0;
             var result = await testController.Details(id);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.GetTeamAsync(id.Value)).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -120,12 +88,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public void CreateGet_ShouldReturnTeamCreateView()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp();
 
             // Act
             var result = testController.Create();
@@ -138,22 +101,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsValidAndNoExceptionCaught_ShouldAddTeamToDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp();
 
             // Act
             var team = new Team { };
             var result = await testController.Create(team);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.AddAsync(team)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.AddAsync(team)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
         }
@@ -162,36 +118,29 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenDbUpdateExceptionCaughtForPrimaryKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
                 new() { Id = 1, Name = "Team 1" },
                 new() { Id = 2, Name = "Team 2" },
                 new() { Id = 3, Name = "Team 3" },
             };
-            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).Returns(teams);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
+            var ex = new DbUpdateException();
 
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp(teams: teams, ex: ex);
 
             // Act
             var team = new Team { Id = 2, Name = "Team 4" };
             var result = await testController.Create(team);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.AddAsync(team)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.AddAsync(team)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.GetTeamsAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey("Id");
-            testController.ModelState["Id"].Errors[0].ErrorMessage
+            testController.ModelState["Id"]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. A team with the same Id already exists.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(team);
@@ -201,27 +150,19 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenDbUpdateExceptionCaughtForNameTooLong_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
                 new() { Id = 1, Name = "Team 1" },
                 new() { Id = 2, Name = "Team 2" },
                 new() { Id = 3, Name = "Team 3" },
             };
-            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).Returns(teams);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("String or binary data would be truncated in table 'ProFootballDb_Proposed.dbo.Team', column 'name'.")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp(teams: teams, ex: ex);
 
             // Act
             var name = new StringBuilder();
@@ -233,13 +174,13 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Create(team);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.AddAsync(team)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.AddAsync(team)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.GetTeamsAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey("Name");
-            testController.ModelState["Name"].Errors[0].ErrorMessage
+            testController.ModelState["Name"]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. The entered Name is too long.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(team);
@@ -249,40 +190,32 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenDbUpdateExceptionCaughtForUniqueKeyViolationOnName_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
                 new() { Id = 1, Name = "Team 1" },
                 new() { Id = 2, Name = "Team 2" },
                 new() { Id = 3, Name = "Team 3" },
             };
-            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).Returns(teams);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("Violation of UNIQUE KEY constraint 'UQ_Team_Name'.")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp(teams: teams, ex: ex);
 
             // Act
             var team = new Team { Id = 4, Name = "Team 2" };
             var result = await testController.Create(team);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.AddAsync(team)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.AddAsync(team)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.GetTeamsAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. Violation of UNIQUE KEY constraint Name.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(team);
@@ -292,40 +225,32 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenDbUpdateExceptionCaughtForSomethingElse_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
                 new() { Id = 1, Name = "Team 1" },
                 new() { Id = 2, Name = "Team 2" },
                 new() { Id = 3, Name = "Team 3" },
             };
-            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).Returns(teams);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("Exception")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp(teams: teams, ex: ex);
 
             // Act
-            var team = new Team { };
+            var team = new Team();
             var result = await testController.Create(team);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.AddAsync(team)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.AddAsync(team)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.GetTeamsAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. An unexpected error occurred.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(team);
@@ -335,13 +260,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsNotValid_ShouldReturnTeamCreateView()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
-
+            TeamController testController = SetUp();
             testController.ModelState.AddModelError("Name", "Please enter a long name.");
 
             // Act
@@ -349,8 +268,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Create(team);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.AddAsync(team)).MustNotHaveHappened();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustNotHaveHappened();
+            A.CallTo(() => testController._teamRepository.AddAsync(team)).MustNotHaveHappened();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustNotHaveHappened();
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(team);
         }
@@ -359,23 +278,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNotNullAndTeamFound_ShouldReturnTeamEditView()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
+            Team team = new();
 
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            Team? team = new();
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp(team: team);
 
             // Act
             int? id = 0;
             var result = await testController.Edit(id);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.GetTeamAsync(id.Value)).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<ViewResult>();
             var resultModel = ((ViewResult)result).Model;
             resultModel.ShouldNotBeNull();
@@ -387,15 +299,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp();
 
             // Act
-            var result = await testController.Edit(null);
+            int? id = null;
+            var result = await testController.Edit(id);
 
             // Assert
             result.ShouldBeOfType<NotFoundResult>();
@@ -405,23 +313,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenTeamNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            Team? team = null;
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp();
 
             // Act
             int? id = 0;
             var result = await testController.Edit(id);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.GetTeamAsync(id.Value)).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -429,13 +328,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsTeamIdAndModelStateIsValidAndNoExceptionCaught_ShouldUpdateTeamInDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp();
 
             // Act
             int id = 1;
@@ -443,8 +336,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Edit(id, team);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.Update(team)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.Update(team)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
         }
@@ -453,12 +346,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdDoesNotEqualTeamId_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp();
 
             // Act
             int id = 0;
@@ -473,17 +361,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenDbUpdateConcurrencyExceptionIsCaughtAndTeamWithIdDoesNotExist_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
+            var ex = new DbUpdateConcurrencyException();
 
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            A.CallTo(() => fakeTeamRepository.TeamExistsAsync(An<int>.Ignored)).Returns(false);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateConcurrencyException>();
-
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp(teamExists: false, ex: ex);
 
             // Act
             int id = 1;
@@ -491,8 +371,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Edit(id, team);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.Update(team)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.Update(team)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -500,17 +380,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenDbUpdateConcurrencyExceptionIsCaughtAndTeamWithIdExists_ShouldRethrowException()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
+            var ex = new DbUpdateConcurrencyException();
 
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            A.CallTo(() => fakeTeamRepository.TeamExistsAsync(An<int>.Ignored)).Returns(true);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateConcurrencyException>();
-
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp(teamExists: true, ex: ex);
 
             // Act
             int id = 1;
@@ -525,27 +397,19 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenDbUpdateExceptionIsCaughtForNameTooLong_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
                 new() { Id = 1, Name = "Team 1" },
                 new() { Id = 2, Name = "Team 2" },
                 new() { Id = 3, Name = "Team 3" },
             };
-            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).Returns(teams);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("String or binary data would be truncated in table 'ProFootballDb_Proposed.dbo.Team', column 'name'.")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp(teams: teams, ex: ex);
 
             // Act
             int id = 2;
@@ -553,12 +417,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Edit(id, team);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.Update(team)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.Update(team)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey("Name");
-            testController.ModelState["Name"].Errors[0].ErrorMessage
+            testController.ModelState["Name"]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. The entered Name is too long.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(team);
@@ -568,27 +432,19 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenDbUpdateExceptionIsCaughtForUniqueKeyViolationOnName_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
                 new() { Id = 1, Name = "Team 1" },
                 new() { Id = 2, Name = "Team 2" },
                 new() { Id = 3, Name = "Team 3" },
             };
-            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).Returns(teams);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("Violation of UNIQUE KEY constraint 'UQ_Team_Name'.")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp(teams: teams, ex: ex);
 
             // Act
             int id = 2;
@@ -596,12 +452,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Edit(id, team);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.Update(team)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.Update(team)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. Violation of UNIQUE KEY constraint Name.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(team);
@@ -611,27 +467,19 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenDbUpdateExceptionIsCaughtForSomethingElse_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
             var teams = new List<Team>
             {
                 new() { Id = 1, Name = "Team 1" },
                 new() { Id = 2, Name = "Team 2" },
                 new() { Id = 3, Name = "Team 3" },
             };
-            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).Returns(teams);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("Exception")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp(teams: teams, ex: ex);
 
             // Act
             int id = 2;
@@ -639,12 +487,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Edit(id, team);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.Update(team)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.Update(team)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. An unexpected error occurred.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(team);
@@ -654,13 +502,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenModelStateIsNotValid_ShouldReturnTeamEditView()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
-
+            TeamController testController = SetUp();
             testController.ModelState.AddModelError("Name", "Please enter a long name.");
 
             // Act
@@ -669,8 +511,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Edit(id, team);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.Update(team)).MustNotHaveHappened();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustNotHaveHappened();
+            A.CallTo(() => testController._teamRepository.Update(team)).MustNotHaveHappened();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustNotHaveHappened();
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(team);
         }
@@ -679,23 +521,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndTeamFound_ShouldReturnTeamDeleteView()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
             Team? team = new();
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp(team: team);
 
             // Act
             int? id = 0;
             var result = await testController.Delete(id);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.GetTeamAsync(id.Value)).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<ViewResult>();
             var resultModel = ((ViewResult)result).Model;
             resultModel.ShouldNotBeNull();
@@ -707,15 +542,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp();
 
             // Act
-            var result = await testController.Delete(null);
+            int? id = null;
+            var result = await testController.Delete(id);
 
             // Assert
             result.ShouldBeOfType<NotFoundResult>();
@@ -725,23 +556,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenTeamNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            Team? team = null;
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp();
 
             // Act
             int? id = 0;
             var result = await testController.Delete(id);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.GetTeamAsync(id.Value)).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -749,22 +571,53 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task DeleteConfirmed_ShouldDeleteTeamFromDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
-            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new TeamController(fakeTeamIndexViewModel, fakeTeamDetailsViewModel,
-                fakeTeamRepository, fakeSharedRepository);
+            TeamController testController = SetUp();
 
             // Act
             int id = 1;
             var result = await testController.DeleteConfirmed(id);
 
             // Assert
-            A.CallTo(() => fakeTeamRepository.DeleteAsync(id)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._teamRepository.DeleteAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
+        }
+
+        private static TeamController SetUp(List<Team>? teams = null, Team? team = null, bool? teamExists = null, Exception? ex = null)
+        {
+            var fakeTeamIndexViewModel = A.Fake<ITeamIndexViewModel>();
+            var fakeTeamDetailsViewModel = A.Fake<ITeamDetailsViewModel>();
+            ITeamRepository fakeTeamRepository = SetUpFakeTeamRepository(teams, team, teamExists);
+            ISharedRepository fakeSharedRepository = SetUpFakeSharedRepository(ex);
+
+            return new TeamController(
+                fakeTeamIndexViewModel, fakeTeamDetailsViewModel, fakeTeamRepository, fakeSharedRepository
+            );
+        }
+
+        private static ITeamRepository SetUpFakeTeamRepository(List<Team>? teams, Team? team, bool? teamExists)
+        {
+            var fakeTeamRepository = A.Fake<ITeamRepository>();
+            A.CallTo(() => fakeTeamRepository.GetTeamsAsync()).Returns(teams);
+            A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).Returns(team);
+            if (teamExists.HasValue)
+            {
+                A.CallTo(() => fakeTeamRepository.TeamExistsAsync(An<int>.Ignored)).Returns(teamExists.Value);
+            }
+
+            return fakeTeamRepository;
+        }
+
+        private static ISharedRepository SetUpFakeSharedRepository(Exception? ex)
+        {
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            if (ex is not null)
+            {
+                A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
+            }
+
+            return fakeSharedRepository;
         }
     }
 }

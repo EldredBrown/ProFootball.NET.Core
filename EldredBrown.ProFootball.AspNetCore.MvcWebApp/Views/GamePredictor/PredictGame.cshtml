@@ -32,7 +32,7 @@
 
             <div class="form-group">
                 <label class="col-form-label" asp-for="HostSeasonYear"></label>
-                <select onchange="document.location.href=`/GamePredictor/ApplyFilter?HostSeasonId=${this.options[this.selectedIndex].value}`;"
+                <select onchange="document.location.href=`/GamePredictor/ApplyFilter?HostSeasonYear=${this.options[this.selectedIndex].value}`;"
                         class="form-control" asp-for="HostSeasonYear" asp-items="ViewBag.HostSeasons">
                 </select>
                 <span class="text-danger field-validation-error" asp-validation-for="HostSeasonYear"></span>

@@ -15,32 +15,26 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
 {
     public class SubtractGameStrategyTest
     {
-        private readonly ITeamRepository _fakeTeamRepository;
-        private readonly ITeamSeasonRepository _fakeTeamSeasonRepository;
-        private readonly SubtractGameStrategy _testStrategy;
-
-        public SubtractGameStrategyTest()
-        {
-            _fakeTeamRepository = A.Fake<ITeamRepository>();
-            _fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            _testStrategy = new SubtractGameStrategy(_fakeTeamRepository, _fakeTeamSeasonRepository);
-        }
-
         [Theory]
-        [InlineData(1, 1, 0, 0, 1, 0, 2, 1, 0, 0, 0, 0, 0)]
-        [InlineData(1, 0, 1, 1, 0, 0, 1, 2, 0, 0, 0, 0, 0)]
-        [InlineData(1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0)]
-        //[InlineData(3, 1, 1, 1, 1, 1, 2, 1, 0, 1, 1, 0, 1)]
-        //[InlineData(3, 1, 1, 1, 1, 1, 1, 2, 1, 0, 0, 1, 1)]
         [InlineData(3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)]
-        public void ProcessGame_WhenGuestAndHostSeasonsFound_ShouldUpdateTeamSeasonsWithCorrectData(int games, 
+        //[InlineData(3, 1, 1, 1, 1, 1, 1, 2, 1, 0, 0, 1, 1)]
+        //[InlineData(3, 1, 1, 1, 1, 1, 2, 1, 0, 1, 1, 0, 1)]
+        [InlineData(1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0)]
+        [InlineData(1, 0, 1, 1, 0, 0, 1, 2, 0, 0, 0, 0, 0)]
+        [InlineData(1, 1, 0, 0, 1, 0, 2, 1, 0, 0, 0, 0, 0)]
+        public void ProcessGame_WhenGuestAndHostSeasonsFound_ShouldUpdateTeamSeasonsWithCorrectData(
+            int games, 
             int guestWins, int guestLosses, int hostWins, int hostLosses, int ties, int guestScore, int hostScore,
-            int expGuestWins, int expGuestLosses, int expHostWins, int expHostLosses, int expTies)
+            int expGuestWins, int expGuestLosses, int expHostWins, int expHostLosses, int expTies
+        )
         {
-            // Arrange
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var guestName = "Guest";
+            var guest = new Team { Name = guestName };
 
-            int points = 4;
+            var hostName = "Host";
+            var host = new Team { Name = hostName };
+
+            var points = 4;
             var guestSeason = new TeamSeason
             {
                 TeamId = 1,
@@ -61,17 +55,9 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
                 PointsFor = points,
                 PointsAgainst = points
             };
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(An<int>.Ignored))
-                .Returns([guestSeason, hostSeason]);
 
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            var guestName = "Guest";
-            var guest = new Team { Name = guestName };
-            var hostName = "Host";
-            var host = new Team { Name = hostName };
-            A.CallTo(() => fakeTeamRepository.GetTeam(An<int>.Ignored)).ReturnsNextFromSequence([guest, guest, host, host]);
-
-            var testStrategy = new SubtractGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
+            SubtractGameStrategy testStrategy = 
+                SetUp(teams: [guest, guest, host, host], guestSeason: guestSeason, hostSeason: hostSeason);
 
             // Act
             var game = new Game
@@ -85,10 +71,10 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             testStrategy.ProcessGame(game);
 
             // Assert
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(game.SeasonYear))
+            A.CallTo(() => testStrategy._teamSeasonRepository.GetTeamSeasonsBySeason(game.SeasonYear))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamRepository.GetTeam(guestSeason.TeamId)).MustHaveHappened();
-            A.CallTo(() => fakeTeamRepository.GetTeam(hostSeason.TeamId)).MustHaveHappened();
+            A.CallTo(() => testStrategy._teamRepository.GetTeam(guestSeason.TeamId)).MustHaveHappened();
+            A.CallTo(() => testStrategy._teamRepository.GetTeam(hostSeason.TeamId)).MustHaveHappened();
 
             guestSeason.Games.ShouldBe(games - 1);
             guestSeason.Wins.ShouldBe(expGuestWins);
@@ -108,36 +94,32 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             hostSeason.ExpectedWins.ShouldBe(expHostWins);
             hostSeason.ExpectedLosses.ShouldBe(expHostLosses);
 
-            A.CallTo(() => fakeTeamSeasonRepository.Update(guestSeason)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamSeasonRepository.Update(hostSeason)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testStrategy._teamSeasonRepository.Update(guestSeason)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testStrategy._teamSeasonRepository.Update(hostSeason)).MustHaveHappenedOnceExactly();
         }
 
         [Fact]
         public void ProcessGame_WhenGameArgIsNull_ShouldThrowArgumentNullException()
         {
             // Arrange
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            var testStrategy = new AddGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
+            SubtractGameStrategy testStrategy = SetUp();
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => _testStrategy.ProcessGame(null!));
+            Assert.Throws<ArgumentNullException>(() => testStrategy.ProcessGame(null!));
         }
 
         [Fact(Skip = "This test will be skipped until it's necessary to verify that each game includes only member teams.")]
         public void ProcessGame_WhenGuestSeasonIsNotFound_ShouldThrowEntityNotFoundException()
         {
             // Arrange
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var hostName = "Host";
+            var host = new Team { Name = hostName };
+
             var guestSeason = new TeamSeason { TeamId = 1 };
             var hostSeason = new TeamSeason { TeamId = 2 };
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(An<int>.Ignored))
-                .Returns([guestSeason, hostSeason]);
 
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            A.CallTo(() => fakeTeamRepository.GetTeam(An<int>.Ignored)).Returns(null);
-
-            var testStrategy = new AddGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
+            SubtractGameStrategy testStrategy =
+                SetUp(teams: [null!, host], guestSeason: guestSeason, hostSeason: hostSeason);
 
             // Act
             var game = new Game
@@ -151,30 +133,26 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             Assert.Throws<EntityNotFoundException>(() => testStrategy.ProcessGame(game));
 
             // Assert
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(game.SeasonYear))
+            A.CallTo(() => testStrategy._teamSeasonRepository.GetTeamSeasonsBySeason(game.SeasonYear))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamRepository.GetTeam(guestSeason.TeamId)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamRepository.GetTeam(hostSeason.TeamId)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamSeasonRepository.Update(guestSeason)).MustNotHaveHappened();
-            A.CallTo(() => fakeTeamSeasonRepository.Update(hostSeason)).MustNotHaveHappened();
+            A.CallTo(() => testStrategy._teamRepository.GetTeam(guestSeason.TeamId)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testStrategy._teamRepository.GetTeam(hostSeason.TeamId)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testStrategy._teamSeasonRepository.Update(guestSeason)).MustNotHaveHappened();
+            A.CallTo(() => testStrategy._teamSeasonRepository.Update(hostSeason)).MustNotHaveHappened();
         }
 
         [Fact(Skip = "This test will be skipped until it's necessary to verify that each game includes only member teams.")]
         public void ProcessGame_WhenHostSeasonIsNotFound_ShouldThrowEntityNotFoundException()
         {
             // Arrange
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            var guestSeason = new TeamSeason { TeamId = 1 };
-            var hostSeason = new TeamSeason { TeamId = 2 };
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(An<int>.Ignored))
-                .Returns([guestSeason, hostSeason]);
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
             var guestName = "Guest";
             var guest = new Team { Name = guestName };
-            A.CallTo(() => fakeTeamRepository.GetTeam(An<int>.Ignored)).ReturnsNextFromSequence([guest, null]);
 
-            var testStrategy = new AddGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
+            var guestSeason = new TeamSeason { TeamId = 1 };
+            var hostSeason = new TeamSeason { TeamId = 2 };
+
+            SubtractGameStrategy testStrategy = 
+                SetUp(teams: [guest, null!], guestSeason: guestSeason, hostSeason: hostSeason);
 
             // Act
             var game = new Game
@@ -188,12 +166,12 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             Assert.Throws<EntityNotFoundException>(() => testStrategy.ProcessGame(game));
 
             // Assert
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(game.SeasonYear))
+            A.CallTo(() => testStrategy._teamSeasonRepository.GetTeamSeasonsBySeason(game.SeasonYear))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamRepository.GetTeam(guestSeason.TeamId)).MustHaveHappenedTwiceExactly();
-            A.CallTo(() => fakeTeamRepository.GetTeam(hostSeason.TeamId)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamSeasonRepository.Update(guestSeason)).MustNotHaveHappened();
-            A.CallTo(() => fakeTeamSeasonRepository.Update(hostSeason)).MustNotHaveHappened();
+            A.CallTo(() => testStrategy._teamRepository.GetTeam(guestSeason.TeamId)).MustHaveHappenedTwiceExactly();
+            A.CallTo(() => testStrategy._teamRepository.GetTeam(hostSeason.TeamId)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testStrategy._teamSeasonRepository.Update(guestSeason)).MustNotHaveHappened();
+            A.CallTo(() => testStrategy._teamSeasonRepository.Update(hostSeason)).MustNotHaveHappened();
         }
 
         [Theory]
@@ -204,15 +182,19 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
         //[InlineData(3, 1, 1, 1, 1, 1, 1, 2, false, 1, 0, 0, 1, 1)]
         [InlineData(3, 1, 1, 1, 1, 1, 1, 1, true, 1, 1, 1, 1, 0)]
         public async Task ProcessGameAsync_WhenGuestAndHostSeasonsFound_ShouldUpdateTeamSeasonsWithCorrectData(
-            int games, int guestWins, int guestLosses, int hostWins, int hostLosses, int ties, int guestScore,
-            int hostScore, bool isTie, int expGuestWins, int expGuestLosses, int expHostWins, int expHostLosses,
-            int expTies
-            )
+            int games,
+            int guestWins, int guestLosses, int hostWins, int hostLosses, int ties, int guestScore, int hostScore, bool isTie,
+            int expGuestWins, int expGuestLosses, int expHostWins, int expHostLosses, int expTies
+        )
         {
             // Arrange
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var guestName = "Guest";
+            var guest = new Team { Name = guestName };
 
-            int points = 4;
+            var hostName = "Host";
+            var host = new Team { Name = hostName };
+
+            var points = 4;
             var guestSeason = new TeamSeason
             {
                 TeamId = 1,
@@ -233,18 +215,9 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
                 PointsFor = points,
                 PointsAgainst = points
             };
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
-                .Returns(new List<TeamSeason> { guestSeason, hostSeason });
 
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            var guestName = "Guest";
-            var guest = new Team { Name = guestName };
-            var hostName = "Host";
-            var host = new Team { Name = hostName };
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored))
-                .ReturnsNextFromSequence([guest, guest, host, host]);
-
-            var testStrategy = new SubtractGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
+            SubtractGameStrategy testStrategy =
+                SetUp(asyncTeams: [guest, guest, host, host], guestSeason: guestSeason, hostSeason: hostSeason);
 
             // Act
             var game = new Game
@@ -258,10 +231,10 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             await testStrategy.ProcessGameAsync(game);
 
             // Assert
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(game.SeasonYear))
+            A.CallTo(() => testStrategy._teamSeasonRepository.GetTeamSeasonsBySeasonAsync(game.SeasonYear))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(guestSeason.TeamId)).MustHaveHappened();
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(hostSeason.TeamId)).MustHaveHappened();
+            A.CallTo(() => testStrategy._teamRepository.GetTeamAsync(guestSeason.TeamId)).MustHaveHappened();
+            A.CallTo(() => testStrategy._teamRepository.GetTeamAsync(hostSeason.TeamId)).MustHaveHappened();
 
             guestSeason.Games.ShouldBe(games - 1);
             guestSeason.Wins.ShouldBe(expGuestWins);
@@ -281,36 +254,32 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             hostSeason.ExpectedWins.ShouldBe(expHostWins);
             hostSeason.ExpectedLosses.ShouldBe(expHostLosses);
 
-            A.CallTo(() => fakeTeamSeasonRepository.Update(guestSeason)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamSeasonRepository.Update(hostSeason)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testStrategy._teamSeasonRepository.Update(guestSeason)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testStrategy._teamSeasonRepository.Update(hostSeason)).MustHaveHappenedOnceExactly();
         }
 
         [Fact]
         public async Task ProcessGameAsync_WhenGameArgIsNull_ShouldThrowArgumentNullException()
         {
             // Arrange
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            var testStrategy = new AddGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
+            SubtractGameStrategy testStrategy = SetUp();
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => _testStrategy.ProcessGameAsync(null!).GetAwaiter().GetResult());
+            Assert.Throws<ArgumentNullException>(() => testStrategy.ProcessGameAsync(null!).GetAwaiter().GetResult());
         }
 
         [Fact(Skip = "This test will be skipped until it's necessary to verify that each game includes only member teams.")]
         public async Task ProcessGameAsync_WhenGuestSeasonIsNotFound_ShouldThrowEntityNotFoundException()
         {
             // Arrange
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            var hostName = "Host";
+            var host = new Team { Name = hostName };
+
             var guestSeason = new TeamSeason { TeamId = 1 };
             var hostSeason = new TeamSeason { TeamId = 2 };
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
-                .Returns([guestSeason, hostSeason]);
 
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).Returns<Team>(null!);
-
-            var testStrategy = new AddGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
+            SubtractGameStrategy testStrategy =
+                SetUp(asyncTeams: [null!, host], guestSeason: guestSeason, hostSeason: hostSeason);
 
             // Act
             var game = new Game
@@ -324,30 +293,26 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             await Assert.ThrowsAsync<EntityNotFoundException>(async () => await testStrategy.ProcessGameAsync(game));
 
             // Assert
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(game.SeasonYear))
+            A.CallTo(() => testStrategy._teamSeasonRepository.GetTeamSeasonsBySeasonAsync(game.SeasonYear))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(guestSeason.TeamId)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(hostSeason.TeamId)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamSeasonRepository.Update(guestSeason)).MustNotHaveHappened();
-            A.CallTo(() => fakeTeamSeasonRepository.Update(hostSeason)).MustNotHaveHappened();
+            A.CallTo(() => testStrategy._teamRepository.GetTeamAsync(guestSeason.TeamId)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testStrategy._teamRepository.GetTeamAsync(hostSeason.TeamId)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testStrategy._teamSeasonRepository.Update(guestSeason)).MustNotHaveHappened();
+            A.CallTo(() => testStrategy._teamSeasonRepository.Update(hostSeason)).MustNotHaveHappened();
         }
 
         [Fact(Skip = "This test will be skipped until it's necessary to verify that each game includes only member teams.")]
         public async Task ProcessGameAsync_WhenHostSeasonIsNotFound_ShouldThrowEntityNotFoundException()
         {
             // Arrange
-            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
-            var guestSeason = new TeamSeason { TeamId = 1 };
-            var hostSeason = new TeamSeason { TeamId = 2 };
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
-                .Returns([guestSeason, hostSeason]);
-
-            var fakeTeamRepository = A.Fake<ITeamRepository>();
             var guestName = "Guest";
             var guest = new Team { Name = guestName };
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).ReturnsNextFromSequence([guest, null]);
 
-            var testStrategy = new AddGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
+            var guestSeason = new TeamSeason { TeamId = 1 };
+            var hostSeason = new TeamSeason { TeamId = 2 };
+
+            SubtractGameStrategy testStrategy =
+                SetUp(asyncTeams: [guest, null!], guestSeason: guestSeason, hostSeason: hostSeason);
 
             // Act
             var game = new Game
@@ -361,12 +326,37 @@ namespace EldredBrown.ProFootball.Net.Services.Tests
             Assert.Throws<EntityNotFoundException>(() => testStrategy.ProcessGame(game));
 
             // Assert
-            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(game.SeasonYear))
+            A.CallTo(() => testStrategy._teamSeasonRepository.GetTeamSeasonsBySeasonAsync(game.SeasonYear))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(guestSeason.TeamId)).MustHaveHappenedTwiceExactly();
-            A.CallTo(() => fakeTeamRepository.GetTeamAsync(hostSeason.TeamId)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeTeamSeasonRepository.Update(guestSeason)).MustNotHaveHappened();
-            A.CallTo(() => fakeTeamSeasonRepository.Update(hostSeason)).MustNotHaveHappened();
+            A.CallTo(() => testStrategy._teamRepository.GetTeamAsync(guestSeason.TeamId)).MustHaveHappenedTwiceExactly();
+            A.CallTo(() => testStrategy._teamRepository.GetTeamAsync(hostSeason.TeamId)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testStrategy._teamSeasonRepository.Update(guestSeason)).MustNotHaveHappened();
+            A.CallTo(() => testStrategy._teamSeasonRepository.Update(hostSeason)).MustNotHaveHappened();
+        }
+
+        private static SubtractGameStrategy SetUp(
+            List<Team>? teams = null, List<Team>? asyncTeams = null,
+            TeamSeason? guestSeason = null, TeamSeason? hostSeason = null
+        )
+        {
+            // Arrange
+            var fakeTeamRepository = A.Fake<ITeamRepository>();
+            if (teams is not null)
+            {
+                A.CallTo(() => fakeTeamRepository.GetTeam(An<int>.Ignored)).ReturnsNextFromSequence([.. teams]);
+            }
+            else if (asyncTeams is not null)
+            {
+                A.CallTo(() => fakeTeamRepository.GetTeamAsync(An<int>.Ignored)).ReturnsNextFromSequence([.. asyncTeams]);
+            }
+
+            var fakeTeamSeasonRepository = A.Fake<ITeamSeasonRepository>();
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeason(An<int>.Ignored))
+                .Returns([guestSeason!, hostSeason!]);
+            A.CallTo(() => fakeTeamSeasonRepository.GetTeamSeasonsBySeasonAsync(An<int>.Ignored))
+                .Returns([guestSeason!, hostSeason!]);
+
+            return new SubtractGameStrategy(fakeTeamRepository, fakeTeamSeasonRepository);
         }
     }
 }

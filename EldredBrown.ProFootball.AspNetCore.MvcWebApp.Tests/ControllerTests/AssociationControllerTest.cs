@@ -23,98 +23,71 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Index_ShouldReturnAssociationIndexView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
             var associationViewModels = new List<AssociationViewModel>
             {
                 new() { Id = 1 },
                 new() { Id = 2 },
                 new() { Id = 3 },
             };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapAssociationToViewModel(An<Association>.Ignored))
-                .ReturnsNextFromSequence(associationViewModels.ToArray());
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             var associations = new List<Association>
             {
                 new() { Id = 1 },
                 new() { Id = 2 },
                 new() { Id = 3 },
             };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp(
+                associationViewModels: associationViewModels, associations: associations
+            );
 
             // Act
             var result = await testController.Index();
 
             // Assert
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
             foreach (var association in associations)
             {
-                A.CallTo(() => fakeAssociationViewModelMapper.MapAssociationToViewModel(association))
+                A.CallTo(() => testController._associationViewModelMapper.MapAssociationToViewModel(association))
                     .MustHaveHappenedOnceExactly();
             }
-            fakeAssociationIndexViewModel.Associations.ShouldBe(associationViewModels);
+            testController._associationIndexViewModel.Associations.ShouldBe(associationViewModels);
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(fakeAssociationIndexViewModel);
+            ((ViewResult)result).Model.ShouldBe(testController._associationIndexViewModel);
         }
 
         [Fact]
         public async Task Details_WhenIdIsNotNullAndAssociationFound_ShouldReturnAssociationDetailsView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var associationViewModel = new AssociationViewModel { };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapAssociationToViewModel(An<Association>.Ignored))
-                .Returns(associationViewModel);
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            var association = new Association { };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationAsync(An<int>.Ignored)).Returns(association);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            var associationViewModel = new AssociationViewModel();
+            var association = new Association();
+            AssociationController testController = SetUp(
+                associationViewModel: associationViewModel, association: association
+            );
 
             // Act
             int? id = 0;
             var result = await testController.Details(id);
 
             // Assert
-            A.CallTo(() => fakeAssociationRepository.GetAssociationAsync(id.Value)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationViewModelMapper.MapAssociationToViewModel(association))
+            A.CallTo(() => testController._associationRepository.GetAssociationAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationViewModelMapper.MapAssociationToViewModel(association))
                 .MustHaveHappenedOnceExactly();
-            fakeAssociationDetailsViewModel.Association.ShouldNotBeNull();
-            fakeAssociationDetailsViewModel.Association.ShouldBeOfType<AssociationViewModel>();
-            fakeAssociationDetailsViewModel.Association.ShouldBe(associationViewModel);
+            testController._associationDetailsViewModel.Association.ShouldNotBeNull();
+            testController._associationDetailsViewModel.Association.ShouldBeOfType<AssociationViewModel>();
+            testController._associationDetailsViewModel.Association.ShouldBe(associationViewModel);
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(fakeAssociationDetailsViewModel);
+            ((ViewResult)result).Model.ShouldBe(testController._associationDetailsViewModel);
         }
 
         [Fact]
         public async Task Details_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp();
 
             // Act
-            var result = await testController.Details(null);
+            int? id = null;
+            var result = await testController.Details(id);
 
             // Assert
             result.ShouldBeOfType<NotFoundResult>();
@@ -124,25 +97,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenAssociationNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            Association? association = null;
-            A.CallTo(() => fakeAssociationRepository.GetAssociationAsync(An<int>.Ignored)).Returns(association);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp();
 
             // Act
             int? id = 0;
             var result = await testController.Details(id);
 
             // Assert
-            A.CallTo(() => fakeAssociationRepository.GetAssociationAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.GetAssociationAsync(id.Value))
+                .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -150,13 +113,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public void CreateGet_ShouldReturnAssociationCreateView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp();
 
             // Act
             var result = testController.Create();
@@ -169,29 +126,20 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsValidAndNoExceptionCaught_ShouldAddAssociationToDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var association = new Association { };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            var association = new Association();
+            AssociationController testController = SetUp(association: association);
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
             var result = await testController.Create(associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.AddAsync(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.AddAsync(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
         }
@@ -200,21 +148,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForPrimaryKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var association = new Association
-            {
-                Id = 2,
-                LongName = "Association 4",
-                ShortName = "A4",
-                FirstSeasonYear = 1920
-            };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             var associations = new List<Association>
             {
                 new()
@@ -239,28 +172,36 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     FirstSeasonYear = 1920
                 },
             };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
+            var association = new Association
+            {
+                Id = 2,
+                LongName = "Association 4",
+                ShortName = "A4",
+                FirstSeasonYear = 1920
+            };
 
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            var ex = new DbUpdateException();
+
+            AssociationController testController = SetUp(associations: associations, association: association, ex: ex);
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
             var result = await testController.Create(associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.AddAsync(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.AddAsync(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.GetAssociationsAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey("Id");
-            testController.ModelState["Id"].Errors[0].ErrorMessage
+            testController.ModelState["Id"]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. An association with the same Id already exists.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(associationViewModel);
@@ -270,10 +211,31 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForLongNameTooLong_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
+            var associations = new List<Association>
+            {
+                new()
+                {
+                    Id = 1,
+                    LongName = "Association 1",
+                    ShortName = "A1",
+                    FirstSeasonYear = 1920
+                },
+                new()
+                {
+                    Id = 2,
+                    LongName = "Association 2",
+                    ShortName = "A2",
+                    FirstSeasonYear = 1920
+                },
+                new()
+                {
+                    Id = 3,
+                    LongName = "Association 3",
+                    ShortName = "A3",
+                    FirstSeasonYear = 1920
+                },
+            };
 
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
             var longName = new StringBuilder();
             for (int i = 0; i <= 100; i++)
             {
@@ -286,10 +248,39 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 ShortName = "A4",
                 FirstSeasonYear = 1920
             };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
 
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
+            var ex = new DbUpdateException(
+                message: string.Empty,
+                innerException: new Exception("String or binary data would be truncated in table 'ProFootballDb_Proposed.dbo.Association', column 'long_name'."));
+
+            AssociationController testController = SetUp(associations: associations, association: association, ex: ex);
+
+            // Act
+            var associationViewModel = new AssociationViewModel { Association = association };
+            var result = await testController.Create(associationViewModel);
+
+            // Assert
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.AddAsync(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.GetAssociationsAsync())
+                .MustHaveHappenedOnceExactly();
+            testController.ModelState.IsValid.ShouldBeFalse();
+            testController.ModelState.ErrorCount.ShouldBe(1);
+            testController.ModelState.ShouldContainKey("LongName");
+            testController.ModelState["LongName"]?.Errors[0].ErrorMessage
+                .ShouldBe("Unable to save changes. The entered LongName is too long.");
+            result.ShouldBeOfType<ViewResult>();
+            ((ViewResult)result).Model.ShouldBe(associationViewModel);
+        }
+
+        [Fact]
+        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForShortNameTooLong_ShouldHandleExceptionAndReturnSeasonCreateView()
+        {
+            // Arrange
             var associations = new List<Association>
             {
                 new()
@@ -314,44 +305,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     FirstSeasonYear = 1920
                 },
             };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var ex = new DbUpdateException(
-                message: string.Empty,
-                innerException: new Exception("String or binary data would be truncated in table 'ProFootballDb_Proposed.dbo.Association', column 'long_name'."));
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
-
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
-
-            // Act
-            var associationViewModel = new AssociationViewModel { Association = association };
-            var result = await testController.Create(associationViewModel);
-
-            // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
-                .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.AddAsync(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
-            testController.ModelState.IsValid.ShouldBeFalse();
-            testController.ModelState.ErrorCount.ShouldBe(1);
-            testController.ModelState.ShouldContainKey("LongName");
-            testController.ModelState["LongName"].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. The entered LongName is too long.");
-            result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(associationViewModel);
-        }
-
-        [Fact]
-        public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForShortNameTooLong_ShouldHandleExceptionAndReturnSeasonCreateView()
-        {
-            // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
             var shortName = new StringBuilder();
             for (int i = 0; i <= 5; i++)
             {
@@ -364,59 +318,30 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 ShortName = shortName.ToString(),
                 FirstSeasonYear = 1920
             };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
 
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            var associations = new List<Association>
-            {
-                new()
-                {
-                    Id = 1,
-                    LongName = "Association 1",
-                    ShortName = "A1",
-                    FirstSeasonYear = 1920
-                },
-                new()
-                {
-                    Id = 2,
-                    LongName = "Association 2",
-                    ShortName = "A2",
-                    FirstSeasonYear = 1920
-                },
-                new()
-                {
-                    Id = 3,
-                    LongName = "Association 3",
-                    ShortName = "A3",
-                    FirstSeasonYear = 1920
-                },
-            };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: string.Empty,
                 innerException: new Exception("String or binary data would be truncated in table 'ProFootballDb_Proposed.dbo.Association', column 'short_name'."));
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp(associations: associations, association: association, ex: ex);
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
             var result = await testController.Create(associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.AddAsync(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.AddAsync(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.GetAssociationsAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey("ShortName");
-            testController.ModelState["ShortName"].Errors[0].ErrorMessage
+            testController.ModelState["ShortName"]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. The entered ShortName is too long.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(associationViewModel);
@@ -426,21 +351,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForUniqueKeyViolationOnLongName_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var association = new Association
-            {
-                Id = 4,
-                LongName = "Association 4",
-                ShortName = "A2",
-                FirstSeasonYear = 1920
-            };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             var associations = new List<Association>
             {
                 new()
@@ -465,31 +375,38 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     FirstSeasonYear = 1920
                 },
             };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            var association = new Association
+            {
+                Id = 4,
+                LongName = "Association 4",
+                ShortName = "A2",
+                FirstSeasonYear = 1920
+            };
+
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("Violation of UNIQUE KEY constraint 'UQ_Association_LongName'."));
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp(associations: associations, association: association, ex: ex);
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
             var result = await testController.Create(associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.AddAsync(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.AddAsync(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.GetAssociationsAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. Violation of UNIQUE KEY constraint LongName.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(associationViewModel);
@@ -499,21 +416,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForUniqueKeyViolationOnShortName_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var association = new Association
-            {
-                Id = 4,
-                LongName = "Association 4",
-                ShortName = "A2",
-                FirstSeasonYear = 1920
-            };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             var associations = new List<Association>
             {
                 new()
@@ -538,31 +440,38 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     FirstSeasonYear = 1920
                 },
             };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            var association = new Association
+            {
+                Id = 4,
+                LongName = "Association 4",
+                ShortName = "A2",
+                FirstSeasonYear = 1920
+            };
+
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("Violation of UNIQUE KEY constraint 'UQ_Association_ShortName'."));
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp(associations: associations, association: association, ex: ex);
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
             var result = await testController.Create(associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.AddAsync(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.AddAsync(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.GetAssociationsAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. Violation of UNIQUE KEY constraint ShortName.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(associationViewModel);
@@ -572,15 +481,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForForeignKeyViolationOnFirstSeasonYear_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var association = new Association { };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             var associations = new List<Association>
             {
                 new()
@@ -605,32 +505,33 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     FirstSeasonYear = 1920
                 },
             };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            var association = new Association();
+
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("The INSERT statement conflicted with the FOREIGN KEY constraint \"FK_Association_Season_FirstSeasonYear\".")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp(associations: associations, association: association, ex: ex);
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
             var result = await testController.Create(associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.AddAsync(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.AddAsync(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.GetAssociationsAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on FirstSeasonYear.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(associationViewModel);
@@ -640,15 +541,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForForeignKeyViolationOnLastSeasonYear_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var association = new Association { };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             var associations = new List<Association>
             {
                 new()
@@ -673,32 +565,33 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     FirstSeasonYear = 1920
                 },
             };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            var association = new Association();
+
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("The INSERT statement conflicted with the FOREIGN KEY constraint \"FK_Association_Season_LastSeasonYear\".")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp(associations: associations, association: association, ex: ex);
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
             var result = await testController.Create(associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.AddAsync(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.AddAsync(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.GetAssociationsAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on LastSeasonYear.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(associationViewModel);
@@ -708,15 +601,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenSaveChangesThrowsDbUpdateExceptionForSomethingElse_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var association = new Association { };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             var associations = new List<Association>
             {
                 new()
@@ -741,32 +625,33 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     FirstSeasonYear = 1920
                 },
             };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            var association = new Association();
+
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("Exception")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp(associations: associations, association: association, ex: ex);
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
             var result = await testController.Create(associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.AddAsync(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.AddAsync(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.GetAssociationsAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. An unexpected error occurred.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(associationViewModel);
@@ -776,14 +661,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsNotValid_ShouldReturnAssociationCreateView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
-
+            AssociationController testController = SetUp();
             testController.ModelState.AddModelError("LongName", "Please enter a long name.");
 
             // Act
@@ -792,10 +670,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Create(associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustNotHaveHappened();
-            A.CallTo(() => fakeAssociationRepository.AddAsync(association)).MustNotHaveHappened();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustNotHaveHappened();
+            A.CallTo(() => testController._associationRepository.AddAsync(association))
+                .MustNotHaveHappened();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustNotHaveHappened();
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(associationViewModel);
         }
@@ -804,24 +684,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNotNullAndAssociationFound_ShouldReturnAssociationEditView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             Association? association = new();
-            A.CallTo(() => fakeAssociationRepository.GetAssociationAsync(An<int>.Ignored)).Returns(association);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp(association: association);
 
             // Act
             int? id = 0;
             var result = await testController.Edit(id);
 
             // Assert
-            A.CallTo(() => fakeAssociationRepository.GetAssociationAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.GetAssociationAsync(id.Value))
+                .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<ViewResult>();
             var resultModel = ((ViewResult)result).Model;
             resultModel.ShouldNotBeNull();
@@ -833,16 +706,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp();
 
             // Act
-            var result = await testController.Edit(null);
+            int? id = null;
+            var result = await testController.Edit(id);
 
             // Assert
             result.ShouldBeOfType<NotFoundResult>();
@@ -852,24 +720,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenAssociationNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            Association? association = null;
-            A.CallTo(() => fakeAssociationRepository.GetAssociationAsync(An<int>.Ignored)).Returns(association);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp();
 
             // Act
             int? id = 0;
             var result = await testController.Edit(id);
 
             // Assert
-            A.CallTo(() => fakeAssociationRepository.GetAssociationAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.GetAssociationAsync(id.Value))
+                .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -877,31 +736,24 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsAssociationIdAndModelStateIsValidAndNoExceptionCaught_ShouldUpdateAssociationInDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
             var association = new Association
             {
                 Id = 1
             };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
 
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp(association: association);
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
             var result = await testController.Edit(association.Id, associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.Update(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.Update(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
         }
@@ -910,13 +762,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdDoesNotEqualAssociationId_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp();
 
             // Act
             var association = new Association
@@ -934,35 +780,26 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenDbUpdateConcurrencyExceptionIsCaughtAndAssociationWithIdDoesNotExist_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
             var association = new Association
             {
                 Id = 1
             };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
 
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            A.CallTo(() => fakeAssociationRepository.AssociationExistsAsync(An<int>.Ignored)).Returns(false);
+            var ex = new DbUpdateConcurrencyException();
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateConcurrencyException>();
-
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp(association: association, associationExists: false, ex: ex);
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
             var result = await testController.Edit(association.Id, associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.Update(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.Update(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -970,26 +807,14 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenDbUpdateConcurrencyExceptionIsCaughtAndAssociationWithIdExists_ShouldRethrowException()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
             var association = new Association
             {
                 Id = 1
             };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
 
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            A.CallTo(() => fakeAssociationRepository.AssociationExistsAsync(An<int>.Ignored)).Returns(true);
+            var ex = new DbUpdateConcurrencyException();
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateConcurrencyException>();
-
-            var testController = new AssociationController(fakeAssociationIndexViewModel,
-                fakeAssociationDetailsViewModel, fakeAssociationViewModelMapper, fakeAssociationRepository,
-                fakeSharedRepository);
+            AssociationController testController = SetUp(association: association, associationExists: true, ex: ex);
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
@@ -1004,10 +829,31 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenSaveChangesThrowsDbUpdateExceptionForLongNameTooLong_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
+            var associations = new List<Association>
+            {
+                new()
+                {
+                    Id = 1,
+                    LongName = "Association 1",
+                    ShortName = "A1",
+                    FirstSeasonYear = 1920
+                },
+                new()
+                {
+                    Id = 2,
+                    LongName = "Association 2",
+                    ShortName = "A2",
+                    FirstSeasonYear = 1920
+                },
+                new()
+                {
+                    Id = 3,
+                    LongName = "Association 3",
+                    ShortName = "A3",
+                    FirstSeasonYear = 1920
+                },
+            };
 
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
             var longName = new StringBuilder();
             for (int i = 0; i <= 100; i++)
             {
@@ -1020,10 +866,39 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 ShortName = "A4",
                 FirstSeasonYear = 1920
             };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
 
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
+            var ex = new DbUpdateException(
+                message: string.Empty,
+                innerException: new Exception("String or binary data would be truncated in table 'ProFootballDb_Proposed.dbo.Association', column 'long_name'."));
+
+            AssociationController testController = SetUp(
+                associations: associations, association: association, associationExists: true, ex: ex
+            );
+
+            // Act
+            var associationViewModel = new AssociationViewModel { Association = association };
+            var result = await testController.Edit(association.Id, associationViewModel);
+
+            // Assert
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.Update(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            testController.ModelState.IsValid.ShouldBeFalse();
+            testController.ModelState.ErrorCount.ShouldBe(1);
+            testController.ModelState.ShouldContainKey("LongName");
+            testController.ModelState["LongName"]?.Errors[0].ErrorMessage
+                .ShouldBe("Unable to save changes. The entered LongName is too long.");
+            result.ShouldBeOfType<ViewResult>();
+            ((ViewResult)result).Model.ShouldBe(associationViewModel);
+        }
+
+        [Fact]
+        public async Task EditPost_WhenSaveChangesThrowsDbUpdateExceptionForShortNameTooLong_ShouldHandleExceptionAndReturnSeasonCreateView()
+        {
+            // Arrange
             var associations = new List<Association>
             {
                 new()
@@ -1048,44 +923,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     FirstSeasonYear = 1920
                 },
             };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var ex = new DbUpdateException(
-                message: string.Empty,
-                innerException: new Exception("String or binary data would be truncated in table 'ProFootballDb_Proposed.dbo.Association', column 'long_name'."));
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
-
-            var testController = new AssociationController(fakeAssociationIndexViewModel,
-                fakeAssociationDetailsViewModel, fakeAssociationViewModelMapper, fakeAssociationRepository,
-                fakeSharedRepository);
-
-            // Act
-            var associationViewModel = new AssociationViewModel { Association = association };
-            var result = await testController.Edit(association.Id, associationViewModel);
-
-            // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
-                .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.Update(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            testController.ModelState.IsValid.ShouldBeFalse();
-            testController.ModelState.ErrorCount.ShouldBe(1);
-            testController.ModelState.ShouldContainKey("LongName");
-            testController.ModelState["LongName"].Errors[0].ErrorMessage
-                .ShouldBe("Unable to save changes. The entered LongName is too long.");
-            result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(associationViewModel);
-        }
-
-        [Fact]
-        public async Task EditPost_WhenSaveChangesThrowsDbUpdateExceptionForShortNameTooLong_ShouldHandleExceptionAndReturnSeasonCreateView()
-        {
-            // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
             var shortName = new StringBuilder();
             for (int i = 0; i <= 5; i++)
             {
@@ -1098,59 +936,30 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                 ShortName = shortName.ToString(),
                 FirstSeasonYear = 1920
             };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
 
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            var associations = new List<Association>
-            {
-                new()
-                {
-                    Id = 1,
-                    LongName = "Association 1",
-                    ShortName = "A1",
-                    FirstSeasonYear = 1920
-                },
-                new()
-                {
-                    Id = 2,
-                    LongName = "Association 2",
-                    ShortName = "A2",
-                    FirstSeasonYear = 1920
-                },
-                new()
-                {
-                    Id = 3,
-                    LongName = "Association 3",
-                    ShortName = "A3",
-                    FirstSeasonYear = 1920
-                },
-            };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: string.Empty,
                 innerException: new Exception("String or binary data would be truncated in table 'ProFootballDb_Proposed.dbo.Association', column 'short_name'."));
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new AssociationController(fakeAssociationIndexViewModel, 
-                fakeAssociationDetailsViewModel, fakeAssociationViewModelMapper, fakeAssociationRepository,
-                fakeSharedRepository);
+            AssociationController testController = SetUp(
+                associations: associations, association: association, associationExists: true, ex: ex
+            );
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
             var result = await testController.Edit(association.Id, associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.Update(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.Update(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey("ShortName");
-            testController.ModelState["ShortName"].Errors[0].ErrorMessage
+            testController.ModelState["ShortName"]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. The entered ShortName is too long.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(associationViewModel);
@@ -1160,21 +969,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenDbUpdateExceptionIsCaughtForUniqueKeyViolationOnLongName_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var association = new Association
-            {
-                Id = 2,
-                LongName = "Association 2",
-                ShortName = "A4",
-                FirstSeasonYear = 1920
-            };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             var associations = new List<Association>
             {
                 new()
@@ -1199,30 +993,38 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     FirstSeasonYear = 1920
                 },
             };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            var association = new Association
+            {
+                Id = 2,
+                LongName = "Association 2",
+                ShortName = "A4",
+                FirstSeasonYear = 1920
+            };
+
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("Violation of UNIQUE KEY constraint 'UQ_Association_LongName'."));
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp(
+                associations: associations, association: association, associationExists: true, ex: ex
+            );
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
             var result = await testController.Edit(association.Id, associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.Update(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.Update(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. Violation of UNIQUE KEY constraint LongName.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(associationViewModel);
@@ -1232,21 +1034,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenDbUpdateExceptionIsCaughtForUniqueKeyViolationOnShortName_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var association = new Association
-            {
-                Id = 2,
-                LongName = "Association 4",
-                ShortName = "A2",
-                FirstSeasonYear = 1920
-            };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             var associations = new List<Association>
             {
                 new()
@@ -1271,30 +1058,38 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     FirstSeasonYear = 1920
                 },
             };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            var association = new Association
+            {
+                Id = 2,
+                LongName = "Association 4",
+                ShortName = "A2",
+                FirstSeasonYear = 1920
+            };
+
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("Violation of UNIQUE KEY constraint 'UQ_Association_ShortName'."));
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp(
+                associations: associations, association: association, associationExists: true, ex: ex
+            );
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
             var result = await testController.Edit(association.Id, associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.Update(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.Update(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. Violation of UNIQUE KEY constraint ShortName.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(associationViewModel);
@@ -1304,16 +1099,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenDbUpdateExceptionIsCaughtForForeignKeyConflictOnFirstSeasonYear_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            int id = 2;
-            var association = new Association { Id = id };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             var associations = new List<Association>
             {
                 new()
@@ -1338,31 +1123,34 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     FirstSeasonYear = 1920
                 },
             };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            int id = 2;
+            var association = new Association { Id = id };
+
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("The UPDATE statement conflicted with the FOREIGN KEY constraint \"FK_Association_Season_FirstSeasonYear\".")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp(
+                associations: associations, association: association, associationExists: true, ex: ex
+            );
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
             var result = await testController.Edit(id, associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.Update(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.Update(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on FirstSeasonYear.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(associationViewModel);
@@ -1372,16 +1160,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenDbUpdateExceptionIsCaughtForForeignKeyConflictOnLastSeasonYear_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            int id = 2;
-            var association = new Association { Id = id };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             var associations = new List<Association>
             {
                 new()
@@ -1406,31 +1184,34 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     FirstSeasonYear = 1920
                 },
             };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            int id = 2;
+            var association = new Association { Id = id };
+
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("The UPDATE statement conflicted with the FOREIGN KEY constraint \"FK_Association_Season_LastSeasonYear\".")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp(
+                associations: associations, association: association, associationExists: true, ex: ex
+            );
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
             var result = await testController.Edit(id, associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.Update(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.Update(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. Conflict with a FOREIGN KEY constraint on LastSeasonYear.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(associationViewModel);
@@ -1440,16 +1221,6 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenDbUpdateExceptionIsCaughtForSomethingElse_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            int id = 2;
-            var association = new Association { Id = id };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
-                .Returns(association);
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             var associations = new List<Association>
             {
                 new()
@@ -1474,31 +1245,34 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
                     FirstSeasonYear = 1920
                 },
             };
-            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            int id = 2;
+            var association = new Association { Id = id };
+
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("Exception")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp(
+                associations: associations, association: association, associationExists: true, ex: ex
+            );
 
             // Act
             var associationViewModel = new AssociationViewModel { Association = association };
             var result = await testController.Edit(id, associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationRepository.Update(association)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.Update(association))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. An unexpected error occurred.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(associationViewModel);
@@ -1508,14 +1282,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenModelStateIsNotValid_ShouldReturnAssociationEditView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
-
+            AssociationController testController = SetUp();
             testController.ModelState.AddModelError("LongName", "Please enter a long name.");
 
             // Act
@@ -1528,10 +1295,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Edit(id, associationViewModel);
 
             // Assert
-            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(associationViewModel))
+            A.CallTo(() => testController._associationViewModelMapper.MapViewModelToAssociation(associationViewModel))
                 .MustNotHaveHappened();
-            A.CallTo(() => fakeAssociationRepository.Update(association)).MustNotHaveHappened();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustNotHaveHappened();
+            A.CallTo(() => testController._associationRepository.Update(association))
+                .MustNotHaveHappened();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustNotHaveHappened();
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(associationViewModel);
         }
@@ -1540,29 +1309,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndAssociationFound_ShouldReturnAssociationDeleteView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
             var associationViewModel = new AssociationViewModel { };
-            A.CallTo(() => fakeAssociationViewModelMapper.MapAssociationToViewModel(An<Association>.Ignored))
-                .Returns(associationViewModel);
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
             Association? association = new();
-            A.CallTo(() => fakeAssociationRepository.GetAssociationAsync(An<int>.Ignored)).Returns(association);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp(
+                associationViewModel: associationViewModel, association: association
+            );
 
             // Act
             int? id = 0;
             var result = await testController.Delete(id);
 
             // Assert
-            A.CallTo(() => fakeAssociationRepository.GetAssociationAsync(id.Value)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeAssociationViewModelMapper.MapAssociationToViewModel(association))
+            A.CallTo(() => testController._associationRepository.GetAssociationAsync(id.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationViewModelMapper.MapAssociationToViewModel(association))
                 .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<ViewResult>();
             var resultModel = ((ViewResult)result).Model;
@@ -1575,16 +1336,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp();
 
             // Act
-            var result = await testController.Delete(null);
+            int? id = null;
+            var result = await testController.Delete(id);
 
             // Assert
             result.ShouldBeOfType<NotFoundResult>();
@@ -1594,24 +1350,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenAssociationNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            Association? association = null;
-            A.CallTo(() => fakeAssociationRepository.GetAssociationAsync(An<int>.Ignored)).Returns(association);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp();
 
             // Act
             int? id = 0;
             var result = await testController.Delete(id);
 
             // Assert
-            A.CallTo(() => fakeAssociationRepository.GetAssociationAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.GetAssociationAsync(id.Value))
+                .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -1619,23 +1366,81 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task DeleteConfirmed_ShouldDeleteAssociationFromDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
-            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
-            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
-            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new AssociationController(fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel,
-                fakeAssociationViewModelMapper, fakeAssociationRepository, fakeSharedRepository);
+            AssociationController testController = SetUp();
 
             // Act
             int id = 1;
             var result = await testController.DeleteConfirmed(id);
 
             // Assert
-            A.CallTo(() => fakeAssociationRepository.DeleteAsync(id)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._associationRepository.DeleteAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
+        }
+
+        private static AssociationController SetUp(
+            List<AssociationViewModel>? associationViewModels = null, AssociationViewModel? associationViewModel = null,
+            List<Association>? associations = null, Association? association = null, bool? associationExists = null,
+            Exception? ex = null
+        )
+        {
+            var fakeAssociationIndexViewModel = A.Fake<IAssociationIndexViewModel>();
+            var fakeAssociationDetailsViewModel = A.Fake<IAssociationDetailsViewModel>();
+            IAssociationViewModelMapper fakeAssociationViewModelMapper = 
+                SetUpFakeAssociationViewModelMapper(associationViewModels, associationViewModel, association);
+            IAssociationRepository fakeAssociationRepository =
+                SetUpFakeAssociationRepository(associations, association, associationExists);
+            ISharedRepository fakeSharedRepository = SetUpFakeSharedRepository(ex);
+
+            return new AssociationController(
+                fakeAssociationIndexViewModel, fakeAssociationDetailsViewModel, fakeAssociationViewModelMapper,
+                fakeAssociationRepository, fakeSharedRepository
+            );
+        }
+
+        private static IAssociationViewModelMapper SetUpFakeAssociationViewModelMapper(List<AssociationViewModel>? associationViewModels, AssociationViewModel? associationViewModel, Association? association)
+        {
+            var fakeAssociationViewModelMapper = A.Fake<IAssociationViewModelMapper>();
+            if (associationViewModels is not null)
+            {
+                A.CallTo(() => fakeAssociationViewModelMapper.MapAssociationToViewModel(An<Association>.Ignored))
+                    .ReturnsNextFromSequence([.. associationViewModels]);
+            }
+            if (associationViewModel is not null)
+            {
+                A.CallTo(() => fakeAssociationViewModelMapper.MapAssociationToViewModel(An<Association>.Ignored))
+                    .Returns(associationViewModel);
+            }
+            A.CallTo(() => fakeAssociationViewModelMapper.MapViewModelToAssociation(An<AssociationViewModel>.Ignored))
+                .Returns(association);
+
+            return fakeAssociationViewModelMapper;
+        }
+
+        private static IAssociationRepository SetUpFakeAssociationRepository(List<Association>? associations, Association? association, bool? associationExists)
+        {
+            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
+            A.CallTo(() => fakeAssociationRepository.GetAssociationsAsync()).Returns(associations);
+            A.CallTo(() => fakeAssociationRepository.GetAssociationAsync(An<int>.Ignored)).Returns(association);
+            if (associationExists.HasValue)
+            {
+                A.CallTo(() => fakeAssociationRepository.AssociationExistsAsync(An<int>.Ignored))
+                    .Returns(associationExists.Value);
+            }
+
+            return fakeAssociationRepository;
+        }
+
+        private static ISharedRepository SetUpFakeSharedRepository(Exception? ex)
+        {
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            if (ex is not null)
+            {
+                A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
+            }
+
+            return fakeSharedRepository;
         }
     }
 }

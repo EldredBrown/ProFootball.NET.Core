@@ -26,6 +26,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
     public class SeasonStandingsController(ISeasonStandingsRepository seasonStandingsRepository, IMapper mapper)
         : ControllerBase
     {
+        internal readonly ISeasonStandingsRepository _seasonStandingsRepository = seasonStandingsRepository;
+        internal readonly IMapper _mapper = mapper;
+
         // GET: api/SeasonStandings/1920
         /// <summary>
         /// Gets the season standings from the data store by season year.
@@ -37,9 +40,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var seasonStandings = await seasonStandingsRepository.GetSeasonStandingsAsync(seasonYear, leagueId);
+                var seasonStandings = await _seasonStandingsRepository.GetSeasonStandingsAsync(seasonYear, leagueId);
 
-                return mapper.Map<StandingsTeamSeasonModel[]>(seasonStandings);
+                return _mapper.Map<StandingsTeamSeasonModel[]>(seasonStandings);
             }
             catch (Exception)
             {

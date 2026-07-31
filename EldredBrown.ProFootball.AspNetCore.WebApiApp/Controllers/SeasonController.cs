@@ -31,6 +31,11 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         LinkGenerator linkGenerator
     ) : ControllerBase
     {
+        internal readonly ISeasonRepository _seasonRepository = seasonRepository;
+        internal readonly ISharedRepository _sharedRepository = sharedRepository;
+        internal readonly IMapper _mapper = mapper;
+        internal readonly LinkGenerator _linkGenerator = linkGenerator;
+
         // GET: api/Seasons
         /// <summary>
         /// Gets a collection of all seasons from the data store.
@@ -41,9 +46,9 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var seasons = await seasonRepository.GetSeasonsAsync();
+                var seasons = await _seasonRepository.GetSeasonsAsync();
 
-                return mapper.Map<SeasonModel[]>(seasons);
+                return _mapper.Map<SeasonModel[]>(seasons);
             }
             catch (Exception)
             {
@@ -62,13 +67,13 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var season = await seasonRepository.GetSeasonAsync(year);
+                var season = await _seasonRepository.GetSeasonAsync(year);
                 if (season is null)
                 {
                     return NotFound();
                 }
 
-                return mapper.Map<SeasonModel>(season);
+                return _mapper.Map<SeasonModel>(season);
             }
             catch (Exception)
             {
@@ -89,19 +94,19 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var location = linkGenerator.GetPathByAction("GetSeason", "Seasons", new { year = -1 });
+                string location = _linkGenerator.GetPathByAction("GetSeason", "Seasons", new { year = -1 });
                 if (string.IsNullOrWhiteSpace(location))
                 {
                     return BadRequest("Could not use Year");
                 }
 
-                var season = mapper.Map<Season>(model);
+                var season = _mapper.Map<Season>(model);
 
-                await seasonRepository.AddAsync(season);
+                await _seasonRepository.AddAsync(season);
 
-                if (await sharedRepository.SaveChangesAsync() > 0)
+                if (await _sharedRepository.SaveChangesAsync() > 0)
                 {
-                    return Created(location, mapper.Map<SeasonModel>(season));
+                    return Created(location, _mapper.Map<SeasonModel>(season));
                 }
             }
             catch (Exception)
@@ -126,17 +131,17 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var season = await seasonRepository.GetSeasonAsync(year);
+                var season = await _seasonRepository.GetSeasonAsync(year);
                 if (season is null)
                 {
                     return NotFound($"Could not find season with Year of {year}");
                 }
 
-                mapper.Map(model, season);
+                _mapper.Map(model, season);
 
-                if (await sharedRepository.SaveChangesAsync() > 0)
+                if (await _sharedRepository.SaveChangesAsync() > 0)
                 {
-                    return mapper.Map<SeasonModel>(season);
+                    return _mapper.Map<SeasonModel>(season);
                 }
             }
             catch (Exception)
@@ -158,15 +163,15 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Controllers
         {
             try
             {
-                var season = await seasonRepository.GetSeasonAsync(year);
+                var season = await _seasonRepository.GetSeasonAsync(year);
                 if (season is null)
                 {
                     return NotFound($"Could not find season with Year of {year}");
                 }
 
-                await seasonRepository.DeleteAsync(year);
+                await _seasonRepository.DeleteAsync(year);
 
-                if (await sharedRepository.SaveChangesAsync() > 0)
+                if (await _sharedRepository.SaveChangesAsync() > 0)
                 {
                     return Ok();
                 }

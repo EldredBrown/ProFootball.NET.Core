@@ -31,6 +31,13 @@ namespace EldredBrown.ProFootball.Net.Services
         ISharedRepository sharedRepository
     ) : IWeeklyUpdateService
     {
+        internal readonly IGameRepository _gameRepository = gameRepository;
+        internal readonly ILeagueSeasonRepository _leagueSeasonRepository = leagueSeasonRepository;
+        internal readonly ITeamSeasonRepository _teamSeasonRepository = teamSeasonRepository;
+        internal readonly ILeagueSeasonTotalsRepository _leagueSeasonTotalsRepository = leagueSeasonTotalsRepository;
+        internal readonly ISeasonRankingsRepository _seasonRankingsRepository = seasonRankingsRepository;
+        internal readonly ISharedRepository _sharedRepository = sharedRepository;
+
         private const int _firstYear = 1920;
         private const int _minWeekCountForRankingsUpdate = 3;
         private readonly object _dbLock = new();
@@ -70,21 +77,21 @@ namespace EldredBrown.ProFootball.Net.Services
             UpdateLeagueSeasonGamesAndPoints(leagueSeason, leagueSeasonTotals.TotalGames.Value,
                 leagueSeasonTotals.TotalPoints.Value);
 
-            leagueSeasonRepository.Update(leagueSeason);
-            await sharedRepository.SaveChangesAsync();
+            _leagueSeasonRepository.Update(leagueSeason);
+            await _sharedRepository.SaveChangesAsync();
 
             return weekCount;
         }
 
         private async Task<LeagueSeasonData?> GetLeagueSeasonData(int leagueId, int seasonYear)
         {
-            var leagueSeason = await leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueId, seasonYear);
+            var leagueSeason = await _leagueSeasonRepository.GetLeagueSeasonByLeagueAndSeasonAsync(leagueId, seasonYear);
             if (leagueSeason is null)
             {
                 return null;
             }
 
-            var leagueSeasonTotals = await leagueSeasonTotalsRepository.GetLeagueSeasonTotalsAsync(leagueId, seasonYear);
+            var leagueSeasonTotals = await _leagueSeasonTotalsRepository.GetLeagueSeasonTotalsAsync(leagueId, seasonYear);
             if (
                 leagueSeasonTotals is null
                 || leagueSeasonTotals.TotalGames is null
@@ -108,14 +115,14 @@ namespace EldredBrown.ProFootball.Net.Services
 
         private async Task<int> UpdateWeekCount(LeagueSeason leagueSeason)
         {
-            var srcWeekCount = await gameRepository.GetMaxWeekForSeasonAsync(leagueSeason.SeasonYear);
+            var srcWeekCount = await _gameRepository.GetMaxWeekForSeasonAsync(leagueSeason.SeasonYear);
             leagueSeason?.NumOfWeeksCompleted = srcWeekCount;
             return srcWeekCount;
         }
 
         private async Task UpdateRankings(int seasonYear)
         {
-            var teamSeasons = await teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear);
+            var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(seasonYear);
             if (teamSeasons.IsNullOrEmpty())
             {
                 return;
@@ -126,7 +133,7 @@ namespace EldredBrown.ProFootball.Net.Services
                 await UpdateRankingsForTeamSeason(teamSeason);
             }
 
-            await sharedRepository.SaveChangesAsync();
+            await _sharedRepository.SaveChangesAsync();
         }
 
         private async Task UpdateRankingsForTeamSeason(TeamSeason teamSeason)
@@ -154,12 +161,12 @@ namespace EldredBrown.ProFootball.Net.Services
                 CalculateFinalExpectedWinningPercentage(teamSeason);
             }
 
-            teamSeasonRepository.Update(teamSeason);
+            _teamSeasonRepository.Update(teamSeason);
         }
 
         private async Task<RankingsData?> GetRankingsData(TeamSeason teamSeason)
         {
-            var results = seasonRankingsRepository.GetDataForRankingsUpdate(teamSeason);
+            var results = _seasonRankingsRepository.GetDataForRankingsUpdate(teamSeason);
 
             var totals = results["TeamSeasonScheduleTotals"];
             if (totals.IsNullOrEmpty() || totals["schedule_games"] is null)

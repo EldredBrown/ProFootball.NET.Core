@@ -41,12 +41,17 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     /// The <see cref="IGamePredictorService"/> by which a game prediction will be calculated.
     /// </param>
     public class GamePredictorController(
-        GamePrediction prediction,
+        IGamePrediction prediction,
         ISeasonRepository seasonRepository,
         ITeamSeasonRepository teamSeasonRepository,
         IGamePredictorService gamePredictorService
     ) : Controller
     {
+        internal readonly IGamePrediction _prediction = prediction;
+        internal readonly ISeasonRepository _seasonRepository = seasonRepository;
+        internal readonly ITeamSeasonRepository _teamSeasonRepository = teamSeasonRepository;
+        internal readonly IGamePredictorService _gamePredictorService = gamePredictorService;
+
         // GET: GamePredictor/PredictGame
         /// <summary>
         /// Renders a view of the Game Predictor form.
@@ -55,7 +60,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> PredictGame()
         {
-            var seasons = (await seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Year).ToList();
+            var seasons = (await _seasonRepository.GetSeasonsAsync()).OrderByDescending(s => s.Year).ToList();
             HttpContext.Session.SetObject(nameof(SessionKey.Seasons), seasons);
 
             await SelectTeamSeasonYearGetTeamSeasonsAndSelectTeamName(seasons, SessionKey.GuestSeasonYear,
@@ -63,7 +68,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             await SelectTeamSeasonYearGetTeamSeasonsAndSelectTeamName(seasons, SessionKey.HostSeasonYear,
                 SessionKey.HostTeamSeasons, SessionKey.HostName);
 
-            return View(prediction);
+            return View(_prediction);
         }
 
         // POST: GamePredictor/PredictGame
@@ -118,7 +123,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             var gameScorePrediction = new GameScorePrediction();
             try
             {
-                gameScorePrediction = gamePredictorService.PredictGameScore(guestTeamSeason, hostTeamSeason);
+                gameScorePrediction = _gamePredictorService.PredictGameScore(guestTeamSeason, hostTeamSeason);
             }
             catch (Exception)
             {
@@ -205,11 +210,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             {
                 case SessionKey.GuestName:
                     ViewBag.Guests = teamsSelectList;
-                    prediction.GuestName = teamName;
+                    _prediction.GuestName = teamName;
                     break;
                 case SessionKey.HostName:
                     ViewBag.Hosts = teamsSelectList;
-                    prediction.HostName = teamName;
+                    _prediction.HostName = teamName;
                     break;
                 default:
                     throw new InvalidOperationException($"Unexpected session key: {teamNameSessionKey}");
@@ -239,11 +244,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
             {
                 case SessionKey.GuestSeasonYear:
                     ViewBag.GuestSeasons = teamSeasonSelectList;
-                    prediction.GuestSeasonYear = teamSeason.Year;
+                    _prediction.GuestSeasonYear = teamSeason.Year;
                     break;
                 case SessionKey.HostSeasonYear:
                     ViewBag.HostSeasons = teamSeasonSelectList;
-                    prediction.HostSeasonYear = teamSeason.Year;
+                    _prediction.HostSeasonYear = teamSeason.Year;
                     break;
                 default:
                     throw new InvalidOperationException($"Unexpected session key: {teamSeasonYearSessionKey}");
@@ -254,7 +259,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task<IEnumerable<TeamSeason>> GetTeamSeasons(SessionKey teamSeasonsSessionKey, int? teamSeasonId)
         {
-            var teamSeasons = await teamSeasonRepository.GetTeamSeasonsBySeasonAsync(teamSeasonId.Value);
+            var teamSeasons = await _teamSeasonRepository.GetTeamSeasonsBySeasonAsync(teamSeasonId.Value);
             HttpContext.Session.SetObject(teamSeasonsSessionKey.ToString(), teamSeasons);
             return teamSeasons;
         }

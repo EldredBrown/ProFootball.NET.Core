@@ -15,7 +15,14 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetTeams_WhenDbSetIsNeitherNullNorEmpty_ShouldReturnTeams()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            // Arrange
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
             var result = testRepository.GetTeams();
@@ -32,7 +39,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetTeams_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            // Arrange
+            List<Team> teams = null!;
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
             var result = testRepository.GetTeams();
@@ -44,7 +53,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetTeams_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            // Arrange
+            var teams = new List<Team>();
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
             var result = testRepository.GetTeams();
@@ -57,7 +68,14 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetTeamsAsync_WhenDbSetIsNeitherNullNorEmpty_ShouldReturnTeams()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            // Arrange
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
             var result = await testRepository.GetTeamsAsync();
@@ -74,7 +92,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetTeamsAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            // Arrange
+            List<Team> teams = null!;
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
             var result = await testRepository.GetTeamsAsync();
@@ -86,7 +106,9 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetTeamsAsync_WhenDbSetIsEmpty_ShouldReturnEmptyCollection()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            // Arrange
+            var teams = new List<Team>();
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
             var result = await testRepository.GetTeamsAsync();
@@ -99,11 +121,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetTeam_WhenDbSetIsNeitherNullNorEmptyAndTeamIsFound_ShouldReturnTeam()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var id = 1;
+            // Arrange
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var id = 1;
             var result = testRepository.GetTeam(id);
 
             // Assert
@@ -115,11 +143,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetTeam_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var id = 1;
+            // Arrange
+            List<Team> teams = null!;
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var id = 1;
             var result = testRepository.GetTeam(id);
 
             // Assert
@@ -129,11 +158,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetTeam_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var id = 1;
+            // Arrange
+            var teams = new List<Team>();
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var id = 1;
             var result = testRepository.GetTeam(id);
 
             // Assert
@@ -143,11 +173,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetTeam_WhenTeamIsNotFound_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var id = -1;
+            // Arrange
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var id = -1;
             var result = testRepository.GetTeam(id);
 
             // Assert
@@ -157,11 +193,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetTeamAsync_WhenDbSetIsNeitherNullNorEmptyAndTeamIsFound_ShouldReturnTeam()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var id = 1;
+            // Arrange
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var id = 1;
             var result = await testRepository.GetTeamAsync(id);
 
             // Assert
@@ -173,11 +215,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetTeamAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var id = 1;
+            // Arrange
+            List<Team> teams = null!;
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var id = 1;
             var result = await testRepository.GetTeamAsync(id);
 
             // Assert
@@ -187,11 +230,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetTeamAsync_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var id = 1;
+            // Arrange
+            var teams = new List<Team>();
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var id = 1;
             var result = await testRepository.GetTeamAsync(id);
 
             // Assert
@@ -201,11 +245,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetTeamAsync_WhenTeamIsNotFound_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var id = -1;
+            // Arrange
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var id = -1;
             var result = await testRepository.GetTeamAsync(id);
 
             // Assert
@@ -215,11 +265,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetTeamByName_WhenDbSetIsNeitherNullNorEmptyAndTeamIsFound_ShouldReturnTeam()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var name = "Team 1";
+            // Arrange
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var name = "Team 1";
             var result = testRepository.GetTeamByName(name);
 
             // Assert
@@ -231,11 +287,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetTeamByName_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var name = "Team 1";
+            // Arrange
+            List<Team> teams = null!;
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var name = "Team 1";
             var result = testRepository.GetTeamByName(name);
 
             // Assert
@@ -245,11 +302,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetTeamByName_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var name = "Team 1";
+            // Arrange
+            var teams = new List<Team>();
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var name = "Team 1";
             var result = testRepository.GetTeamByName(name);
 
             // Assert
@@ -259,11 +317,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void GetTeamByName_WhenTeamIsNotFound_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var name = "Team 99";
+            // Arrange
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var name = "Team 99";
             var result = testRepository.GetTeamByName(name);
 
             // Assert
@@ -273,11 +337,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetTeamByNameAsync_WhenDbSetIsNeitherNullNorEmptyAndTeamIsFound_ShouldReturnTeam()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var name = "Team 1";
+            // Arrange
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var name = "Team 1";
             var result = await testRepository.GetTeamByNameAsync(name);
 
             // Assert
@@ -289,11 +359,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetTeamByNameAsync_WhenDbSetIsNull_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var name = "Team 1";
+            // Arrange
+            List<Team> teams = null!;
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var name = "Team 1";
             var result = await testRepository.GetTeamByNameAsync(name);
 
             // Assert
@@ -303,11 +374,12 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetTeamByNameAsync_WhenDbSetIsEmpty_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var name = "Team 1";
+            // Arrange
+            var teams = new List<Team>();
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var name = "Team 1";
             var result = await testRepository.GetTeamByNameAsync(name);
 
             // Assert
@@ -317,11 +389,17 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public async Task GetTeamByNameAsync_WhenTeamIsNotFound_ShouldReturnNull()
         {
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            var name = "Team 99";
+            // Arrange
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var name = "Team 99";
             var result = await testRepository.GetTeamByNameAsync(name);
 
             // Assert
@@ -335,9 +413,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Team>>());
             var testRepository = new TeamRepository(fakeDbContext);
 
-            var team = new Team { Id = 1 };
-
             // Act
+            var team = new Team { Id = 1 };
             var result = testRepository.Add(team);
 
             // Assert
@@ -352,9 +429,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Team>>());
             var testRepository = new TeamRepository(fakeDbContext);
 
-            Team? team = null!;
-
             // Act & Assert
+            Team? team = null!;
             Assert.Throws<ArgumentNullException>(() => testRepository.Add(team));
         }
 
@@ -365,9 +441,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var fakeDbContext = CreateFakeDbContextForAddOperations(null!);
             var testRepository = new TeamRepository(fakeDbContext);
 
-            var team = new Team { Id = 1 };
-
             // Act
+            var team = new Team { Id = 1 };
             var result = testRepository.Add(team);
 
             // Assert
@@ -382,9 +457,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Team>>());
             var testRepository = new TeamRepository(fakeDbContext);
 
-            var team = new Team { Id = 1 };
-
             // Act
+            var team = new Team { Id = 1 };
             var result = await testRepository.AddAsync(team);
 
             // Assert
@@ -399,9 +473,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var fakeDbContext = CreateFakeDbContextForAddOperations(A.Fake<DbSet<Team>>());
             var testRepository = new TeamRepository(fakeDbContext);
 
-            Team? team = null!;
-
             // Act & Assert
+            Team? team = null!;
             await Assert.ThrowsAsync<ArgumentNullException>(async () => await testRepository.AddAsync(team));
         }
 
@@ -412,9 +485,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             var fakeDbContext = CreateFakeDbContextForAddOperations(null!);
             var testRepository = new TeamRepository(fakeDbContext);
 
-            var team = new Team { Id = 1 };
-
             // Act
+            var team = new Team { Id = 1 };
             var result = await testRepository.AddAsync(team);
 
             // Assert
@@ -425,6 +497,7 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         [Fact]
         public void Update_WhenArgIsNotNullAndDbSetIsNotNull_ShouldSucceed_WithInMemoryDb()
         {
+            // Arrange
             using var fakeDbContext = TestDbContext.CreateFakeDbContextWithInMemoryDb();
 
             var team = new Team { Id = 1, Name = "Team 1" };
@@ -446,11 +519,16 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Update_WhenArgIsNull_ShouldThrowException()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
-
-            Team? team = null!;
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act & Assert
+            Team? team = null!;
             Assert.Throws<ArgumentNullException>(() => testRepository.Update(team));
         }
 
@@ -458,11 +536,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Update_WhenDbSetIsNull_ShouldReturnTeam()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            Team? team = new();
+            List<Team> teams = null!;
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            Team? team = new();
             var updated = testRepository.Update(team);
 
             // Assert
@@ -474,11 +552,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Update_WhenDbSetIsEmpty_ShouldReturnTeam()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            Team? team = new();
+            var teams = new List<Team>();
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            Team? team = new();
             var updated = testRepository.Update(team);
 
             // Assert
@@ -513,11 +591,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Delete_WhenDbSetIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var team = new Team { Id = 1 };
+            List<Team> teams = null!;
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var team = new Team { Id = 1 };
             var result = testRepository.Delete(team.Id);
 
             // Assert
@@ -528,11 +606,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void Delete_WhenDbSetIsEmpty_ShouldFailAndReturnNull()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var team = new Team { Id = 1 };
+            var teams = new List<Team>();
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var team = new Team { Id = 1 };
             var result = testRepository.Delete(team.Id);
 
             // Assert
@@ -589,11 +667,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task DeleteAsync_WhenDbSetIsNull_ShouldFailAndReturnNull()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
-
-            var team = new Team { Id = 1 };
+            List<Team> teams = null!;
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var team = new Team { Id = 1 };
             var result = await testRepository.DeleteAsync(team.Id);
 
             // Assert
@@ -604,11 +682,11 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task DeleteAsync_WhenDbSetIsEmpty_ShouldFailAndReturnNull()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
-
-            var team = new Team { Id = 1 };
+            var teams = new List<Team>();
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
+            var team = new Team { Id = 1 };
             var result = await testRepository.DeleteAsync(team.Id);
 
             // Assert
@@ -642,7 +720,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void TeamExists_WhenDbSetIsNotNullAndSelectedTeamExists_ShouldReturnTrue()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
             var result = testRepository.TeamExists(1);
@@ -655,7 +739,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void TeamExists_WhenDbSetIsNull_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            List<Team> teams = null!;
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
             var result = testRepository.TeamExists(1);
@@ -668,7 +753,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void TeamExists_WhenDbSetIsEmpty_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            var teams = new List<Team>();
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
             var result = testRepository.TeamExists(1);
@@ -681,7 +767,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public void TeamExists_WhenSelectedTeamDoesNotExist_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
             var result = testRepository.TeamExists(-1);
@@ -694,7 +786,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task TeamExistsAsync_WhenDbSetIsNotNullAndSelectedTeamExists_ShouldReturnTrue()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
             var result = await testRepository.TeamExistsAsync(1);
@@ -707,7 +805,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task TeamExistsAsync_WhenDbSetIsNull_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNullDbSet();
+            List<Team> teams = null!;
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
             var result = await testRepository.TeamExistsAsync(1);
@@ -720,7 +819,8 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task TeamExistsAsync_WhenDbSetIsEmpty_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithEmptyDbSet();
+            var teams = new List<Team>();
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
             var result = await testRepository.TeamExistsAsync(1);
@@ -733,7 +833,13 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
         public async Task TeamExistsAsync_WhenSelectedTeamDoesNotExist_ShouldReturnFalse()
         {
             // Arrange
-            var testRepository = CreateTestRepositoryWithNotEmptyDbSet();
+            var teams = new List<Team>
+            {
+                new() { Id = 1, Name = "Team 1" },
+                new() { Id = 2, Name = "Team 2" },
+                new() { Id = 3, Name = "Team 3" },
+            };
+            TeamRepository testRepository = CreateTestRepository(teams);
 
             // Act
             var result = await testRepository.TeamExistsAsync(-1);
@@ -742,54 +848,21 @@ namespace EldredBrown.ProFootball.Net.Data.Tests.RepositoryTests
             result.ShouldBeFalse();
         }
 
-        private ProFootballDbContext CreateFakeDbContextForAddOperations(DbSet<Team> teams)
+        private static ProFootballDbContext CreateFakeDbContextForAddOperations(DbSet<Team> teams)
         {
             var fakeDbContext = A.Fake<ProFootballDbContext>();
             fakeDbContext.Teams = teams;
             return fakeDbContext;
         }
 
-        private ITeamRepository CreateTestRepositoryWithEmptyDbSet()
+        private static TeamRepository CreateTestRepository(List<Team>? teams)
         {
             var fakeDbContext = A.Fake<ProFootballDbContext>();
-
             fakeDbContext.Teams = A.Fake<DbSet<Team>>();
-            var teams = new List<Team>();
-            var fakeDbSet = teams.BuildMockDbSet();
+            DbSet<Team> fakeDbSet = teams is not null ? teams.BuildMockDbSet() : null!;
             A.CallTo(() => fakeDbContext.Teams).Returns(fakeDbSet);
 
-            var testRepository = new TeamRepository(fakeDbContext);
-            return testRepository;
-        }
-
-        private ITeamRepository CreateTestRepositoryWithNotEmptyDbSet()
-        {
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-
-            fakeDbContext.Teams = A.Fake<DbSet<Team>>();
-            var teams = new List<Team>
-            {
-                new() { Id = 1, Name = "Team 1" },
-                new() { Id = 2, Name = "Team 2" },
-                new() { Id = 3, Name = "Team 3" },
-            };
-            var fakeDbSet = teams.BuildMockDbSet();
-            A.CallTo(() => fakeDbContext.Teams).Returns(fakeDbSet);
-
-            var testRepository = new TeamRepository(fakeDbContext);
-            return testRepository;
-        }
-
-        private ITeamRepository CreateTestRepositoryWithNullDbSet()
-        {
-            var fakeDbContext = A.Fake<ProFootballDbContext>();
-
-            fakeDbContext.Teams = A.Fake<DbSet<Team>>();
-            DbSet<Team> fakeDbSet = null!;
-            A.CallTo(() => fakeDbContext.Teams).Returns(fakeDbSet);
-
-            var testRepository = new TeamRepository(fakeDbContext);
-            return testRepository;
+            return new TeamRepository(fakeDbContext);
         }
     }
 }

@@ -17,16 +17,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
     /// <remarks>
     /// Initializes a new instance of the <see cref="TeamController"/> class.
     /// </remarks>
-    /// <param name="teamIndexViewModel">
+    /// <param name="_teamIndexViewModel">
     /// The <see cref="ITeamIndexViewModel"/> that will provide ViewModel data to the Index view.
     /// </param>
-    /// <param name="teamDetailsViewModel">
+    /// <param name="_teamDetailsViewModel">
     /// The <see cref="ITeamsDetailsViewModel"/> that will provide ViewModel data to the Details view.
     /// </param>
-    /// <param name="teamRepository">
+    /// <param name="_teamRepository">
     /// The <see cref="ITeamRepository"/> by which team data will be accessed.
     /// </param>
-    /// <param name="sharedRepository">
+    /// <param name="_sharedRepository">
     /// The <see cref="ISharedRepository"/> by which shared data resources will be accessed.
     /// </param>
     //[Authorize(Roles = "Admin")]
@@ -37,6 +37,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         ISharedRepository sharedRepository
     ) : Controller
     {
+        internal readonly ITeamIndexViewModel _teamIndexViewModel = teamIndexViewModel;
+        internal readonly ITeamDetailsViewModel _teamDetailsViewModel = teamDetailsViewModel;
+        internal readonly ITeamRepository _teamRepository = teamRepository;
+        internal readonly ISharedRepository _sharedRepository = sharedRepository;
+
         // GET: Teams
         /// <summary>
         /// Renders a view of the Teams list.
@@ -45,9 +50,9 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var teams = await teamRepository.GetTeamsAsync();
-            teamIndexViewModel.Teams = teams.OrderBy(t => t.Name);
-            return View(teamIndexViewModel);
+            var teams = await _teamRepository.GetTeamsAsync();
+            _teamIndexViewModel.Teams = teams.OrderBy(t => t.Name);
+            return View(_teamIndexViewModel);
         }
 
         // GET: Teams/Details/5
@@ -64,15 +69,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var team = await teamRepository.GetTeamAsync(id.Value);
+            var team = await _teamRepository.GetTeamAsync(id.Value);
             if (team is null)
             {
                 return NotFound();
             }
 
-            teamDetailsViewModel.Team = team;
+            _teamDetailsViewModel.Team = team;
 
-            return View(teamDetailsViewModel);
+            return View(_teamDetailsViewModel);
         }
 
         // GET: Teams/Create
@@ -100,11 +105,11 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                await teamRepository.AddAsync(team);
+                await _teamRepository.AddAsync(team);
 
                 try
                 {
-                    await sharedRepository.SaveChangesAsync();
+                    await _sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateException ex)
                 {
@@ -131,7 +136,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var team = await teamRepository.GetTeamAsync(id.Value);
+            var team = await _teamRepository.GetTeamAsync(id.Value);
             if (team is null)
             {
                 return NotFound();
@@ -159,15 +164,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
             if (ModelState.IsValid)
             {
-                teamRepository.Update(team);
+                _teamRepository.Update(team);
 
                 try
                 {
-                    await sharedRepository.SaveChangesAsync();
+                    await _sharedRepository.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!(await teamRepository.TeamExistsAsync(team.Id)))
+                    if (!(await _teamRepository.TeamExistsAsync(team.Id)))
                     {
                         return NotFound();
                     }
@@ -201,7 +206,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
                 return NotFound();
             }
 
-            var team = await teamRepository.GetTeamAsync(id.Value);
+            var team = await _teamRepository.GetTeamAsync(id.Value);
             if (team is null)
             {
                 return NotFound();
@@ -220,8 +225,8 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await teamRepository.DeleteAsync(id);
-            await sharedRepository.SaveChangesAsync();
+            await _teamRepository.DeleteAsync(id);
+            await _sharedRepository.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
@@ -241,7 +246,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Controllers
 
         private async Task HandleDbUpdateExceptionOnCreate(DbUpdateException ex, Team team)
         {
-            var teams = await teamRepository.GetTeamsAsync();
+            var teams = await _teamRepository.GetTeamsAsync();
 
             if (PrimaryKeyViolationExists(teams, team))
             {

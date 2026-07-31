@@ -22,99 +22,70 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Index_ShouldReturnLeagueSeasonIndexView()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             var leagueSeasonViewModels = new List<LeagueSeasonViewModel>
             {
                 new() { Id = 1 },
                 new() { Id = 2 },
                 new() { Id = 3 },
             };
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapLeagueSeasonToViewModel(A<LeagueSeason>.Ignored))
-                .ReturnsNextFromSequence(leagueSeasonViewModels.ToArray());
 
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var leagueSeasons = new List<LeagueSeason>
             {
                 new() { Id = 1 },
                 new() { Id = 2 },
                 new() { Id = 3 },
             };
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonsAsync()).Returns(leagueSeasons);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = 
+                SetUp(leagueSeasonViewModels: leagueSeasonViewModels, leagueSeasons: leagueSeasons);
 
             // Act
             var result = await testController.Index();
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.GetLeagueSeasonsAsync())
+                .MustHaveHappenedOnceExactly();
             foreach (var leagueSeason in leagueSeasons)
             {
-                A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapLeagueSeasonToViewModel(leagueSeason))
+                A.CallTo(() => testController._leagueSeasonViewModelMapper.MapLeagueSeasonToViewModel(leagueSeason))
                     .MustHaveHappenedOnceExactly();
             }
-            fakeLeagueSeasonIndexViewModel.LeagueSeasons.ShouldBe(leagueSeasonViewModels);
+            testController._leagueSeasonIndexViewModel.LeagueSeasons.ShouldBe(leagueSeasonViewModels);
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(fakeLeagueSeasonIndexViewModel);
+            ((ViewResult)result).Model.ShouldBe(testController._leagueSeasonIndexViewModel);
         }
 
         [Fact]
         public async Task Details_WhenIdIsNotNullAndLeagueSeasonFound_ShouldReturnLeagueSeasonDetailsView()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
+            var leagueSeasonViewModel = new LeagueSeasonViewModel();
+            var leagueSeason = new LeagueSeason();
 
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            var leagueSeasonViewModel = new LeagueSeasonViewModel { };
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapLeagueSeasonToViewModel(An<LeagueSeason>.Ignored))
-                .Returns(leagueSeasonViewModel);
-
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            var leagueSeason = new LeagueSeason { };
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonAsync(An<int>.Ignored)).Returns(leagueSeason);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController =
+                SetUp(leagueSeasonViewModel: leagueSeasonViewModel, leagueSeason: leagueSeason);
 
             // Act
             int? id = 0;
             var result = await testController.Details(id);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonAsync(id.Value)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapLeagueSeasonToViewModel(leagueSeason))
+            A.CallTo(() => testController._leagueSeasonRepository.GetLeagueSeasonAsync(id.Value))
                 .MustHaveHappenedOnceExactly();
-            fakeLeagueSeasonDetailsViewModel.LeagueSeason.ShouldNotBeNull();
-            fakeLeagueSeasonDetailsViewModel.LeagueSeason.ShouldBeOfType<LeagueSeasonViewModel>();
-            fakeLeagueSeasonDetailsViewModel.LeagueSeason.ShouldBe(leagueSeasonViewModel);
+            A.CallTo(() => testController._leagueSeasonViewModelMapper.MapLeagueSeasonToViewModel(leagueSeason))
+                .MustHaveHappenedOnceExactly();
+            testController._leagueSeasonDetailsViewModel.LeagueSeason.ShouldNotBeNull();
+            testController._leagueSeasonDetailsViewModel.LeagueSeason.ShouldBeOfType<LeagueSeasonViewModel>();
+            testController._leagueSeasonDetailsViewModel.LeagueSeason.ShouldBe(leagueSeasonViewModel);
             result.ShouldBeOfType<ViewResult>();
-            ((ViewResult)result).Model.ShouldBe(fakeLeagueSeasonDetailsViewModel);
+            ((ViewResult)result).Model.ShouldBe(testController._leagueSeasonDetailsViewModel);
         }
 
         [Fact]
         public async Task Details_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = SetUp();
 
             // Act
             int? id = null;
@@ -128,26 +99,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Details_WhenLeagueSeasonNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            LeagueSeason? leagueSeason = null;
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonAsync(An<int>.Ignored)).Returns(leagueSeason);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = SetUp();
 
             // Act
             int? id = 0;
             var result = await testController.Details(id);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.GetLeagueSeasonAsync(id.Value))
+                .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -155,15 +115,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public void CreateGet_ShouldReturnLeagueSeasonCreateView()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = SetUp();
 
             // Act
             var result = testController.Create();
@@ -176,30 +128,20 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsValidAndNoExceptionCaught_ShouldAddLeagueSeasonToDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            var leagueSeason = new LeagueSeason { };
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(A<LeagueSeasonViewModel>.Ignored))
-                .Returns(Task.FromResult(leagueSeason));
-
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            var leagueSeason = new LeagueSeason();
+            LeagueSeasonController testController = SetUp(leagueSeason: leagueSeason);
 
             // Act
             var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Create(leagueSeasonViewModel);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
+            A.CallTo(() => testController._leagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeLeagueSeasonRepository.AddAsync(leagueSeason)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.AddAsync(leagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
         }
@@ -208,44 +150,36 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenDbUpdateExceptionCaughtForPrimaryKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            var leagueSeason = new LeagueSeason { Id = 2 };
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(A<LeagueSeasonViewModel>.Ignored))
-                .Returns(Task.FromResult(leagueSeason));
-
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var leagueSeasons = new List<LeagueSeason>
             {
                 new() { Id = 1 },
                 new() { Id = 2 },
                 new() { Id = 3 },
             };
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonsAsync()).Returns(leagueSeasons);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateException>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            var leagueSeason = new LeagueSeason { Id = 2 };
+            var ex = new DbUpdateException(
+                "DbUpdateException",
+                new Exception("Violation of PRIMARY KEY constraint 'PK_LeagueSeason'.")
+            );
+            LeagueSeasonController testController = SetUp(leagueSeasons: leagueSeasons, leagueSeason: leagueSeason, ex: ex);
 
             // Act
             var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Create(leagueSeasonViewModel);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
+            A.CallTo(() => testController._leagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeLeagueSeasonRepository.AddAsync(leagueSeason)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.AddAsync(leagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.GetLeagueSeasonsAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey("Id");
-            testController.ModelState["Id"].Errors[0].ErrorMessage
+            testController.ModelState["Id"]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. A LeagueSeason with the same Id already exists.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(leagueSeasonViewModel);
@@ -255,48 +189,36 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenDbUpdateExceptionCaughtForUniqueKeyViolation_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            var leagueSeason = new LeagueSeason { Id = 4, LeagueId = 2, SeasonYear = 1920 };
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(A<LeagueSeasonViewModel>.Ignored))
-                .Returns(Task.FromResult(leagueSeason));
-
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var leagueSeasons = new List<LeagueSeason>
             {
                 new() { Id = 1, LeagueId = 1, SeasonYear = 1920 },
                 new() { Id = 2, LeagueId = 2, SeasonYear = 1920 },
                 new() { Id = 3, LeagueId = 3, SeasonYear = 1920 },
             };
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonsAsync()).Returns(leagueSeasons);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            var leagueSeason = new LeagueSeason { Id = 4, LeagueId = 2, SeasonYear = 1920 };
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("Violation of UNIQUE KEY constraint UQ_LeagueSeason_League_Season")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = SetUp(leagueSeasons: leagueSeasons, leagueSeason: leagueSeason, ex: ex);
 
             // Act
             var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Create(leagueSeasonViewModel);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
+            A.CallTo(() => testController._leagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeLeagueSeasonRepository.AddAsync(leagueSeason)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.AddAsync(leagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.GetLeagueSeasonsAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. Violation of UNIQUE KEY constraint.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(leagueSeasonViewModel);
@@ -309,41 +231,37 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             string foreignKeyConstraintName, string modelStateKey)
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            var leagueSeason = new LeagueSeason { };
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(A<LeagueSeasonViewModel>.Ignored))
-                .Returns(Task.FromResult(leagueSeason));
-
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            var leagueSeasons = new List<LeagueSeason>
+            {
+                new() { Id = 1, LeagueId = 1, SeasonYear = 1920 },
+                new() { Id = 2, LeagueId = 2, SeasonYear = 1921 },
+                new() { Id = 3, LeagueId = 3, SeasonYear = 1922 },
+            };
+            var leagueSeason = new LeagueSeason();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception($"The INSERT statement conflicted with the FOREIGN KEY constraint \"{foreignKeyConstraintName}\".")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = 
+                SetUp(leagueSeasons: leagueSeasons, leagueSeason: leagueSeason, ex: ex);
 
             // Act
             var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Create(leagueSeasonViewModel);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
+            A.CallTo(() => testController._leagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeLeagueSeasonRepository.AddAsync(leagueSeason)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.AddAsync(leagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.GetLeagueSeasonsAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe($"Unable to save changes. Conflict with a FOREIGN KEY constraint on {modelStateKey}.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(leagueSeasonViewModel);
@@ -353,41 +271,37 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenDbUpdateExceptionCaughtForSomethingElse_ShouldHandleExceptionAndReturnSeasonCreateView()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            var leagueSeason = new LeagueSeason { };
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(A<LeagueSeasonViewModel>.Ignored))
-                .Returns(Task.FromResult(leagueSeason));
-
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            var leagueSeasons = new List<LeagueSeason>
+            {
+                new() { Id = 1, LeagueId = 1, SeasonYear = 1920 },
+                new() { Id = 2, LeagueId = 2, SeasonYear = 1921 },
+                new() { Id = 3, LeagueId = 3, SeasonYear = 1922 },
+            };
+            var leagueSeason = new LeagueSeason();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
-                innerException: new Exception("Exception")
+                innerException: new Exception("Something else")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = 
+                SetUp(leagueSeasons: leagueSeasons, leagueSeason: leagueSeason, ex: ex);
 
             // Act
             var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Create(leagueSeasonViewModel);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
+            A.CallTo(() => testController._leagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeLeagueSeasonRepository.AddAsync(leagueSeason)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonsAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.AddAsync(leagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.GetLeagueSeasonsAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. An unexpected error occurred.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(leagueSeasonViewModel);
@@ -397,15 +311,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task CreatePost_WhenModelStateIsNotValid_ShouldReturnLeagueSeasonCreateView()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
-
+            LeagueSeasonController testController = SetUp();
             testController.ModelState.AddModelError("Name", "Please enter a long name.");
 
             // Act
@@ -414,10 +320,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             var result = await testController.Create(leagueSeasonViewModel);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
+            A.CallTo(() => testController._leagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
                 .MustNotHaveHappened();
-            A.CallTo(() => fakeLeagueSeasonRepository.AddAsync(leagueSeason)).MustNotHaveHappened();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustNotHaveHappened();
+            A.CallTo(() => testController._leagueSeasonRepository.AddAsync(leagueSeason))
+                .MustNotHaveHappened();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustNotHaveHappened();
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(leagueSeasonViewModel);
         }
@@ -426,26 +334,16 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNotNullAndLeagueSeasonFound_ShouldReturnLeagueSeasonEditView()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             LeagueSeason? leagueSeason = new();
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonAsync(An<int>.Ignored)).Returns(leagueSeason);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = SetUp(leagueSeason: leagueSeason);
 
             // Act
             int? id = 0;
             var result = await testController.Edit(id);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.GetLeagueSeasonAsync(id.Value))
+                .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<ViewResult>();
             var resultModel = ((ViewResult)result).Model;
             resultModel.ShouldNotBeNull();
@@ -457,15 +355,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = SetUp();
 
             // Act
             int? id = null;
@@ -479,26 +369,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditGet_WhenLeagueSeasonNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            LeagueSeason? leagueSeason = null;
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonAsync(An<int>.Ignored)).Returns(leagueSeason);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = SetUp();
 
             // Act
             int? id = 0;
             var result = await testController.Edit(id);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.GetLeagueSeasonAsync(id.Value))
+                .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -506,31 +385,21 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdEqualsLeagueSeasonYearAndModelStateIsValidAndNoExceptionCaught_ShouldUpdateLeagueSeasonInDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             int id = 1;
             var leagueSeason = new LeagueSeason { Id = id };
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(A<LeagueSeasonViewModel>.Ignored))
-                .Returns(Task.FromResult(leagueSeason));
-
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = SetUp(leagueSeason: leagueSeason);
 
             // Act
             var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Edit(id, leagueSeasonViewModel);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
+            A.CallTo(() => testController._leagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeLeagueSeasonRepository.Update(leagueSeason)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.Update(leagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
         }
@@ -539,15 +408,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenIdDoesNotEqualLeagueSeasonYear_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = SetUp();
 
             // Act
             int id = 0;
@@ -563,34 +424,24 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenDbUpdateConcurrencyExceptionIsCaughtAndLeagueSeasonWithIdDoesNotExist_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             int id = 1;
             var leagueSeason = new LeagueSeason { Id = id };
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(A<LeagueSeasonViewModel>.Ignored))
-                .Returns(Task.FromResult(leagueSeason));
-
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            A.CallTo(() => fakeLeagueSeasonRepository.LeagueSeasonExistsAsync(An<int>.Ignored)).Returns(false);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateConcurrencyException>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            bool leagueSeasonExists = false;
+            var ex = new DbUpdateConcurrencyException();
+            LeagueSeasonController testController = 
+                SetUp(leagueSeason: leagueSeason, leagueSeasonExists: leagueSeasonExists, ex: ex);
 
             // Act
             var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Edit(id, leagueSeasonViewModel);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
+            A.CallTo(() => testController._leagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeLeagueSeasonRepository.Update(leagueSeason)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.Update(leagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -598,24 +449,12 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenDbUpdateConcurrencyExceptionIsCaughtAndLeagueSeasonWithIdExists_ShouldRethrowException()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             int id = 1;
             var leagueSeason = new LeagueSeason { Id = id };
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(A<LeagueSeasonViewModel>.Ignored))
-                .Returns(Task.FromResult(leagueSeason));
-
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            A.CallTo(() => fakeLeagueSeasonRepository.LeagueSeasonExistsAsync(An<int>.Ignored)).Returns(true);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws<DbUpdateConcurrencyException>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            bool leagueSeasonExists = true;
+            var ex = new DbUpdateConcurrencyException();
+            LeagueSeasonController testController =
+                SetUp(leagueSeason: leagueSeason, leagueSeasonExists: leagueSeasonExists, ex: ex);
 
             // Act
             var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
@@ -629,48 +468,43 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenDbUpdateExceptionCaughtForUniqueKeyViolation_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            int id = 2;
-            var leagueSeason = new LeagueSeason { Id = id, LeagueId = 3, SeasonYear = 1921 };
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(A<LeagueSeasonViewModel>.Ignored))
-                .Returns(Task.FromResult(leagueSeason));
-
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
             var leagueSeasons = new List<LeagueSeason>
             {
                 new() { Id = 1, LeagueId = 1, SeasonYear = 1920 },
                 new() { Id = 2, LeagueId = 3, SeasonYear = 1921 },
                 new() { Id = 3, LeagueId = 3, SeasonYear = 1921 },
             };
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonsAsync()).Returns(leagueSeasons);
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            int id = 2;
+            var leagueSeason = new LeagueSeason { Id = id, LeagueId = 3, SeasonYear = 1921 };
+
+            bool leagueSeasonExists = false;
+
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("Violation of UNIQUE KEY constraint UQ_LeagueSeason_League_Season")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = SetUp(
+                leagueSeasons: leagueSeasons, leagueSeason: leagueSeason, leagueSeasonExists: leagueSeasonExists,
+                ex: ex
+            );
 
             // Act
             var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Edit(id, leagueSeasonViewModel);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
+            A.CallTo(() => testController._leagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeLeagueSeasonRepository.Update(leagueSeason)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.Update(leagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. Violation of UNIQUE KEY constraint.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(leagueSeasonViewModel);
@@ -683,41 +517,43 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
             string foreignKeyConstraintName, string modelStateKey)
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
+            var leagueSeasons = new List<LeagueSeason>
+            {
+                new() { Id = 1, LeagueId = 1, SeasonYear = 1920 },
+                new() { Id = 2, LeagueId = 3, SeasonYear = 1921 },
+                new() { Id = 3, LeagueId = 3, SeasonYear = 1921 },
+            };
 
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             int id = 2;
             var leagueSeason = new LeagueSeason { Id = id };
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(A<LeagueSeasonViewModel>.Ignored))
-                .Returns(Task.FromResult(leagueSeason));
 
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            bool leagueSeasonExists = false;
 
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception($"The UPDATE statement conflicted with the FOREIGN KEY constraint \"{foreignKeyConstraintName}\".")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = SetUp(
+                leagueSeasons: leagueSeasons, leagueSeason: leagueSeason, leagueSeasonExists: leagueSeasonExists,
+                ex: ex
+            );
 
             // Act
             var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Edit(id, leagueSeasonViewModel);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
+            A.CallTo(() => testController._leagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeLeagueSeasonRepository.Update(leagueSeason)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.Update(leagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe($"Unable to save changes. Conflict with a FOREIGN KEY constraint on {modelStateKey}.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(leagueSeasonViewModel);
@@ -727,41 +563,40 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenDbUpdateExceptionCaughtForSomethingElse_ShouldHandleExceptionAndReturnViewForSeason()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
+            var leagueSeasons = new List<LeagueSeason>
+            {
+                new() { Id = 1, LeagueId = 1, SeasonYear = 1920 },
+                new() { Id = 2, LeagueId = 3, SeasonYear = 1921 },
+                new() { Id = 3, LeagueId = 3, SeasonYear = 1921 },
+            };
 
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
             int id = 2;
             var leagueSeason = new LeagueSeason { Id = id };
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(A<LeagueSeasonViewModel>.Ignored))
-                .Returns(Task.FromResult(leagueSeason));
 
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
             var ex = new DbUpdateException(
                 message: "DbUpdateException",
                 innerException: new Exception("Exception")
             );
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
 
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = SetUp(
+                leagueSeasons: leagueSeasons, leagueSeason: leagueSeason, ex: ex
+            );
 
             // Act
             var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
             var result = await testController.Edit(id, leagueSeasonViewModel);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
+            A.CallTo(() => testController._leagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeLeagueSeasonRepository.Update(leagueSeason)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.Update(leagueSeason))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustHaveHappenedOnceExactly();
             testController.ModelState.IsValid.ShouldBeFalse();
             testController.ModelState.ErrorCount.ShouldBe(1);
             testController.ModelState.ShouldContainKey(string.Empty);
-            testController.ModelState[string.Empty].Errors[0].ErrorMessage
+            testController.ModelState[string.Empty]?.Errors[0].ErrorMessage
                 .ShouldBe("Unable to save changes. An unexpected error occurred.");
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(leagueSeasonViewModel);
@@ -771,30 +606,24 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task EditPost_WhenModelStateIsNotValid_ShouldReturnLeagueSeasonEditView()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
-
-            testController.ModelState.AddModelError("Name", "Please enter a long name.");
-
             int id = 1;
             var leagueSeason = new LeagueSeason { Id = id };
             var leagueSeasonViewModel = new LeagueSeasonViewModel { LeagueSeason = leagueSeason };
+            LeagueSeasonController testController = 
+                SetUp(leagueSeason: leagueSeason, leagueSeasonViewModel: leagueSeasonViewModel);
+
+            testController.ModelState.AddModelError("Name", "Please enter a long name.");
 
             // Act
             var result = await testController.Edit(id, leagueSeasonViewModel);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
+            A.CallTo(() => testController._leagueSeasonViewModelMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel))
                 .MustNotHaveHappened();
-            A.CallTo(() => fakeLeagueSeasonRepository.Update(leagueSeason)).MustNotHaveHappened();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustNotHaveHappened();
+            A.CallTo(() => testController._leagueSeasonRepository.Update(leagueSeason))
+                .MustNotHaveHappened();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync())
+                .MustNotHaveHappened();
             result.ShouldBeOfType<ViewResult>();
             ((ViewResult)result).Model.ShouldBe(leagueSeasonViewModel);
         }
@@ -803,31 +632,19 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNotNullAndLeagueSeasonFound_ShouldReturnLeagueSeasonDeleteView()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            var leagueSeasonViewModel = new LeagueSeasonViewModel { };
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapLeagueSeasonToViewModel(A<LeagueSeason>.Ignored))
-                .Returns(leagueSeasonViewModel);
-
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            var leagueSeasonViewModel = new LeagueSeasonViewModel();
             LeagueSeason? leagueSeason = new();
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonAsync(An<int>.Ignored)).Returns(leagueSeason);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController =
+                SetUp(leagueSeasonViewModel: leagueSeasonViewModel, leagueSeason: leagueSeason);
 
             // Act
             int? id = 0;
             var result = await testController.Delete(id);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonAsync(id.Value)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapLeagueSeasonToViewModel(leagueSeason))
+            A.CallTo(() => testController._leagueSeasonRepository.GetLeagueSeasonAsync(id.Value))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonViewModelMapper.MapLeagueSeasonToViewModel(leagueSeason))
                 .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<ViewResult>();
             var resultModel = ((ViewResult)result).Model;
@@ -840,14 +657,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenIdIsNull_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = SetUp();
 
             // Act
             int? id = null;
@@ -861,26 +671,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task Delete_WhenLeagueSeasonNotFound_ShouldReturnNotFound()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            LeagueSeason? leagueSeason = null;
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonAsync(An<int>.Ignored)).Returns(leagueSeason);
-
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = SetUp();
 
             // Act
             int? id = 0;
             var result = await testController.Delete(id);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonAsync(id.Value)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.GetLeagueSeasonAsync(id.Value))
+                .MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<NotFoundResult>();
         }
 
@@ -888,24 +687,85 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ControllerTests
         public async Task DeleteConfirmed_ShouldDeleteLeagueSeasonFromDataStoreAndRedirectToIndexView()
         {
             // Arrange
-            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
-            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
-            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
-            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
-            var fakeSharedRepository = A.Fake<ISharedRepository>();
-            var testController = new LeagueSeasonController(fakeLeagueSeasonIndexViewModel,
-                fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper, fakeLeagueSeasonRepository,
-                fakeSharedRepository);
+            LeagueSeasonController testController = SetUp();
 
             // Act
             int id = 1;
             var result = await testController.DeleteConfirmed(id);
 
             // Assert
-            A.CallTo(() => fakeLeagueSeasonRepository.DeleteAsync(id)).MustHaveHappenedOnceExactly();
-            A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._leagueSeasonRepository.DeleteAsync(id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._sharedRepository.SaveChangesAsync()).MustHaveHappenedOnceExactly();
             result.ShouldBeOfType<RedirectToActionResult>();
             ((RedirectToActionResult)result).ActionName.ShouldBe<string>(nameof(testController.Index));
+        }
+
+        private static LeagueSeasonController SetUp(
+            List<LeagueSeasonViewModel>? leagueSeasonViewModels = null, LeagueSeasonViewModel? leagueSeasonViewModel = null,
+            List<LeagueSeason>? leagueSeasons = null, LeagueSeason? leagueSeason = null, bool? leagueSeasonExists = null,
+            Exception? ex = null
+        )
+        {
+            var fakeLeagueSeasonIndexViewModel = A.Fake<ILeagueSeasonIndexViewModel>();
+            var fakeLeagueSeasonDetailsViewModel = A.Fake<ILeagueSeasonDetailsViewModel>();
+            ILeagueSeasonViewModelMapper fakeLeagueSeasonViewModelMapper = 
+                SetUpFakeLeagueSeasonViewModelMapper(leagueSeasonViewModels, leagueSeasonViewModel, leagueSeason);
+            ILeagueSeasonRepository fakeLeagueSeasonRepository =
+                SetUpFakeLeagueSeasonRepository(leagueSeasons, leagueSeason, leagueSeasonExists);
+            ISharedRepository fakeSharedRepository = SetUpFakeSharedRepository(ex);
+
+            return new LeagueSeasonController(
+                fakeLeagueSeasonIndexViewModel, fakeLeagueSeasonDetailsViewModel, fakeLeagueSeasonViewModelMapper,
+                fakeLeagueSeasonRepository, fakeSharedRepository
+            );
+        }
+
+        private static ILeagueSeasonViewModelMapper SetUpFakeLeagueSeasonViewModelMapper(
+            List<LeagueSeasonViewModel>? leagueSeasonViewModels, 
+            LeagueSeasonViewModel? leagueSeasonViewModel, LeagueSeason? leagueSeason
+        )
+        {
+            var fakeLeagueSeasonViewModelMapper = A.Fake<ILeagueSeasonViewModelMapper>();
+            if (leagueSeasonViewModels is not null)
+            {
+                A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapLeagueSeasonToViewModel(A<LeagueSeason>.Ignored))
+                    .ReturnsNextFromSequence(leagueSeasonViewModels.ToArray());
+            }
+            if (leagueSeasonViewModel is not null)
+            {
+                A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapLeagueSeasonToViewModel(A<LeagueSeason>.Ignored))
+                    .Returns(leagueSeasonViewModel);
+            }
+            A.CallTo(() => fakeLeagueSeasonViewModelMapper.MapViewModelToLeagueSeason(A<LeagueSeasonViewModel>.Ignored))
+                .Returns(leagueSeason);
+            return fakeLeagueSeasonViewModelMapper;
+        }
+
+        private static ILeagueSeasonRepository SetUpFakeLeagueSeasonRepository(
+            List<LeagueSeason>? leagueSeasons, LeagueSeason? leagueSeason, bool? leagueSeasonExists
+        )
+        {
+            var fakeLeagueSeasonRepository = A.Fake<ILeagueSeasonRepository>();
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonsAsync()).Returns(leagueSeasons);
+            A.CallTo(() => fakeLeagueSeasonRepository.GetLeagueSeasonAsync(An<int>.Ignored)).Returns(leagueSeason);
+            if (leagueSeasonExists.HasValue)
+            {
+                A.CallTo(() => fakeLeagueSeasonRepository.LeagueSeasonExistsAsync(An<int>.Ignored))
+                    .Returns(leagueSeasonExists.Value);
+            }
+
+            return fakeLeagueSeasonRepository;
+        }
+
+        private static ISharedRepository SetUpFakeSharedRepository(Exception? ex)
+        {
+            var fakeSharedRepository = A.Fake<ISharedRepository>();
+            if (ex is not null)
+            {
+                A.CallTo(() => fakeSharedRepository.SaveChangesAsync()).Throws(ex);
+            }
+
+            return fakeSharedRepository;
         }
     }
 }

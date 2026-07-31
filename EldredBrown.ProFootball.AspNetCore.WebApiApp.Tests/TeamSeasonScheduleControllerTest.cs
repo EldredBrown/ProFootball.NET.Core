@@ -20,50 +20,19 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
     public class TeamSeasonScheduleControllerTest
     {
         [Fact]
-        public async Task GetTeamSeasonScheduleProfile_WhenExceptionIsCaught_ShouldReturnInternalServerError()
-        {
-            // Arrange
-            var teamSeasonScheduleRepository = A.Fake<ITeamSeasonScheduleRepository>();
-            A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(
-                An<int>.Ignored, An<int>.Ignored)).Throws<Exception>();
-
-            var mapper = A.Fake<IMapper>();
-
-            var testController = new TeamSeasonScheduleController(teamSeasonScheduleRepository, mapper);
-
-            var teamId = 1;
-            int seasonId = 1920;
-
-            // Act
-            var result = await testController.GetTeamSeasonScheduleProfile(teamId, seasonId);
-
-            // Assert
-            result.Result.ShouldBeOfType<ObjectResult>();
-            ((ObjectResult)result.Result).StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
-            ((ObjectResult)result.Result).Value.ShouldBe("Database failure");
-        }
-
-        [Fact]
         public async Task GetTeamSeasonScheduleProfile_WhenProfileIsEmpty_ShouldReturnNotFoundResult()
         {
             // Arrange
-            var teamSeasonScheduleRepository = A.Fake<ITeamSeasonScheduleRepository>();
-            var teamSeasonScheduleProfile = new List<TeamSeasonOpponentProfile>();
-            A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(
-                An<int>.Ignored, An<int>.Ignored)).Returns(teamSeasonScheduleProfile);
-
-            var mapper = A.Fake<IMapper>();
-
-            var testController = new TeamSeasonScheduleController(teamSeasonScheduleRepository, mapper);
-
-            var teamId = 1;
-            int seasonId = 1920;
+            List<TeamSeasonOpponentProfile> teamSeasonScheduleProfile = [];
+            TeamSeasonScheduleController testController = SetUp(teamSeasonScheduleProfile: teamSeasonScheduleProfile);
 
             // Act
+            var teamId = 1;
+            int seasonId = 1920;
             var result = await testController.GetTeamSeasonScheduleProfile(teamId, seasonId);
 
             // Assert
-            A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonId))
+            A.CallTo(() => testController._teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonId))
                 .MustHaveHappenedOnceExactly();
             result.Result.ShouldBeOfType<NotFoundResult>();
         }
@@ -72,53 +41,84 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         public async Task GetTeamSeasonScheduleProfile_WhenProfileIsNotEmpty_ShouldReturnTeamSeasonOpponentProfileModelArray()
         {
             // Arrange
-            var teamSeasonScheduleRepository = A.Fake<ITeamSeasonScheduleRepository>();
             var teamSeasonScheduleProfile = new List<TeamSeasonOpponentProfile>
             {
-                new TeamSeasonOpponentProfile()
+                new()
             };
-            A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(
-                An<int>.Ignored, An<int>.Ignored)).Returns(teamSeasonScheduleProfile);
-
-            var mapper = A.Fake<IMapper>();
-            TeamSeasonOpponentProfileModel[] teamSeasonScheduleProfileModels = {
-                new TeamSeasonOpponentProfileModel()
+            var teamSeasonScheduleProfileModels = new List<TeamSeasonOpponentProfileModel>
+            {
+                new()
             };
-            A.CallTo(() => mapper.Map<TeamSeasonOpponentProfileModel[]>(A<TeamSeasonOpponentProfile>.Ignored))
-                .Returns(teamSeasonScheduleProfileModels);
-
-            var testController = new TeamSeasonScheduleController(teamSeasonScheduleRepository, mapper);
-
-            var teamId = 1;
-            int seasonId = 1920;
+            TeamSeasonScheduleController testController = SetUp(
+                teamSeasonScheduleProfile: teamSeasonScheduleProfile,
+                teamSeasonScheduleProfileModels: teamSeasonScheduleProfileModels
+            );
 
             // Act
+            var teamId = 1;
+            int seasonId = 1920;
             var result = await testController.GetTeamSeasonScheduleProfile(teamId, seasonId);
 
             // Assert
-            A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonId))
+            A.CallTo(() => testController._teamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(teamId, seasonId))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => mapper.Map<TeamSeasonOpponentProfileModel[]>(teamSeasonScheduleProfile))
+            A.CallTo(() => testController._mapper.Map<List<TeamSeasonOpponentProfileModel>>(teamSeasonScheduleProfile))
                 .MustHaveHappenedOnceExactly();
-            result.Value.ShouldBeOfType<TeamSeasonOpponentProfileModel[]>();
+            result.Value.ShouldBeOfType<List<TeamSeasonOpponentProfileModel>>();
+        }
+
+        [Fact]
+        public async Task GetTeamSeasonScheduleProfile_WhenExceptionIsCaught_ShouldReturnInternalServerError()
+        {
+            // Arrange
+            var ex = new Exception();
+            TeamSeasonScheduleController testController = SetUp(ex: ex);
+
+            // Act
+            var teamId = 1;
+            int seasonId = 1920;
+            var result = await testController.GetTeamSeasonScheduleProfile(teamId, seasonId);
+
+            // Assert
+            result.Result.ShouldBeOfType<ObjectResult>();
+            ((ObjectResult)result.Result).StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
+            ((ObjectResult)result.Result).Value.ShouldBe("Database failure");
+        }
+
+        [Fact]
+        public async Task GetTeamSeasonScheduleTotals_WhenNoExceptionIsCaught_ShouldReturnTeamSeasonOpponentTotalsModel()
+        {
+            // Arrange
+            var teamSeasonScheduleTotals = new TeamSeasonScheduleTotals();
+            var teamSeasonScheduleTotalsModel = new TeamSeasonScheduleTotalsModel();
+            TeamSeasonScheduleController testController = SetUp(
+                teamSeasonScheduleTotals: teamSeasonScheduleTotals,
+                teamSeasonScheduleTotalsModel: teamSeasonScheduleTotalsModel
+            );
+
+            // Act
+            var teamId = 1;
+            int seasonId = 1920;
+            var result = await testController.GetTeamSeasonScheduleTotals(teamId, seasonId);
+
+            // Assert
+            A.CallTo(() => testController._teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonId))
+                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => testController._mapper.Map<TeamSeasonScheduleTotalsModel>(teamSeasonScheduleTotals))
+                .MustHaveHappenedOnceExactly();
+            result.Value.ShouldBeOfType<TeamSeasonScheduleTotalsModel>();
         }
 
         [Fact]
         public async Task GetTeamSeasonScheduleTotals_WhenExceptionIsCaught_ShouldReturnInternalServerError()
         {
             // Arrange
-            var teamSeasonScheduleRepository = A.Fake<ITeamSeasonScheduleRepository>();
-            A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(
-                An<int>.Ignored, An<int>.Ignored)).Throws<Exception>();
-
-            var mapper = A.Fake<IMapper>();
-
-            var testController = new TeamSeasonScheduleController(teamSeasonScheduleRepository, mapper);
-
-            var teamId = 1;
-            int seasonId = 1920;
+            var ex = new Exception();
+            TeamSeasonScheduleController testController = SetUp(ex: ex);
 
             // Act
+            var teamId = 1;
+            int seasonId = 1920;
             var result = await testController.GetTeamSeasonScheduleTotals(teamId, seasonId);
 
             // Assert
@@ -128,51 +128,38 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
         }
 
         [Fact]
-        public async Task GetTeamSeasonScheduleTotals_WhenExceptionIsNotCaught_ShouldReturnTeamSeasonOpponentTotalsModel()
+        public async Task GetTeamSeasonScheduleAverages_WhenNoExceptionIsCaught_ShouldReturnTeamSeasonOpponentAveragesModel()
         {
-            // Arrange
-            var teamSeasonScheduleRepository = A.Fake<ITeamSeasonScheduleRepository>();
-            TeamSeasonScheduleTotals? teamSeasonScheduleTotals = new TeamSeasonScheduleTotals();
-            A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(
-                An<int>.Ignored, An<int>.Ignored)).Returns(teamSeasonScheduleTotals);
-
-            var mapper = A.Fake<IMapper>();
-            var teamSeasonScheduleTotalsModel = new TeamSeasonScheduleTotalsModel();
-            A.CallTo(() => mapper.Map<TeamSeasonScheduleTotalsModel>(A<TeamSeasonScheduleTotals>.Ignored))
-                .Returns(teamSeasonScheduleTotalsModel);
-
-            var testController = new TeamSeasonScheduleController(teamSeasonScheduleRepository, mapper);
-
-            var teamId = 1;
-            int seasonId = 1920;
+            var teamSeasonScheduleAverages = new TeamSeasonScheduleAverages();
+            var teamSeasonScheduleAveragesModel = new TeamSeasonScheduleAveragesModel();
+            TeamSeasonScheduleController testController = SetUp(
+                teamSeasonScheduleAverages: teamSeasonScheduleAverages,
+                teamSeasonScheduleAveragesModel: teamSeasonScheduleAveragesModel
+            );
 
             // Act
-            var result = await testController.GetTeamSeasonScheduleTotals(teamId, seasonId);
+            var teamId = 1;
+            int seasonId = 1920;
+            var result = await testController.GetTeamSeasonScheduleAverages(teamId, seasonId);
 
             // Assert
-            A.CallTo(() => teamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(teamId, seasonId))
+            A.CallTo(() => testController._teamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonId))
                 .MustHaveHappenedOnceExactly();
-            A.CallTo(() => mapper.Map<TeamSeasonScheduleTotalsModel>(teamSeasonScheduleTotals))
+            A.CallTo(() => testController._mapper.Map<TeamSeasonScheduleAveragesModel>(teamSeasonScheduleAverages))
                 .MustHaveHappenedOnceExactly();
-            result.Value.ShouldBeOfType<TeamSeasonScheduleTotalsModel>();
+            result.Value.ShouldBeOfType<TeamSeasonScheduleAveragesModel>();
         }
 
         [Fact]
         public async Task GetTeamSeasonScheduleAverages_WhenExceptionIsCaught_ShouldReturnInternalServerError()
         {
             // Arrange
-            var teamSeasonScheduleAveragesRepository = A.Fake<ITeamSeasonScheduleRepository>();
-            A.CallTo(() => teamSeasonScheduleAveragesRepository.GetTeamSeasonScheduleAveragesAsync(
-                An<int>.Ignored, An<int>.Ignored)).Throws<Exception>();
-
-            var mapper = A.Fake<IMapper>();
-
-            var testController = new TeamSeasonScheduleController(teamSeasonScheduleAveragesRepository, mapper);
-
-            var teamId = 1;
-            int seasonId = 1920;
+            var ex = new Exception();
+            TeamSeasonScheduleController testController = SetUp(ex: ex);
 
             // Act
+            var teamId = 1;
+            int seasonId = 1920;
             var result = await testController.GetTeamSeasonScheduleAverages(teamId, seasonId);
 
             // Assert
@@ -181,34 +168,81 @@ namespace EldredBrown.ProFootball.AspNetCore.WebApiApp.Tests
             ((ObjectResult)result.Result).Value.ShouldBe("Database failure");
         }
 
-        [Fact]
-        public async Task GetTeamSeasonScheduleAverages_WhenExceptionIsNotCaught_ShouldReturnTeamSeasonOpponentAveragesModel()
+        private static TeamSeasonScheduleController SetUp(
+            List<TeamSeasonOpponentProfile>? teamSeasonScheduleProfile = null,
+            TeamSeasonScheduleTotals? teamSeasonScheduleTotals = null,
+            TeamSeasonScheduleAverages? teamSeasonScheduleAverages = null,
+            List<TeamSeasonOpponentProfileModel>? teamSeasonScheduleProfileModels = null,
+            TeamSeasonScheduleTotalsModel? teamSeasonScheduleTotalsModel = null,
+            TeamSeasonScheduleAveragesModel? teamSeasonScheduleAveragesModel = null,
+            Exception? ex = null
+        )
         {
-            // Arrange
-            var teamSeasonScheduleAveragesRepository = A.Fake<ITeamSeasonScheduleRepository>();
-            TeamSeasonScheduleAverages? teamSeasonScheduleAverages = new TeamSeasonScheduleAverages();
-            A.CallTo(() => teamSeasonScheduleAveragesRepository.GetTeamSeasonScheduleAveragesAsync(
-                An<int>.Ignored, An<int>.Ignored)).Returns(teamSeasonScheduleAverages);
+            ITeamSeasonScheduleRepository fakeTeamSeasonScheduleRepository = 
+                SetUpFakeTeamSeasonScheduleRepository(
+                    teamSeasonScheduleProfile, teamSeasonScheduleTotals, teamSeasonScheduleAverages, ex
+                );
+            IMapper fakeMapper = 
+                SetUpFakeMapper(
+                    teamSeasonScheduleProfileModels, teamSeasonScheduleTotalsModel, teamSeasonScheduleAveragesModel
+                );
+            return new TeamSeasonScheduleController(fakeTeamSeasonScheduleRepository, fakeMapper);
+        }
 
-            var mapper = A.Fake<IMapper>();
-            var teamSeasonScheduleAveragesModel = new TeamSeasonScheduleAveragesModel();
-            A.CallTo(() => mapper.Map<TeamSeasonScheduleAveragesModel>(A<TeamSeasonScheduleAverages>.Ignored))
-                .Returns(teamSeasonScheduleAveragesModel);
+        private static ITeamSeasonScheduleRepository SetUpFakeTeamSeasonScheduleRepository(
+            List<TeamSeasonOpponentProfile>? teamSeasonScheduleProfile,
+            TeamSeasonScheduleTotals? teamSeasonScheduleTotals,
+            TeamSeasonScheduleAverages? teamSeasonScheduleAverages,
+            Exception? ex
+        )
+        {
+            var fakeTeamSeasonScheduleRepository = A.Fake<ITeamSeasonScheduleRepository>();
+            if (ex is null)
+            {
+                A.CallTo(() => fakeTeamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(An<int>.Ignored, An<int>.Ignored))
+                    .Returns(teamSeasonScheduleProfile!);
+                A.CallTo(() => fakeTeamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(An<int>.Ignored, An<int>.Ignored))
+                    .Returns(teamSeasonScheduleTotals!);
+                A.CallTo(() => fakeTeamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(An<int>.Ignored, An<int>.Ignored))
+                    .Returns(teamSeasonScheduleAverages!);
+            }
+            else
+            {
+                A.CallTo(() => fakeTeamSeasonScheduleRepository.GetTeamSeasonScheduleProfileAsync(An<int>.Ignored, An<int>.Ignored))
+                    .Throws(ex);
+                A.CallTo(() => fakeTeamSeasonScheduleRepository.GetTeamSeasonScheduleTotalsAsync(An<int>.Ignored, An<int>.Ignored))
+                    .Throws(ex);
+                A.CallTo(() => fakeTeamSeasonScheduleRepository.GetTeamSeasonScheduleAveragesAsync(An<int>.Ignored, An<int>.Ignored))
+                    .Throws(ex);
+            }
 
-            var testController = new TeamSeasonScheduleController(teamSeasonScheduleAveragesRepository, mapper);
+            return fakeTeamSeasonScheduleRepository;
+        }
 
-            var teamId = 1;
-            int seasonId = 1920;
+        private static IMapper SetUpFakeMapper(
+            List<TeamSeasonOpponentProfileModel>? teamSeasonScheduleProfileModels,
+            TeamSeasonScheduleTotalsModel? teamSeasonScheduleTotalsModel,
+            TeamSeasonScheduleAveragesModel? teamSeasonScheduleAveragesModel
+        )
+        {
+            var fakeMapper = A.Fake<IMapper>();
+            if (teamSeasonScheduleProfileModels is not null)
+            {
+                A.CallTo(() => fakeMapper.Map<List<TeamSeasonOpponentProfileModel>>(A<List<TeamSeasonOpponentProfile>>.Ignored))
+                    .Returns(teamSeasonScheduleProfileModels);
+            }
+            if (teamSeasonScheduleTotalsModel is not null)
+            {
+                A.CallTo(() => fakeMapper.Map<TeamSeasonScheduleTotalsModel>(A<TeamSeasonScheduleTotals>.Ignored))
+                    .Returns(teamSeasonScheduleTotalsModel);
+            }
+            if (teamSeasonScheduleAveragesModel is not null)
+            {
+                A.CallTo(() => fakeMapper.Map<TeamSeasonScheduleAveragesModel>(A<TeamSeasonScheduleAverages>.Ignored))
+                    .Returns(teamSeasonScheduleAveragesModel);
+            }
 
-            // Act
-            var result = await testController.GetTeamSeasonScheduleAverages(teamId, seasonId);
-
-            // Assert
-            A.CallTo(() => teamSeasonScheduleAveragesRepository.GetTeamSeasonScheduleAveragesAsync(teamId, seasonId))
-                .MustHaveHappenedOnceExactly();
-            A.CallTo(() => mapper.Map<TeamSeasonScheduleAveragesModel>(teamSeasonScheduleAverages))
-                .MustHaveHappenedOnceExactly();
-            result.Value.ShouldBeOfType<TeamSeasonScheduleAveragesModel>();
+            return fakeMapper;
         }
     }
 }

@@ -15,7 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EldredBrown.ProFootball.Net.Data\EldredBrown.ProFootball.Net.Data.csproj" />
+	  <InternalsVisibleTo Include="EldredBrown.ProFootball.Net.Services.Tests"/>
+	  <ProjectReference Include="..\EldredBrown.ProFootball.Net.Data\EldredBrown.ProFootball.Net.Data.csproj" />
   </ItemGroup>
 
 </Project>

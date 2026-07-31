@@ -16,18 +16,15 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
         public void MapLeagueSeasonToViewModel_ShouldSucceed()
         {
             // Arrange
-            var fakeLeagueRepository = A.Fake<IAssociationRepository>();
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            var testMapper = new LeagueSeasonViewModelMapper(fakeLeagueRepository, fakeSeasonRepository);
+            LeagueSeasonViewModelMapper testMapper = SetUp();
 
+            // Act
             var leagueSeason = new EldredBrown.ProFootball.Net.Data.Models.LeagueSeason
             {
                 Id = 1,
                 LeagueId = 1,
                 SeasonYear = 1
             };
-
-            // Act
             var result = testMapper.MapLeagueSeasonToViewModel(leagueSeason);
 
             // Assert
@@ -38,7 +35,7 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
 
         public static TheoryData<Association, int> LeagueCases => new()
         {
-            { new Association { Id = 1, ShortName = "NFL" }, 1 },
+            { new Association { Id = 1, LongName="National Football League", ShortName = "NFL" }, 1 },
             { null!, -1 },
         };
 
@@ -48,64 +45,34 @@ namespace EldredBrown.ProFootball.AspNetCore.MvcWebApp.Tests.ViewModelTests
             Association league, int expectedLeagueId)
         {
             // Arrange
+            LeagueSeasonViewModelMapper testMapper = SetUp(league);
+
+            // Act
             var leagueName = "NFL";
             var leagueSeasonViewModel = new LeagueSeasonViewModel
             {
                 LeagueName = leagueName
             };
 
-            var fakeLeagueRepository = A.Fake<IAssociationRepository>();
-            A.CallTo(() => fakeLeagueRepository.GetAssociationByShortNameAsync(A<string>.Ignored)).Returns(league);
-
-            var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-
-            var testMapper = new LeagueSeasonViewModelMapper(fakeLeagueRepository, fakeSeasonRepository);
-
-            // Act
             var result = await testMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel);
 
             // Assert
-            A.CallTo(() => fakeLeagueRepository.GetAssociationByShortNameAsync(leagueName)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => testMapper._leagueRepository.GetAssociationByShortNameAsync(leagueName))
+                .MustHaveHappenedOnceExactly();
             leagueSeasonViewModel.LeagueSeason.LeagueId.ShouldBe(expectedLeagueId);
             result.ShouldNotBeNull();
             result.ShouldBeOfType<LeagueSeason>();
             result.ShouldBe(leagueSeasonViewModel.LeagueSeason);
         }
 
-        public static TheoryData<Season, int> SeasonCases => new()
+        private static LeagueSeasonViewModelMapper SetUp(Association? league = null)
         {
-            { new Season { Year = 1920 }, 1920 },
-            { null!, -1 },
-        };
-
-        [Theory]
-        [MemberData(nameof(SeasonCases))]
-        public async Task MapViewModelToLeagueSeason_ShouldSetLeagueSeasonSeasonYearToSeasonYearOrMinusOne(
-            Season season, int expectedSeasonYear)
-        {
-            // Arrange
-            var seasonYear = 1920;
-            var leagueSeasonViewModel = new LeagueSeasonViewModel
-            {
-                SeasonYear = seasonYear
-            };
-
-            var fakeLeagueRepository = A.Fake<IAssociationRepository>();
+            var fakeAssociationRepository = A.Fake<IAssociationRepository>();
+            A.CallTo(() => fakeAssociationRepository.GetAssociationByShortNameAsync(A<string>.Ignored)).Returns(league);
 
             var fakeSeasonRepository = A.Fake<ISeasonRepository>();
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(An<int>.Ignored)).Returns(season);
 
-            var testMapper = new LeagueSeasonViewModelMapper(fakeLeagueRepository, fakeSeasonRepository);
-
-            // Act
-            var result = await testMapper.MapViewModelToLeagueSeason(leagueSeasonViewModel);
-
-            // Assert
-            A.CallTo(() => fakeSeasonRepository.GetSeasonAsync(seasonYear)).MustHaveHappenedOnceExactly();
-            leagueSeasonViewModel.LeagueSeason.SeasonYear.ShouldBe(expectedSeasonYear);
-            result.ShouldNotBeNull();
-            result.ShouldBeOfType<LeagueSeason>();
-            result.ShouldBe(leagueSeasonViewModel.LeagueSeason);
+            return new LeagueSeasonViewModelMapper(fakeAssociationRepository, fakeSeasonRepository);
         }
     }
 }
